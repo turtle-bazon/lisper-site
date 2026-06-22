@@ -75,7 +75,7 @@ src/
 ```
 
 ## Секции на главной
-1. Заголовок "Common Lisp - язык для тех, кто думает" + лого + Telegram
+1. Заголовок "Common Lisp - язык для тех, кто думает" + лого + Telegram + **"Попробовать CL"** (JSCL REPL)
 2. Что такое Common Lisp
 3. Почему Common Lisp
 4. **Реализации** — 6 карточек (SBCL, CCL, ECL, ABCL, LispWorks, Allegro CL)
@@ -83,7 +83,8 @@ src/
 6. **Экосистема** — 24 карточки awesome-cl.com (генерируются из `*awesome-categories*`)
 7. **Вики** — 24 карточки cliki.net (генерируются из `*cliki-categories*`)
 8. **Полезные ресурсы** — список ссылок (lisp-lang.org, HyperSpec, Cookbook, Quicklisp, Quickdocs, Exercism, Practical CL, On Lisp, common-lisp.net, Reddit)
-9. Footer
+9. Footer (ссылка на GitHub)
+10. **REPL-модалка** — всплывающее окно с JSCL (Common Lisp в браузере)
 
 ## Реализации
 - 6 карточек: SBCL, CCL, ECL, ABCL, LispWorks, Allegro CL
@@ -106,3 +107,23 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 ./build/lisper
 ```
 Сервер слушает `0.0.0.0:8080`.
+
+## JSCL-интеграция (REPL в браузере)
+- Кнопка "Попробовать CL" в шапке рядом с Telegram
+- По клику — модалка с REPL (jscl-project.github.io CDN)
+- Ленивая загрузка: jquery.js → jqconsole.js → jscl.js → jscl-web.js
+- `(exit)` / `(quit)` / `(si:quit)` закрывают модалку
+- Escape тоже закрывает модалку
+- **Custom terminal REPL** (не jqconsole) — свой input-элемент + appendLine/appendHTML
+- Модалка: `.repl-overlay` → `.repl-modal` → `.repl-console` (div с `.repl-line` children)
+- Стили в `css.lisp`: `.try-button` (зелёный), `.repl-overlay`, `.repl-modal`, `.repl-console`, `.repl-header`, `.repl-input`, `.repl-prompt-label`
+- JS в `js.lisp`: `openRepl()`, `closeRepl()`, `createInputLine()`, `submitInput()`, `appendLine()`, `appendHTML()`
+- `<script src='/js'>` в `pages.lisp` после overlay (HTML-порядок: body → overlay → script)
+- **Fix (2026-06-22)**: сбалансированы скобки — overlay закрывался с 5 `)` вместо 4, лишняя `)` закрывала `:html` до `<script>`
+- **Fix (2026-06-22)**: переписано на кастомный терминал — jqconsole не работал (создавал DOM-элементы на body вместо `#repl-console`)
+  - Каждая строка вывода = `div.repl-line` (appendLine/appendHTML)
+  - Ввод = `div.repl-input-line` с `span.repl-prompt-label` + `input.repl-input`
+  - Оценка через `jscl.packages['COMMON-LISP'].symbols['EVAL']` (не jscl.eval)
+  - Кредиты JSCL в шапке REPL
+  - Статус загрузки: "Loading JSCL..." → "Loading JSCL compiler..." → "Loading web runtime..."
+- **Важно**: CL-строки в JS: экранирование `\\` и `\"` для передачи в `lisp.eval()`

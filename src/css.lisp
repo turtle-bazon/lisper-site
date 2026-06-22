@@ -220,7 +220,150 @@
 
         (".status-experimental"
          :background-color "#713f12"
-         :color "#fbbf24")))
+         :color "#fbbf24")
+
+        ;; Header buttons
+        (".header-buttons"
+         :display "flex"
+         :gap "12px"
+         :justify-content "center"
+         :margin-top "20px")
+
+        (".try-button"
+         :display "inline-block"
+         :padding "12px 24px"
+         :background-color "#16a34a"
+         :color "#ffffff"
+         :border-radius "8px"
+         :font-weight 600
+         :transition "background-color 0.2s"
+         :cursor "pointer")
+
+        (".try-button:hover"
+         :background-color "#22c55e"
+         :color "#ffffff")
+
+        ;; REPL overlay
+        (".repl-overlay"
+         :position "fixed"
+         :top 0
+         :left 0
+         :right 0
+         :bottom 0
+         :background "rgba(0, 0, 0, 0.85)"
+         :z-index 1000
+         :display "flex"
+         :align-items "center"
+         :justify-content "center"
+         :opacity 0
+         :pointer-events "none"
+         :transition "opacity 0.3s ease")
+
+        (".repl-overlay.active"
+         :opacity 1
+         :pointer-events "auto")
+
+        (".repl-modal"
+         :width "90%"
+         :max-width "720px"
+         :height "70vh"
+         :max-height "500px"
+         :background "#0d0d0d"
+         :border "1px solid #2a2a2a"
+         :border-radius "12px"
+         :display "flex"
+         :flex-direction "column"
+         :overflow "hidden"
+         :box-shadow "0 25px 50px rgba(0, 0, 0, 0.5)")
+
+        (".repl-header"
+         :padding "10px 16px"
+         :background "#111"
+         :border-bottom "1px solid #2a2a2a"
+         :display "flex"
+         :justify-content "space-between"
+         :align-items "center")
+
+        (".repl-header span"
+         :color "#7c3aed"
+         :font-weight 600
+         :font-size "0.95rem")
+
+        (".repl-close"
+         :background "none"
+         :border "none"
+         :color "#666"
+         :font-size "1.4rem"
+         :cursor "pointer"
+         :padding "0 4px"
+         :line-height 1
+         :transition "color 0.2s")
+
+        (".repl-close:hover"
+         :color "#fff")
+
+        (".repl-console"
+         :flex 1
+         :overflow-y "auto"
+         :padding "12px 16px"
+         :font-family "'Fira Code', 'JetBrains Mono', 'Cascadia Code', monospace"
+         :font-size "13px"
+         :line-height "1.6"
+         :color "#d4d4d4"
+         :background "#0d0d0d")
+
+        (".repl-line"
+         :padding 0
+         :margin 0
+         :white-space "pre-wrap"
+         :word-break "break-all")
+
+        (".repl-input-line"
+         :display "flex"
+         :align-items "center"
+         :gap "8px")
+
+        (".repl-prompt-label"
+         :color "#7c3aed"
+         :font-weight 600
+         :white-space "nowrap"
+         :flex-shrink 0)
+
+        (".repl-input"
+         :flex 1
+         :background "transparent"
+         :border "none"
+         :color "#d4d4d4"
+         :font-family "'Fira Code', 'JetBrains Mono', monospace"
+         :font-size "13px"
+         :outline "none"
+         :caret-color "#7c3aed"
+         :padding "2px 0"
+         :margin 0)
+
+        (".repl-history"
+         :color "#888")
+
+        (".repl-result"
+         :color "#d4d4d4")
+
+        (".repl-error"
+         :color "#ef4444")
+
+        (".repl-status"
+         :color "#555"
+         :font-style "italic")
+
+        (".repl-credit"
+         :color "#555"
+         :font-size "12px")
+
+        (".repl-credit a"
+         :color "#7c3aed"
+         :text-decoration "none")
+
+        (".repl-credit a:hover"
+         :color "#a855f7")))
     "
 @media (max-width: 768px) {
   h1 { font-size: 1.8rem; }

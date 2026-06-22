@@ -74,8 +74,10 @@
          (:header
           (:div :class "logo-container"
            (cl-who:str *logo-svg*))
-           (:h1 "Common Lisp - язык для тех, кто думает")
-           (:a :class "telegram-link" :href "https://t.me/commonlisp_ru" "Telegram"))
+            (:h1 "Common Lisp - язык для тех, кто думает")
+            (:div :class "header-buttons"
+             (:a :class "try-button" :href "javascript:void(0)" :onclick "openRepl()" "Попробовать CL")
+             (:a :class "telegram-link" :href "https://t.me/commonlisp_ru" "Telegram")))
         (:main
          (:section :class "section"
           (:h2 "Что такое Common Lisp")
@@ -157,4 +159,14 @@
              (:li (:a :href "https://www.reddit.com/r/Common_Lisp/" "r/Common_Lisp") " — сообщество на Reddit"))))
          (:footer
           (:p
-           (:a :href "https://github.com/turtle-bazon/lisper.ru" "lisper.ru") " &copy; 2026 | GPL-3.0")))))))
+            (:a :href "https://github.com/turtle-bazon/lisper.ru" "lisper.ru") " &copy; 2026 | GPL-3.0"))
+          (:div :id "repl-overlay" :class "repl-overlay"
+           (:div :class "repl-modal"
+            (:div :class "repl-header"
+             (:span "Common Lisp REPL")
+             (:button :class "repl-close" "&times;"))
+            (:div :id "repl-console" :class "repl-console")))
+        (:script :src "/js?v=2"))))))
+
+
+
