@@ -63,31 +63,33 @@
   (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
     (cl-who:htm
      (:html :lang "ru"
-      (:head
-       (:meta :charset "utf-8")
-       (:meta :name "viewport" :content "width=device-width, initial-scale=1")
-       (:title "lisper.ru")
-       (:style (cl-who:str (generate-css))))
+       (:head
+        (:meta :charset "utf-8")
+        (:meta :name "viewport" :content "width=device-width, initial-scale=1")
+        (:title "lisper.ru")
+        (:link :rel "icon" :type "image/svg+xml" :href *favicon-data-uri*)
+        (:style (cl-who:str (generate-css))))
       (:body
         (:div :class "container"
          (:header
           (:div :class "logo-container"
-           (cl-who:str "<svg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg' width='80' height='80'><circle cx='256' cy='256' r='235' fill='#1a1a2e'/><path stroke='#7c3aed' stroke-width='5' fill='none' d='m255.56 20.008c-62.374 0.1169-122.17 24.922-166.3 68.992-92.236 92.091-92.353 241.52-0.2617 333.75 92.09 92.236 241.52 92.353 333.75 0.262 92.236-92.091 92.353-241.52 0.262-333.75-44.377-44.447-104.64-69.371-167.45-69.254zm2.281 1.0059c59.934 0.4846 119.39 23.809 164.46 68.953 91.701 91.845 91.585 240.64-0.259 332.34-45.922 45.851-120.32 45.793-166.17-0.129-45.851-45.922-45.793-120.32 0.129-166.17 46.412-46.339 46.471-121.53 0.13-167.94-37.084-37.141-94.457-46.553-140.66-21.658 42.416-31.541 92.711-45.798 142.37-45.396zm-190.84 130.26h40c9.943 42.147 25.204 79.418 40.75 116.43 15.9-41.326 33.203-81.249 55.25-116.43h40c-48.928 97.364-102.19 164.06-24 250h-40c-47.567-77.243-82.439-147.67-112-250z'/><path fill='#7c3aed' d='m293 110.72c78.194 85.936 24.928 152.64-24 250h40c22.047-35.179 39.35-75.102 55.25-116.43 15.546 37.01 30.807 74.282 40.75 116.43h40c-29.561-102.33-64.433-172.76-112-250z'/></svg>"))
-          (:h1 "Common Lisp - язык для тех, кто думает")
-          (:a :class "telegram-link" :href "https://t.me/commonlisp_ru" "Telegram"))
+           (cl-who:str *logo-svg*))
+           (:h1 "Common Lisp - язык для тех, кто думает")
+           (:a :class "telegram-link" :href "https://t.me/commonlisp_ru" "Telegram"))
         (:main
          (:section :class "section"
           (:h2 "Что такое Common Lisp")
           (:p "Мощный диалект Common Lisp с динамической типизацией, макросами и ANSI-стандартом. Существует с 1984 года и до сих пор активно развивается.")
           (:p "Незаменим для сложных систем, ИИ, символьных вычислений и экспериментов."))
          (:section :class "section"
-          (:h2 "Почему Common Lisp")
-          (:ul
-           (:li "Макросы - код генерирует код")
-           (:li "REPL - интерактивная разработка")
-           (:li "Один диалект, стабильность десятилетиями")
-           (:li "Мощная система сборки ASDF")
-           (:li "Богатая экосистема Quicklisp")))
+           (:h2 "Почему Common Lisp")
+           (:ul
+            (:li "Макросы - код генерирует код")
+            (:li "REPL - интерактивная разработка")
+            (:li "Один диалект, стабильность десятилетиями")
+            (:li "Мощная система сборки ASDF")
+            (:li "Богатая экосистема Quicklisp")
+            (:li "Этот сайт написан и работает на Common Lisp " (:span :class "status-site" "НАШ САЙТ"))))
          (:section :class "section"
           (:h2 "Реализации")
            (:div :class "impl-grid"

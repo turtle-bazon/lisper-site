@@ -27,6 +27,40 @@
          :margin-bottom "20px")
         (".logo-container svg"
          :filter "drop-shadow(0 0 20px rgba(124, 58, 237, 0.3))")
+        (".site-note"
+         :color "#888"
+         :font-size "0.9rem"
+         :margin-top "8px")
+        (".site-highlight"
+         :margin-top "20px"
+         :padding "12px 20px"
+         :background "linear-gradient(135deg, #1a1a2e, #16213e)"
+         :border-left "3px solid #7c3aed"
+         :border-radius "8px"
+         :color "#e0e0e0"
+         :font-size "0.95rem"
+         :font-weight 500)
+        (".site-badge"
+         :display "inline-flex"
+         :align-items "center"
+         :gap "10px"
+         :margin-top "20px"
+         :padding "10px 18px"
+         :background-color "#111"
+         :border "1px solid #2a2a3e"
+         :border-radius "24px"
+         :color "#ccc"
+         :font-size "0.85rem")
+        (".site-badge strong"
+         :color "#7c3aed")
+        (".status-site"
+         :font-size "0.75rem"
+         :padding "2px 8px"
+         :border-radius "4px"
+         :font-weight 600
+         :vertical-align "middle"
+         :background-color "#0d9488"
+         :color "#ffffff")
        ("h1"
         :font-size "2.5rem"
         :font-weight 700

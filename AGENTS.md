@@ -24,6 +24,10 @@
 - Raw-строки через `(cl-who:str ...)`
 - **`:indent t`** добавляет пробелы между sibling-элементами — убрать, если не нужен
 - Блочные элементы (`:h3`, `:p`) внутри `:a` вызывают проблемы в XHTML — переключиться на HTML5 через `:prologue "<!DOCTYPE html>"`
+- SVG лого встроено через raw-строку `(cl-who:str "...")`
+- Favicon — SVG лого через data URI в head
+- Бейдж "Этот сайт написан на Common Lisp" — пункт списка с бейджем "НАШ САЙТ" в секции "Почему Common Lisp"
+- Ресурсы (logo.svg, favicon.svg) хранятся в `resources/`, при загрузке читаются в переменные `*logo-svg*` и `*favicon-data-uri*`
 
 ### CL-CSS
 - Селекторы — просто строки: `("body" :margin 0 ...)`
@@ -52,11 +56,16 @@
 lisper.asd          — системное определение
 Makefile            — make build
 build.lisp          — скрипт сборки
+build-resources.lisp — генерация src/resources.lisp из resources/
 lisper.conf.template
 License.txt         — GPL-3.0
+resources/
+  logo.svg          — лого Common Lisp (фиолетовые цвета)
+  favicon.svg       — favicon
 src/
   package.lisp      — пакет :lisper
   config.lisp       — чтение .conf файлов
+  resources.lisp    — загруженные ресурсы (генерируется build-resources.lisp)
   css.lisp          — CL-CSS + raw media query
   js.lisp           — plain JS string
   pages.lisp        — CL-WHO HTML (cat-card генерация)
