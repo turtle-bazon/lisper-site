@@ -12,6 +12,7 @@
 - **JS**: plain string (Parenscript убран из-за конфликта readtable)
 - **Бинарник**: buildapp (как в sandstorm-v2)
 - **Лицензия**: GPL-3.0
+- **Исходники**: https://github.com/turtle-bazon/lisper.ru
 
 ## Конфигурация
 - S-expression `.conf` файл (host port и т.д.)
@@ -27,7 +28,7 @@
 - SVG лого встроено через raw-строку `(cl-who:str "...")`
 - Favicon — SVG лого через data URI в head
 - Бейдж "Этот сайт написан на Common Lisp" — пункт списка с бейджем "НАШ САЙТ" в секции "Почему Common Lisp"
-- Ресурсы (logo.svg, favicon.svg) хранятся в `resources/`, при загрузке читаются в переменные `*logo-svg*` и `*favicon-data-uri*`
+- Ресурсы (logo.svg, favicon.svg) хранятся в `resources/`, генерируются в `src/resources.lisp` через `build-resources.lisp`
 
 ### CL-CSS
 - Селекторы — просто строки: `("body" :margin 0 ...)`

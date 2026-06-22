@@ -155,5 +155,6 @@
            (:li (:a :href "http://www.paulgraham.com/onlisp.html" "On Lisp") " — продвинутые макросы от Пауэлла Грейхема")
            (:li (:a :href "https://common-lisp.net/" "common-lisp.net") " — хостинг open-source проектов")
              (:li (:a :href "https://www.reddit.com/r/Common_Lisp/" "r/Common_Lisp") " — сообщество на Reddit"))))
-        (:footer
-        (:p "lisper.ru &copy; 2026 | GPL-3.0")))))))
+         (:footer
+          (:p
+           (:a :href "https://github.com/turtle-bazon/lisper.ru" "lisper.ru") " &copy; 2026 | GPL-3.0")))))))
