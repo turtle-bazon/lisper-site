@@ -52,6 +52,22 @@
     ("Локализация" "Internationalization" "#ef4444")
     ("Расширения" "Language%20extension" "#d946ef")))
 
+(defun render-recent-topics-preview ()
+  (handler-case
+      (let ((recent (get-recent-topics 5)))
+        (if recent
+            (with-output-to-string (s)
+              (format s "<div class='topic-list'>")
+              (dolist (row recent)
+                (destructuring-bind (id title created-at post-count cat-name cat-slug username)
+                    row
+                  (declare (ignore created-at cat-slug))
+                  (format s "<div class='topic-row'><a class='topic-link' href='/topic/~A'><span class='topic-title'>~A</span><span class='topic-meta'>~A ответов · ~A</span></a></div>"
+                          id title post-count cat-name)))
+              (format s "</div>"))
+            "<p class='empty-state'>Пока нет тем. Будьте первым!</p>"))
+    (error () "<p class='empty-state'>Форум загружается...</p>")))
+
 (defun generate-cards (categories base-url)
   (with-output-to-string (out)
     (dolist (cat categories)
@@ -75,9 +91,10 @@
           (:div :class "logo-container"
            (cl-who:str *logo-svg*))
             (:h1 "Common Lisp - язык для тех, кто думает")
-            (:div :class "header-buttons"
-             (:a :class "try-button" :href "javascript:void(0)" :onclick "openRepl()" "Попробовать CL")
-             (:a :class "telegram-link" :href "tg://resolve?domain=commonlisp_ru" "Telegram")))
+             (:div :class "header-buttons"
+              (:a :class "try-button" :href "javascript:void(0)" :onclick "openRepl()" "Попробовать CL")
+              (:a :class "forum-link" :href "/forum" "Форум")
+              (:a :class "telegram-link" :href "tg://resolve?domain=commonlisp_ru" "Telegram")))
         (:main
          (:section :class "section"
           (:h2 "Что такое Common Lisp")
@@ -156,7 +173,15 @@
            (:li (:a :href "http://www.gigamonkeys.com/book/" "Practical Common Lisp") " — книга для новичков (онлайн)")
            (:li (:a :href "http://www.paulgraham.com/onlisp.html" "On Lisp") " — продвинутые макросы от Пауэлла Грейхема")
            (:li (:a :href "https://common-lisp.net/" "common-lisp.net") " — хостинг open-source проектов")
-             (:li (:a :href "https://www.reddit.com/r/Common_Lisp/" "r/Common_Lisp") " — сообщество на Reddit"))))
+              (:li (:a :href "https://www.reddit.com/r/Common_Lisp/" "r/Common_Lisp") " — сообщество на Reddit"))))
+          (:section :class "section forum-preview"
+           (:h2 "Форум")
+           (:p :class "section-sub"
+               "Обсуждение Common Lisp на "
+               (:a :href "/forum" "нашем форуме"))
+           (cl-who:str (render-recent-topics-preview))
+           (:div :class "forum-cta"
+                 (:a :class "try-button" :href "/forum" "Перейти на форум →")))
          (:footer
           (:p
             (:a :href "https://github.com/turtle-bazon/lisper.ru" "lisper.ru") " &copy; 2026 | GPL-3.0"))

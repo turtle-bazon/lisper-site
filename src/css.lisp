@@ -363,7 +363,273 @@
          :text-decoration "none")
 
         (".repl-credit a:hover"
-         :color "#a855f7")))
+         :color "#a855f7")
+
+        ;; Forum styles
+        (".forum-link"
+         :display "inline-block"
+         :padding "12px 24px"
+         :background-color "#7c3aed"
+         :color "#ffffff"
+         :border-radius "8px"
+         :font-weight 600
+         :transition "background-color 0.2s"
+         :text-decoration "none")
+
+        (".forum-link:hover"
+         :background-color "#a855f7"
+         :color "#ffffff")
+
+        (".forum-actions"
+         :margin-bottom "20px")
+
+        (".forum-categories"
+         :display "grid"
+         :gap "12px"
+         :margin-bottom "30px")
+
+        (".forum-cat-card"
+         :display "block"
+         :padding "20px 24px"
+         :background-color "#111111"
+         :border "1px solid #1e1e1e"
+         :border-radius "12px"
+         :text-decoration "none"
+         :transition "all 0.25s ease")
+
+        (".forum-cat-card:hover"
+         :border-color "#333"
+         :background-color "#161616"
+         :transform "translateY(-2px)")
+
+        (".forum-cat-link"
+         :text-decoration "none"
+         :color "inherit")
+
+        (".forum-cat-link h3"
+         :font-size "1.1rem"
+         :color "#7c3aed"
+         :margin-bottom "6px")
+
+        (".forum-cat-link p"
+         :font-size "0.9rem"
+         :color "#aaa"
+         :margin-bottom "6px")
+
+        (".forum-cat-count"
+         :font-size "0.8rem"
+         :color "#666")
+
+        (".topic-list"
+         :display "grid"
+         :gap "8px")
+
+        (".topic-row"
+         :padding "12px 16px"
+         :background-color "#111111"
+         :border "1px solid #1e1e1e"
+         :border-radius "8px"
+         :transition "all 0.2s ease")
+
+        (".topic-row:hover"
+         :border-color "#333"
+         :background-color "#161616")
+
+        (".topic-link"
+         :display "flex"
+         :justify-content "space-between"
+         :align-items "center"
+         :text-decoration "none"
+         :color "inherit"
+         :gap "12px")
+
+        (".topic-title"
+         :color "#e0e0e0"
+         :font-weight 500)
+
+        (".topic-meta"
+         :color "#666"
+         :font-size "0.85rem"
+         :white-space "nowrap")
+
+        (".post-list"
+         :display "grid"
+         :gap "12px"
+         :margin-bottom "20px")
+
+        (".post-card"
+         :padding "16px 20px"
+         :background-color "#111111"
+         :border "1px solid #1e1e1e"
+         :border-radius "12px")
+
+        (".post-header"
+         :display "flex"
+         :align-items "center"
+         :gap "10px"
+         :margin-bottom "10px")
+
+        (".post-author"
+         :color "#7c3aed"
+         :font-weight 600)
+
+        (".role-badge"
+         :font-size "0.7rem"
+         :padding "2px 8px"
+         :border-radius "4px"
+         :font-weight 600)
+
+        (".role-admin"
+         :background-color "#7f1d1d"
+         :color "#fca5a5")
+
+        (".role-moderator"
+         :background-color "#1e3a5f"
+         :color "#93c5fd")
+
+        (".post-date"
+         :color "#555"
+         :font-size "0.85rem")
+
+        (".post-body"
+         :color "#d4d4d4"
+         :line-height "1.6"
+         :white-space "pre-wrap")
+
+        (".post-actions"
+         :margin-top "10px"
+         :padding-top "10px"
+         :border-top "1px solid #1e1e1e")
+
+        (".delete-btn"
+         :background "none"
+         :border "1px solid #555"
+         :color "#888"
+         :padding "4px 12px"
+         :border-radius "4px"
+         :font-size "0.8rem"
+         :cursor "pointer"
+         :transition "all 0.2s")
+
+        (".delete-btn:hover"
+         :border-color "#ef4444"
+         :color "#ef4444")
+
+        (".post-form-section"
+         :margin-top "20px")
+
+        (".post-textarea"
+         :width "100%"
+         :min-height "120px"
+         :padding "12px 16px"
+         :background-color "#111111"
+         :border "1px solid #1e1e1e"
+         :border-radius "8px"
+         :color "#d4d4d4"
+         :font-family "inherit"
+         :font-size "0.95rem"
+         :resize "vertical"
+         :margin-bottom "12px"
+         :box-sizing "border-box")
+
+        (".post-textarea:focus"
+         :outline "none"
+         :border-color "#7c3aed")
+
+        (".form-group"
+         :margin-bottom "16px")
+
+        (".form-group label"
+         :display "block"
+         :margin-bottom "6px"
+         :color "#ccc"
+         :font-weight 500
+         :font-size "0.9rem")
+
+        (".form-group input, .form-group select"
+         :width "100%"
+         :padding "10px 14px"
+         :background-color "#111111"
+         :border "1px solid #1e1e1e"
+         :border-radius "8px"
+         :color "#d4d4d4"
+         :font-size "0.95rem"
+         :box-sizing "border-box")
+
+        (".form-group input:focus, .form-group select:focus"
+         :outline "none"
+         :border-color "#7c3aed")
+
+        (".back-link"
+         :display "inline-block"
+         :margin-bottom "15px"
+         :color "#7c3aed"
+         :text-decoration "none"
+         :font-size "0.9rem")
+
+        (".back-link:hover"
+         :color "#a855f7")
+
+        (".topic-info"
+         :color "#888"
+         :font-size "0.85rem"
+         :margin-bottom "20px")
+
+        (".empty-state"
+         :color "#666"
+         :font-style "italic")
+
+        (".forum-cta"
+         :text-align "center"
+         :margin-top "20px")
+
+        (".auth-section"
+         :max-width "400px"
+         :margin "0 auto")
+
+        (".auth-section h2"
+         :margin-bottom "20px")
+
+        (".auth-error"
+         :padding "10px 16px"
+         :background-color "#7f1d1d"
+         :border "1px solid #991b1b"
+         :border-radius "8px"
+         :color "#fca5a5"
+         :margin-bottom "16px"
+         :font-size "0.9rem")
+
+        (".auth-switch"
+         :margin-top "16px"
+         :color "#888"
+         :font-size "0.9rem")
+
+        (".auth-switch a"
+         :color "#7c3aed")
+
+        (".user-info"
+         :color "#ccc"
+         :font-size "0.9rem")
+
+        (".logout-link"
+         :color "#888"
+         :font-size "0.85rem"
+         :text-decoration "none"
+         :margin-left "8px")
+
+        (".logout-link:hover"
+         :color "#ef4444")
+
+        (".login-link"
+         :color "#888"
+         :font-size "0.85rem"
+         :text-decoration "none")
+
+        (".login-link:hover"
+         :color "#a855f7")
+
+        (".forum-preview .topic-list"
+         :max-width "600px")))
     "
 @media (max-width: 768px) {
   h1 { font-size: 1.8rem; }

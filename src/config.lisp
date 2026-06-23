@@ -5,7 +5,12 @@
 (defparameter *default-config*
   '(:address "0.0.0.0"
     :port 8080
-    :log-level :info))
+    :log-level :info
+    :db-host "127.0.0.1"
+    :db-port 5432
+    :db-name "lisper"
+    :db-user "lisper"
+    :db-password "lisper"))
 
 (defun config-file-paths ()
   (list (probe-file "lisper.conf")
@@ -20,5 +25,5 @@
           (setf *config* (read s)))
         (setf *config* *default-config*))))
 
-(defun config (key)
-  (getf *config* key))
+(defun config (key &optional default)
+  (or (getf *config* key) default))

@@ -6,11 +6,14 @@
 Сайт lisper.ru — лендинг о Common Lisp. Всё на Lisp: HTML, CSS, JS.
 
 ## Стек
-- **Сервер**: Clack + Wookie (`clack-handler-wookie`)
+- **Сервер**: Clack + Wookie (`clack-handler-wookie`) `:debug nil`
 - **HTML**: CL-WHO (`with-html-output-to-string` + `htm`)
 - **CSS**: CL-CSS (`cl-css:css`)
 - **JS**: plain string (Parenscript убран из-за конфликта readtable)
-- **Бинарник**: buildapp (как в sandstorm-v2)
+- **БД**: PostgreSQL 15 через `postmodern` (user=lisper, pass=lisper, db=lisper, host=127.0.0.1)
+- **Аутентификация**: ironclad PBKDF2 (SHA-256, 100k iter), cookie-based sessions (30 дней)
+- **Миграции**: SQL-файлы `migrations/NNNN-name.{up,down}.sql`, таблица `schema_migrations`
+- **Бинарник**: buildapp → `build/lisper` (~93MB)
 - **Лицензия**: GPL-3.0
 - **Исходники**: https://github.com/turtle-bazon/lisper.ru
 
@@ -41,6 +44,7 @@
 - `clack:clackup` **не блокирует** — нужен `(loop (sleep 1))` в main
 - `lack:builder` с `:pathinfo` middleware **недоступен** — использовать plain lambda
 - Роутинг: читать `(getf env :path-info)` напрямую
+- **`:debug nil`** — сервер молча убивает обработчик при ошибке, порт перестаёт слушать, но процесс жив; используем `:debug nil` когда все ошибки исправлены
 
 ### Readtable conflict
 - SBCL 2.6.5: `cl-syntax-annot` (из ningle) модифицирует CL readtable
@@ -67,6 +71,10 @@ src/
   package.lisp      — пакет :lisper
   config.lisp       — чтение .conf файлов
   resources.lisp    — загруженные ресурсы (генерируется build-resources.lisp)
+  db.lisp           — PostgreSQL + миграции
+  auth.lisp         — регистрация, логин, сессии
+  forum.lisp        — CRUD операции форума
+  forum-pages.lisp  — HTML страницы форума
   css.lisp          — CL-CSS + raw media query
   js.lisp           — plain JS string
   pages.lisp        — CL-WHO HTML (cat-card генерация)
@@ -130,3 +138,33 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - **Fix (2026-06-23)**: пробел между промптом и вводом — CSS `gap: 8px` на `.repl-input-line`, `padding: 2px 0` на `.repl-input`
 - **Fix (2026-06-23)**: незакрытые скобки — добавлена `isBalanced(input)` (проверяет `()`, `[]`, `{}`, строки, escape, комментарии `;`); `clEval()` бросает `Error('incomplete input')` если несбалансировано
 - **Fix (2026-06-23)**: Wookie `:debug nil` — добавлено в `clack:clackup`, иначе сервер падает на первом запросе с ошибкой
+- **Fix (2026-06-24)**: ironclad PBKDF2 — `derive-key` с `'ironclad:pbkdf2` (символ) не работает; использовать `pbkdf2-hash-password` convenience-функцию с `:digest :sha256 :iterations 100000`
+- **Fix (2026-06-24)**: `get-category-by-slug` — malformed plist из `(apply #'list (cons :id (first row)))`; исправлено через `destructuring-bind` с 4 полями (id name slug description)
+- **Fix (2026-06-24)**: `get-form-value` — `gethash` на nil при GET-запросах (parsed-body = nil); добавлен nil-check
+- **Fix (2026-06-24)**: `/new-topic?category=` GET — читать category из `:query-string`, не из POST body
+- **Fix (2026-06-24)**: `delete-post` — `postmodern:query ... :single` возвращает скаляр, не строку; исправлено на `first` от списка строк
+- **Fix (2026-06-24)**: `delete-post` UPDATE — `$1` использовался дважды с двумя параметрами; исправлено на один параметр
+- **Fix (2026-06-24)**: UTF-8 mojibake — `url-decode` обрабатывал `%XX` как code-char (Latin-1), не как байты UTF-8; исправлено: накапливать байты в `(unsigned-byte 8)` массив, затем `flexi-streams:octets-to-string :external-format :utf-8`
+
+## Форум
+- **Страницы**: `/forum`, `/forum/{slug}`, `/topic/{id}`, `/new-topic`, `/login`, `/register`, `/logout`
+- **POST-роуты**: `/login`, `/register`, `/new-topic`, `/new-post`, `/delete-post`
+- **POST-body**: `parse-post-body` читает `raw-body` stream → URL-decode → hash-table
+- **Категории**: 4 (Общее, Проекты, Помощь, Новости) — seed в миграции 0001
+- **Роли**: user, moderator, admin (поле `role` в `users`)
+- **Сессии**: cookie `session=HEX`, таблица `sessions`, TTL 30 дней
+
+### Auth
+- `hash-password` → `ironclad:pbkdf2-hash-password` (SHA-256, 100k iter), формат `HEX_SALT:HEX_KEY`
+- `verify-password` → `pbkdf2-hash-password` с `:salt`, `equalp` сравнение
+- `register-user` → INSERT + `cl-postgres:database-error` при уникальности
+- `authenticate-user` → SELECT + verify → `create-user-session`
+- `current-user` → `extract-session-token` (из `(getf env :headers)` hash-table) → `get-user-by-session`
+- **Важно**: `(getf env :headers)` — это hash-table, не строка; искать через `(gethash "cookie" headers)`
+
+### Миграции
+- Формат: `migrations/0001-name.up.sql` / `0001-name.down.sql` (4-значный номер)
+- Таблица `schema_migrations`: version (int PK), name, applied_at
+- `get-available-migrations` — `(position #\.` (первый dot) для имени файла
+- `read-migration-file` — `make-array` с fill-pointer для UTF-8
+- `apply-migration` — split SQL by `;` + execute each via `postmodern:query` (не multi-statement)
