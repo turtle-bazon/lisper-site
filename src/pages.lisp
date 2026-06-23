@@ -77,7 +77,7 @@
             (:h1 "Common Lisp - язык для тех, кто думает")
             (:div :class "header-buttons"
              (:a :class "try-button" :href "javascript:void(0)" :onclick "openRepl()" "Попробовать CL")
-             (:a :class "telegram-link" :href "https://t.me/commonlisp_ru" "Telegram")))
+             (:a :class "telegram-link" :href "tg://resolve?domain=commonlisp_ru" "Telegram")))
         (:main
          (:section :class "section"
           (:h2 "Что такое Common Lisp")
@@ -166,7 +166,7 @@
              (:span "Common Lisp REPL")
              (:button :class "repl-close" "&times;"))
             (:div :id "repl-console" :class "repl-console")))
-        (:script :src "/js?v=2"))))))
+        (:script :src "/js?v=3"))))))
 
 
 

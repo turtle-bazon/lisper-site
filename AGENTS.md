@@ -127,3 +127,6 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
   - Кредиты JSCL в шапке REPL
   - Статус загрузки: "Loading JSCL..." → "Loading JSCL compiler..." → "Loading web runtime..."
 - **Важно**: CL-строки в JS: экранирование `\\` и `\"` для передачи в `lisp.eval()`
+- **Fix (2026-06-23)**: пробел между промптом и вводом — CSS `gap: 8px` на `.repl-input-line`, `padding: 2px 0` на `.repl-input`
+- **Fix (2026-06-23)**: незакрытые скобки — добавлена `isBalanced(input)` (проверяет `()`, `[]`, `{}`, строки, escape, комментарии `;`); `clEval()` бросает `Error('incomplete input')` если несбалансировано
+- **Fix (2026-06-23)**: Wookie `:debug nil` — добавлено в `clack:clackup`, иначе сервер падает на первом запросе с ошибкой
