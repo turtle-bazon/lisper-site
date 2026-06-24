@@ -47,11 +47,22 @@
     (:meta :name "viewport" :content "width=device-width, initial-scale=1")
     (:title (cl-who:str title))
     (:link :rel "icon" :type "image/svg+xml" :href *favicon-data-uri*)
-    (:link :rel "stylesheet" :href "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css")
+    (:link :rel "stylesheet" :href "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"
+           :integrity "sha384-wH75j6z1lH97ZOpMOInqhgKzFkAInZPPSPlZpYKYTOqsaizPvhQZmAtLcPKXpLyH"
+           :crossorigin "anonymous")
     (:style (cl-who:str (generate-css)))
-    (:script :src "https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js")
-    (:script :src "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js")
-    (:script :src "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/lisp.min.js")))
+    (:script :src "https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.2.4/purify.min.js"
+             :integrity "sha384-eEu5CTj3qGvu9PdJuS+YlkNi7d2XxQROAFYOr59zgObtlcux1ae1Il3u7jvdCSWu"
+             :crossorigin "anonymous")
+    (:script :src "https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"
+             :integrity "sha384-NNQgBjjuhtXzPmmy4gurS5X7P4uTt1DThyevz4Ua0IVK5+kazYQI1W27JHjbbxQz"
+             :crossorigin "anonymous")
+    (:script :src "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"
+             :integrity "sha384-F/bZzf7p3Joyp5psL90p/p89AZJsndkSoGwRpXcZhleCWhd8SnRuoYo4d0yirjJp"
+             :crossorigin "anonymous")
+    (:script :src "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/lisp.min.js"
+             :integrity "sha384-+LHHMbAXOUlvquvrQZ9LW4KeR2nwcsh/lpp7xrWu7KuaDSGgAYBIdm8qCw97I1tq"
+             :crossorigin "anonymous")))
 
 (defun forum-render-header (user)
   (cl-who:with-html-output-to-string (s)

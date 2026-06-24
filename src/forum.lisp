@@ -11,7 +11,7 @@
 
 (defun get-topics (category-id &optional (offset 0) (limit 20))
   (postmodern:query
-   "SELECT t.id, t.title, t.created_at, t.last_post_at, t.post_count,
+   "SELECT t.id, t.title, TO_CHAR(t.created_at, 'DD.MM.YYYY HH24:MI'), TO_CHAR(t.last_post_at, 'DD.MM.YYYY HH24:MI'), t.post_count,
            u.username
     FROM topics t
     JOIN users u ON t.user_id = u.id
@@ -22,7 +22,7 @@
 
 (defun get-recent-topics (&optional (limit 10))
   (postmodern:query
-   "SELECT t.id, t.title, t.created_at, t.post_count,
+   "SELECT t.id, t.title, TO_CHAR(t.created_at, 'DD.MM.YYYY HH24:MI'), t.post_count,
            c.name AS category_name, c.slug AS category_slug, u.username
     FROM topics t
     JOIN categories c ON t.category_id = c.id
@@ -33,7 +33,7 @@
 
 (defun get-topic (topic-id)
   (let ((row (postmodern:query
-              "SELECT t.id, t.category_id, t.user_id, t.title, t.created_at, t.post_count,
+              "SELECT t.id, t.category_id, t.user_id, t.title, TO_CHAR(t.created_at, 'DD.MM.YYYY HH24:MI'), t.post_count,
                       c.name AS category_name, c.slug AS category_slug,
                       u.username
                FROM topics t
@@ -51,7 +51,7 @@
 
 (defun get-posts (topic-id &optional (offset 0) (limit 50))
   (postmodern:query
-   "SELECT p.id, p.body, p.created_at, u.username, u.role
+   "SELECT p.id, p.body, TO_CHAR(p.created_at, 'DD.MM.YYYY HH24:MI'), u.username, u.role
     FROM posts p
     JOIN users u ON p.user_id = u.id
     WHERE p.topic_id = $1
@@ -135,3 +135,11 @@
   (if (forum-closed-p)
       (progn (set-setting "forum_closed" "false") nil)
       (progn (set-setting "forum_closed" "true") t)))
+
+;;; Audit logging
+
+(defun log-audit (user-id action &optional target-type target-id details)
+  "Log a moderation action."
+  (postmodern:execute
+   "INSERT INTO audit_log (user_id, action, target_type, target_id, details) VALUES ($1, $2, $3, $4, $5)"
+   user-id action target-type target-id details))

@@ -60,6 +60,15 @@
 - `main` должен быть `(&optional args)`, не `(args)` — для вызова без аргументов
 - Бинарник: `make` → `build/lisper` (~57MB)
 
+### Безопасность
+- **XSS через marked.js**: `marked.parse()` без санитизации → добавлен DOMPurify (`DOMPurify.sanitize()`)
+- **XSS через appendHTML()**: `div.innerHTML = html` → санитизация через DOMPurify, fallback на strip tags
+- **SRI**: все CDN-скрипты (marked, highlight.js, DOMPurify) и CSS имеют `integrity` + `crossorigin="anonymous"`
+- **Security Headers**: CSP, X-Frame-Options: DENY, X-Content-Type-Options: nosniff, Referrer-Policy, X-XSS-Protection: 0
+- **Timestamps**: PostgreSQL `TIMESTAMP` возвращает сырые числа → исправлено через `TO_CHAR(created_at, 'DD.MM.YYYY HH24:MI')` в SQL
+- **Audit Log**: таблица `audit_log` + функция `log-audit` — логирует все действия модерации (delete, mute, unmute, set-role, toggle-forum)
+- **JSCL safety**: проверка `typeof jscl === 'undefined'` перед использованием в loadScript callback
+
 ## Структура файлов
 ```
 lisper.asd          — системное определение
@@ -206,6 +215,12 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - Когда форум закрыт: обычные пользователи не могут создавать топики/посты, админы могут
 - Статус форума виден в админке: "ОТКРЫТ" (зелёный) / "ЗАКРЫТ" (красный) + кнопка toggle
 
+### Аудит
+- Таблица `audit_log` (id, user_id, action, target_type, target_id, details, created_at)
+- Функция `log-audit` в `forum.lisp` — логирует все действия модерации
+- Действия: delete-post, delete-topic, mute-user, unmute-user, set-role, toggle-forum
+- Вызывается из handlers в `routes.lisp` после каждого действия
+
 ### Редактор постов
 - **Markdown** — посты хранятся как raw markdown, рендерятся клиентски через marked.js
 - **Подсветка кода** — highlight.js с поддержкой Common Lisp и других языков
@@ -213,3 +228,13 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - **Превью** — кнопка 👁 переключает между редактированием и предпросмотром
 - **Компонент**: `forum-render-editor` — переиспользуемый для new-topic и reply
 - **Клиентский рендеринг**: `.md-content` класс инициализируется marked.js при загрузке страницы
+
+## Отчёт по безопасности (24.06.2026)
+Полный отчёт в `/tmp/report.txt`. Исправлено:
+1. **Stored XSS через marked.js** → DOMPurify санитизация
+2. **XSS через appendHTML()** → DOMPurify санитизация, fallback strip tags
+3. **Нет SRI** → integrity + crossorigin на всех CDN-скриптах и CSS
+4. **Нет Security Headers** → CSP, X-Frame-Options: DENY, X-Content-Type-Options: nosniff, Referrer-Policy, X-XSS-Protection: 0
+5. **Таймстемпы** → `TO_CHAR(created_at, 'DD.MM.YYYY HH24:MI')` в SQL
+7. **Unsafe script loading** → `typeof jscl === 'undefined'` проверка перед использованием
+9. **Нет аудита** → таблица `audit_log` + `log-audit()` для всех действий модерации

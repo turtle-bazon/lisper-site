@@ -85,7 +85,7 @@
 
 (defun get-user-by-id (user-id)
   (let ((row (first (postmodern:query
-                     "SELECT id, username, email, role, muted_until, created_at
+                     "SELECT id, username, email, role, muted_until, TO_CHAR(created_at, 'DD.MM.YYYY HH24:MI')
                       FROM users WHERE id = $1"
                      user-id))))
     (when row
@@ -95,7 +95,7 @@
 
 (defun get-user-by-name (username)
   (let ((row (first (postmodern:query
-                     "SELECT id, username, email, role, muted_until, created_at
+                     "SELECT id, username, email, role, muted_until, TO_CHAR(created_at, 'DD.MM.YYYY HH24:MI')
                       FROM users WHERE username = $1"
                      username))))
     (when row
@@ -130,7 +130,7 @@
               (list :id id :username username :email email :role role
                     :muted-until muted-until :created-at created-at)))
           (postmodern:query
-           "SELECT id, username, email, role, muted_until, created_at
+           "SELECT id, username, email, role, muted_until, TO_CHAR(created_at, 'DD.MM.YYYY HH24:MI')
             FROM users ORDER BY id")))
 
 (defun extract-session-token (env)

@@ -3,6 +3,19 @@
 (defun env-method (env)
   (getf env :request-method))
 
+(defun security-headers ()
+  "Return security headers as a plist."
+  (list :x-content-type-options "nosniff"
+        :x-frame-options "DENY"
+        :x-xss-protection "0"
+        :referrer-policy "strict-origin-when-cross-origin"
+        :content-security-policy "default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://jscl-project.github.io; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:; font-src 'self' https://cdnjs.cloudflare.com; connect-src 'self'; frame-ancestors 'none'"))
+
+(defun add-security-headers (response)
+  "Add security headers to a Clack response."
+  (destructuring-bind (status headers body) response
+    (list status (append headers (security-headers)) body)))
+
 (defun parse-query-string (env)
   (let ((qs (getf env :query-string)))
     (when qs
@@ -18,9 +31,10 @@
 (defun make-app ()
   (lambda (env)
     (handler-case
-        (let* ((path (getf env :path-info))
-               (user (ignore-errors (current-user env))))
-          (cond
+        (add-security-headers
+         (let* ((path (getf env :path-info))
+                (user (ignore-errors (current-user env))))
+           (cond
             ;; Static routes
             ((string= path "/")
                    `(200 (:content-type "text/html; charset=utf-8")
@@ -129,11 +143,12 @@
             ;; 404
             (t
              '(404 (:content-type "text/html; charset=utf-8")
-               ("<h1>404</h1>")))))
+               ("<h1>404</h1>"))))))
       (error (err)
-        (list 500
-              (list :content-type "text/html; charset=utf-8")
-              (list (format nil "<h1>Ошибка</h1><p>~A</p>" err)))))))
+        (add-security-headers
+         (list 500
+               (list :content-type "text/html; charset=utf-8")
+               (list (format nil "<h1>Ошибка</h1><p>~A</p>" err))))))))
 
 (defun handle-login (env)
   (let ((user (ignore-errors (current-user env))))
@@ -207,7 +222,8 @@
               (let ((post-user-id (first row)))
                 (when (or (user-moderator-p user)
                           (= (session-user-id user) post-user-id))
-                  (delete-post post-id))))))
+                  (delete-post post-id)
+                  (log-audit (session-user-id user) "delete-post" "post" post-id))))))
         `(302 (:location ,(format nil "/topic/~A" topic-id))
               ("")))))
 
@@ -221,7 +237,8 @@
                  (topic-id (ignore-errors (parse-integer (gethash "topic-id" body))))
                  (cat-slug (gethash "category-slug" body)))
             (when topic-id
-              (delete-topic topic-id))
+              (delete-topic topic-id)
+              (log-audit (session-user-id user) "delete-topic" "topic" topic-id))
             `(302 (:location ,(if cat-slug
                                   (format nil "/forum/~A" cat-slug)
                                   "/forum"))
@@ -235,7 +252,8 @@
              (target-id (ignore-errors (parse-integer (gethash "user-id" body))))
              (duration (gethash "duration" body)))
         (when (and target-id duration)
-          (mute-user target-id duration))
+          (mute-user target-id duration)
+          (log-audit (session-user-id user) "mute-user" "user" target-id duration))
         (let ((back (gethash "back" body)))
           `(302 (:location ,(or back "/admin/users"))
                 (""))))))
@@ -247,7 +265,8 @@
       (let* ((body (parse-post-body env))
              (target-id (ignore-errors (parse-integer (gethash "user-id" body)))))
         (when target-id
-          (unmute-user target-id))
+          (unmute-user target-id)
+          (log-audit (session-user-id user) "unmute-user" "user" target-id))
         (let ((back (gethash "back" body)))
           `(302 (:location ,(or back "/admin/users"))
                 (""))))))
@@ -261,7 +280,8 @@
              (role (gethash "role" body)))
         (when (and target-id role
                    (member role '("user" "moderator" "admin") :test #'string=))
-          (set-user-role target-id role))
+          (set-user-role target-id role)
+          (log-audit (session-user-id user) "set-role" "user" target-id role))
         (let ((back (gethash "back" body)))
           `(302 (:location ,(or back "/admin/users"))
                 (""))))))
@@ -272,5 +292,6 @@
         ("<h1>403</h1>"))
       (progn
         (toggle-forum)
+        (log-audit (session-user-id user) "toggle-forum" "setting" nil (if (forum-closed-p) "closed" "opened"))
         `(302 (:location "/admin/users")
               ("")))))

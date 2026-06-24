@@ -35,7 +35,11 @@
     if (!c) return;
     var div = document.createElement('div');
     div.className = 'repl-line' + (cls ? ' ' + cls : '');
-    div.innerHTML = html;
+    if (typeof DOMPurify !== 'undefined') {
+      div.innerHTML = DOMPurify.sanitize(html);
+    } else {
+      div.textContent = html.replace(/<[^>]+>/g, '');
+    }
     c.appendChild(div);
     c.scrollTop = c.scrollHeight;
   }
@@ -196,6 +200,13 @@
         loadScript(JSCL_CDN + 'jscl.js', function() {
           appendLine('Loading web runtime...', 'repl-status');
           loadScript(JSCL_CDN + 'jscl-web.js', function() {
+            if (typeof jscl === 'undefined') {
+              appendLine('Error: JSCL failed to load', 'repl-error');
+              loaded = false;
+              loading = false;
+              setInputEnabled(true);
+              return;
+            }
             loaded = true;
             loading = false;
             setupErrorHandler();
@@ -265,7 +276,8 @@
     // Render existing .md-content elements
     document.querySelectorAll('.md-content').forEach(function(el) {
       if (typeof marked !== 'undefined') {
-        el.innerHTML = marked.parse(el.textContent);
+        var raw = marked.parse(el.textContent);
+        el.innerHTML = (typeof DOMPurify !== 'undefined') ? DOMPurify.sanitize(raw) : raw;
         el.querySelectorAll('pre code').forEach(function(block) {
           if (typeof hljs !== 'undefined') hljs.highlightElement(block);
         });
@@ -318,7 +330,8 @@
               isPreview = !isPreview;
               if (isPreview) {
                 if (typeof marked !== 'undefined') {
-                  preview.innerHTML = marked.parse(textarea.value || '_Пусто_');
+                  var raw = marked.parse(textarea.value || '_Пусто_');
+                  preview.innerHTML = (typeof DOMPurify !== 'undefined') ? DOMPurify.sanitize(raw) : raw;
                   preview.querySelectorAll('pre code').forEach(function(block) {
                     if (typeof hljs !== 'undefined') hljs.highlightElement(block);
                   });
