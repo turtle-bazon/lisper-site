@@ -21,12 +21,104 @@
         :margin "0 auto"
         :padding "0 20px")
         ("header"
-         :padding "40px 0"
-         :text-align "center")
-        (".logo-container"
-         :margin-bottom "20px")
-        (".logo-container svg"
-         :filter "drop-shadow(0 0 20px rgba(124, 58, 237, 0.3))")
+         :padding "0"
+         :text-align "left")
+         (".site-header"
+          :display "flex"
+          :align-items "center"
+          :justify-content "space-between"
+          :padding "14px 40px"
+          :position "relative"
+          :z-index 10
+          :border-bottom "1px solid #1e1e2e"
+          :background "rgba(10, 10, 20, 0.8)"
+          :backdrop-filter "blur(12px)")
+
+         (".header-left"
+          :flex "0 0 auto")
+
+         (".header-logo svg"
+          :height "32px"
+          :width "auto"
+          :filter "drop-shadow(0 0 12px rgba(124, 58, 237, 0.4))")
+
+         (".header-nav"
+          :display "flex"
+          :gap "24px"
+          :align-items "center")
+
+         (".header-nav a"
+          :color "#999"
+          :text-decoration "none"
+          :font-size "0.88rem"
+          :font-weight 500
+          :transition "color 0.2s"
+          :padding "6px 0"
+          :position "relative")
+
+         (".header-nav a:hover"
+          :color "#e0e0e0")
+
+         (".nav-icon"
+           :display "inline-flex"
+           :align-items "center"
+           :margin-right "4px"
+           :opacity "0.7"
+           :vertical-align "middle")
+
+         (".nav-icon svg"
+           :width "16px"
+           :height "16px"
+           :stroke "currentColor"
+           :stroke-width "2"
+           :stroke-linecap "round"
+           :stroke-linejoin "round"
+           :fill "none"
+           :vertical-align "middle")
+
+         (".header-right"
+          :display "flex"
+          :align-items "center"
+          :gap "16px")
+
+         (".header-login, .header-register"
+          :color "#999"
+          :text-decoration "none"
+          :font-size "0.88rem"
+          :transition "color 0.2s")
+
+         (".header-login:hover, .header-register:hover"
+          :color "#a855f7")
+
+         (".header-user"
+          :color "#a855f7"
+          :text-decoration "none"
+          :font-size "0.88rem"
+          :font-weight 600)
+
+         (".header-user:hover"
+          :color "#c084fc")
+
+         (".header-logout"
+          :color "#666"
+          :text-decoration "none"
+          :font-size "0.82rem"
+          :transition "color 0.2s")
+
+         (".header-logout:hover"
+          :color "#ef4444")
+
+         (".header-admin"
+          :color "#f59e0b"
+          :text-decoration "none"
+          :font-size "0.82rem"
+          :font-weight 500
+          :transition "color 0.2s")
+
+         (".header-admin:hover"
+          :color "#fbbf24")
+
+         ;; Hero section removed — CTA moved to header
         (".site-note"
          :color "#888"
          :font-size "0.9rem"
@@ -222,27 +314,6 @@
          :background-color "#713f12"
          :color "#fbbf24")
 
-        ;; Header buttons
-        (".header-buttons"
-         :display "flex"
-         :gap "12px"
-         :justify-content "center"
-         :margin-top "20px")
-
-        (".try-button"
-         :display "inline-block"
-         :padding "12px 24px"
-         :background-color "#16a34a"
-         :color "#ffffff"
-         :border-radius "8px"
-         :font-weight 600
-         :transition "background-color 0.2s"
-         :cursor "pointer")
-
-        (".try-button:hover"
-         :background-color "#22c55e"
-         :color "#ffffff")
-
         ;; REPL overlay
         (".repl-overlay"
          :position "fixed"
@@ -366,17 +437,20 @@
          :color "#a855f7")
 
         ;; Forum styles
-        (".forum-link"
+        (".try-button"
          :display "inline-block"
-         :padding "12px 24px"
+         :padding "10px 20px"
          :background-color "#7c3aed"
          :color "#ffffff"
          :border-radius "8px"
          :font-weight 600
          :transition "background-color 0.2s"
+         :cursor "pointer"
+         :border "none"
+         :font-size "0.9rem"
          :text-decoration "none")
 
-        (".forum-link:hover"
+        (".try-button:hover"
          :background-color "#a855f7"
          :color "#ffffff")
 
@@ -607,34 +681,122 @@
         (".auth-switch a"
          :color "#7c3aed")
 
-        (".user-info"
-         :color "#ccc"
+        (".forum-preview .topic-list"
+         :max-width "600px")
+
+        (".muted-notice"
+         :padding "12px 16px"
+         :background-color "#7f1d1d"
+         :border "1px solid #991b1b"
+         :border-radius "8px"
+         :color "#fca5a5"
          :font-size "0.9rem")
 
-        (".logout-link"
-         :color "#888"
-         :font-size "0.85rem"
-         :text-decoration "none"
+        (".muted-status"
+         :color "#fca5a5"
+         :margin-bottom "8px")
+
+        (".topic-moderation"
+         :margin-bottom "15px"
+         :padding "10px"
+         :background-color "#1a1a1a"
+         :border "1px solid #2a2a2a"
+         :border-radius "6px")
+
+        (".unmute-btn"
+         :background "#1e3a5f"
+         :border "none"
+         :color "#93c5fd"
+         :padding "4px 12px"
+         :border-radius "4px"
+         :font-size "0.8rem"
+         :cursor "pointer")
+
+        (".unmute-btn:hover"
+         :background "#2563eb")
+
+        (".mute-btn"
+         :background "#7f1d1d"
+         :border "none"
+         :color "#fca5a5"
+         :padding "4px 12px"
+         :border-radius "4px"
+         :font-size "0.8rem"
+         :cursor "pointer"
          :margin-left "8px")
 
-        (".logout-link:hover"
-         :color "#ef4444")
+        (".mute-btn:hover"
+         :background "#991b1b")
 
-        (".login-link"
-         :color "#888"
-         :font-size "0.85rem"
-         :text-decoration "none")
+        (".role-btn"
+         :background "#7c3aed"
+         :border "none"
+         :color "white"
+         :padding "4px 12px"
+         :border-radius "4px"
+         :font-size "0.8rem"
+         :cursor "pointer"
+         :margin-left "8px")
 
-        (".login-link:hover"
-         :color "#a855f7")
+        (".role-btn:hover"
+         :background "#6d28d9")
 
-        (".forum-preview .topic-list"
-         :max-width "600px")))
+        (".muted-badge"
+         :color "#fca5a5"
+         :font-size "0.75rem"
+         :margin-left "8px")
+
+        (".admin-user-list"
+         :display "flex"
+         :flex-direction "column"
+         :gap "8px")
+
+        (".admin-user-row"
+         :display "flex"
+         :align-items "center"
+         :gap "12px"
+         :padding "10px 14px"
+         :background "#111111"
+         :border "1px solid #1e1e1e"
+         :border-radius "6px")
+
+        (".admin-user-name"
+         :color "#d4d4d4"
+         :text-decoration "none"
+         :font-weight 500)
+
+        (".admin-user-name:hover"
+         :color "#7c3aed")
+
+        (".profile-info"
+         :margin-bottom "20px")
+
+        (".profile-info p"
+         :margin "4px 0"
+         :color "#888")
+
+        (".mod-panel"
+         :margin-top "20px"
+         :padding "16px"
+         :background "#111111"
+         :border "1px solid #2a2a2a"
+         :border-radius "8px")
+
+        (".mod-panel h3"
+         :margin-bottom "10px")
+
+        (".mod-panel h4"
+         :margin-top "12px"
+         :margin-bottom "6px")))
     "
 @media (max-width: 768px) {
   h1 { font-size: 1.8rem; }
   h2 { font-size: 1.2rem; }
   .container { padding: 0 15px; }
+  .site-header { padding: 12px 16px; }
+  .header-nav { gap: 16px; }
+  .header-nav a { font-size: 0.85rem; }
+  .header-right { gap: 10px; }
   .cat-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .cat-card { padding: 12px 14px; font-size: 0.85rem; }
 }"))

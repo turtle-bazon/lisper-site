@@ -103,3 +103,13 @@
         (postmodern:execute
          "UPDATE topics SET post_count = (SELECT COUNT(*) FROM posts WHERE topic_id = $1) WHERE id = $1"
          topic-id))))
+
+(defun get-user-topic-count (user-id)
+  (postmodern:query
+   "SELECT COUNT(*) FROM topics WHERE user_id = $1"
+   user-id :single))
+
+(defun get-user-post-count (user-id)
+  (postmodern:query
+   "SELECT COUNT(*) FROM posts WHERE user_id = $1"
+   user-id :single))

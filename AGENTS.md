@@ -2,6 +2,10 @@
 
 > **Правило**: при каждом изменении кода, обнаруженном баге, принятом решении или 새로운 тонкости — немедленно обновлять этот файл. AGENTS.md — живая документация проекта.
 
+> **Скриншоты**: когда пользователь говорит "посмотри скриншот" — открывать файл `/tmp/screen.png`.
+
+> **Таймауты**: максимальный таймаут для команд — 30000 мс (30 секунд).
+
 ## О проекте
 Сайт lisper.ru — лендинг о Common Lisp. Всё на Lisp: HTML, CSS, JS.
 
@@ -15,7 +19,7 @@
 - **Миграции**: SQL-файлы `migrations/NNNN-name.{up,down}.sql`, таблица `schema_migrations`
 - **Бинарник**: buildapp → `build/lisper` (~93MB)
 - **Лицензия**: GPL-3.0
-- **Исходники**: https://github.com/turtle-bazon/lisper.ru
+- **Исходники**: https://github.com/turtle-bazon/lisper.ru (зеркало, основная СКВ — Mercurial)
 
 ## Конфигурация
 - S-expression `.conf` файл (host port и т.д.)
@@ -83,16 +87,17 @@ src/
 ```
 
 ## Секции на главной
-1. Заголовок "Common Lisp - язык для тех, кто думает" + лого + Telegram + **"Попробовать CL"** (JSCL REPL)
-2. Что такое Common Lisp
-3. Почему Common Lisp
-4. **Реализации** — 6 карточек (SBCL, CCL, ECL, ABCL, LispWorks, Allegro CL)
-5. **Редакторы и IDE** — две подсекции: "Готовые сборки" (Portacle, mine [NEW], Lem) и "Расширения и плагины" (SLIME, SLY, OLIVE [NEW], Alive, Slimv, Vlime, SLT [Экспериментальный], Slyblime)
-6. **Экосистема** — 24 карточки awesome-cl.com (генерируются из `*awesome-categories*`)
-7. **Вики** — 24 карточки cliki.net (генерируются из `*cliki-categories*`)
-8. **Полезные ресурсы** — список ссылок (lisp-lang.org, HyperSpec, Cookbook, Quicklisp, Quickdocs, Exercism, Practical CL, On Lisp, common-lisp.net, Reddit)
-9. Footer (ссылка на GitHub)
-10. **REPL-модалка** — всплывающее окно с JSCL (Common Lisp в браузере)
+1. **Header** — лого (ссылка на `/`) + навигация (Попробовать CL, Telegram, Форум) + учётка справа (Войти/Регистрация или имя+Выйти)
+2. **Hero** — заголовок "Common Lisp - язык для тех, кто думает" + 3 кнопки (Попробовать CL, Форум, Telegram)
+3. Что такое Common Lisp
+4. Почему Common Lisp
+5. **Реализации** — 6 карточек (SBCL, CCL, ECL, ABCL, LispWorks, Allegro CL)
+6. **Редакторы и IDE** — две подсекции: "Готовые сборки" (Portacle, mine [NEW], Lem) и "Расширения и плагины" (SLIME, SLY, OLIVE [NEW], Alive, Slimv, Vlime, SLT [Экспериментальный], Slyblime)
+7. **Экосистема** — 24 карточки awesome-cl.com (генерируются из `*awesome-categories*`)
+8. **Вики** — 24 карточки cliki.net (генерируются из `*cliki-categories*`)
+9. **Полезные ресурсы** — список ссылок (lisp-lang.org, HyperSpec, Cookbook, Quicklisp, Quickdocs, Exercism, Practical CL, On Lisp, common-lisp.net, Reddit)
+10. Footer (ссылка на GitHub)
+11. **REPL-модалка** — всплывающее окно с JSCL (Common Lisp в браузере)
 
 ## Реализации
 - 6 карточек: SBCL, CCL, ECL, ABCL, LispWorks, Allegro CL
@@ -145,14 +150,28 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - **Fix (2026-06-24)**: `delete-post` — `postmodern:query ... :single` возвращает скаляр, не строку; исправлено на `first` от списка строк
 - **Fix (2026-06-24)**: `delete-post` UPDATE — `$1` использовался дважды с двумя параметрами; исправлено на один параметр
 - **Fix (2026-06-24)**: UTF-8 mojibake — `url-decode` обрабатывал `%XX` как code-char (Latin-1), не как байты UTF-8; исправлено: накапливать байты в `(unsigned-byte 8)` массив, затем `flexi-streams:octets-to-string :external-format :utf-8`
+- **Fix (2026-06-24)**: `get-all-users` возвращал raw rows (списки), не plists; `getf :id` возвращал nil → ошибка "invalid input syntax for type integer: false"; исправлено через `destructuring-bind` в `get-all-users`
+- **Fix (2026-06-24)**: `is-muted-p` — не нужен `local-time`; использовать SQL `NOW()` в запросе: `SELECT 1 FROM users WHERE id = $1 AND muted_until > NOW()`
+- **Fix (2026-06-24)**: `routes.lisp` paren mismatch — лишняя `)` в первом cond-clause `(page-index user)` закрывала `cond` досрочно; все последующие cond-clauses читались как top-level code → "illegal function call"
+- **Дизайн (2026-06-24)**: Новый хедер — лого слева (ссылка на `/`), навигация по центру (Попробовать CL, Telegram, Форум), учётка справа (Войти/Регистрация или имя+Выйти). Hero-секция вынесена из хедера в отдельный `.hero` div с заголовком и 3 кнопками (`.hero-try-button`, `.forum-button`, `.telegram-button`). Старые стили `.logo-container`, `.header-buttons`, `.forum-link`, `.user-info`, `.logout-link`, `.login-link`, `.admin-link` заменены на `.site-header`, `.header-nav`, `.header-right`, `.header-user`, `.header-logout`, `.header-login`, `.header-register`, `.header-admin`
 
 ## Форум
-- **Страницы**: `/forum`, `/forum/{slug}`, `/topic/{id}`, `/new-topic`, `/login`, `/register`, `/logout`
-- **POST-роуты**: `/login`, `/register`, `/new-topic`, `/new-post`, `/delete-post`
+- **Страницы**: `/forum`, `/forum/{slug}`, `/topic/{id}`, `/new-topic`, `/login`, `/register`, `/logout`, `/user/{username}`
+- **POST-роуты**: `/login`, `/register`, `/new-topic`, `/new-post`, `/delete-post`, `/delete-topic`, `/admin/mute`, `/admin/unmute`, `/admin/set-role`
+- **Админ**: `/admin/users` — список всех пользователей (только для admin)
 - **POST-body**: `parse-post-body` читает `raw-body` stream → URL-decode → hash-table
-- **Категории**: 4 (Общее, Проекты, Помощь, Новости) — seed в миграции 0001
+- **Категории**: 4 (general, projects, help, news) — seed в миграции 0001
 - **Роли**: user, moderator, admin (поле `role` в `users`)
 - **Сессии**: cookie `session=HEX`, таблица `sessions`, TTL 30 дней
+- **Мут**: `muted_until` timestamp на users; проверяется перед созданием topic/post; PostgreSQL `NOW()` для сравнения
+
+### Модерация
+- **Админ**: может назначать/снимать модераторов, мутить/размьютить, удалять топики/посты, видеть список пользователей
+- **Модератор**: может мутить/размьютить, удалять топики/посты, НЕ может назначать модераторов
+- **Пользователь**: может создавать топики, отвечать, удалять свои посты
+- **Гость**: только просмотр
+- **Профиль пользователя**: `/user/{username}` — статистика (темы, сообщения), панель модерации (мут, роль) для модераторов/админов
+- **В хедере**: лого ссылается на `/`, имя пользователя — ссылка на профиль, ссылка "Админ" для admin
 
 ### Auth
 - `hash-password` → `ironclad:pbkdf2-hash-password` (SHA-256, 100k iter), формат `HEX_SALT:HEX_KEY`
@@ -160,6 +179,12 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - `register-user` → INSERT + `cl-postgres:database-error` при уникальности
 - `authenticate-user` → SELECT + verify → `create-user-session`
 - `current-user` → `extract-session-token` (из `(getf env :headers)` hash-table) → `get-user-by-session`
+- `get-user-by-id`, `get-user-by-name` — возвращают plist с `:id :username :email :role :muted-until :created-at`
+- `get-user-topic-count`, `get-user-post-count` — подсчёт для профиля
+- `get-all-users` — список всех пользователей (plist), с `destructuring-bind`
+- `mute-user`, `unmute-user` — установка/снятие `muted_until` (interval string)
+- `set-user-role` — смена роли (admin only)
+- `is-muted-p` — SQL `SELECT 1 ... WHERE muted_until > NOW()`
 - **Важно**: `(getf env :headers)` — это hash-table, не строка; искать через `(gethash "cookie" headers)`
 
 ### Миграции

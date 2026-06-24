@@ -3,6 +3,18 @@
 (defun env-method (env)
   (getf env :request-method))
 
+(defun parse-query-string (env)
+  (let ((qs (getf env :query-string)))
+    (when qs
+      (let ((pairs (split-sequence:split-sequence #\& qs))
+            (result (make-hash-table :test #'equal)))
+        (loop for pair in pairs
+              for parts = (split-sequence:split-sequence #\= pair)
+              for key = (url-decode (first parts))
+              for val = (url-decode (or (second parts) ""))
+              do (setf (gethash key result) val))
+        result))))
+
 (defun make-app ()
   (lambda (env)
     (handler-case
@@ -11,8 +23,8 @@
           (cond
             ;; Static routes
             ((string= path "/")
-             `(200 (:content-type "text/html; charset=utf-8")
-                   (,(page-index))))
+                   `(200 (:content-type "text/html; charset=utf-8")
+                          (,(page-index user))))
             ((string= path "/css")
              `(200 (:content-type "text/css; charset=utf-8")
                    (,(generate-css))))
@@ -49,13 +61,8 @@
 
             ;; New topic GET
             ((and (string= path "/new-topic") (eq (env-method env) :GET))
-             (let ((cat (let ((qs (getf env :query-string)))
-                          (when qs
-                            (let ((pairs (split-sequence:split-sequence #\& qs)))
-                              (loop for pair in pairs
-                                    for (k v) = (split-sequence:split-sequence #\= pair)
-                                    when (string= k "category")
-                                      return v))))))
+             (let ((cat (let ((qs (parse-query-string env)))
+                          (when qs (gethash "category" qs)))))
                `(200 (:content-type "text/html; charset=utf-8")
                      (,(forum-page-new-topic user cat)))))
 
@@ -82,6 +89,38 @@
             ;; Delete post POST
             ((and (string= path "/delete-post") (eq (env-method env) :POST))
              (handle-delete-post env user))
+
+            ;; Delete topic POST
+            ((and (string= path "/delete-topic") (eq (env-method env) :POST))
+             (handle-delete-topic env user))
+
+            ;; User profile
+            ((and (>= (length path) 6)
+                  (string= (subseq path 0 6) "/user/")
+                  (eq (env-method env) :GET))
+             (let ((name (subseq path 6)))
+               `(200 (:content-type "text/html; charset=utf-8")
+                     (,(forum-page-user name user)))))
+
+            ;; Admin: user list
+            ((and (string= path "/admin/users") (eq (env-method env) :GET))
+             (if (and user (user-admin-p user))
+                 `(200 (:content-type "text/html; charset=utf-8")
+                       (,(forum-page-admin-users user)))
+                 '(403 (:content-type "text/html; charset=utf-8")
+                   ("<h1>403 Доступ запрещён</h1>"))))
+
+            ;; Admin: mute user POST
+            ((and (string= path "/admin/mute") (eq (env-method env) :POST))
+             (handle-mute-user env user))
+
+            ;; Admin: unmute user POST
+            ((and (string= path "/admin/unmute") (eq (env-method env) :POST))
+             (handle-unmute-user env user))
+
+            ;; Admin: set role POST
+            ((and (string= path "/admin/set-role") (eq (env-method env) :POST))
+             (handle-set-role env user))
 
             ;; 404
             (t
@@ -131,29 +170,36 @@
 (defun handle-new-topic (env user)
   (if (not user)
       '(302 (:location "/login") (""))
-      (let* ((body (parse-post-body env))
-             (category-slug (gethash "category" body))
-             (title (gethash "title" body))
-             (post-body (gethash "body" body))
-             (cat (when category-slug (get-category-by-slug category-slug))))
-        (if (and cat title post-body (plusp (length title)) (plusp (length post-body)))
-            (let ((topic-id (create-topic (getf cat :id) (session-user-id user) title post-body)))
-              `(302 (:location ,(format nil "/topic/~A" topic-id))
-                    ("")))
-            `(302 (:location "/new-topic") (""))))))
+      (if (is-muted-p (session-user-id user))
+          `(302 (:location ,(format nil "/topic/0?muted=1"))
+                (""))
+          (let* ((body (parse-post-body env))
+                 (category-slug (gethash "category" body))
+                 (title (gethash "title" body))
+                 (post-body (gethash "body" body))
+                 (cat (when category-slug (get-category-by-slug category-slug))))
+            (if (and cat title post-body (plusp (length title)) (plusp (length post-body)))
+                (let ((topic-id (create-topic (getf cat :id) (session-user-id user) title post-body)))
+                  `(302 (:location ,(format nil "/topic/~A" topic-id))
+                        ("")))
+                `(302 (:location "/new-topic") ("")))))))
 
 (defun handle-new-post (env user)
   (if (not user)
       '(302 (:location "/login") (""))
-      (let* ((body (parse-post-body env))
-             (topic-id (ignore-errors (parse-integer (gethash "topic-id" body))))
-             (post-body (gethash "body" body)))
-        (if (and topic-id post-body (plusp (length post-body)))
-            (progn
-              (create-post topic-id (session-user-id user) post-body)
-              `(302 (:location ,(format nil "/topic/~A" topic-id))
-                    ("")))
-            `(302 (:location "/forum") (""))))))
+      (if (is-muted-p (session-user-id user))
+          (let ((topic-id (ignore-errors (parse-integer (gethash "topic-id" (parse-post-body env))))))
+            `(302 (:location ,(format nil "/topic/~A" (or topic-id 0)))
+                  ("")))
+          (let* ((body (parse-post-body env))
+                 (topic-id (ignore-errors (parse-integer (gethash "topic-id" body))))
+                 (post-body (gethash "body" body)))
+            (if (and topic-id post-body (plusp (length post-body)))
+                (progn
+                  (create-post topic-id (session-user-id user) post-body)
+                  `(302 (:location ,(format nil "/topic/~A" topic-id))
+                        ("")))
+                `(302 (:location "/forum") ("")))))))
 
 (defun handle-delete-post (env user)
   (if (not user)
@@ -163,7 +209,7 @@
              (topic-id (ignore-errors (parse-integer (gethash "topic-id" body)))))
         (when (and post-id topic-id)
           (let ((row (first (postmodern:query
-                             "SELECT user_id, topic_id FROM posts WHERE id = $1"
+                             "SELECT user_id FROM posts WHERE id = $1"
                              post-id))))
             (when row
               (let ((post-user-id (first row)))
@@ -172,3 +218,58 @@
                   (delete-post post-id))))))
         `(302 (:location ,(format nil "/topic/~A" topic-id))
               ("")))))
+
+(defun handle-delete-topic (env user)
+  (if (not user)
+      '(302 (:location "/login") (""))
+      (if (not (user-moderator-p user))
+          '(403 (:content-type "text/html; charset=utf-8")
+            ("<h1>403 Доступ запрещён</h1>"))
+          (let* ((body (parse-post-body env))
+                 (topic-id (ignore-errors (parse-integer (gethash "topic-id" body))))
+                 (cat-slug (gethash "category-slug" body)))
+            (when topic-id
+              (delete-topic topic-id))
+            `(302 (:location ,(if cat-slug
+                                  (format nil "/forum/~A" cat-slug)
+                                  "/forum"))
+                  (""))))))
+
+(defun handle-mute-user (env user)
+  (if (not (and user (user-moderator-p user)))
+      '(403 (:content-type "text/html; charset=utf-8")
+        ("<h1>403</h1>"))
+      (let* ((body (parse-post-body env))
+             (target-id (ignore-errors (parse-integer (gethash "user-id" body))))
+             (duration (gethash "duration" body)))
+        (when (and target-id duration)
+          (mute-user target-id duration))
+        (let ((back (gethash "back" body)))
+          `(302 (:location ,(or back "/admin/users"))
+                (""))))))
+
+(defun handle-unmute-user (env user)
+  (if (not (and user (user-moderator-p user)))
+      '(403 (:content-type "text/html; charset=utf-8")
+        ("<h1>403</h1>"))
+      (let* ((body (parse-post-body env))
+             (target-id (ignore-errors (parse-integer (gethash "user-id" body)))))
+        (when target-id
+          (unmute-user target-id))
+        (let ((back (gethash "back" body)))
+          `(302 (:location ,(or back "/admin/users"))
+                (""))))))
+
+(defun handle-set-role (env user)
+  (if (not (and user (user-admin-p user)))
+      '(403 (:content-type "text/html; charset=utf-8")
+        ("<h1>403</h1>"))
+      (let* ((body (parse-post-body env))
+             (target-id (ignore-errors (parse-integer (gethash "user-id" body))))
+             (role (gethash "role" body)))
+        (when (and target-id role
+                   (member role '("user" "moderator" "admin") :test #'string=))
+          (set-user-role target-id role))
+        (let ((back (gethash "back" body)))
+          `(302 (:location ,(or back "/admin/users"))
+                (""))))))

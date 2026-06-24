@@ -83,6 +83,56 @@
   (or (user-admin-p user)
       (string= (session-role user) "moderator")))
 
+(defun get-user-by-id (user-id)
+  (let ((row (first (postmodern:query
+                     "SELECT id, username, email, role, muted_until, created_at
+                      FROM users WHERE id = $1"
+                     user-id))))
+    (when row
+      (destructuring-bind (id username email role muted-until created-at) row
+        (list :id id :username username :email email :role role
+              :muted-until muted-until :created-at created-at)))))
+
+(defun get-user-by-name (username)
+  (let ((row (first (postmodern:query
+                     "SELECT id, username, email, role, muted_until, created_at
+                      FROM users WHERE username = $1"
+                     username))))
+    (when row
+      (destructuring-bind (id uname email role muted-until created-at) row
+        (list :id id :username uname :email email :role role
+              :muted-until muted-until :created-at created-at)))))
+
+(defun is-muted-p (user-id)
+  (let ((result (postmodern:query
+                 "SELECT 1 FROM users WHERE id = $1 AND muted_until > NOW()"
+                 user-id :single)))
+    (not (null result))))
+
+(defun mute-user (user-id duration-string)
+  (postmodern:execute
+   "UPDATE users SET muted_until = NOW() + $1::INTERVAL WHERE id = $2"
+   duration-string user-id))
+
+(defun unmute-user (user-id)
+  (postmodern:execute
+   "UPDATE users SET muted_until = NULL WHERE id = $1"
+   user-id))
+
+(defun set-user-role (user-id role)
+  (postmodern:execute
+   "UPDATE users SET role = $1 WHERE id = $2"
+   role user-id))
+
+(defun get-all-users ()
+  (mapcar (lambda (row)
+            (destructuring-bind (id username email role muted-until created-at) row
+              (list :id id :username username :email email :role role
+                    :muted-until muted-until :created-at created-at)))
+          (postmodern:query
+           "SELECT id, username, email, role, muted_until, created_at
+            FROM users ORDER BY id")))
+
 (defun extract-session-token (env)
   (let* ((headers (getf env :headers))
          (cookie-header (when headers (gethash "cookie" headers))))
