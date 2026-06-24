@@ -242,4 +242,110 @@
       }
     }
   });
+
+  // === Markdown Editor ===
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize marked with highlight.js
+    if (typeof marked !== 'undefined') {
+      marked.setOptions({
+        highlight: function(code, lang) {
+          if (typeof hljs !== 'undefined' && lang && hljs.getLanguage(lang)) {
+            try { return hljs.highlight(code, {language: lang}).value; } catch(e) {}
+          }
+          if (typeof hljs !== 'undefined') {
+            try { return hljs.highlightAuto(code).value; } catch(e) {}
+          }
+          return code;
+        },
+        breaks: true,
+        gfm: true
+      });
+    }
+
+    // Render existing .md-content elements
+    document.querySelectorAll('.md-content').forEach(function(el) {
+      if (typeof marked !== 'undefined') {
+        el.innerHTML = marked.parse(el.textContent);
+        el.querySelectorAll('pre code').forEach(function(block) {
+          if (typeof hljs !== 'undefined') hljs.highlightElement(block);
+        });
+      }
+    });
+
+    // Initialize editors
+    document.querySelectorAll('.md-editor').forEach(function(editor) {
+      var textarea = editor.querySelector('.md-textarea');
+      var preview = editor.querySelector('.md-preview');
+      var btns = editor.querySelectorAll('.md-btn');
+      var previewBtn = editor.querySelector('.md-preview-btn');
+      var isPreview = false;
+
+      function insertAround(before, after) {
+        var start = textarea.selectionStart;
+        var end = textarea.selectionEnd;
+        var sel = textarea.value.substring(start, end);
+        textarea.value = textarea.value.substring(0, start) + before + sel + after + textarea.value.substring(end);
+        textarea.selectionStart = start + before.length;
+        textarea.selectionEnd = start + before.length + sel.length;
+        textarea.focus();
+      }
+
+      function insertLine(prefix) {
+        var start = textarea.selectionStart;
+        var lineStart = textarea.value.lastIndexOf('\\n', start - 1) + 1;
+        textarea.value = textarea.value.substring(0, lineStart) + prefix + textarea.value.substring(lineStart);
+        textarea.selectionStart = textarea.selectionEnd = start + prefix.length;
+        textarea.focus();
+      }
+
+      btns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var action = btn.getAttribute('data-action');
+          switch(action) {
+            case 'bold': insertAround('**', '**'); break;
+            case 'italic': insertAround('*', '*'); break;
+            case 'strike': insertAround('~~', '~~'); break;
+            case 'h1': insertLine('# '); break;
+            case 'h2': insertLine('## '); break;
+            case 'h3': insertLine('### '); break;
+            case 'ul': insertLine('- '); break;
+            case 'ol': insertLine('1. '); break;
+            case 'quote': insertLine('> '); break;
+            case 'code': insertAround('\\n```\\n', '\\n```\\n'); break;
+            case 'link': insertAround('[', '](url)'); break;
+            case 'image': insertAround('![alt](', ')'); break;
+            case 'preview':
+              isPreview = !isPreview;
+              if (isPreview) {
+                if (typeof marked !== 'undefined') {
+                  preview.innerHTML = marked.parse(textarea.value || '_Пусто_');
+                  preview.querySelectorAll('pre code').forEach(function(block) {
+                    if (typeof hljs !== 'undefined') hljs.highlightElement(block);
+                  });
+                }
+                preview.style.display = 'block';
+                textarea.style.display = 'none';
+                btn.classList.add('active');
+              } else {
+                preview.style.display = 'none';
+                textarea.style.display = 'block';
+                btn.classList.remove('active');
+                textarea.focus();
+              }
+              break;
+          }
+        });
+      });
+
+      // Tab support in textarea
+      textarea.addEventListener('keydown', function(e) {
+        if (e.key === 'Tab') {
+          e.preventDefault();
+          var start = textarea.selectionStart;
+          textarea.value = textarea.value.substring(0, start) + '  ' + textarea.value.substring(textarea.selectionEnd);
+          textarea.selectionStart = textarea.selectionEnd = start + 2;
+        }
+      });
+    });
+  });
 })();")

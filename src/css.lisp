@@ -815,7 +815,157 @@
 
         (".mod-panel h4"
          :margin-top "12px"
-         :margin-bottom "6px")))
+         :margin-bottom "6px")
+
+        ;; Markdown editor
+        (".md-editor"
+         :border "1px solid #2a2a2a"
+         :border-radius "8px"
+         :overflow "hidden"
+         :background "#0d0d0d")
+
+        (".md-toolbar"
+         :display "flex"
+         :flex-wrap "wrap"
+         :align-items "center"
+         :gap "2px"
+         :padding "8px 10px"
+         :background "#111"
+         :border-bottom "1px solid #2a2a2a")
+
+        (".md-btn"
+         :background "none"
+         :border "1px solid transparent"
+         :color "#aaa"
+         :padding "4px 8px"
+         :border-radius "4px"
+         :cursor "pointer"
+         :font-size "0.8rem"
+         :font-weight 600
+         :line-height "1"
+         :font-family "monospace")
+
+        (".md-btn:hover"
+         :background "#222"
+         :color "#fff")
+
+        (".md-btn.active"
+         :background "#7c3aed"
+         :color "#fff")
+
+        (".md-sep"
+         :width "1px"
+         :height "16px"
+         :background "#333"
+         :margin "0 4px")
+
+        (".md-textarea"
+         :width "100%"
+         :min-height "200px"
+         :padding "14px"
+         :background "#0d0d0d"
+         :color "#d4d4d4"
+         :border "none"
+         :resize "vertical"
+         :font-family "'JetBrains Mono', 'Fira Code', monospace"
+         :font-size "0.9rem"
+         :line-height "1.6"
+         :box-sizing "border-box")
+
+        (".md-textarea:focus"
+         :outline "none")
+
+        (".md-preview"
+         :min-height "200px"
+         :padding "14px"
+         :color "#d4d4d4"
+         :line-height "1.6")
+
+        ;; Markdown rendered content
+        (".md-content p"
+         :margin "0 0 12px")
+
+        (".md-content h1"
+         :font-size "1.5rem"
+         :margin "20px 0 10px"
+         :color "#e0e0e0")
+
+        (".md-content h2"
+         :font-size "1.3rem"
+         :margin "18px 0 8px"
+         :color "#e0e0e0")
+
+        (".md-content h3"
+         :font-size "1.1rem"
+         :margin "16px 0 6px"
+         :color "#e0e0e0")
+
+        (".md-content ul, .md-content ol"
+         :margin "0 0 12px 20px"
+         :padding 0)
+
+        (".md-content li"
+         :margin "4px 0")
+
+        (".md-content blockquote"
+         :border-left "3px solid #7c3aed"
+         :margin "0 0 12px"
+         :padding "8px 16px"
+         :background "#111"
+         :border-radius "0 6px 6px 0"
+         :color "#aaa")
+
+        (".md-content code"
+         :background "#1a1a2e"
+         :padding "2px 6px"
+         :border-radius "4px"
+         :font-family "'JetBrains Mono', 'Fira Code', monospace"
+         :font-size "0.85em"
+         :color "#c084fc")
+
+        (".md-content pre"
+         :margin "0 0 16px"
+         :padding "14px"
+         :background "#0d0d0d"
+         :border "1px solid #1e1e1e"
+         :border-radius "8px"
+         :overflow-x "auto")
+
+        (".md-content pre code"
+         :background "none"
+         :padding 0
+         :color "#d4d4d4"
+         :font-size "0.85rem")
+
+        (".md-content a"
+         :color "#7c3aed"
+         :text-decoration "none")
+
+        (".md-content a:hover"
+         :text-decoration "underline")
+
+        (".md-content img"
+         :max-width "100%"
+         :border-radius "6px")
+
+        (".md-content table"
+         :width "100%"
+         :border-collapse "collapse"
+         :margin "0 0 16px")
+
+        (".md-content th, .md-content td"
+         :padding "8px 12px"
+         :border "1px solid #2a2a2a"
+         :text-align "left")
+
+        (".md-content th"
+         :background "#111"
+         :font-weight 600)
+
+        (".md-content hr"
+         :border "none"
+         :border-top "1px solid #2a2a2a"
+         :margin "20px 0")))
     "
 @media (max-width: 768px) {
   h1 { font-size: 1.8rem; }

@@ -47,7 +47,11 @@
     (:meta :name "viewport" :content "width=device-width, initial-scale=1")
     (:title (cl-who:str title))
     (:link :rel "icon" :type "image/svg+xml" :href *favicon-data-uri*)
-    (:style (cl-who:str (generate-css)))))
+    (:link :rel "stylesheet" :href "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css")
+    (:style (cl-who:str (generate-css)))
+    (:script :src "https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js")
+    (:script :src "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js")
+    (:script :src "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/lisp.min.js")))
 
 (defun forum-render-header (user)
   (cl-who:with-html-output-to-string (s)
@@ -71,6 +75,32 @@
           (cl-who:htm
            (:a :class "header-login" :href "/login" "Войти")
            (:a :class "header-register" :href "/register" "Регистрация")))))))
+
+(defun forum-render-editor (name &optional (placeholder "Напишите что-нибудь..."))
+  "Render a rich markdown editor with toolbar and preview."
+  (cl-who:with-html-output-to-string (s)
+    (:div :class "md-editor"
+     (:div :class "md-toolbar"
+      (:button :type "button" :class "md-btn" :data-action "bold" :title "Жирный" "B")
+      (:button :type "button" :class "md-btn" :data-action "italic" :title "Курсив" "I")
+      (:button :type "button" :class "md-btn" :data-action "strike" :title "Зачёркнутый" "S")
+      (:span :class "md-sep")
+      (:button :type "button" :class "md-btn" :data-action "h1" :title "Заголовок 1" "H1")
+      (:button :type "button" :class "md-btn" :data-action "h2" :title "Заголовок 2" "H2")
+      (:button :type "button" :class "md-btn" :data-action "h3" :title "Заголовок 3" "H3")
+      (:span :class "md-sep")
+      (:button :type "button" :class "md-btn" :data-action "ul" :title "Список" "• —")
+      (:button :type "button" :class "md-btn" :data-action "ol" :title "Нумерованный список" "1.")
+      (:button :type "button" :class "md-btn" :data-action "quote" :title "Цитата" "« »")
+      (:span :class "md-sep")
+      (:button :type "button" :class "md-btn" :data-action "code" :title "Код" "&lt;/&gt;")
+      (:button :type "button" :class "md-btn" :data-action "link" :title "Ссылка" "🔗")
+      (:button :type "button" :class "md-btn" :data-action "image" :title "Картинка" "🖼")
+      (:span :class "md-sep")
+      (:button :type "button" :class "md-btn md-preview-btn" :data-action "preview" :title "Предпросмотр" "👁"))
+     (:textarea :name name :class "md-textarea" :placeholder placeholder
+                :required "required")
+     (:div :class "md-preview" :style "display:none"))))
 
 (defun forum-page-index (user)
   (let ((categories (get-categories))
@@ -201,7 +231,7 @@
                                                 (:span :class (format nil "role-badge role-~A" role)
                                                         (cl-who:str role))))
                                              (:span :class "post-date" (cl-who:str created-at)))
-                                       (:div :class "post-body" (cl-who:str body))
+                                       (:div :class "post-body md-content" (cl-who:str body))
                                        (when (and user (or (user-moderator-p user)
                                                            (= (getf user :id) (getf topic :user-id))))
                                          (cl-who:htm
@@ -223,13 +253,12 @@
                         (:div :class "post-form-section"
                               (:h3 "Ответить")
                               (:form :method "POST" :action "/new-post"
-                                     (:input :type "hidden" :name "topic-id"
-                                             :value (getf topic :id))
-                                     (:textarea :name "body" :class "post-textarea"
-                                                :placeholder "Ваш ответ..." :required "required")
-                                     (:button :class "try-button" :type "submit"
-                                               "Отправить"))))))))
-               (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper.ru" "lisper.ru")
+                                      (:input :type "hidden" :name "topic-id"
+                                              :value (getf topic :id))
+                                      (cl-who:str (forum-render-editor "body" "Ваш ответ..."))
+                                      (:button :class "try-button" :type "submit"
+                                                "Отправить"))))))))
+                (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper.ru" "lisper.ru")
                              " &copy; 2026 | GPL-3.0")))))))
         (forum-page-not-found user))))
 
@@ -265,9 +294,8 @@
                              (:input :type "text" :name "title" :id "title"
                                      :required "required" :placeholder "Тема"))
                        (:div :class "form-group"
-                             (:label :for "body" "Текст")
-                             (:textarea :name "body" :id "body" :required "required"
-                                        :placeholder "Сообщение..." :class "post-textarea"))
+                              (:label :for "body" "Текст")
+                              (cl-who:str (forum-render-editor "body" "Сообщение...")))
                        (:button :class "try-button" :type "submit" "Создать тему")))
                (cl-who:htm
                 (:p "Войдите, чтобы создать тему. "
