@@ -27,6 +27,13 @@
 
 ## Тонкости и баги
 
+### Quicklisp + SBCL
+- SBCL 2.6.5: `clack-handler-wookie` требует quicklisp dist ≥ 2026-01-01 (ironclad v0.50 не компилируется, нужен v0.61)
+- SBCL HTTP client зависает на скачивании → обход через `QL-HTTP:*FETCH-SCHEME-FUNCTIONS*` с `curl`
+- Сервер без PostgreSQL: обернуть `db-connect` в `handler-case` → стартует, главная работает, форум падает
+
+## Тонкости и баги
+
 ### CL-WHO
 - `with-html-output-to-string` требует `(htm ...)` для SXML-форм
 - Raw-строки через `(cl-who:str ...)`
@@ -65,6 +72,7 @@
 - **XSS через appendHTML()**: `div.innerHTML = html` → санитизация через DOMPurify, fallback на strip tags
 - **SRI**: все CDN-скрипты (marked, highlight.js, DOMPurify) и CSS имеют `integrity` + `crossorigin="anonymous"`
 - **Security Headers**: CSP, X-Frame-Options: DENY, X-Content-Type-Options: nosniff, Referrer-Policy, X-XSS-Protection: 0
+- **CSP + inline handlers**: CSP `script-src` без `'unsafe-inline'` блокирует `onclick=""` → заменить на `id` + `addEventListener` в JS
 - **Timestamps**: PostgreSQL `TIMESTAMP` возвращает сырые числа → исправлено через `TO_CHAR(created_at, 'DD.MM.YYYY HH24:MI')` в SQL
 - **Audit Log**: таблица `audit_log` + функция `log-audit` — логирует все действия модерации (delete, mute, unmute, set-role, toggle-forum)
 - **JSCL safety**: проверка `typeof jscl === 'undefined'` перед использованием в loadScript callback
@@ -134,6 +142,7 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 ## JSCL-интеграция (REPL в браузере)
 - Кнопка "Попробовать CL" в шапке рядом с Telegram
 - По клику — модалка с REPL (jscl-project.github.io CDN)
+- Кнопка: `id="try-repl-btn"` + `addEventListener` (не `onclick` из-за CSP)
 - Ленивая загрузка: jquery.js → jqconsole.js → jscl.js → jscl-web.js
 - `(exit)` / `(quit)` / `(si:quit)` закрывают модалку
 - Escape тоже закрывает модалку

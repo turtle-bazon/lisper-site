@@ -229,6 +229,11 @@
   };
 
   document.addEventListener('click', function(e) {
+    var tryBtn = document.getElementById('try-repl-btn');
+    if (tryBtn && (e.target === tryBtn || tryBtn.contains(e.target))) {
+      e.preventDefault();
+      window.openRepl();
+    }
     if (e.target.classList && e.target.classList.contains('repl-close')) {
       e.preventDefault();
       e.stopPropagation();
