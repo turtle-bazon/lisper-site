@@ -768,6 +768,34 @@
         (".admin-user-name:hover"
          :color "#7c3aed")
 
+        (".admin-forum-status"
+         :padding "16px"
+         :background "#111111"
+         :border "1px solid #2a2a2a"
+         :border-radius "8px"
+         :margin-bottom "20px")
+
+        (".status-open"
+         :color "#22c55e"
+         :font-weight 600)
+
+        (".status-closed"
+         :color "#ef4444"
+         :font-weight 600)
+
+        (".admin-button-danger"
+         :background "#ef4444"
+         :color "#fff"
+         :border "none"
+         :padding "8px 16px"
+         :border-radius "6px"
+         :cursor "pointer"
+         :font-size "0.9rem"
+         :margin-left "12px")
+
+        (".admin-button-danger:hover"
+         :background "#dc2626")
+
         (".profile-info"
          :margin-bottom "20px")
 

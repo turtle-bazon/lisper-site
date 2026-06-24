@@ -356,14 +356,25 @@
         (forum-page-not-found user))))
 
 (defun forum-page-admin-users (user)
-  (let ((users (get-all-users)))
+  (let ((users (get-all-users))
+        (forum-closed (forum-closed-p)))
     (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
       (cl-who:htm
        (:html :lang "ru"
-        (:head (cl-who:str (forum-render-head "Админ — Пользователи")))
+        (:head (cl-who:str (forum-render-head "Админ — Форум")))
         (:body
          (:div :class "container"
           (:header (cl-who:str (forum-render-header user)))
+          (:div :class "section"
+           (:h2 "Управление форумом")
+           (:div :class "admin-forum-status"
+            (:p "Статус форума: "
+                (if forum-closed
+                    (cl-who:htm (:span :class "status-closed" "ЗАКРЫТ"))
+                    (cl-who:htm (:span :class "status-open" "ОТКРЫТ"))))
+            (:form :method "POST" :action "/admin/toggle-forum" :style "display:inline"
+                   (:button :type "submit" :class (if forum-closed "try-button" "admin-button-danger")
+                            (if forum-closed "Открыть форум" "Закрыть форум")))))
           (:div :class "section"
            (:h2 "Управление пользователями")
            (:div :class "admin-user-list"
@@ -423,19 +434,21 @@
          (when error-message
            (cl-who:htm
             (:div :class "auth-error" (cl-who:str error-message))))
-         (:form :method "POST" :action "/register"
-                (:div :class "form-group"
-                      (:label :for "username" "Имя пользователя")
-                      (:input :type "text" :name "username" :id "username"
-                              :required "required"))
-                (:div :class "form-group"
-                      (:label :for "email" "Email")
-                      (:input :type "email" :name "email" :id "email" :required "required"))
-                (:div :class "form-group"
-                      (:label :for "password" "Пароль")
-                      (:input :type "password" :name "password" :id "password"
-                              :required "required" :minlength "6"))
-                (:button :class "try-button" :type "submit" "Зарегистрироваться"))
+          (:form :method "POST" :action "/register"
+                 (:div :class "form-group"
+                       (:label :for "username" "Имя пользователя")
+                       (:input :type "text" :name "username" :id "username"
+                               :required "required"))
+                 (:div :class "form-group"
+                       (:label :for "email" "Email")
+                       (:input :type "email" :name "email" :id "email" :required "required"))
+                 (:div :class "form-group"
+                       (:label :for "password" "Пароль")
+                       (:input :type "password" :name "password" :id "password"
+                               :required "required" :minlength "6"))
+                 (:div :style "position:absolute;left:-9999px" :aria-hidden "true"
+                       (:input :type "text" :name "website" :tabindex "-1" :autocomplete "off"))
+                 (:button :class "try-button" :type "submit" "Зарегистрироваться"))
          (:p :class "auth-switch"
              "Уже есть аккаунт? " (:a :href "/login" "Войти"))))
        (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper.ru" "lisper.ru")

@@ -67,7 +67,14 @@ DROP TABLE IF EXISTS topics;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS users;")))
     (2 . ((:up . "ALTER TABLE users ADD COLUMN muted_until TIMESTAMP DEFAULT NULL;")
-          (:down . "ALTER TABLE users DROP COLUMN muted_until;")))))
+          (:down . "ALTER TABLE users DROP COLUMN muted_until;")))
+    (3 . ((:up . "CREATE TABLE settings (
+    key VARCHAR(50) PRIMARY KEY,
+    value TEXT NOT NULL
+);
+
+INSERT INTO settings (key, value) VALUES ('forum_closed', 'false');")
+          (:down . "DROP TABLE IF EXISTS settings;")))))
 
 (defun get-available-migrations ()
   "Return sorted list of (version name) from embedded migrations."

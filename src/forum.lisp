@@ -113,3 +113,25 @@
   (postmodern:query
    "SELECT COUNT(*) FROM posts WHERE user_id = $1"
    user-id :single))
+
+;;; Settings functions
+
+(defun get-setting (key)
+  "Get a setting value from the database."
+  (postmodern:query "SELECT value FROM settings WHERE key = $1" key :single))
+
+(defun set-setting (key value)
+  "Set a setting value in the database."
+  (postmodern:execute "INSERT INTO settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2"
+                      key value))
+
+(defun forum-closed-p ()
+  "Check if the forum is closed for posting."
+  (let ((val (get-setting "forum_closed")))
+    (and val (string= val "true"))))
+
+(defun toggle-forum ()
+  "Toggle the forum open/closed state. Returns new state."
+  (if (forum-closed-p)
+      (progn (set-setting "forum_closed" "false") nil)
+      (progn (set-setting "forum_closed" "true") t)))

@@ -16,7 +16,7 @@
 - **JS**: plain string (Parenscript убран из-за конфликта readtable)
 - **БД**: PostgreSQL 15 через `postmodern` (user=lisper, pass=lisper, db=lisper, host=127.0.0.1)
 - **Аутентификация**: ironclad PBKDF2 (SHA-256, 100k iter), cookie-based sessions (30 дней)
-- **Миграции**: SQL-файлы `migrations/NNNN-name.{up,down}.sql`, таблица `schema_migrations`
+- **Миграции**: SQL-файлы `migrations/NNNN-name.{up,down}.sql`, встроены в бинарник через `src/migrations.lisp`, таблица `schema_migrations`
 - **Бинарник**: buildapp → `build/lisper` (~93MB)
 - **Лицензия**: GPL-3.0
 - **Исходники**: https://github.com/turtle-bazon/lisper.ru (зеркало, основная СКВ — Mercurial)
@@ -75,6 +75,7 @@ src/
   package.lisp      — пакет :lisper
   config.lisp       — чтение .conf файлов
   resources.lisp    — загруженные ресурсы (генерируется build-resources.lisp)
+  migrations.lisp   — встроенные SQL-миграции (генерируется из migrations/)
   db.lisp           — PostgreSQL + миграции
   auth.lisp         — регистрация, логин, сессии
   forum.lisp        — CRUD операции форума
@@ -154,16 +155,19 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - **Fix (2026-06-24)**: `is-muted-p` — не нужен `local-time`; использовать SQL `NOW()` в запросе: `SELECT 1 FROM users WHERE id = $1 AND muted_until > NOW()`
 - **Fix (2026-06-24)**: `routes.lisp` paren mismatch — лишняя `)` в первом cond-clause `(page-index user)` закрывала `cond` досрочно; все последующие cond-clauses читались как top-level code → "illegal function call"
 - **Дизайн (2026-06-24)**: Новый хедер — лого слева (ссылка на `/`), навигация по центру (Попробовать CL, Telegram, Форум), учётка справа (Войти/Регистрация или имя+Выйти). Hero-секция вынесена из хедера в отдельный `.hero` div с заголовком и 3 кнопками (`.hero-try-button`, `.forum-button`, `.telegram-button`). Старые стили `.logo-container`, `.header-buttons`, `.forum-link`, `.user-info`, `.logout-link`, `.login-link`, `.admin-link` заменены на `.site-header`, `.header-nav`, `.header-right`, `.header-user`, `.header-logout`, `.header-login`, `.header-register`, `.header-admin`
+- **Иконки (2026-06-24)**: Lucide SVG встроены прямо в Lisp-код (никаких CDN). Terminal для REPL, официальный Telegram logo (круг #229ED9 + белый самолётик), MessageCircle для форума, House для главной. CSS `.nav-icon svg` — 16×16, `stroke: currentColor` для Lucide, заливка для Telegram.
+- **Ссылка на Telegram**: `tg://resolve?domain=commonlisp_ru` (не https://t.me/)
 
 ## Форум
 - **Страницы**: `/forum`, `/forum/{slug}`, `/topic/{id}`, `/new-topic`, `/login`, `/register`, `/logout`, `/user/{username}`
-- **POST-роуты**: `/login`, `/register`, `/new-topic`, `/new-post`, `/delete-post`, `/delete-topic`, `/admin/mute`, `/admin/unmute`, `/admin/set-role`
+- **POST-роуты**: `/login`, `/register`, `/new-topic`, `/new-post`, `/delete-post`, `/delete-topic`, `/admin/mute`, `/admin/unmute`, `/admin/set-role`, `/admin/toggle-forum`
 - **Админ**: `/admin/users` — список всех пользователей (только для admin)
 - **POST-body**: `parse-post-body` читает `raw-body` stream → URL-decode → hash-table
 - **Категории**: 4 (general, projects, help, news) — seed в миграции 0001
 - **Роли**: user, moderator, admin (поле `role` в `users`)
 - **Сессии**: cookie `session=HEX`, таблица `sessions`, TTL 30 дней
 - **Мут**: `muted_until` timestamp на users; проверяется перед созданием topic/post; PostgreSQL `NOW()` для сравнения
+- **Настройки**: таблица `settings` (key/value), флаг `forum_closed` для закрытия форума
 
 ### Модерация
 - **Админ**: может назначать/снимать модераторов, мутить/размьютить, удалять топики/посты, видеть список пользователей
@@ -186,10 +190,18 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - `set-user-role` — смена роли (admin only)
 - `is-muted-p` — SQL `SELECT 1 ... WHERE muted_until > NOW()`
 - **Важно**: `(getf env :headers)` — это hash-table, не строка; искать через `(gethash "cookie" headers)`
+- **Важно**: `(getf env :headers)` — это hash-table, не строка; искать через `(gethash "cookie" headers)`
 
 ### Миграции
-- Формат: `migrations/0001-name.up.sql` / `0001-name.down.sql` (4-значный номер)
+- **Встроены в бинарник** через `src/migrations.lisp` — не нужно таскать папку `migrations/`
 - Таблица `schema_migrations`: version (int PK), name, applied_at
-- `get-available-migrations` — `(position #\.` (первый dot) для имени файла
-- `read-migration-file` — `make-array` с fill-pointer для UTF-8
+- `get-available-migrations` — возвращает список из `*migrations*`
+- `get-migration-sql` — получает SQL из `*migrations*` по version и direction (:up/:down)
 - `apply-migration` — split SQL by `;` + execute each via `postmodern:query` (не multi-statement)
+- При добавлении новой миграции: создать SQL-файлы, добавить в `*migrations*` в `src/migrations.lisp`
+
+### Антиспам
+- **Honeypot CAPTCHA** на регистрации — скрытое поле `website`, боты его заполняют, humans нет
+- **Закрытие форума** — флаг `forum_closed` в таблице `settings`, админ может закрыть/открыть через `/admin/toggle-forum`
+- Когда форум закрыт: обычные пользователи не могут создавать топики/посты, админы могут
+- Статус форума виден в админке: "ОТКРЫТ" (зелёный) / "ЗАКРЫТ" (красный) + кнопка toggle
