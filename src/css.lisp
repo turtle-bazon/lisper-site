@@ -181,8 +181,8 @@
         :margin-bottom "8px"
         :padding-left "20px"
         :position "relative")
-       ("li::before"
-        :content "\">\""
+("li::before"
+         :content "\"•\""
         :color "#7c3aed"
         :position "absolute"
         :left 0)
@@ -284,8 +284,8 @@
          :color "#bbb"
          :font-size "0.95rem")
 
-        (".resources-list li::before"
-         :content "\">\""
+(".resources-list li::before"
+          :content "\"•\""
          :color "#7c3aed"
          :position "absolute"
          :left 0)
