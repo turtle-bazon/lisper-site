@@ -3,9 +3,7 @@
 (defvar *db-spec* nil
   "PostgreSQL connection spec: (database user password host &key port)")
 
-(defvar *migrations-dir*
-  (merge-pathnames "migrations/"
-                   (asdf:system-source-directory :lisper)))
+;;; Migrations are embedded in src/migrations.lisp
 
 (defun db-connect ()
   "Connect to PostgreSQL and run pending migrations."
@@ -34,40 +32,11 @@
                 (postmodern:query "SELECT version FROM schema_migrations ORDER BY version"))
         #'<))
 
-(defun get-available-migrations ()
-  "Scan migrations directory, return sorted list of (version name)."
-  (let ((dir (probe-file *migrations-dir*)))
-    (if dir
-        (let ((files (directory (merge-pathnames "*.up.sql" dir))))
-          (sort (mapcar (lambda (f)
-                          (let* ((name (file-namestring f))
-                                 (dot-pos (position #\. name))
-                                 (dash-pos (position #\- name)))
-                            (list (parse-integer (subseq name 0 dash-pos))
-                                  (subseq name (+ dash-pos 1) dot-pos))))
-                        files)
-                #'< :key #'first))
-        nil)))
+;;; get-available-migrations and get-migration-sql are in migrations.lisp
 
-(defun read-migration-file (version direction)
-  "Read migration SQL file. direction is :up or :down."
-  (let* ((migrations (get-available-migrations))
-         (entry (find version migrations :key #'first))
-         (name (second entry))
-         (suffix (if (eq direction :up) "up.sql" "down.sql"))
-         (filename (format nil "~4,'0D-~A.~A" version name suffix))
-         (filepath (merge-pathnames filename *migrations-dir*)))
-    (with-open-file (s filepath :direction :input
-                                  :external-format :utf-8
-                                  :if-does-not-exist nil)
-      (when s
-        (let ((content (make-array (file-length s)
-                                   :element-type 'character
-                                   :fill-pointer 0)))
-          (loop for ch = (read-char s nil nil)
-                while ch
-                do (vector-push-extend ch content))
-          content)))))
+(defun read-migration-sql (version direction)
+  "Get migration SQL from embedded data. direction is :up or :down."
+  (get-migration-sql version direction))
 
 (defun apply-migration (version name sql)
   "Apply a single migration - split by semicolons and execute each."
@@ -87,10 +56,10 @@
     (dolist (entry available)
       (destructuring-bind (version name) entry
         (unless (member version applied)
-          (let ((sql (read-migration-file version :up)))
-            (if sql
-                (apply-migration version name sql)
-                (format t "~&Warning: Migration file not found for ~4,'0D~%" version)))))))
+              (let ((sql (read-migration-sql version :up)))
+                (if sql
+                    (apply-migration version name sql)
+                    (format t "~&Warning: Migration SQL not found for ~4,'0D~%" version)))))))
   (format t "~&Migrations complete.~%"))
 
 (defun rollback-last-migration ()
@@ -100,7 +69,7 @@
         (let* ((version (car (last applied)))
                (entry (find version (get-available-migrations) :key #'first))
                (name (second entry))
-               (sql (read-migration-file version :down)))
+               (sql (read-migration-sql version :down)))
           (if sql
               (progn
                 (postmodern:with-transaction ()
@@ -109,7 +78,7 @@
                    "DELETE FROM schema_migrations WHERE version = $1"
                    version))
                 (format t "~&Rolled back migration ~4,'0D: ~A~%" version name))
-              (format t "~&Warning: Rollback file not found for ~4,'0D~%" version)))
+              (format t "~&Warning: Rollback SQL not found for ~4,'0D~%" version)))
         (format t "~&No migrations to rollback.~%"))))
 
 (defun rollback-n-migrations (n)

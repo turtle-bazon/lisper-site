@@ -19,6 +19,7 @@
                 ((:file "package")
                  (:file "config")
                  (:file "resources")
+                 (:file "migrations")
                  (:file "db")
                  (:file "auth")
                  (:file "forum")
