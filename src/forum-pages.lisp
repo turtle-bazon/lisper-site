@@ -255,11 +255,11 @@
                               (:form :method "POST" :action "/new-post"
                                       (:input :type "hidden" :name "topic-id"
                                               :value (getf topic :id))
-                                      (cl-who:str (forum-render-editor "body" "Ваш ответ..."))
-                                      (:button :class "try-button" :type "submit"
-                                                "Отправить"))))))))
-                (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper.ru" "lisper.ru")
-                             " &copy; 2026 | GPL-3.0")))))))
+                                       (cl-who:str (forum-render-editor "body" "Ваш ответ..."))
+                                       (:button :class "try-button" :type "submit"
+                                                 "Отправить"))))))))
+        (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper.ru" "lisper.ru")
+                      " &copy; 2026 | GPL-3.0")))))))
         (forum-page-not-found user))))
 
 (defun forum-page-new-topic (user category-slug)
@@ -380,7 +380,7 @@
                                (cl-who:str r)))))
                            (:button :class "role-btn" :type "submit" "Назначить")))))))))
                  (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper.ru" "lisper.ru")
-                               " &copy; 2026 | GPL-3.0"))))))))
+                       " &copy; 2026 | GPL-3.0"))))))))
         (forum-page-not-found user))))
 
 (defun forum-page-admin-users (user)
@@ -432,22 +432,11 @@
         (:header (cl-who:str (forum-render-header user)))
         (:div :class "auth-section"
          (:h2 "Вход")
-         (when error-message
-           (cl-who:htm
-            (:div :class "auth-error" (cl-who:str error-message))))
-         (:form :method "POST" :action "/login"
-                (:div :class "form-group"
-                      (:label :for "email" "Email")
-                      (:input :type "email" :name "email" :id "email" :required "required"))
-                (:div :class "form-group"
-                      (:label :for "password" "Пароль")
-                      (:input :type "password" :name "password" :id "password"
-                              :required "required"))
-                (:button :class "try-button" :type "submit" "Войти"))
-         (:p :class "auth-switch"
-             "Нет аккаунта? " (:a :href "/register" "Зарегистрироваться"))))
-       (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper.ru" "lisper.ru")
-                     " &copy; 2026 | GPL-3.0")))))))
+         (:div :class "auth-error" (cl-who:str (or error-message "Вход временно отключён. Скоро будет доступен вход через VK ID, Yandex ID и Госуслуги.")))
+         (:p :style "color:#888;margin-top:16px"
+             "Сейчас на сайте нельзя зарегистрироваться или войти через email."))
+        (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper.ru" "lisper.ru")
+                      " &copy; 2026 | GPL-3.0"))))))))
 
 (defun forum-page-register (user error-message)
   (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
@@ -459,25 +448,8 @@
         (:header (cl-who:str (forum-render-header user)))
         (:div :class "auth-section"
          (:h2 "Регистрация")
-         (when error-message
-           (cl-who:htm
-            (:div :class "auth-error" (cl-who:str error-message))))
-          (:form :method "POST" :action "/register"
-                 (:div :class "form-group"
-                       (:label :for "username" "Имя пользователя")
-                       (:input :type "text" :name "username" :id "username"
-                               :required "required"))
-                 (:div :class "form-group"
-                       (:label :for "email" "Email")
-                       (:input :type "email" :name "email" :id "email" :required "required"))
-                 (:div :class "form-group"
-                       (:label :for "password" "Пароль")
-                       (:input :type "password" :name "password" :id "password"
-                               :required "required" :minlength "6"))
-                 (:div :style "position:absolute;left:-9999px" :aria-hidden "true"
-                       (:input :type "text" :name "website" :tabindex "-1" :autocomplete "off"))
-                 (:button :class "try-button" :type "submit" "Зарегистрироваться"))
-         (:p :class "auth-switch"
-             "Уже есть аккаунт? " (:a :href "/login" "Войти"))))
-       (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper.ru" "lisper.ru")
-                     " &copy; 2026 | GPL-3.0")))))))
+         (:div :class "auth-error" (cl-who:str (or error-message "Регистрация временно отключена. Скоро будет доступен вход через VK ID, Yandex ID и Госуслуги.")))
+         (:p :style "color:#888;margin-top:16px"
+             "Сейчас на сайте нельзя зарегистрироваться или войти через email."))
+        (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper.ru" "lisper.ru")
+                      " &copy; 2026 | GPL-3.0"))))))))
