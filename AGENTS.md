@@ -2,6 +2,8 @@
 
 > **Правило**: при каждом изменении кода, обнаруженном баге, принятом решении или 새로운 тонкости — немедленно обновлять этот файл. AGENTS.md — живая документация проекта.
 
+> **Ошибки**: НИКОГДА не подавлять ошибки молча. `(handler-case ... (error (e) nil))` запрещён. Всегда логировать через `console.log`. Молчание скрывает баги и ломает отладку.
+
 > **Скриншоты**: когда пользователь говорит "посмотри скриншот" — открывать файл `/tmp/screen.png`.
 
 > **Таймауты**: максимальный таймаут для команд — 30000 мс (30 секунд).
@@ -171,6 +173,11 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - **Fix (2026-06-26)**: `readOneForm` не пропускал `;` комментарии внутри форм — скобки в комментариях (`; Read input from _ki array (JS updates _ki[0..4], CL reads here)`) считались реальными, depth ломался → обрезался `update` (form 35/37), `game-loop-raw` и `start-lisp-invaders` не вызывались. Исправлено: `if (c === ';') { while (pos < src.length && src[pos] !== '\\n') pos++; continue; }` в `readOneForm` перед подсчётом скобок
 - **Fix (2026-06-26)**: лишняя `)` в `lisp-invaders.lisp` строка 239 — `(setf *game-over* t))))))` → `(setf *game-over* t)))))` (6→5 closing parens). Depth на строке 239 был 4, 6 `)` давали depth=-1 → `readOneForm` не мог найти начало следующей формы
 - **Fix (2026-06-26)**: конфликт `window._ac` — canvas `arc()` (line 417) и AudioContext (line 430) оба использовали `_ac`. AudioContext перезаписывал `_ac = null` → `draw-player` падал на `(#j:_ac ...)`. AudioContext переименован в `_actx`
+- **JSCL строки в JS**: CL-строка `"shoot"` в JSCL — объект `{string: "shoot"}`, не JS-строка. Оператор `===` всегда `false`. Извлекать через `type.string` на JS-стороне. Функция `jscl::xstring` недоступна из CL-кода
+- **JSCL FFI — паттерн вызова методов** (из `education/oscillator.html`):
+  - `(jscl::oget obj "method")` — получить метод, `((jscl::oget obj "method") args)` — вызвать
+  - `(setf (jscl::oget obj "prop") val)` — установить свойство
+  - `(#j:Reflect:construct (or #j:AudioContext #j:webkitAudioContext) (#j:Array))` — создать объект (вместо `new`, который не работает для `#j:AudioContext`)
 - **Fix (2026-06-26)**: CL-строки с `\n` — в CL-строках `\n` = literal `n` (escape), не newline. Для JS `\n` нужно писать `\\\\n` в CL-источнике (→ `\n` в памяти CL → `\n` в JS-выводе). `'\\n'` → `n`, `'\\\\n'` → `\n`. Это коснулось fix выше — первый вариант `'\\n'` не работал
 - **Fix (2026-06-23)**: Wookie `:debug nil` — добавлено в `clack:clackup`, иначе сервер падает на первом запросе с ошибкой
 - **Fix (2026-06-24)**: ironclad PBKDF2 — `derive-key` с `'ironclad:pbkdf2` (символ) не работает; использовать `pbkdf2-hash-password` convenience-функцию с `:digest :sha256 :iterations 100000`

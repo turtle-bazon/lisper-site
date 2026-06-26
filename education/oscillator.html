@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>JSCL WebAudio</title></head>
+<body>
+  <button id="btn" onclick="clplay();">Play</button>
+  <script src="jscl.js"></script>
+  <script type="text/x-common-lisp">
+    (defvar *ac* nil)
+
+    (defun ensure-audio-ctx ()
+      (unless *ac*
+        (setf *ac* (#j:Reflect:construct (or #j:AudioContext #j:webkitAudioContext) (#j:Array)))))
+
+    (defun play ()
+      (ensure-audio-ctx)
+      (let* ((osc ((jscl::oget *ac* "createOscillator")))
+             (gain ((jscl::oget *ac* "createGain")))
+             (osc-frequency (jscl::oget osc "frequency"))
+             (gain-gain (jscl::oget gain "gain"))
+             (currentTime (jscl::oget *ac* "currentTime")))
+        (setf (jscl::oget osc "type") "sine")
+        ((jscl::oget osc-frequency "setValueAtTime") 440 currentTime)
+        ((jscl::oget gain-gain "setValueAtTime") 0.3 currentTime)
+        ((jscl::oget osc "connect") gain)
+        ((jscl::oget gain "connect") (jscl::oget *ac* "destination"))
+        ((jscl::oget osc "start"))
+        ((jscl::oget osc "stop") (+ currentTime 0.5))))
+
+    (setf #j:clplay (lambda () (play)))
+  </script>
+</body>
+</html>
+

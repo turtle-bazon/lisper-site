@@ -2,6 +2,7 @@
 ;;; Всё на Common Lisp. Canvas через JS-обёртки, ввод через CL event listeners.
 
 (in-package :cl-user)
+(use-package :jscl/ffi)
 
 ;;; Состояние
 (defvar *score* 0)
@@ -22,11 +23,9 @@
 (defvar *e-chance* 0.005)
 (defvar *tick* 0)
 
-;;; Ввод — JS только складывает e.keyCode в _pk[keyCode]
-;;; Весь маппинг клавиш и логика — на CL.
-;;; Коды клавиш (keyCode):
-;;;   37=ArrowLeft  39=ArrowRight  32=Space  80=P  13=Enter
-;;;   65=A  68=D  87=W  83=S
+;;; Ввод — JS складывает keyCode в _pk[], CL читает через _kpc
+
+(defvar *keys* (make-hash-table))
 
 (defun key-pressed (code)
   (= 1 (#j:_kpc code)))
@@ -38,6 +37,8 @@
 (defvar *reset-clicks* 0)
 (defvar *prev-p* nil)
 (defvar *prev-enter* nil)
+(defvar *prev-space* nil)
+(defvar *shoot-edge* nil)
 
 (defun read-input ()
   ;; Движение: стрелки + WASD
@@ -56,7 +57,12 @@
   (let ((enter-now (key-pressed 13)))          ; Enter
     (when (and enter-now (not *prev-enter*))
       (incf *reset-clicks*))
-    (setf *prev-enter* enter-now)))
+    (setf *prev-enter* enter-now))
+  ;; Стрельба: Space — rising edge (для звука)
+  (let ((space-now (key-pressed 32)))          ; Space
+    (when (and space-now (not *prev-space*))
+      (setf *shoot-edge* t))
+    (setf *prev-space* space-now)))
 
 ;;; Спавн
 (defun spawn ()
@@ -99,16 +105,13 @@
   (let* ((p *player*) (x (getf p :x)) (y (getf p :y))
          (w (getf p :w)) (h (getf p :h)))
     (#j:_sc #j:_ctx (getf p :color))
-    (#j:_bp #j:_ctx)
-    (#j:_mt #j:_ctx (+ x (/ w 2)) y)
-    (#j:_lt #j:_ctx (+ x w) (+ y h))
-    (#j:_lt #j:_ctx x (+ y h))
-    (#j:_cp #j:_ctx)
-    (#j:_fl #j:_ctx)
-    (#j:_sc #j:_ctx "#166534")
-    (#j:_bp #j:_ctx)
-    (#j:_ac #j:_ctx (+ x (/ w 2)) (+ y 8) 5 0 6.283)
-    (#j:_fl #j:_ctx)
+    (#j:_fr #j:_ctx x y w h)
+    (#j:_sc #j:_ctx "#000")
+    (#j:_fr #j:_ctx (+ x 10) (+ y 8) 6 6)
+    (#j:_fr #j:_ctx (+ x w -16) (+ y 8) 6 6)
+    (#j:_sc #j:_ctx (getf p :color))
+    (#j:_fr #j:_ctx (+ x 12) (+ y 10) 2 2)
+    (#j:_fr #j:_ctx (+ x w -14) (+ y 10) 2 2)
     (draw-str "defun" (+ x (/ w 2)) (+ y h -6)
               :f "bold 9px monospace" :a "center")))
 
@@ -238,9 +241,47 @@
         (when (>= (+ (getf e :y) (getf e :h)) (getf *player* :y))
           (setf *game-over* t)))))
 
+;;; Звук — Web Audio API через JSCL FFI (как в oscillator.html)
+(defvar *ac* nil)
+
+(defun ensure-audio-ctx ()
+  (unless *ac*
+    (setf *ac* (#j:Reflect:construct (or #j:AudioContext #j:webkitAudioContext) (#j:Array)))))
+
+(defun play-snd (wave-type freq-start freq-end vol dur)
+  (ensure-audio-ctx)
+  (let* ((osc ((jscl::oget *ac* "createOscillator")))
+         (gain ((jscl::oget *ac* "createGain")))
+         (freq (jscl::oget osc "frequency"))
+         (vol-g (jscl::oget gain "gain"))
+         (now (jscl::oget *ac* "currentTime")))
+    (setf (jscl::oget osc "type") wave-type)
+    ((jscl::oget freq "setValueAtTime") freq-start now)
+    ((jscl::oget freq "exponentialRampToValueAtTime") freq-end (+ now dur))
+    ((jscl::oget vol-g "setValueAtTime") vol now)
+    ((jscl::oget vol-g "exponentialRampToValueAtTime") 0.001 (+ now dur))
+    ((jscl::oget osc "connect") gain)
+    ((jscl::oget gain "connect") (jscl::oget *ac* "destination"))
+    ((jscl::oget osc "start") now)
+    ((jscl::oget osc "stop") (+ now dur))))
+
+(defun snd-shoot () (play-snd "square" 880 440 0.15 0.1))
+(defun snd-hit () (play-snd "sawtooth" 300 50 0.2 0.2))
+(defun snd-hurt () (play-snd "sawtooth" 200 80 0.2 0.3))
+(defun snd-over () (play-snd "square" 440 55 0.15 0.8))
+
+;;; Состояние для отслеживания изменений (для звука)
+(defvar *prev-score* 0)
+(defvar *prev-lives* 3)
+(defvar *prev-over* nil)
+
 ;;; Игровой цикл
 (defun game-loop-raw ()
-  ;; Read input from _ki array (JS updates _ki[0..4], CL reads here)
+  ;; Save previous state for sound detection
+  (setf *prev-score* *score*)
+  (setf *prev-lives* *lives*)
+  (setf *prev-over* *game-over*)
+  ;; Read input from *keys* hash-table
   (read-input)
   ;; Handle one-shot events (pause, reset)
   (when (plusp *pause-clicks*)
@@ -255,8 +296,13 @@
   (draw-enemies)
   (draw-bullets)
   (draw-hud)
-  ;; Export state to JS globals for the JS game loop to read
-  (#j:_exportGameState *score* *lives* (if *game-over* 1 0) (length (or *bullets* nil))))
+  ;; Sound effects based on state changes
+  (when (and (not *prev-over*) *game-over*) (snd-over))
+  (when (> *prev-lives* *lives*) (snd-hurt))
+  (when (> *score* *prev-score*) (snd-hit))
+  (when (and *shoot-edge* (not *game-over*) (not *paused*))
+    (snd-shoot))
+  (setf *shoot-edge* nil))
 
 ;;; Точка входа
 (defun start-lisp-invaders ()

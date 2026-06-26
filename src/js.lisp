@@ -414,9 +414,8 @@
       window._cp = function(ctx) { ctx.closePath(); };
       window._fl = function(ctx) { ctx.fill(); };
       window._ac = function(ctx, x, y, r, s, e) { ctx.arc(x,y,r,s,e); };
-      // Keyboard bridge: JS only captures raw keyCode → _pk[keyCode]
-      // ALL key mapping and logic is in CL
-      window._pk = new Array(256).fill(0);  // _pk[keyCode] = 1 when pressed, 0 when released
+      // Keyboard bridge — JS captures raw keyCode → _pk[keyCode]
+      window._pk = new Array(256).fill(0);
       window._kpc = function(code) { return window._pk[code] || 0; };
       document.addEventListener('keydown', function(e) {
         window._pk[e.keyCode] = 1;
@@ -425,47 +424,7 @@
       document.addEventListener('keyup', function(e) {
         window._pk[e.keyCode] = 0;
       });
-      // Sound effects via Web Audio API — retro 8-bit style
-      window._actx = null;
-      function _getAC() {
-        if (!window._actx) window._actx = new (window.AudioContext || window.webkitAudioContext)();
-        if (window._actx.state === 'suspended') window._actx.resume();
-        return window._actx;
-      }
-      window._snd = function(type) {
-        try {
-          var ac = _getAC();
-          var o = ac.createOscillator();
-          var g = ac.createGain();
-          o.connect(g); g.connect(ac.destination);
-          var t = ac.currentTime;
-          if (type === 'shoot') {
-            o.type = 'square'; o.frequency.setValueAtTime(880, t);
-            o.frequency.exponentialRampToValueAtTime(440, t + 0.1);
-            g.gain.setValueAtTime(0.15, t);
-            g.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
-            o.start(t); o.stop(t + 0.1);
-          } else if (type === 'hit') {
-            o.type = 'sawtooth'; o.frequency.setValueAtTime(300, t);
-            o.frequency.exponentialRampToValueAtTime(50, t + 0.2);
-            g.gain.setValueAtTime(0.2, t);
-            g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
-            o.start(t); o.stop(t + 0.2);
-          } else if (type === 'hurt') {
-            o.type = 'sawtooth'; o.frequency.setValueAtTime(200, t);
-            o.frequency.exponentialRampToValueAtTime(80, t + 0.3);
-            g.gain.setValueAtTime(0.2, t);
-            g.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
-            o.start(t); o.stop(t + 0.3);
-          } else if (type === 'over') {
-            o.type = 'square'; o.frequency.setValueAtTime(440, t);
-            o.frequency.exponentialRampToValueAtTime(55, t + 0.8);
-            g.gain.setValueAtTime(0.15, t);
-            g.gain.exponentialRampToValueAtTime(0.001, t + 0.8);
-            o.start(t); o.stop(t + 0.8);
-          }
-        } catch(e) {}
-      };
+      // Sound — handled in CL via JSCL FFI
       if (lang === 'js') {
         new Function(source)();
         if (window._lispInvadersStart) { window._lispInvadersStart(); }
@@ -533,9 +492,6 @@
       }
 
       // JS-driven game loop with sound effects
-      var frameCount = 0;
-      var prevScore = 0, prevLives = 3, prevBullets = 0;
-
       // Helper to call CL functions by form string
       function callClForm(formStr) {
         var f = _clRead.fvalue(jscl.internals.make_lisp_string(formStr));
@@ -546,16 +502,6 @@
       }
 
       // Export state from CL to JS (called by game-loop-raw)
-      window._clScore = 0;
-      window._clLives = 3;
-      window._clGameOver = 0;
-      window._exportGameState = function(score, lives, gameOver, bullets) {
-        window._clScore = (typeof score === 'number') ? score : 0;
-        window._clLives = (typeof lives === 'number') ? lives : 3;
-        window._clGameOver = gameOver ? 1 : 0;
-        window._clBullets = (typeof bullets === 'number') ? bullets : 0;
-      };
-
       // Call start
       try {
         callClForm('(start-lisp-invaders)');
@@ -575,15 +521,6 @@
           } else {
             callClForm('(game-loop-raw)');
           }
-          var score = window._clScore;
-          var lives = window._clLives;
-          var gameOver = window._clGameOver;
-          var bullets = window._clBullets;
-          if (score !== prevScore) { _snd('hit'); prevScore = score; }
-          if (bullets !== prevBullets) { _snd('shoot'); prevBullets = bullets; }
-          if (lives !== prevLives) { _snd('hurt'); prevLives = lives; }
-          if (gameOver) { _snd('over'); return; }
-          frameCount++;
         } catch(e) {
           return;
         }
