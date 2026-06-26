@@ -197,7 +197,7 @@
     loadScript(JSCL_CDN + 'jquery.js', function() {
       loadScript(JSCL_CDN + 'jqconsole.js', function() {
         appendLine('Loading JSCL compiler...', 'repl-status');
-        loadScript(JSCL_CDN + 'jscl.js', function() {
+        loadScript('/jscl.js', function() {
           appendLine('Loading web runtime...', 'repl-status');
           loadScript(JSCL_CDN + 'jscl-web.js', function() {
             if (typeof jscl === 'undefined') {
@@ -380,14 +380,16 @@
     var jsclLoaded = false;
     var jsclLoading = false;
     var jsclLoadQueue = [];
-    var JSCL_CDN = 'https://jscl-project.github.io/';
+  var JSCL_CDN = '/';
 
     function loadGameJscl(callback) {
       if (jsclLoaded) { callback(); return; }
       jsclLoadQueue.push(callback);
       if (jsclLoading) return;
       jsclLoading = true;
+      console.time('JSCL load');
       loadScript(JSCL_CDN + 'jscl.js', function() {
+        console.timeEnd('JSCL load');
         jsclLoaded = true;
         jsclLoading = false;
         while (jsclLoadQueue.length > 0) jsclLoadQueue.shift()();
@@ -395,25 +397,8 @@
     }
 
     function evalGameSource(source, lang) {
-      var canvas = document.getElementById('game-canvas');
-      window._canvas = canvas;
-      window._ctx = canvas.getContext('2d');
-      window._keys = {};
+      console.time('evalGameSource');
 
-      // Helper: convert JSCL strings (char arrays) to native JS strings
-      function toJS(s) { return (typeof s === 'string') ? s : (Array.isArray(s) ? s.join('') : '' + s); }
-      window._cl = function(ctx, w, h) { ctx.fillStyle='#0a0a0a'; ctx.fillRect(0,0,w,h); };
-      window._fr = function(ctx, x, y, w, h) { ctx.fillRect(x,y,w,h); };
-      window._sc = function(ctx, c) { ctx.fillStyle = toJS(c); };
-      window._fs = function(ctx, f) { ctx.font = toJS(f); };
-      window._ta = function(ctx, a) { ctx.textAlign = toJS(a); };
-      window._ft = function(ctx, s, x, y) { ctx.fillText(toJS(s),x,y); };
-      window._bp = function(ctx) { ctx.beginPath(); };
-      window._mt = function(ctx, x, y) { ctx.moveTo(x,y); };
-      window._lt = function(ctx, x, y) { ctx.lineTo(x,y); };
-      window._cp = function(ctx) { ctx.closePath(); };
-      window._fl = function(ctx) { ctx.fill(); };
-      window._ac = function(ctx, x, y, r, s, e) { ctx.arc(x,y,r,s,e); };
       // Keyboard bridge — JS captures raw keyCode → _pk[keyCode]
       window._pk = new Array(256).fill(0);
       window._kpc = function(code) { return window._pk[code] || 0; };
@@ -432,7 +417,6 @@
       }
 
       // CL game — use JSCL
-      // Eval each top-level form SEPARATELY (progn creates IIFE that isolates all symbols)
       var _clRead = jscl.packages['COMMON-LISP'].symbols['READ-FROM-STRING'];
       var _clEval = jscl.packages['COMMON-LISP'].symbols['EVAL'];
 
@@ -453,10 +437,8 @@
         var pos = skipComments(src, startPos);
         if (pos >= src.length) return -1;
         var ch = src[pos];
-        // If not starting with (, it's not a form we can parse
         if (ch !== '(') return -1;
         var depth = 0, inStr = false, esc = false;
-        var start = pos;
         while (pos < src.length) {
           var c = src[pos];
           if (esc) { esc = false; pos++; continue; }
@@ -469,30 +451,25 @@
           pos++;
           if (depth === 0) return pos;
         }
-        return -1; // unclosed
+        return -1;
       }
 
-      try {
-        var pos = 0;
-        var formCount = 0;
-        while (pos < source.length) {
-          var end = readOneForm(source, pos);
-          if (end <= 0) { break; }
-          var form = source.substring(pos, end);
-          pos = end;
-          try {
-            var clInput = jscl.internals.make_lisp_string(form);
-            var readForm = _clRead.fvalue(clInput);
-            _clEval.fvalue(readForm);
-            formCount++;
-          } catch(e) {
-          }
-        }
-      } catch(e) {
-      }
+      var loadingEl = document.getElementById('game-loading');
+      var fillEl = document.getElementById('game-loading-fill');
+      var textEl = loadingEl ? loadingEl.querySelector('.game-loading-text') : null;
 
-      // JS-driven game loop with sound effects
-      // Helper to call CL functions by form string
+      // Pre-split into forms
+      var _forms = [];
+      var _splitPos = 0;
+      while (_splitPos < source.length) {
+        var _end = readOneForm(source, _splitPos);
+        if (_end <= 0) break;
+        _forms.push(source.substring(_splitPos, _end));
+        _splitPos = _end;
+      }
+      var _totalForms = _forms.length;
+      console.log('Forms to compile: ' + _totalForms);
+
       function callClForm(formStr) {
         var f = _clRead.fvalue(jscl.internals.make_lisp_string(formStr));
         var result = _clEval.fvalue(f);
@@ -500,33 +477,60 @@
         if (typeof result === 'object' && result.name === 'NIL') return 0;
         return result;
       }
+      var _clGameLoopRef = null;
 
-      // Export state from CL to JS (called by game-loop-raw)
-      // Call start
-      try {
-        callClForm('(start-lisp-invaders)');
-      } catch(e) {
+      // Compile one form at a time, yielding to browser between each
+      var _formIdx = 0;
+      console.time('CL compile');
+
+      function compileNextBatch() {
+        var batchEnd = Math.min(_formIdx + 1, _totalForms);
+        while (_formIdx < batchEnd) {
+          try {
+            var clInput = jscl.internals.make_lisp_string(_forms[_formIdx]);
+            var readForm = _clRead.fvalue(clInput);
+            _clEval.fvalue(readForm);
+          } catch(e) {}
+          _formIdx++;
+        }
+        if (fillEl) fillEl.style.width = Math.round(_formIdx / _totalForms * 100) + '%';
+        if (textEl) textEl.textContent = 'Загрузка... ' + _formIdx + '/' + _totalForms;
+        if (_formIdx < _totalForms) {
+          setTimeout(compileNextBatch, 0);
+        } else {
+          console.timeEnd('CL compile');
+          console.log('Forms: ' + _formIdx);
+          if (loadingEl) loadingEl.style.display = 'none';
+          startGame();
+        }
       }
 
-      // Cache CL function references for performance (avoid read+eval each frame)
-      var _clGameLoopRef = null;
-      try {
-        _clGameLoopRef = jscl.packages['CL-USER'].symbols['GAME-LOOP-RAW'];
-      } catch(e) {}
-
-      function jsGameLoop() {
+      function startGame() {
         try {
-          if (_clGameLoopRef && _clGameLoopRef.fvalue) {
-            _clGameLoopRef.fvalue();
-          } else {
-            callClForm('(game-loop-raw)');
-          }
-        } catch(e) {
-          return;
+          console.time('start-lisp-invaders');
+          callClForm('(start-lisp-invaders)');
+          console.timeEnd('start-lisp-invaders');
+        } catch(e) { console.error('start-lisp-invaders error:', e); }
+        try {
+          _clGameLoopRef = jscl.packages['CL-USER'].symbols['GAME-LOOP-RAW'];
+        } catch(e) { console.error('game-loop-raw ref error:', e); }
+        var _firstFrame = true;
+        function jsGameLoop() {
+          try {
+            if (_firstFrame) console.time('first frame');
+            if (_clGameLoopRef && _clGameLoopRef.fvalue) {
+              _clGameLoopRef.fvalue();
+            } else {
+              callClForm('(game-loop-raw)');
+            }
+            if (_firstFrame) { console.timeEnd('first frame'); _firstFrame = false; console.timeEnd('evalGameSource'); }
+          } catch(e) { console.error('game-loop error:', e); return; }
+          gameAnimFrame = requestAnimationFrame(jsGameLoop);
         }
         gameAnimFrame = requestAnimationFrame(jsGameLoop);
       }
-      gameAnimFrame = requestAnimationFrame(jsGameLoop);
+
+      compileNextBatch();
     }
 
     function openGamesOverlay() {
@@ -538,7 +542,7 @@
     function showGamesMenu() {
       if (gamesMenu) gamesMenu.style.display = '';
       if (gamePlay) gamePlay.style.display = 'none';
-      if (gameTitleEl) gameTitleEl.textContent = 'Lisp \u0418\u0433\u0440\u044b';
+      if (gameTitleEl) gameTitleEl.textContent = 'Lisp Игры';
     }
 
     function startGame(name) {

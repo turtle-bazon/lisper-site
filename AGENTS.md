@@ -4,9 +4,13 @@
 
 > **Ошибки**: НИКОГДА не подавлять ошибки молча. `(handler-case ... (error (e) nil))` запрещён. Всегда логировать через `console.log`. Молчание скрывает баги и ломает отладку.
 
+> **Скриншоты**: когда пользователь говорит "посмотри скрин" — открывать файл `/tmp/screen.png`.
+
 > **Скриншоты**: когда пользователь говорит "посмотри скриншот" — открывать файл `/tmp/screen.png`.
 
 > **Таймауты**: максимальный таймаут для команд — 30000 мс (30 секунд).
+
+> **Education**: файлы в `education/` — авторитет. Всё что написано там имеет приоритет над любыми знаниями, догадками и находками извне. Если education говорит `#j"string"` — значит `#j"string"`, не `#j:String`, не CL-строка.
 
 ## О проекте
 Сайт lisper.ru — лендинг о Common Lisp. Всё на Lisp: HTML, CSS, JS.
@@ -178,6 +182,18 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
   - `(jscl::oget obj "method")` — получить метод, `((jscl::oget obj "method") args)` — вызвать
   - `(setf (jscl::oget obj "prop") val)` — установить свойство
   - `(#j:Reflect:construct (or #j:AudioContext #j:webkitAudioContext) (#j:Array))` — создать объект (вместо `new`, который не работает для `#j:AudioContext`)
+- **JSCL Canvas API** (из `education/canvas.html`):
+  - Пример: `((jscl::oget ctx "fillRect") 50 50 100 100)` — работает
+  - `fillStyle` ставится через `#j"tomato"` — **JS-строка**, не CL-строка (`"tomato"`)
+  - CL-строки → JS: `(jscl/ffi:jsstring s)` — **не** `#j:String`!
+  - `#j"string"` — reader macro создаёт нативную JS-строку (для литералов)
+  - **Важно**: не выдумывать! Если education говорит `jscl/ffi:jsstring` — значит `jscl/ffi:jsstring`
+- **JSCL this-binding** (доказано тестом 2026-06-27):
+  - `((jscl::oget ctx "fillRect") args)` — работает! JSCL компилирует как `ctx["fillRect"](args)` (не извлекает метод в переменную)
+  - Canvas API требует `this = CanvasRenderingContext2D` — и получает его через `ctx["fillRect"](args)`
+  - Audio API аналогично — `((jscl::oget osc "connect") gain)` работает
+  - JS-тест `var fn = ctx.fillRect; fn(...)` — **неправильная модель**, JSCL так не делает
+  - **`defmacro` в JSCL**: не работает при form-by-form eval (`readOneForm` + `eval`). Макрос определяется, но при eval следующей формы вызывается как функция (не раскрывается). **Вывод**: макросы определять через JSCL REPL или `load`, не через form-by-form eval.
 - **Fix (2026-06-26)**: CL-строки с `\n` — в CL-строках `\n` = literal `n` (escape), не newline. Для JS `\n` нужно писать `\\\\n` в CL-источнике (→ `\n` в памяти CL → `\n` в JS-выводе). `'\\n'` → `n`, `'\\\\n'` → `\n`. Это коснулось fix выше — первый вариант `'\\n'` не работал
 - **Fix (2026-06-23)**: Wookie `:debug nil` — добавлено в `clack:clackup`, иначе сервер падает на первом запросе с ошибкой
 - **Fix (2026-06-24)**: ironclad PBKDF2 — `derive-key` с `'ironclad:pbkdf2` (символ) не работает; использовать `pbkdf2-hash-password` convenience-функцию с `:digest :sha256 :iterations 100000`

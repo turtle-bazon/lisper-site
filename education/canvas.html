@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Canvas JSCL</title></head>
+<body>
+  <canvas id="c" width="250" height="200"></canvas>
+  <script src="jscl.js"></script>
+  <script type="text/x-common-lisp">
+    (let* ((canvas (#j:document:getElementById #j"c"))
+           (ctx ((jscl::oget canvas "getContext") #j"2d"))
+           (color "red"))
+      (setf (jscl::oget ctx "fillStyle") #j"tomato")
+      ((jscl::oget ctx "fillRect") 50 50 100 100)
+      (setf (jscl::oget ctx "fillStyle") (jscl/ffi:jsstring color))
+      ((jscl::oget ctx "fillRect") 150 50 100 100))
+  </script>
+</body>
+</html>
+

@@ -9,7 +9,7 @@
         :x-frame-options "DENY"
         :x-xss-protection "0"
         :referrer-policy "strict-origin-when-cross-origin"
-         :content-security-policy "default-src 'self'; script-src 'self' 'unsafe-eval' https://cdnjs.cloudflare.com https://jscl-project.github.io; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:; font-src 'self' https://cdnjs.cloudflare.com; connect-src 'self'; frame-ancestors 'none'"))
+         :content-security-policy "default-src 'self'; script-src 'self' 'unsafe-eval' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:; font-src 'self' https://cdnjs.cloudflare.com; connect-src 'self'; frame-ancestors 'none'"))
 
 (defun add-security-headers (response)
   "Add security headers to a Clack response."
@@ -42,9 +42,17 @@
             ((string= path "/css")
              `(200 (:content-type "text/css; charset=utf-8")
                    (,(generate-css))))
-            ((string= path "/js")
-             `(200 (:content-type "application/javascript; charset=utf-8")
-                   (,(generate-js))))
+             ((string= path "/js")
+              `(200 (:content-type "application/javascript; charset=utf-8")
+                    (,(generate-js))))
+             ((string= path "/jscl.js")
+              (let ((file (merge-pathnames #P"resources/jscl.js"
+                                           (asdf:system-source-directory :lisper))))
+                (with-open-file (s file :external-format :utf-8)
+                  (let ((content (make-string (file-length s))))
+                    (read-sequence content s)
+                    `(200 (:content-type "application/javascript; charset=utf-8")
+                          (,content))))))
 
             ;; Auth routes
             ((and (string= path "/login") (eq (env-method env) :GET))

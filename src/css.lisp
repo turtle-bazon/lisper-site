@@ -1018,20 +1018,20 @@
          :line-height "1.5")
 
         ;; Game overlay
-        (".game-overlay"
-         :position "fixed"
-         :top 0
-         :left 0
-         :right 0
-         :bottom 0
-         :background "rgba(0, 0, 0, 0.92)"
-         :z-index 1000
-         :display "flex"
-         :align-items "center"
-         :justify-content "center"
-         :opacity 0
-         :pointer-events "none"
-         :transition "opacity 0.3s ease")
+         (".game-overlay"
+          :position "fixed"
+          :top 0
+          :left 0
+          :right 0
+          :bottom 0
+          :background "#000"
+          :z-index 1000
+          :display "flex"
+          :align-items "center"
+          :justify-content "center"
+          :opacity 0
+          :pointer-events "none"
+          :transition "opacity 0.3s ease")
 
         (".game-overlay.active"
          :opacity 1
@@ -1074,12 +1074,14 @@
         (".game-close:hover"
          :color "#fff")
 
-        (".game-body"
-         :display "flex"
-         :justify-content "center"
-         :align-items "center"
-         :background "#000"
-         :min-height "480px")
+         (".game-body"
+          :position "relative"
+          :display "flex"
+          :justify-content "center"
+          :align-items "center"
+          :background "#000"
+          :width "100%"
+          :min-height "480px")
 
         (".game-body canvas"
          :display "block"
@@ -1131,7 +1133,34 @@
          (".game-play"
           :display "flex"
           :flex-direction "column"
-          :padding "16px")))
+          :padding "16px")
+
+         (".game-loading"
+          :position "absolute"
+          :top 0 :left 0 :right 0 :bottom 0
+          :display "flex"
+          :flex-direction "column"
+          :align-items "center"
+          :justify-content "center"
+          :background "#000"
+          :z-index 1)
+
+         (".game-loading-text"
+          :color "#22c55e"
+          :font-size "0.9rem"
+          :margin-bottom "12px")
+
+         (".game-loading-bar"
+          :width "200px"
+          :height "4px"
+          :background "#222"
+          :border-radius "2px"
+          :overflow "hidden")
+
+         (".game-loading-fill"
+          :height "100%"
+          :width "0%"
+          :background "#22c55e")))
     "
 @media (max-width: 768px) {
   h1 { font-size: 1.8rem; }

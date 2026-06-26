@@ -215,15 +215,19 @@
                 :style "--accent: #3b82f6"
                 (cl-who:str "<svg class='game-icon' xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'><text x='25%' y='55%' text-anchor='middle' dominant-baseline='middle' font-size='28' font-family='monospace' font-weight='bold' fill='#3b82f6'>(</text><text x='75%' y='55%' text-anchor='middle' dominant-baseline='middle' font-size='28' font-family='monospace' font-weight='bold' fill='#3b82f6'>)</text></svg>")
                 (:h3 "Paren Matcher")
-                (:p "Найди и соедини пары скобок. Тренировка балансировки S-выражений.")))))
-             (:div :id "game-play" :class "game-play" :style "display:none"
+                (:p "Найди и соедини пары скобок. Тренировка балансировки S-выражений."))))
+              (:div :id "game-play" :class "game-play" :style "display:none"
               (:button :class "game-back-btn" "&larr; Назад к играм")
               (:div :class "game-body"
+               (:div :id "game-loading" :class "game-loading"
+                (:div :class "game-loading-text" "Загрузка...")
+                (:div :class "game-loading-bar"
+                 (:div :id "game-loading-fill" :class "game-loading-fill")))
                (:canvas :id "game-canvas" :width "640" :height "480"))
               (:div :class "game-footer"
-               (:span :class "game-score-label" "Очки: ")
-               (:span :id "game-score" "0")
-                (:span :class "game-hint" "← → — движение | пробел — стрелять | P — пауза | Enter — заново"))))
-         ;; CL-коды игр для JSCL (скрытые script теги)
+                (:span :class "game-score-label" "Очки: ")
+                (:span :id "game-score" "0")
+                 (:span :class "game-hint" "← → — движение | пробел — стрелять | P — пауза | Enter — заново")))))
+         ;; CL-коды игр для JSCL (скрытые script теги — ВНЕ overlay)
          (cl-who:str (generate-game-script-tags))
          (:script :src "/js?v=6"))))))

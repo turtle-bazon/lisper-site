@@ -6,7 +6,7 @@
 (defparameter *game-sources* '
   (
     ("lisp-invaders" "cl" ";;; Lisp Invaders — клон Space Invaders для JSCL
-;;; Всё на Common Lisp. Canvas через JS-обёртки, ввод через CL event listeners.
+;;; Всё на Common Lisp. Canvas через jscl::oget, строки через #j\"\".
 
 (in-package :cl-user)
 (use-package :jscl/ffi)
@@ -19,6 +19,7 @@
 (defvar *paused* nil)
 (defvar *W* 640)
 (defvar *H* 480)
+(defvar *ctx* nil)
 (defvar *player* nil)
 (defvar *bullets* nil)
 (defvar *bullet-cd* 0)
@@ -30,12 +31,10 @@
 (defvar *e-chance* 0.005)
 (defvar *tick* 0)
 
-;;; Ввод — JS складывает keyCode в _pk[], CL читает через _kpc
-
-(defvar *keys* (make-hash-table))
+;;; Ввод
 
 (defun key-pressed (code)
-  (= 1 (#j:_kpc code)))
+  (= 1 ((jscl::oget #j:window \"_kpc\") code)))
 
 (defvar *input-left* nil)
 (defvar *input-right* nil)
@@ -48,30 +47,21 @@
 (defvar *shoot-edge* nil)
 
 (defun read-input ()
-  ;; Движение: стрелки + WASD
-  (setf *input-left*  (or (key-pressed 37)   ; ArrowLeft
-                          (key-pressed 65)))  ; A
-  (setf *input-right* (or (key-pressed 39)   ; ArrowRight
-                          (key-pressed 68)))  ; D
-  ;; Стрельба: пробел
-  (setf *input-space* (key-pressed 32))        ; Space
-  ;; Пауза: P — детектируем rising edge (нажал → отпустил)
-  (let ((p-now (key-pressed 80)))              ; P
-    (when (and p-now (not *prev-p*))
-      (incf *pause-clicks*))
+  (setf *input-left*  (or (key-pressed 37) (key-pressed 65)))
+  (setf *input-right* (or (key-pressed 39) (key-pressed 68)))
+  (setf *input-space* (key-pressed 32))
+  (let ((p-now (key-pressed 80)))
+    (when (and p-now (not *prev-p*)) (incf *pause-clicks*))
     (setf *prev-p* p-now))
-  ;; Рестарт: Enter — rising edge
-  (let ((enter-now (key-pressed 13)))          ; Enter
-    (when (and enter-now (not *prev-enter*))
-      (incf *reset-clicks*))
+  (let ((enter-now (key-pressed 13)))
+    (when (and enter-now (not *prev-enter*)) (incf *reset-clicks*))
     (setf *prev-enter* enter-now))
-  ;; Стрельба: Space — rising edge (для звука)
-  (let ((space-now (key-pressed 32)))          ; Space
-    (when (and space-now (not *prev-space*))
-      (setf *shoot-edge* t))
+  (let ((space-now (key-pressed 32)))
+    (when (and space-now (not *prev-space*)) (setf *shoot-edge* t))
     (setf *prev-space* space-now)))
 
 ;;; Спавн
+
 (defun spawn ()
   (setf *enemies* nil)
   (let ((et (vector (list :l \"defun\"  :c \"#ef4444\" :p 10)
@@ -99,28 +89,26 @@
                        :w 40 :h 24 :speed 5 :color \"#22c55e\"))
   (spawn))
 
-;;; Отрисовка — JS-обёртки с ctx первым аргументом
-;;; (#j:_fr #j:_ctx x y w h) — передаём ctx явно
+;;; Отрисовка
 
-(defun draw-str (s x y &key (f \"14px monospace\") (a \"left\") (c \"#fff\"))
-  (#j:_fs #j:_ctx f)
-  (#j:_ta #j:_ctx a)
-  (#j:_sc #j:_ctx c)
-  (#j:_ft #j:_ctx s x y))
+(defun draw-str (s x y &key (f #j\"14px monospace\") (a #j\"left\") (c #j\"#fff\"))
+  (setf (jscl::oget *ctx* \"font\") f)
+  (setf (jscl::oget *ctx* \"textAlign\") a)
+  (setf (jscl::oget *ctx* \"fillStyle\") c)
+  ((jscl::oget *ctx* \"fillText\") (jscl/ffi:jsstring s) x y))
 
 (defun draw-player ()
   (let* ((p *player*) (x (getf p :x)) (y (getf p :y))
          (w (getf p :w)) (h (getf p :h)))
-    (#j:_sc #j:_ctx (getf p :color))
-    (#j:_fr #j:_ctx x y w h)
-    (#j:_sc #j:_ctx \"#000\")
-    (#j:_fr #j:_ctx (+ x 10) (+ y 8) 6 6)
-    (#j:_fr #j:_ctx (+ x w -16) (+ y 8) 6 6)
-    (#j:_sc #j:_ctx (getf p :color))
-    (#j:_fr #j:_ctx (+ x 12) (+ y 10) 2 2)
-    (#j:_fr #j:_ctx (+ x w -14) (+ y 10) 2 2)
-    (draw-str \"defun\" (+ x (/ w 2)) (+ y h -6)
-              :f \"bold 9px monospace\" :a \"center\")))
+    (setf (jscl::oget *ctx* \"fillStyle\") (jscl/ffi:jsstring (getf p :color)))
+    ((jscl::oget *ctx* \"beginPath\"))
+    ((jscl::oget *ctx* \"moveTo\") x (+ y h))
+    ((jscl::oget *ctx* \"lineTo\") (+ x (/ w 2)) y)
+    ((jscl::oget *ctx* \"lineTo\") (+ x w) (+ y h))
+    ((jscl::oget *ctx* \"closePath\"))
+    ((jscl::oget *ctx* \"fill\"))
+    (draw-str #j\"defun\" (+ x (/ w 2)) (- (+ y h) 6)
+              :f #j\"bold 9px monospace\" :a #j\"center\" :c #j\"#000\")))
 
 (defun draw-enemies ()
   (dolist (e *enemies*)
@@ -129,53 +117,54 @@
              (w (getf e :w)) (h (getf e :h))
              (tp (getf e :type))
              (color (getf tp :c)) (label (getf tp :l)))
-        (#j:_sc #j:_ctx color)
-        (#j:_fr #j:_ctx x y w h)
-        (#j:_sc #j:_ctx \"#000\")
-        (#j:_fr #j:_ctx (+ x 10) (+ y 8) 6 6)
-        (#j:_fr #j:_ctx (+ x w -16) (+ y 8) 6 6)
-        (#j:_sc #j:_ctx color)
-        (#j:_fr #j:_ctx (+ x 12) (+ y 10) 2 2)
-        (#j:_fr #j:_ctx (+ x w -14) (+ y 10) 2 2)
+        (setf (jscl::oget *ctx* \"fillStyle\") (jscl/ffi:jsstring color))
+        ((jscl::oget *ctx* \"fillRect\") x y w h)
+        (setf (jscl::oget *ctx* \"fillStyle\") #j\"#000\")
+        ((jscl::oget *ctx* \"fillRect\") (+ x 10) (+ y 8) 6 6)
+        ((jscl::oget *ctx* \"fillRect\") (+ x w -16) (+ y 8) 6 6)
+        (setf (jscl::oget *ctx* \"fillStyle\") (jscl/ffi:jsstring color))
+        ((jscl::oget *ctx* \"fillRect\") (+ x 12) (+ y 10) 2 2)
+        ((jscl::oget *ctx* \"fillRect\") (+ x w -14) (+ y 10) 2 2)
         (incf (getf e :f) 0.05)
         (let ((off (if (> (mod (getf e :f) 2.0) 1.0) 2.5 -2.5)))
-          (#j:_fr #j:_ctx (+ x 6) (+ y h) 4 (+ 4 off))
-          (#j:_fr #j:_ctx (+ x w -10) (+ y h) 4 (- 4 off)))
+          ((jscl::oget *ctx* \"fillRect\") (+ x 6) (+ y h) 4 (+ 4 off))
+          ((jscl::oget *ctx* \"fillRect\") (+ x w -10) (+ y h) 4 (- 4 off)))
         (draw-str label (+ x (/ w 2)) (+ y (/ h 2) 3)
-                  :f \"bold 8px monospace\" :a \"center\" :c \"#000\")))))
+                  :f #j\"bold 8px monospace\" :a #j\"center\" :c #j\"#000\")))))
 
 (defun draw-bullets ()
-  (#j:_sc #j:_ctx \"#22c55e\")
+  (setf (jscl::oget *ctx* \"fillStyle\") #j\"#22c55e\")
   (dolist (b *bullets*)
-    (#j:_fr #j:_ctx (- (getf b :x) 2) (getf b :y) 4 12))
-  (#j:_sc #j:_ctx \"#ef4444\")
+    ((jscl::oget *ctx* \"fillRect\") (- (getf b :x) 2) (getf b :y) 4 12))
+  (setf (jscl::oget *ctx* \"fillStyle\") #j\"#ef4444\")
   (dolist (b *enemy-bullets*)
-    (#j:_fr #j:_ctx (- (getf b :x) 1) (getf b :y) 3 8)))
+    ((jscl::oget *ctx* \"fillRect\") (- (getf b :x) 1) (getf b :y) 3 8)))
 
 (defun draw-hud ()
   (draw-str (format nil \"Score: ~a\" *score*) 10 24
-            :f \"bold 16px monospace\" :c \"#22c55e\")
+            :f #j\"bold 16px monospace\" :c #j\"#22c55e\")
   (loop for i below *lives*
         do (draw-str \"X\" (- *W* 10 (* i 22)) 24
-                     :f \"bold 16px monospace\" :a \"right\" :c \"#ef4444\"))
+                     :f #j\"bold 16px monospace\" :a #j\"right\" :c #j\"#ef4444\"))
   (draw-str (format nil \"Level ~a\" *level*) (/ *W* 2) 24
-            :f \"12px monospace\" :a \"center\" :c \"#888\")
+            :f #j\"12px monospace\" :a #j\"center\" :c #j\"#888\")
   (when *paused*
-    (#j:_sc #j:_ctx \"rgba(0,0,0,0.6)\")
-    (#j:_fr #j:_ctx 0 0 *W* *H*)
+    (setf (jscl::oget *ctx* \"fillStyle\") #j\"rgba(0,0,0,0.6)\")
+    ((jscl::oget *ctx* \"fillRect\") 0 0 *W* *H*)
     (draw-str \"PAUSED\" (/ *W* 2) (/ *H* 2)
-              :f \"bold 24px monospace\" :a \"center\"))
+              :f #j\"bold 24px monospace\" :a #j\"center\"))
   (when *game-over*
-    (#j:_sc #j:_ctx \"rgba(0,0,0,0.7)\")
-    (#j:_fr #j:_ctx 0 0 *W* *H*)
+    (setf (jscl::oget *ctx* \"fillStyle\") #j\"rgba(0,0,0,0.7)\")
+    ((jscl::oget *ctx* \"fillRect\") 0 0 *W* *H*)
     (draw-str \"GAME OVER\" (/ *W* 2) (- (/ *H* 2) 10)
-              :f \"bold 28px monospace\" :a \"center\" :c \"#ef4444\")
+              :f #j\"bold 28px monospace\" :a #j\"center\" :c #j\"#ef4444\")
     (draw-str (format nil \"Score: ~a\" *score*) (/ *W* 2) (+ (/ *H* 2) 20)
-              :f \"16px monospace\" :a \"center\")
+              :f #j\"16px monospace\" :a #j\"center\")
     (draw-str \"Press Enter\" (/ *W* 2) (+ (/ *H* 2) 50)
-              :f \"14px monospace\" :a \"center\" :c \"#888\")))
+              :f #j\"14px monospace\" :a #j\"center\" :c #j\"#888\")))
 
 ;;; Обновление
+
 (defun update ()
   (when (or *paused* *game-over*) (return-from update))
   (incf *tick*)
@@ -198,7 +187,6 @@
                           (lambda (b) (< (getf b :y) (+ *H* 10)))
                           *enemy-bullets*))
   (dolist (b *enemy-bullets*) (incf (getf b :y) 3))
-  ;; Limit max enemy bullets on screen
   (when (> (length *enemy-bullets*) 20)
     (setf *enemy-bullets* (subseq *enemy-bullets* 0 20)))
   (let ((alive (remove-if-not (lambda (e) (getf e :alive)) *enemies*)))
@@ -219,7 +207,6 @@
                   mx (max mx (+ (getf e :x) (getf e :w)))))
           (when (or (>= mx (- *W* 10)) (<= mn 10))
             (setf *e-step* t))))
-      ;; Враги стреляют рандомно: один выстрел каждые ~80 тиков
       (when (and (> *tick* 120) (= (mod *tick* 80) 0) (< (length *enemy-bullets*) 6))
         (when alive
           (let ((shooter (nth (random (length alive)) alive)))
@@ -248,7 +235,8 @@
         (when (>= (+ (getf e :y) (getf e :h)) (getf *player* :y))
           (setf *game-over* t)))))
 
-;;; Звук — Web Audio API через JSCL FFI (как в oscillator.html)
+;;; Звук
+
 (defvar *ac* nil)
 
 (defun ensure-audio-ctx ()
@@ -272,10 +260,10 @@
     ((jscl::oget osc \"start\") now)
     ((jscl::oget osc \"stop\") (+ now dur))))
 
-(defun snd-shoot () (play-snd \"square\" 880 440 0.15 0.1))
-(defun snd-hit () (play-snd \"sawtooth\" 300 50 0.2 0.2))
-(defun snd-hurt () (play-snd \"sawtooth\" 200 80 0.2 0.3))
-(defun snd-over () (play-snd \"square\" 440 55 0.15 0.8))
+(defun snd-shoot () (play-snd #j\"square\" 880 440 0.15 0.1))
+(defun snd-hit () (play-snd #j\"sawtooth\" 300 50 0.2 0.2))
+(defun snd-hurt () (play-snd #j\"sawtooth\" 200 80 0.2 0.3))
+(defun snd-over () (play-snd #j\"square\" 440 55 0.15 0.8))
 
 ;;; Состояние для отслеживания изменений (для звука)
 (defvar *prev-score* 0)
@@ -283,27 +271,25 @@
 (defvar *prev-over* nil)
 
 ;;; Игровой цикл
+
 (defun game-loop-raw ()
-  ;; Save previous state for sound detection
   (setf *prev-score* *score*)
   (setf *prev-lives* *lives*)
   (setf *prev-over* *game-over*)
-  ;; Read input from *keys* hash-table
   (read-input)
-  ;; Handle one-shot events (pause, reset)
   (when (plusp *pause-clicks*)
     (setf *pause-clicks* 0)
     (setf *paused* (not *paused*)))
   (when (plusp *reset-clicks*)
     (setf *reset-clicks* 0)
     (when *game-over* (reset)))
-  (#j:_cl #j:_ctx *W* *H*)
+  (setf (jscl::oget *ctx* \"fillStyle\") #j\"#0a0a0a\")
+  ((jscl::oget *ctx* \"fillRect\") 0 0 *W* *H*)
   (update)
   (draw-player)
   (draw-enemies)
   (draw-bullets)
   (draw-hud)
-  ;; Sound effects based on state changes
   (when (and (not *prev-over*) *game-over*) (snd-over))
   (when (> *prev-lives* *lives*) (snd-hurt))
   (when (> *score* *prev-score*) (snd-hit))
@@ -312,7 +298,9 @@
   (setf *shoot-edge* nil))
 
 ;;; Точка входа
+
 (defun start-lisp-invaders ()
+  (setf *ctx* ((jscl::oget (#j:document:getElementById #j\"game-canvas\") \"getContext\") #j\"2d\"))
   (reset))
 ")
     ))
