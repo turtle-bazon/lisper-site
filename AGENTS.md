@@ -17,13 +17,14 @@
 - **БД**: PostgreSQL 15 через `postmodern` (user=lisper, pass=lisper, db=lisper, host=127.0.0.1)
 - **Аутентификация**: ironclad PBKDF2 (SHA-256, 100k iter), cookie-based sessions (30 дней)
 - **Миграции**: SQL-файлы `migrations/NNNN-name.{up,down}.sql`, встроены в бинарник через `src/migrations.lisp`, таблица `schema_migrations`
-- **Бинарник**: buildapp → `build/lisper` (~93MB)
+- **Бинарник**: buildapp → `build/lisper` (~95MB)
 - **Лицензия**: GPL-3.0
 - **Исходники**: https://github.com/turtle-bazon/lisper.ru (зеркало, основная СКВ — Mercurial)
 
 ## Конфигурация
 - S-expression `.conf` файл (host port и т.д.)
 - Шаблон: `lisper.conf.template`
+- **Порт по умолчанию**: 8080
 
 ## Тонкости и баги
 
@@ -65,7 +66,12 @@
 ### Build
 - `build.lisp` загружает зависимости через `ql:quickload`, затем `buildapp::main`
 - `main` должен быть `(&optional args)`, не `(args)` — для вызова без аргументов
-- Бинарник: `make` → `build/lisper` (~57MB)
+- Бинарник: `make build` → `build/lisper` (~95MB)
+- **После изменений**: `make build`
+- **Запуск дев-сервера**: `make dev-start` (лог в `/tmp/lisper.log`)
+- **Остановка дев-сервера**: `make dev-stop`
+- **Важно**: не запускать sbcl вручную — только через make. Прямые вызовы sbcl только для отладки проблем с make
+- **Важно**: не запускать/останавливать сервер вручную — `pkill`, `rm -rf build`, `mkdir -p build` только если есть проблемы с make
 
 ### Безопасность
 - **XSS через marked.js**: `marked.parse()` без санитизации → добавлен DOMPurify (`DOMPurify.sanitize()`)
@@ -105,7 +111,7 @@ src/
 ```
 
 ## Секции на главной
-1. **Header** — лого (ссылка на `/`) + навигация (Попробовать CL, Telegram, Форум) + учётка справа (Войти/Регистрация или имя+Выйти)
+1. **Header** — лого (ссылка на `/`) + навигация (Попробовать CL, Telegram, Форум, Игры) + учётка справа (Войти/Регистрация или имя+Выйти)
 2. **Hero** — заголовок "Common Lisp - язык для тех, кто думает" + 3 кнопки (Попробовать CL, Форум, Telegram)
 3. Что такое Common Lisp
 4. Почему Common Lisp
@@ -116,6 +122,7 @@ src/
 9. **Полезные ресурсы** — список ссылок (lisp-lang.org, HyperSpec, Cookbook, Quicklisp, Quickdocs, Exercism, Practical CL, On Lisp, common-lisp.net, Reddit)
 10. Footer (ссылка на GitHub)
 11. **REPL-модалка** — всплывающее окно с JSCL (Common Lisp в браузере)
+12. **Lisp Игры** — секция с игровыми карточками (иконки + описание), открывающими модалку с canvas-игрой
 
 ## Реализации
 - 6 карточек: SBCL, CCL, ECL, ABCL, LispWorks, Allegro CL
@@ -161,6 +168,10 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - **Важно**: CL-строки в JS: экранирование `\\` и `\"` для передачи в `lisp.eval()`
 - **Fix (2026-06-23)**: пробел между промптом и вводом — CSS `gap: 8px` на `.repl-input-line`, `padding: 2px 0` на `.repl-input`
 - **Fix (2026-06-23)**: незакрытые скобки — добавлена `isBalanced(input)` (проверяет `()`, `[]`, `{}`, строки, escape, комментарии `;`); `clEval()` бросает `Error('incomplete input')` если несбалансировано
+- **Fix (2026-06-26)**: `readOneForm` не пропускал `;` комментарии внутри форм — скобки в комментариях (`; Read input from _ki array (JS updates _ki[0..4], CL reads here)`) считались реальными, depth ломался → обрезался `update` (form 35/37), `game-loop-raw` и `start-lisp-invaders` не вызывались. Исправлено: `if (c === ';') { while (pos < src.length && src[pos] !== '\\n') pos++; continue; }` в `readOneForm` перед подсчётом скобок
+- **Fix (2026-06-26)**: лишняя `)` в `lisp-invaders.lisp` строка 239 — `(setf *game-over* t))))))` → `(setf *game-over* t)))))` (6→5 closing parens). Depth на строке 239 был 4, 6 `)` давали depth=-1 → `readOneForm` не мог найти начало следующей формы
+- **Fix (2026-06-26)**: конфликт `window._ac` — canvas `arc()` (line 417) и AudioContext (line 430) оба использовали `_ac`. AudioContext перезаписывал `_ac = null` → `draw-player` падал на `(#j:_ac ...)`. AudioContext переименован в `_actx`
+- **Fix (2026-06-26)**: CL-строки с `\n` — в CL-строках `\n` = literal `n` (escape), не newline. Для JS `\n` нужно писать `\\\\n` в CL-источнике (→ `\n` в памяти CL → `\n` в JS-выводе). `'\\n'` → `n`, `'\\\\n'` → `\n`. Это коснулось fix выше — первый вариант `'\\n'` не работал
 - **Fix (2026-06-23)**: Wookie `:debug nil` — добавлено в `clack:clackup`, иначе сервер падает на первом запросе с ошибкой
 - **Fix (2026-06-24)**: ironclad PBKDF2 — `derive-key` с `'ironclad:pbkdf2` (символ) не работает; использовать `pbkdf2-hash-password` convenience-функцию с `:digest :sha256 :iterations 100000`
 - **Fix (2026-06-24)**: `get-category-by-slug` — malformed plist из `(apply #'list (cons :id (first row)))`; исправлено через `destructuring-bind` с 4 полями (id name slug description)
@@ -247,3 +258,17 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 5. **Таймстемпы** → `TO_CHAR(created_at, 'DD.MM.YYYY HH24:MI')` в SQL
 7. **Unsafe script loading** → `typeof jscl === 'undefined'` проверка перед использованием
 9. **Нет аудита** → таблица `audit_log` + `log-audit()` для всех действий модерации
+
+## Lisp Игры
+- Секция на главной с карточками игр (иконки SVG + название + описание)
+- Клик по карточке открывает модалку с canvas-игрой
+- **Lisp Invaders** — клон Space Invaders с лисп-тематикой:
+  - Враги: `defun` (красные, 10 очков), `lambda` (жёлтые, 15), `car` (синие, 20), `cdr` (фиолетовые, 20), `quote` (розовые, 25), `cons` (бирюзовые, 30)
+  - Корабль игрока: `defun`-форма
+  - Стреляет скобками (пробел)
+  - Управление: ← →移动, P — пауза, Enter — заново
+  - HUD: очки, жизни (♥), уровень
+- CSS: `.games-grid`, `.game-card`, `.game-overlay`, `.game-modal`, `.game-body`, `.game-footer`
+- JS: `openGame()`, `closeGame()`, `startLispInvaders()`, game loop с requestAnimationFrame
+- Кнопка "Игры" в хедере скроллит к секции
+- **Порт**: 8080

@@ -9,7 +9,7 @@
         :x-frame-options "DENY"
         :x-xss-protection "0"
         :referrer-policy "strict-origin-when-cross-origin"
-        :content-security-policy "default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://jscl-project.github.io; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:; font-src 'self' https://cdnjs.cloudflare.com; connect-src 'self'; frame-ancestors 'none'"))
+         :content-security-policy "default-src 'self'; script-src 'self' 'unsafe-eval' https://cdnjs.cloudflare.com https://jscl-project.github.io; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:; font-src 'self' https://cdnjs.cloudflare.com; connect-src 'self'; frame-ancestors 'none'"))
 
 (defun add-security-headers (response)
   "Add security headers to a Clack response."

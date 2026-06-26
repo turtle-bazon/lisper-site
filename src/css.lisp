@@ -965,7 +965,173 @@
         (".md-content hr"
          :border "none"
          :border-top "1px solid #2a2a2a"
-         :margin "20px 0")))
+         :margin "20px 0")
+
+        ;; Games section
+        (".games-grid"
+         :display "grid"
+         :grid-template-columns "repeat(auto-fill, minmax(220px, 1fr))"
+         :gap "16px")
+
+        (".game-card"
+         :display "flex"
+         :flex-direction "column"
+         :align-items "center"
+         :text-align "center"
+         :padding "28px 24px"
+         :background-color "#111111"
+         :border "1px solid #1e1e1e"
+         :border-radius "12px"
+         :cursor "pointer"
+         :transition "all 0.25s ease"
+         :position "relative"
+         :overflow "hidden")
+
+        (".game-card::before"
+         :content "\"\""
+         :position "absolute"
+         :top 0
+         :left 0
+         :width "100%"
+         :height "3px"
+         :background-color "var(--accent)")
+
+        (".game-card:hover"
+         :border-color "#333"
+         :background-color "#161616"
+         :transform "translateY(-4px)"
+         :box-shadow "0 8px 24px rgba(0, 0, 0, 0.4)")
+
+        (".game-icon"
+         :margin-bottom "16px"
+         :filter "drop-shadow(0 0 8px rgba(var(--accent-rgb, 34, 197, 94), 0.3))")
+
+        (".game-card h3"
+         :font-size "1.1rem"
+         :color "#ffffff"
+         :margin-bottom "8px")
+
+        (".game-card p"
+         :font-size "0.85rem"
+         :color "#888"
+         :margin-bottom 0
+         :line-height "1.5")
+
+        ;; Game overlay
+        (".game-overlay"
+         :position "fixed"
+         :top 0
+         :left 0
+         :right 0
+         :bottom 0
+         :background "rgba(0, 0, 0, 0.92)"
+         :z-index 1000
+         :display "flex"
+         :align-items "center"
+         :justify-content "center"
+         :opacity 0
+         :pointer-events "none"
+         :transition "opacity 0.3s ease")
+
+        (".game-overlay.active"
+         :opacity 1
+         :pointer-events "auto")
+
+        (".game-modal"
+         :width "95%"
+         :max-width "680px"
+         :background "#0d0d0d"
+         :border "1px solid #2a2a2a"
+         :border-radius "12px"
+         :display "flex"
+         :flex-direction "column"
+         :overflow "hidden"
+         :box-shadow "0 25px 60px rgba(0, 0, 0, 0.6)")
+
+        (".game-header"
+         :padding "10px 16px"
+         :background "#111"
+         :border-bottom "1px solid #2a2a2a"
+         :display "flex"
+         :justify-content "space-between"
+         :align-items "center")
+
+        (".game-header span"
+         :color "#22c55e"
+         :font-weight 600
+         :font-size "0.95rem")
+
+        (".game-close"
+         :background "none"
+         :border "none"
+         :color "#666"
+         :font-size "1.4rem"
+         :cursor "pointer"
+         :padding "0 4px"
+         :line-height 1
+         :transition "color 0.2s")
+
+        (".game-close:hover"
+         :color "#fff")
+
+        (".game-body"
+         :display "flex"
+         :justify-content "center"
+         :align-items "center"
+         :background "#000"
+         :min-height "480px")
+
+        (".game-body canvas"
+         :display "block"
+         :max-width "100%"
+         :height "auto")
+
+        (".game-footer"
+         :padding "10px 16px"
+         :background "#111"
+         :border-top "1px solid #2a2a2a"
+         :display "flex"
+         :align-items "center"
+         :gap "16px"
+         :font-size "0.85rem")
+
+        (".game-score-label"
+         :color "#888")
+
+        ("#game-score"
+         :color "#22c55e"
+         :font-weight 700
+         :font-size "1.1rem"
+         :font-family "monospace")
+
+         (".game-hint"
+          :color "#555"
+          :margin-left "auto"
+          :font-size "0.8rem")
+
+         ;; Game menu view (inside modal)
+         (".games-menu"
+          :padding "24px")
+
+         (".game-back-btn"
+          :background "none"
+          :border "1px solid #333"
+          :color "#aaa"
+          :padding "6px 14px"
+          :border-radius "6px"
+          :cursor "pointer"
+          :font-size "0.85rem"
+          :margin-bottom "16px"
+          :transition "all 0.2s")
+
+         (".game-back-btn:hover"
+          :border-color "#7c3aed"
+          :color "#fff")
+
+         (".game-play"
+          :display "flex"
+          :flex-direction "column"
+          :padding "16px")))
     "
 @media (max-width: 768px) {
   h1 { font-size: 1.8rem; }
@@ -977,4 +1143,6 @@
   .header-right { gap: 10px; }
   .cat-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .cat-card { padding: 12px 14px; font-size: 0.85rem; }
+  .games-grid { grid-template-columns: 1fr; }
+  .game-body canvas { width: 100%; height: auto; }
 }"))

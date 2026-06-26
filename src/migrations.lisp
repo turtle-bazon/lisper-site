@@ -4,7 +4,8 @@
 ;;; Generated from migrations/*.sql — do not edit manually
 
 (defvar *migrations*
-  '((1 . ((:up . "CREATE TABLE users (
+  '(
+    (1 . ((:up . "CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(30) NOT NULL UNIQUE,
     email VARCHAR(255) NOT NULL UNIQUE,
@@ -55,7 +56,8 @@ INSERT INTO categories (name, slug, description, sort_order) VALUES
     ('Общее', 'general', 'Общие вопросы о Common Lisp', 1),
     ('Проекты', 'projects', 'Делитесь своими проектами', 2),
     ('Помощь', 'help', 'Задавайте вопросы, получайте ответы', 3),
-    ('Новости', 'news', 'Новости и события CL-сообщества', 4);")
+    ('Новости', 'news', 'Новости и события CL-сообщества', 4);
+")
           (:down . "DROP INDEX IF EXISTS idx_sessions_token;
 DROP INDEX IF EXISTS idx_posts_topic;
 DROP INDEX IF EXISTS idx_topics_last_post;
@@ -65,7 +67,8 @@ DROP TABLE IF EXISTS sessions;
 DROP TABLE IF EXISTS posts;
 DROP TABLE IF EXISTS topics;
 DROP TABLE IF EXISTS categories;
-DROP TABLE IF EXISTS users;")))
+DROP TABLE IF EXISTS users;
+")))
     (2 . ((:up . "ALTER TABLE users ADD COLUMN muted_until TIMESTAMP DEFAULT NULL;")
           (:down . "ALTER TABLE users DROP COLUMN muted_until;")))
     (3 . ((:up . "CREATE TABLE settings (
@@ -73,8 +76,10 @@ DROP TABLE IF EXISTS users;")))
     value TEXT NOT NULL
 );
 
-INSERT INTO settings (key, value) VALUES ('forum_closed', 'false');")
-          (:down . "DROP TABLE IF EXISTS settings;")))
+INSERT INTO settings (key, value) VALUES ('forum_closed', 'false');
+")
+          (:down . "DROP TABLE IF EXISTS settings;
+")))
     (4 . ((:up . "CREATE TABLE IF NOT EXISTS audit_log (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id),
@@ -86,8 +91,10 @@ INSERT INTO settings (key, value) VALUES ('forum_closed', 'false');")
 );
 
 CREATE INDEX idx_audit_log_user_id ON audit_log(user_id);
-CREATE INDEX idx_audit_log_created_at ON audit_log(created_at);")
-          (:down . "DROP TABLE IF EXISTS audit_log;")))))
+CREATE INDEX idx_audit_log_created_at ON audit_log(created_at);
+")
+          (:down . "DROP TABLE IF EXISTS audit_log;
+")))))
 
 (defun get-available-migrations ()
   "Return sorted list of (version name) from embedded migrations."

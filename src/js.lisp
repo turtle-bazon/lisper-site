@@ -365,5 +365,312 @@
         }
       });
     });
+
+    // === GAMES (JSCL-based) ===
+    var gameOverlay = document.getElementById('games-overlay');
+    var gameCanvas = document.getElementById('game-canvas');
+    var gameScoreEl = document.getElementById('game-score');
+    var gameTitleEl = document.getElementById('games-modal-title');
+    var gamesMenu = document.getElementById('games-menu');
+    var gamePlay = document.getElementById('game-play');
+    var currentGame = null;
+    var gameAnimFrame = null;
+
+    // JSCL loading
+    var jsclLoaded = false;
+    var jsclLoading = false;
+    var jsclLoadQueue = [];
+    var JSCL_CDN = 'https://jscl-project.github.io/';
+
+    function loadGameJscl(callback) {
+      if (jsclLoaded) { callback(); return; }
+      jsclLoadQueue.push(callback);
+      if (jsclLoading) return;
+      jsclLoading = true;
+      loadScript(JSCL_CDN + 'jscl.js', function() {
+        jsclLoaded = true;
+        jsclLoading = false;
+        while (jsclLoadQueue.length > 0) jsclLoadQueue.shift()();
+      });
+    }
+
+    function evalGameSource(source, lang) {
+      var canvas = document.getElementById('game-canvas');
+      window._canvas = canvas;
+      window._ctx = canvas.getContext('2d');
+      window._keys = {};
+
+      // Helper: convert JSCL strings (char arrays) to native JS strings
+      function toJS(s) { return (typeof s === 'string') ? s : (Array.isArray(s) ? s.join('') : '' + s); }
+      window._cl = function(ctx, w, h) { ctx.fillStyle='#0a0a0a'; ctx.fillRect(0,0,w,h); };
+      window._fr = function(ctx, x, y, w, h) { ctx.fillRect(x,y,w,h); };
+      window._sc = function(ctx, c) { ctx.fillStyle = toJS(c); };
+      window._fs = function(ctx, f) { ctx.font = toJS(f); };
+      window._ta = function(ctx, a) { ctx.textAlign = toJS(a); };
+      window._ft = function(ctx, s, x, y) { ctx.fillText(toJS(s),x,y); };
+      window._bp = function(ctx) { ctx.beginPath(); };
+      window._mt = function(ctx, x, y) { ctx.moveTo(x,y); };
+      window._lt = function(ctx, x, y) { ctx.lineTo(x,y); };
+      window._cp = function(ctx) { ctx.closePath(); };
+      window._fl = function(ctx) { ctx.fill(); };
+      window._ac = function(ctx, x, y, r, s, e) { ctx.arc(x,y,r,s,e); };
+      // Keyboard bridge: JS only captures raw keyCode → _pk[keyCode]
+      // ALL key mapping and logic is in CL
+      window._pk = new Array(256).fill(0);  // _pk[keyCode] = 1 when pressed, 0 when released
+      window._kpc = function(code) { return window._pk[code] || 0; };
+      document.addEventListener('keydown', function(e) {
+        window._pk[e.keyCode] = 1;
+        if ([37,38,39,40,32].indexOf(e.keyCode) !== -1) e.preventDefault();
+      });
+      document.addEventListener('keyup', function(e) {
+        window._pk[e.keyCode] = 0;
+      });
+      // Sound effects via Web Audio API — retro 8-bit style
+      window._actx = null;
+      function _getAC() {
+        if (!window._actx) window._actx = new (window.AudioContext || window.webkitAudioContext)();
+        if (window._actx.state === 'suspended') window._actx.resume();
+        return window._actx;
+      }
+      window._snd = function(type) {
+        try {
+          var ac = _getAC();
+          var o = ac.createOscillator();
+          var g = ac.createGain();
+          o.connect(g); g.connect(ac.destination);
+          var t = ac.currentTime;
+          if (type === 'shoot') {
+            o.type = 'square'; o.frequency.setValueAtTime(880, t);
+            o.frequency.exponentialRampToValueAtTime(440, t + 0.1);
+            g.gain.setValueAtTime(0.15, t);
+            g.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+            o.start(t); o.stop(t + 0.1);
+          } else if (type === 'hit') {
+            o.type = 'sawtooth'; o.frequency.setValueAtTime(300, t);
+            o.frequency.exponentialRampToValueAtTime(50, t + 0.2);
+            g.gain.setValueAtTime(0.2, t);
+            g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+            o.start(t); o.stop(t + 0.2);
+          } else if (type === 'hurt') {
+            o.type = 'sawtooth'; o.frequency.setValueAtTime(200, t);
+            o.frequency.exponentialRampToValueAtTime(80, t + 0.3);
+            g.gain.setValueAtTime(0.2, t);
+            g.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+            o.start(t); o.stop(t + 0.3);
+          } else if (type === 'over') {
+            o.type = 'square'; o.frequency.setValueAtTime(440, t);
+            o.frequency.exponentialRampToValueAtTime(55, t + 0.8);
+            g.gain.setValueAtTime(0.15, t);
+            g.gain.exponentialRampToValueAtTime(0.001, t + 0.8);
+            o.start(t); o.stop(t + 0.8);
+          }
+        } catch(e) {}
+      };
+      if (lang === 'js') {
+        new Function(source)();
+        if (window._lispInvadersStart) { window._lispInvadersStart(); }
+        return;
+      }
+
+      // CL game — use JSCL
+      // Eval each top-level form SEPARATELY (progn creates IIFE that isolates all symbols)
+      var _clRead = jscl.packages['COMMON-LISP'].symbols['READ-FROM-STRING'];
+      var _clEval = jscl.packages['COMMON-LISP'].symbols['EVAL'];
+
+      function skipComments(src, pos) {
+        while (pos < src.length) {
+          if (src[pos] === ';') {
+            while (pos < src.length && src[pos] !== '\\n') pos++;
+          } else if (src[pos] === ' ' || src[pos] === '\\n' || src[pos] === '\\t' || src[pos] === '\\r') {
+            pos++;
+          } else {
+            break;
+          }
+        }
+        return pos;
+      }
+
+      function readOneForm(src, startPos) {
+        var pos = skipComments(src, startPos);
+        if (pos >= src.length) return -1;
+        var ch = src[pos];
+        // If not starting with (, it's not a form we can parse
+        if (ch !== '(') return -1;
+        var depth = 0, inStr = false, esc = false;
+        var start = pos;
+        while (pos < src.length) {
+          var c = src[pos];
+          if (esc) { esc = false; pos++; continue; }
+          if (c === '\\\\' && inStr) { esc = true; pos++; continue; }
+          if (c === '\"' && !esc) { inStr = !inStr; pos++; continue; }
+          if (inStr) { pos++; continue; }
+          if (c === ';') { while (pos < src.length && src[pos] !== '\\n') pos++; continue; }
+          if (c === '(') depth++;
+          else if (c === ')') { depth--; }
+          pos++;
+          if (depth === 0) return pos;
+        }
+        return -1; // unclosed
+      }
+
+      try {
+        var pos = 0;
+        var formCount = 0;
+        while (pos < source.length) {
+          var end = readOneForm(source, pos);
+          if (end <= 0) { break; }
+          var form = source.substring(pos, end);
+          pos = end;
+          try {
+            var clInput = jscl.internals.make_lisp_string(form);
+            var readForm = _clRead.fvalue(clInput);
+            _clEval.fvalue(readForm);
+            formCount++;
+          } catch(e) {
+          }
+        }
+      } catch(e) {
+      }
+
+      // JS-driven game loop with sound effects
+      var frameCount = 0;
+      var prevScore = 0, prevLives = 3, prevBullets = 0;
+
+      // Helper to call CL functions by form string
+      function callClForm(formStr) {
+        var f = _clRead.fvalue(jscl.internals.make_lisp_string(formStr));
+        var result = _clEval.fvalue(f);
+        if (result === null || result === undefined) return 0;
+        if (typeof result === 'object' && result.name === 'NIL') return 0;
+        return result;
+      }
+
+      // Export state from CL to JS (called by game-loop-raw)
+      window._clScore = 0;
+      window._clLives = 3;
+      window._clGameOver = 0;
+      window._exportGameState = function(score, lives, gameOver, bullets) {
+        window._clScore = (typeof score === 'number') ? score : 0;
+        window._clLives = (typeof lives === 'number') ? lives : 3;
+        window._clGameOver = gameOver ? 1 : 0;
+        window._clBullets = (typeof bullets === 'number') ? bullets : 0;
+      };
+
+      // Call start
+      try {
+        callClForm('(start-lisp-invaders)');
+      } catch(e) {
+      }
+
+      // Cache CL function references for performance (avoid read+eval each frame)
+      var _clGameLoopRef = null;
+      try {
+        _clGameLoopRef = jscl.packages['CL-USER'].symbols['GAME-LOOP-RAW'];
+      } catch(e) {}
+
+      function jsGameLoop() {
+        try {
+          if (_clGameLoopRef && _clGameLoopRef.fvalue) {
+            _clGameLoopRef.fvalue();
+          } else {
+            callClForm('(game-loop-raw)');
+          }
+          var score = window._clScore;
+          var lives = window._clLives;
+          var gameOver = window._clGameOver;
+          var bullets = window._clBullets;
+          if (score !== prevScore) { _snd('hit'); prevScore = score; }
+          if (bullets !== prevBullets) { _snd('shoot'); prevBullets = bullets; }
+          if (lives !== prevLives) { _snd('hurt'); prevLives = lives; }
+          if (gameOver) { _snd('over'); return; }
+          frameCount++;
+        } catch(e) {
+          return;
+        }
+        gameAnimFrame = requestAnimationFrame(jsGameLoop);
+      }
+      gameAnimFrame = requestAnimationFrame(jsGameLoop);
+    }
+
+    function openGamesOverlay() {
+      if (!gameOverlay) return;
+      gameOverlay.classList.add('active');
+      showGamesMenu();
+    }
+
+    function showGamesMenu() {
+      if (gamesMenu) gamesMenu.style.display = '';
+      if (gamePlay) gamePlay.style.display = 'none';
+      if (gameTitleEl) gameTitleEl.textContent = 'Lisp \u0418\u0433\u0440\u044b';
+    }
+
+    function startGame(name) {
+      if (!gameCanvas) return;
+      if (gamesMenu) gamesMenu.style.display = 'none';
+      if (gamePlay) gamePlay.style.display = 'flex';
+      if (gameTitleEl) gameTitleEl.textContent = name;
+
+      // CL games need JSCL
+      loadGameJscl(function() {
+        var sourceEl = document.getElementById('game-source-' + name);
+        if (sourceEl) {
+          try {
+            evalGameSource(sourceEl.textContent);
+          } catch(e) {
+            if (gamePlay) gamePlay.innerHTML = '<div style=\"color:#ef4444;padding:40px;text-align:center\"><h3>\u041e\u0448\u0438\u0431\u043a\u0430 \u0437\u0430\u0433\u0440\u0443\u0441\u043a\u0438 \u0438\u0433\u0440\u044b</h3><p>' + e.message + '</p></div>';
+          }
+        }
+      });
+    }
+
+    function closeGame() {
+      if (gameOverlay) gameOverlay.classList.remove('active');
+      if (gameAnimFrame) { cancelAnimationFrame(gameAnimFrame); gameAnimFrame = null; }
+      if (window._lispInvadersStop) window._lispInvadersStop();
+      currentGame = null;
+      showGamesMenu();
+    }
+
+    // Game card clicks
+    document.querySelectorAll('.game-card').forEach(function(card) {
+      card.addEventListener('click', function() {
+        var game = card.getAttribute('data-game');
+        if (game) startGame(game);
+      });
+    });
+
+    // Games nav button
+    var gamesNav = document.getElementById('games-nav-btn');
+    if (gamesNav) {
+      gamesNav.addEventListener('click', function(e) {
+        e.preventDefault();
+        openGamesOverlay();
+      });
+    }
+
+    // Back button
+    var backBtn = document.querySelector('.game-back-btn');
+    if (backBtn) {
+      backBtn.addEventListener('click', function() {
+        if (gameAnimFrame) { cancelAnimationFrame(gameAnimFrame); gameAnimFrame = null; }
+        currentGame = null;
+        showGamesMenu();
+      });
+    }
+
+    // Close game
+    document.querySelectorAll('.game-close').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        closeGame();
+      });
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && gameOverlay && gameOverlay.classList.contains('active')) {
+        closeGame();
+      }
+    });
   });
 })();")

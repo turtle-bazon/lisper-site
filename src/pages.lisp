@@ -59,6 +59,15 @@
         (format out "<a href='~a~a' class='cat-card' style='--accent: ~a'>~a</a>~%"
                 base-url slug color name)))))
 
+(defun generate-game-script-tags ()
+  "Генерирует HTML script теги с CL-кодами игр для JSCL."
+  (with-output-to-string (out)
+    (dolist (game *game-sources*)
+      (let ((name (first game))
+            (source (third game)))
+        (format out "<script type=\"text/lisp\" id=\"game-source-~a\" style=\"display:none\">~a</script>~%"
+                name source)))))
+
 (defun page-index (user)
   (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
     (cl-who:htm
@@ -80,10 +89,12 @@
            (:a :href "/" :class "header-logo"
             (cl-who:str *logo-svg*)))
           (:nav :class "header-nav"
-            (:a :href "javascript:void(0)" :id "try-repl-btn"
+            (:a :href "#" :id "try-repl-btn"
             (:span :class "nav-icon" (cl-who:str "<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 19h8'/><path d='m4 17 6-6-6-6'/></svg>")) " Попробовать CL")
            (:a :href "tg://resolve?domain=commonlisp_ru"
             (:span :class "nav-icon" (cl-who:str "<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 240 240'><circle cx='120' cy='120' r='120' fill='#229ED9'/><path d='M81.229,128.772l14.237,39.406s1.78,3.687,3.686,3.687,30.255-29.492,30.255-29.492l31.525-60.89L81.737,118.6Z' fill='#c8daea'/><path d='M100.106,138.878l-2.733,29.046s-1.144,8.9,7.754,0,17.415-15.763,17.415-15.763' fill='#a9c6d8'/><path d='M81.486,130.178,52.2,120.636s-3.5-1.42-2.373-4.64c.232-.664.7-1.229,2.1-2.2,6.489-4.523,120.106-45.36,120.106-45.36s3.208-1.081,5.1-.362a2.766,2.766,0,0,1,1.885,2.055,9.357,9.357,0,0,1,.254,2.585c-.009.752-.1,1.449-.169,2.542-.692,11.165-21.4,94.493-21.4,94.493s-1.239,4.876-5.678,5.043A8.13,8.13,0,0,1,146.1,172.5c-8.711-7.493-38.819-27.727-45.472-32.177a1.27,1.27,0,0,1-.546-.9c-.093-.469.417-1.05.417-1.05s52.426-46.6,53.821-51.492c.108-.379-.3-.566-.848-.4-3.482,1.281-63.844,39.4-70.506,43.607A3.21,3.21,0,0,1,81.486,130.178Z' fill='#fff'/></svg>")) " Telegram")
+            (:a :href "#" :id "games-nav-btn"
+            (:span :class "nav-icon" (cl-who:str "<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><line x1='6' y1='12' x2='10' y2='12'/><line x1='8' y1='10' x2='8' y2='14'/><line x1='15' y1='13' x2='15.01' y2='13'/><line x1='18' y1='11' x2='18.01' y2='11'/><rect x='2' y='6' width='20' height='12' rx='2'/></svg>")) " Игры")
            (:a :href "/forum"
             (:span :class "nav-icon" (cl-who:str "<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719'/></svg>")) " Форум"))
           (:div :class "header-right"
@@ -173,17 +184,46 @@
            (:li (:a :href "http://www.gigamonkeys.com/book/" "Practical Common Lisp") " — книга для новичков (онлайн)")
            (:li (:a :href "http://www.paulgraham.com/onlisp.html" "On Lisp") " — продвинутые макросы от Пауэлла Грейхема")
            (:li (:a :href "https://common-lisp.net/" "common-lisp.net") " — хостинг open-source проектов")
-              (:li (:a :href "https://www.reddit.com/r/Common_Lisp/" "r/Common_Lisp") " — сообщество на Reddit"))))
-          (:footer
+           (:li (:a :href "https://www.reddit.com/r/Common_Lisp/" "r/Common_Lisp") " — сообщество на Reddit"))))
+         (:footer
           (:p
             (:a :href "https://github.com/turtle-bazon/lisper.ru" "lisper.ru") " &copy; 2026 | GPL-3.0"))
-          (:div :id "repl-overlay" :class "repl-overlay"
-           (:div :class "repl-modal"
-            (:div :class "repl-header"
-             (:span "Common Lisp REPL")
-             (:button :class "repl-close" "&times;"))
-            (:div :id "repl-console" :class "repl-console")))
-        (:script :src "/js?v=3"))))))
-
-
-
+        (:div :id "repl-overlay" :class "repl-overlay"
+            (:div :class "repl-modal"
+             (:div :class "repl-header"
+              (:span "Common Lisp REPL")
+              (:button :class "repl-close" "&times;"))
+             (:div :id "repl-console" :class "repl-console")))
+        (:div :id "games-overlay" :class "game-overlay"
+            (:div :class "game-modal"
+             (:div :class "game-header"
+              (:span :id "games-modal-title" "Lisp Игры")
+              (:button :class "game-close" "&times;"))
+             (:div :id "games-menu" :class "games-menu"
+              (:div :class "games-grid"
+               (:div :class "game-card" :data-game "lisp-invaders"
+                :style "--accent: #22c55e"
+                (cl-who:str "<svg class='game-icon' xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'><rect x='8' y='8' width='8' height='8' fill='#22c55e'/><rect x='32' y='8' width='8' height='8' fill='#22c55e'/><rect x='16' y='16' width='16' height='8' fill='#22c55e'/><rect x='8' y='24' width='32' height='8' fill='#22c55e'/><rect x='12' y='32' width='4' height='8' fill='#22c55e'/><rect x='32' y='32' width='4' height='8' fill='#22c55e'/><rect x='20' y='24' width='8' height='4' fill='#0a0a0a'/></svg>")
+                (:h3 "Lisp Invaders")
+                (:p "Защити REPL от нашествия багов! Стреляй скобками и уничтожай вирусы."))
+               (:div :class "game-card" :data-game "lambda-runner"
+                :style "--accent: #f59e0b"
+                (cl-who:str "<svg class='game-icon' xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'><text x='50%' y='55%' text-anchor='middle' dominant-baseline='middle' font-size='32' font-family='monospace' font-weight='bold' fill='#f59e0b'>\xce\xbb</text></svg>")
+                (:h3 "Lambda Runner")
+                (:p "Лямбда бежит через лес замыканий. Собирай карри и избегай компиляторов."))
+               (:div :class "game-card" :data-game "paren-matcher"
+                :style "--accent: #3b82f6"
+                (cl-who:str "<svg class='game-icon' xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'><text x='25%' y='55%' text-anchor='middle' dominant-baseline='middle' font-size='28' font-family='monospace' font-weight='bold' fill='#3b82f6'>(</text><text x='75%' y='55%' text-anchor='middle' dominant-baseline='middle' font-size='28' font-family='monospace' font-weight='bold' fill='#3b82f6'>)</text></svg>")
+                (:h3 "Paren Matcher")
+                (:p "Найди и соедини пары скобок. Тренировка балансировки S-выражений.")))))
+             (:div :id "game-play" :class "game-play" :style "display:none"
+              (:button :class "game-back-btn" "&larr; Назад к играм")
+              (:div :class "game-body"
+               (:canvas :id "game-canvas" :width "640" :height "480"))
+              (:div :class "game-footer"
+               (:span :class "game-score-label" "Очки: ")
+               (:span :id "game-score" "0")
+                (:span :class "game-hint" "← → — движение | пробел — стрелять | P — пауза | Enter — заново"))))
+         ;; CL-коды игр для JSCL (скрытые script теги)
+         (cl-who:str (generate-game-script-tags))
+         (:script :src "/js?v=6"))))))
