@@ -12,6 +12,14 @@
       ((jscl::oget ctx "fillRect") 50 50 100 100)
       (setf (jscl::oget ctx "fillStyle") (jscl/ffi:jsstring color))
       ((jscl::oget ctx "fillRect") 150 50 100 100))
+    (let ((doc #j:document))
+      ((jscl::oget doc "addEventListener")
+        #j"keydown"
+       (lambda (e)
+         (#j:console:log e)
+         (#j:console:log (jscl::oget e "keyCode"))
+         (when (= 32 (jscl::oget e "keyCode"))
+           (#j:console:log "pressed")))))
   </script>
 </body>
 </html>

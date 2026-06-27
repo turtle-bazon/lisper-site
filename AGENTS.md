@@ -294,4 +294,11 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - CSS: `.games-grid`, `.game-card`, `.game-overlay`, `.game-modal`, `.game-body`, `.game-footer`
 - JS: `openGame()`, `closeGame()`, `startLispInvaders()`, game loop с requestAnimationFrame
 - Кнопка "Игры" в хедере скроллит к секции
+- **Ввод**: клавиатура через CL `(make-array 256)` + `aref` (не hash-table — `equal` не работает с JS numbers)
+- **Звук**: полностью в CL через JSCL FFI (`*ac*` AudioContext, `play-snd`)
+- **S-Expression Dungeon** (планируется) — roguelike с картами из S-выражений:
+  - Комната = `(room (enemies defun lambda) (items macro-quote) (doors left right))`
+  - Герой — интерпретатор, враги — баги (void-function, wrong-type-argument), лут — макросы
+  - Пошаговый, тайл-based, minimap, пермадет, прогрессия
+  - Пока не реализовано — после доделки Lisp Invaders
 - **Порт**: 8080

@@ -215,7 +215,12 @@
                 :style "--accent: #3b82f6"
                 (cl-who:str "<svg class='game-icon' xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'><text x='25%' y='55%' text-anchor='middle' dominant-baseline='middle' font-size='28' font-family='monospace' font-weight='bold' fill='#3b82f6'>(</text><text x='75%' y='55%' text-anchor='middle' dominant-baseline='middle' font-size='28' font-family='monospace' font-weight='bold' fill='#3b82f6'>)</text></svg>")
                 (:h3 "Paren Matcher")
-                (:p "Найди и соедини пары скобок. Тренировка балансировки S-выражений."))))
+                 (:p "Найди и соедини пары скобок. Тренировка балансировки S-выражений."))
+               (:div :class "game-card" :data-game "s-dungeon"
+                :style "--accent: #a855f7"
+                (cl-who:str "<svg class='game-icon' xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'><rect x='8' y='8' width='32' height='32' rx='2' fill='none' stroke='#a855f7' stroke-width='2'/><rect x='12' y='12' width='8' height='8' fill='#a855f7' opacity='0.8'/><rect x='28' y='12' width='8' height='8' fill='#a855f7' opacity='0.8'/><rect x='12' y='28' width='8' height='8' fill='#a855f7' opacity='0.8'/><rect x='28' y='28' width='8' height='8' fill='#a855f7' opacity='0.8'/><rect x='20' y='20' width='8' height='8' fill='#a855f7'/><line x1='20' y1='16' x2='28' y2='16' stroke='#a855f7' stroke-width='1'/><line x1='20' y1='32' x2='28' y2='32' stroke='#a855f7' stroke-width='1'/><line x1='16' y1='20' x2='16' y2='28' stroke='#a855f7' stroke-width='1'/><line x1='32' y1='20' x2='32' y2='28' stroke='#a855f7' stroke-width='1'/></svg>")
+                (:h3 "S-Expression Dungeon")
+                (:p "Roguelike-подземелья из S-выражений. Баги-монстры, макросы-предметы, пермадет."))))
               (:div :id "game-play" :class "game-play" :style "display:none"
               (:button :class "game-back-btn" "&larr; Назад к играм")
               (:div :class "game-body"

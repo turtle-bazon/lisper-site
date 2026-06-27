@@ -387,36 +387,14 @@
       jsclLoadQueue.push(callback);
       if (jsclLoading) return;
       jsclLoading = true;
-      console.time('JSCL load');
       loadScript(JSCL_CDN + 'jscl.js', function() {
-        console.timeEnd('JSCL load');
         jsclLoaded = true;
         jsclLoading = false;
         while (jsclLoadQueue.length > 0) jsclLoadQueue.shift()();
       });
     }
 
-    function evalGameSource(source, lang) {
-      console.time('evalGameSource');
-
-      // Keyboard bridge — JS captures raw keyCode → _pk[keyCode]
-      window._pk = new Array(256).fill(0);
-      window._kpc = function(code) { return window._pk[code] || 0; };
-      document.addEventListener('keydown', function(e) {
-        window._pk[e.keyCode] = 1;
-        if ([37,38,39,40,32].indexOf(e.keyCode) !== -1) e.preventDefault();
-      });
-      document.addEventListener('keyup', function(e) {
-        window._pk[e.keyCode] = 0;
-      });
-      // Sound — handled in CL via JSCL FFI
-      if (lang === 'js') {
-        new Function(source)();
-        if (window._lispInvadersStart) { window._lispInvadersStart(); }
-        return;
-      }
-
-      // CL game — use JSCL
+    function evalGameSource(source) {
       var _clRead = jscl.packages['COMMON-LISP'].symbols['READ-FROM-STRING'];
       var _clEval = jscl.packages['COMMON-LISP'].symbols['EVAL'];
 
@@ -468,7 +446,6 @@
         _splitPos = _end;
       }
       var _totalForms = _forms.length;
-      console.log('Forms to compile: ' + _totalForms);
 
       function callClForm(formStr) {
         var f = _clRead.fvalue(jscl.internals.make_lisp_string(formStr));
@@ -481,7 +458,6 @@
 
       // Compile one form at a time, yielding to browser between each
       var _formIdx = 0;
-      console.time('CL compile');
 
       function compileNextBatch() {
         var batchEnd = Math.min(_formIdx + 1, _totalForms);
@@ -498,8 +474,6 @@
         if (_formIdx < _totalForms) {
           setTimeout(compileNextBatch, 0);
         } else {
-          console.timeEnd('CL compile');
-          console.log('Forms: ' + _formIdx);
           if (loadingEl) loadingEl.style.display = 'none';
           startGame();
         }
@@ -507,24 +481,20 @@
 
       function startGame() {
         try {
-          console.time('start-lisp-invaders');
-          callClForm('(start-lisp-invaders)');
-          console.timeEnd('start-lisp-invaders');
-        } catch(e) { console.error('start-lisp-invaders error:', e); }
+          callClForm('(lisp-invaders:start-lisp-invaders)');
+        } catch(e) {}
         try {
-          _clGameLoopRef = jscl.packages['CL-USER'].symbols['GAME-LOOP-RAW'];
-        } catch(e) { console.error('game-loop-raw ref error:', e); }
+          _clGameLoopRef = jscl.packages['LISP-INVADERS'].symbols['GAME-LOOP-RAW'];
+        } catch(e) {}
         var _firstFrame = true;
         function jsGameLoop() {
           try {
-            if (_firstFrame) console.time('first frame');
             if (_clGameLoopRef && _clGameLoopRef.fvalue) {
               _clGameLoopRef.fvalue();
             } else {
-              callClForm('(game-loop-raw)');
+              callClForm('(lisp-invaders:game-loop-raw)');
             }
-            if (_firstFrame) { console.timeEnd('first frame'); _firstFrame = false; console.timeEnd('evalGameSource'); }
-          } catch(e) { console.error('game-loop error:', e); return; }
+          } catch(e) { return; }
           gameAnimFrame = requestAnimationFrame(jsGameLoop);
         }
         gameAnimFrame = requestAnimationFrame(jsGameLoop);
@@ -567,7 +537,6 @@
     function closeGame() {
       if (gameOverlay) gameOverlay.classList.remove('active');
       if (gameAnimFrame) { cancelAnimationFrame(gameAnimFrame); gameAnimFrame = null; }
-      if (window._lispInvadersStop) window._lispInvadersStop();
       currentGame = null;
       showGamesMenu();
     }

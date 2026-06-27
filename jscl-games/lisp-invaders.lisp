@@ -1,8 +1,13 @@
 ;;; Lisp Invaders — клон Space Invaders для JSCL
 ;;; Всё на Common Lisp. Canvas через jscl::oget, строки через #j"".
 
-(in-package :cl-user)
-(use-package :jscl/ffi)
+(defpackage :lisp-invaders
+  (:use :cl)
+  (:import-from :jscl/ffi)
+  (:export #:start-lisp-invaders
+           #:game-loop-raw))
+
+(in-package :lisp-invaders)
 
 ;;; Состояние
 (defvar *score* 0)
@@ -26,8 +31,10 @@
 
 ;;; Ввод
 
+(defvar *keys* (make-array 256 :initial-element 0))
+
 (defun key-pressed (code)
-  (= 1 ((jscl::oget #j:window "_kpc") code)))
+  (= 1 (aref *keys* code)))
 
 (defvar *input-left* nil)
 (defvar *input-right* nil)
@@ -294,4 +301,16 @@
 
 (defun start-lisp-invaders ()
   (setf *ctx* ((jscl::oget (#j:document:getElementById #j"game-canvas") "getContext") #j"2d"))
+  (let ((doc #j:document))
+    ((jscl::oget doc "addEventListener")
+     #j"keydown"
+     (lambda (e)
+       (let ((code (jscl::oget e "keyCode")))
+         (setf (aref *keys* code) 1)
+         (when (or (= code 37) (= code 38) (= code 39) (= code 40) (= code 32))
+           ((jscl::oget e "preventDefault"))))))
+    ((jscl::oget doc "addEventListener")
+     #j"keyup"
+     (lambda (e)
+       (setf (aref *keys* (jscl::oget e "keyCode")) 0))))
   (reset))
