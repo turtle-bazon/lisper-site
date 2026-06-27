@@ -41,11 +41,13 @@
          (output (merge-pathnames #P"src/resources.lisp" base))
          (logo-svg (read-file-to-string (merge-pathnames #P"logo.svg" resources-dir)))
          (favicon-bytes (read-file-to-bytes (merge-pathnames #P"favicon.svg" resources-dir)))
-         (favicon-b64 (usb8-array-to-base64-string favicon-bytes)))
+          (favicon-b64 (usb8-array-to-base64-string favicon-bytes))
+          (jscl-js (read-file-to-string (merge-pathnames #P"jscl.js" resources-dir))))
     (with-open-file (stream output :direction :output :if-exists :supersede)
       (format stream "(in-package :lisper)~%~%")
       (format stream "(defparameter *logo-svg*~%  ~S)~%~%" logo-svg)
-      (format stream "(defparameter *favicon-data-uri*~%  (concatenate 'string~%               \"data:image/svg+xml;base64,\"~%               ~S))~%" favicon-b64))
+      (format stream "(defparameter *favicon-data-uri*~%  (concatenate 'string~%               \"data:image/svg+xml;base64,\"~%               ~S))~%" favicon-b64)
+      (format stream "(defparameter *jscl-js*~%  ~S)~%" jscl-js))
     (format t "Generated ~a~%" output)))
 
 ;;; ============================================================

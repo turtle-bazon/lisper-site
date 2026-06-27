@@ -46,13 +46,8 @@
               `(200 (:content-type "application/javascript; charset=utf-8")
                     (,(generate-js))))
              ((string= path "/jscl.js")
-              (let ((file (merge-pathnames #P"resources/jscl.js"
-                                           (asdf:system-source-directory :lisper))))
-                (with-open-file (s file :external-format :utf-8)
-                  (let ((content (make-string (file-length s))))
-                    (read-sequence content s)
-                    `(200 (:content-type "application/javascript; charset=utf-8")
-                          (,content))))))
+               `(200 (:content-type "application/javascript; charset=utf-8")
+                     (,*jscl-js*)))
 
              ;; Game source download
              ((and (>= (length path) 13)
@@ -65,7 +60,8 @@
                     '(404 (:content-type "text/plain; charset=utf-8")
                       ("Game not found")))))
 
-            ;; Auth routes
+
+             ;; Auth routes
             ((and (string= path "/login") (eq (env-method env) :GET))
              `(200 (:content-type "text/html; charset=utf-8")
                    (,(forum-page-login user nil))))

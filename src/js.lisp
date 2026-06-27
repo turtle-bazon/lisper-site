@@ -2,9 +2,11 @@
 
 (defun generate-js ()
   "(function() {
-  var JSCL_CDN = 'https://jscl-project.github.io/';
+  var JSCL_CDN = '/js/';
   var loaded = false;
   var loading = false;
+  var replHistory = [];
+  var replHistoryIdx = -1;
 
   function loadScript(src, cb) {
     var s = document.createElement('script');
@@ -45,10 +47,11 @@
   }
 
   function setInputEnabled(enabled) {
-    var inp = document.getElementById('repl-input');
-    if (inp) {
-      inp.disabled = !enabled;
-      if (enabled) inp.focus();
+    for (var i = 0; i < replLines.length; i++) {
+      replLines[i].disabled = !enabled;
+    }
+    if (enabled && replLines.length > 0) {
+      replLines[replLines.length - 1].focus();
     }
   }
 
@@ -57,30 +60,45 @@
       var pkg = jscl.CL['*PACKAGE*'];
       if (pkg && pkg.value) {
         var nameFn = jscl.CL['PACKAGE-NAME'];
-        if (nameFn) return jscl.internals.xstring(nameFn.fvalue(pkg.value)) + '> ';
+        if (nameFn) {
+          var name = jscl.internals.xstring(nameFn.fvalue(pkg.value));
+          if (name === 'COMMON-LISP-USER') name = 'CL-USER';
+          return name + '> ';
+        }
       }
     } catch(e) {}
     return 'CL-USER> ';
   }
 
-  function createInputLine() {
+  var replLines = [];
+
+  function makeDots(promptText) {
+    var n = promptText.length - 1;
+    var s = '';
+    for (var i = 0; i < n; i++) s += '.';
+    return s + ' ';
+  }
+
+  function createInputLine(isContinuation, dotsStr) {
     var c = getConsole();
     if (!c) return;
     var line = document.createElement('div');
     line.className = 'repl-line repl-input-line';
-    line.id = 'repl-input-line';
 
     var prompt = document.createElement('span');
     prompt.className = 'repl-prompt-label';
-    prompt.id = 'repl-prompt-label';
-    prompt.textContent = 'CL-USER> ';
+    if (isContinuation) {
+      prompt.textContent = dotsStr || makeDots(getPromptText());
+    } else {
+      prompt.textContent = getPromptText();
+    }
 
     var inp = document.createElement('input');
     inp.type = 'text';
-    inp.id = 'repl-input';
     inp.className = 'repl-input';
     inp.autocomplete = 'off';
     inp.spellcheck = false;
+    replLines.push(inp);
 
     line.appendChild(prompt);
     line.appendChild(inp);
@@ -89,9 +107,12 @@
     inp.focus();
   }
 
-  function removeInputLine() {
-    var line = document.getElementById('repl-input-line');
-    if (line) line.remove();
+  function removeInputLines() {
+    replLines = [];
+    var c = getConsole();
+    if (!c) return;
+    var lines = c.querySelectorAll('.repl-input-line');
+    for (var i = 0; i < lines.length; i++) lines[i].remove();
   }
 
   function isBalanced(input) {
@@ -115,9 +136,6 @@
   }
 
   function clEval(input) {
-    if (!isBalanced(input)) {
-      throw new Error('incomplete input');
-    }
     var clInput = jscl.internals.make_lisp_string(input);
     var form = jscl.packages['COMMON-LISP'].symbols['READ-FROM-STRING'].fvalue(clInput);
     return jscl.packages['COMMON-LISP'].symbols['EVAL'].fvalue(form);
@@ -141,25 +159,34 @@
   }
 
   function clPrint(val) {
-    if (val === undefined || val === null) return '';
+    if (val === undefined || val === null) return 'NIL';
     try {
       var out = jscl.packages['COMMON-LISP'].symbols['PRINC-TO-STRING'].fvalue(val);
       return jscl.internals.xstring(out);
     } catch(e) { return String(val); }
   }
 
-  function submitInput(input) {
-    var promptLabel = document.getElementById('repl-prompt-label');
-    var promptText = promptLabel ? promptLabel.textContent : 'CL-USER> ';
-    removeInputLine();
-    appendLine(promptText + input, 'repl-history');
+  function submitInput(allLines) {
+    var promptText = getPromptText();
+    var dots = makeDots(promptText);
+    var input = allLines.join(' ');
+    var historyEntry = { lines: allLines.slice(), prompt: promptText, dots: dots };
+    removeInputLines();
+
+    for (var i = 0; i < allLines.length; i++) {
+      var p = (i === 0) ? promptText : dots;
+      appendLine(p + allLines[i], 'repl-history');
+    }
+
     var trimmed = input.trim();
+    if (trimmed) replHistory.push(historyEntry);
+    replHistoryIdx = replHistory.length;
     if (trimmed === '(exit)' || trimmed === '(quit)' || trimmed === '(si:quit)') {
       closeRepl();
       return;
     }
     if (!trimmed) {
-      createInputLine();
+      createInputLine(false);
       return;
     }
     try {
@@ -172,7 +199,7 @@
       var msg = (e && e.message) ? e.message : String(e);
       appendLine('Error: ' + msg, 'repl-error');
     }
-    createInputLine();
+    createInputLine(false);
   }
 
   window.openRepl = function() {
@@ -182,8 +209,7 @@
     if (!c) return;
 
     if (loaded) {
-      var inp = document.getElementById('repl-input');
-      if (inp) inp.focus();
+      if (replLines.length > 0) replLines[replLines.length - 1].focus();
       return;
     }
     if (loading) return;
@@ -191,36 +217,25 @@
 
     c.innerHTML = '';
     appendLine('Loading JSCL...', 'repl-status');
-    createInputLine();
+    createInputLine(false);
     setInputEnabled(false);
 
-    loadScript(JSCL_CDN + 'jquery.js', function() {
-      loadScript(JSCL_CDN + 'jqconsole.js', function() {
-        appendLine('Loading JSCL compiler...', 'repl-status');
-        loadScript('/jscl.js', function() {
-          appendLine('Loading web runtime...', 'repl-status');
-          loadScript(JSCL_CDN + 'jscl-web.js', function() {
-            if (typeof jscl === 'undefined') {
-              appendLine('Error: JSCL failed to load', 'repl-error');
-              loaded = false;
-              loading = false;
-              setInputEnabled(true);
-              return;
-            }
-            loaded = true;
-            loading = false;
-            setupErrorHandler();
-            removeInputLine();
-            c.innerHTML = '';
-            try {
-              var verSym = jscl.packages['JSCL/WEB-REPL'].symbols['WELCOME-MESSAGE-ITEMS'];
-              appendHTML('<span class=\"repl-credit\">Powered by <a href=\"https://github.com/jscl-project/jscl\" target=\"_blank\">JSCL</a> v0.9.0-alpha.0</span>', 'repl-header-line');
-            } catch(e) {}
-            createInputLine();
-            setInputEnabled(true);
-          });
-        });
-      });
+    loadScript('/jscl.js', function() {
+      if (typeof jscl === 'undefined') {
+        appendLine('Error: JSCL failed to load', 'repl-error');
+        loaded = false;
+        loading = false;
+        setInputEnabled(true);
+        return;
+      }
+      loaded = true;
+      loading = false;
+      setupErrorHandler();
+      removeInputLines();
+      c.innerHTML = '';
+      appendHTML('<span class=\"repl-credit\">Powered by <a href=\"https://github.com/jscl-project/jscl\" target=\"_blank\">JSCL</a></span>', 'repl-header-line');
+      createInputLine(false);
+      setInputEnabled(true);
     });
   };
 
@@ -250,14 +265,64 @@
 
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
-      var inp = document.getElementById('repl-input');
+      var inp = document.querySelector('.repl-input-line:last-child .repl-input');
       if (inp && document.activeElement === inp && !inp.disabled) {
         e.preventDefault();
-        submitInput(inp.value);
-        inp.value = '';
+        var all = replLines.map(function(i) { return i.value; }).join(' ');
+        if (e.shiftKey || !isBalanced(all)) {
+          inp.readOnly = true;
+          createInputLine(true, makeDots(getPromptText()));
+        } else {
+          submitInput(replLines.map(function(i) { return i.value; }));
+        }
+      }
+    }
+    if (e.key === 'ArrowUp') {
+      var inp = document.activeElement;
+      if (inp && inp.classList.contains('repl-input') &&
+          (inp.selectionStart === 0 || inp.selectionStart === inp.value.length) &&
+          replHistory.length > 0) {
+        e.preventDefault();
+        if (replHistoryIdx > 0) replHistoryIdx--;
+        restoreHistory();
+      }
+    }
+    if (e.key === 'ArrowDown') {
+      var inp = document.activeElement;
+      if (inp && inp.classList.contains('repl-input') &&
+          (inp.selectionStart === 0 || inp.selectionStart === inp.value.length) &&
+          replHistory.length > 0) {
+        e.preventDefault();
+        if (replHistoryIdx < replHistory.length - 1) {
+          replHistoryIdx++;
+          restoreHistory();
+        } else {
+          replHistoryIdx = replHistory.length;
+          removeInputLines();
+          createInputLine(false);
+        }
       }
     }
   });
+
+  function restoreHistory() {
+    if (replHistoryIdx >= replHistory.length) {
+      removeInputLines();
+      createInputLine(false);
+      return;
+    }
+    var entry = replHistory[replHistoryIdx];
+    if (!entry) return;
+    removeInputLines();
+    var lines = entry.lines;
+    var dots = entry.dots || makeDots(entry.prompt || getPromptText());
+    for (var i = 0; i < lines.length; i++) {
+      createInputLine(i > 0, dots);
+      replLines[replLines.length - 1].value = lines[i];
+    }
+    var last = replLines[replLines.length - 1];
+    if (last) last.focus();
+  }
 
   // === Markdown Editor ===
   document.addEventListener('DOMContentLoaded', function() {
