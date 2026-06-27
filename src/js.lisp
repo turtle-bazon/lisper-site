@@ -529,7 +529,8 @@
       var hints = {
         'lisp-invaders': '\\u2190 \\u2192 \\u2014 движение | пробел \\u2014 стрелять | P \\u2014 пауза | Enter \\u2014 заново',
         'lambda-runner': 'пробел \\u2014 прыжок | P \\u2014 пауза | Enter \\u2014 заново',
-        'paren-matcher': '\\u2190 \\u2192 A D \\u2014 лови скобки | P \\u2014 пауза | Enter \\u2014 заново'
+        'paren-matcher': '\\u2190 \\u2192 A D \\u2014 лови скобки | P \\u2014 пауза | Enter \\u2014 заново',
+        's-dungeon': '\\u2190 \\u2192 \\u2191 \\u2193 WASD \\u2014 движение | . \\u2014 ждать | Enter \\u2014 заново'
       };
       var hintEl = document.getElementById('game-hint');
       if (hintEl) hintEl.textContent = hints[name] || '';
