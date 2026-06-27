@@ -232,7 +232,7 @@
               (:div :class "game-footer"
                 (:span :class "game-score-label" "Очки: ")
                 (:span :id "game-score" "0")
-                 (:span :class "game-hint" "← → — движение | пробел — стрелять | P — пауза | Enter — заново")))))
+                 (:span :id "game-hint" :class "game-hint" "")))))
          ;; CL-коды игр для JSCL (скрытые script теги — ВНЕ overlay)
          (cl-who:str (generate-game-script-tags))
          (:script :src "/js?v=6"))))))

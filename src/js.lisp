@@ -394,7 +394,10 @@
       });
     }
 
-    function evalGameSource(source) {
+    function evalGameSource(source, gameName) {
+      var pkgName = gameName.toUpperCase();
+      var startFn = gameName + ':start-' + gameName;
+      var loopFn = gameName + ':game-loop-raw';
       var _clRead = jscl.packages['COMMON-LISP'].symbols['READ-FROM-STRING'];
       var _clEval = jscl.packages['COMMON-LISP'].symbols['EVAL'];
 
@@ -481,10 +484,10 @@
 
       function startGame() {
         try {
-          callClForm('(lisp-invaders:start-lisp-invaders)');
+          callClForm('(' + startFn + ')');
         } catch(e) {}
         try {
-          _clGameLoopRef = jscl.packages['LISP-INVADERS'].symbols['GAME-LOOP-RAW'];
+          _clGameLoopRef = jscl.packages[pkgName].symbols['GAME-LOOP-RAW'];
         } catch(e) {}
         var _firstFrame = true;
         function jsGameLoop() {
@@ -492,7 +495,7 @@
             if (_clGameLoopRef && _clGameLoopRef.fvalue) {
               _clGameLoopRef.fvalue();
             } else {
-              callClForm('(lisp-invaders:game-loop-raw)');
+              callClForm('(' + loopFn + ')');
             }
           } catch(e) { return; }
           gameAnimFrame = requestAnimationFrame(jsGameLoop);
@@ -517,16 +520,35 @@
 
     function startGame(name) {
       if (!gameCanvas) return;
+      if (gameAnimFrame) { cancelAnimationFrame(gameAnimFrame); gameAnimFrame = null; }
+      currentGame = null;
       if (gamesMenu) gamesMenu.style.display = 'none';
       if (gamePlay) gamePlay.style.display = 'flex';
       if (gameTitleEl) gameTitleEl.textContent = name;
+
+      var hints = {
+        'lisp-invaders': '\\u2190 \\u2192 \\u2014 движение | пробел \\u2014 стрелять | P \\u2014 пауза | Enter \\u2014 заново',
+        'lambda-runner': 'пробел \\u2014 прыжок | P \\u2014 пауза | Enter \\u2014 заново'
+      };
+      var hintEl = document.getElementById('game-hint');
+      if (hintEl) hintEl.textContent = hints[name] || '';
+
+      // Reset loading indicator
+      var loadingEl = document.getElementById('game-loading');
+      var fillEl = document.getElementById('game-loading-fill');
+      if (loadingEl) loadingEl.style.display = '';
+      if (fillEl) fillEl.style.width = '0%';
+
+      // Clear canvas
+      var ctx = gameCanvas.getContext('2d');
+      if (ctx) ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
       // CL games need JSCL
       loadGameJscl(function() {
         var sourceEl = document.getElementById('game-source-' + name);
         if (sourceEl) {
           try {
-            evalGameSource(sourceEl.textContent);
+            evalGameSource(sourceEl.textContent, name);
           } catch(e) {
             if (gamePlay) gamePlay.innerHTML = '<div style=\"color:#ef4444;padding:40px;text-align:center\"><h3>\u041e\u0448\u0438\u0431\u043a\u0430 \u0437\u0430\u0433\u0440\u0443\u0441\u043a\u0438 \u0438\u0433\u0440\u044b</h3><p>' + e.message + '</p></div>';
           }
