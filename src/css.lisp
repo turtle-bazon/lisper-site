@@ -1056,10 +1056,15 @@
          :justify-content "space-between"
          :align-items "center")
 
-        (".game-header span"
+        (".game-header a"
          :color "#22c55e"
          :font-weight 600
-         :font-size "0.95rem")
+         :font-size "0.95rem"
+         :text-decoration "none"
+         :cursor "pointer")
+
+        (".game-header a:hover"
+         :text-decoration "underline")
 
         (".game-close"
          :background "none"

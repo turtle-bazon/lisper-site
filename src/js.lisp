@@ -469,7 +469,7 @@
             var clInput = jscl.internals.make_lisp_string(_forms[_formIdx]);
             var readForm = _clRead.fvalue(clInput);
             _clEval.fvalue(readForm);
-          } catch(e) {}
+          } catch(e) { console.error('Form ' + _formIdx + '/' + _totalForms + ' FAILED:', e.message, _forms[_formIdx].substring(0, 80)); }
           _formIdx++;
         }
         if (fillEl) fillEl.style.width = Math.round(_formIdx / _totalForms * 100) + '%';
@@ -515,7 +515,7 @@
     function showGamesMenu() {
       if (gamesMenu) gamesMenu.style.display = '';
       if (gamePlay) gamePlay.style.display = 'none';
-      if (gameTitleEl) gameTitleEl.textContent = 'Lisp Игры';
+      if (gameTitleEl) { gameTitleEl.textContent = 'Lisp Игры'; gameTitleEl.href = '#'; }
     }
 
     function startGame(name) {
@@ -524,11 +524,12 @@
       currentGame = null;
       if (gamesMenu) gamesMenu.style.display = 'none';
       if (gamePlay) gamePlay.style.display = 'flex';
-      if (gameTitleEl) gameTitleEl.textContent = name;
+      if (gameTitleEl) { gameTitleEl.textContent = name; gameTitleEl.href = '/game-source/' + name; }
 
       var hints = {
         'lisp-invaders': '\\u2190 \\u2192 \\u2014 движение | пробел \\u2014 стрелять | P \\u2014 пауза | Enter \\u2014 заново',
-        'lambda-runner': 'пробел \\u2014 прыжок | P \\u2014 пауза | Enter \\u2014 заново'
+        'lambda-runner': 'пробел \\u2014 прыжок | P \\u2014 пауза | Enter \\u2014 заново',
+        'paren-matcher': '\\u2190 \\u2192 A D \\u2014 лови скобки | P \\u2014 пауза | Enter \\u2014 заново'
       };
       var hintEl = document.getElementById('game-hint');
       if (hintEl) hintEl.textContent = hints[name] || '';

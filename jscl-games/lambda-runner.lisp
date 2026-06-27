@@ -33,13 +33,44 @@
 (defvar *collectibles* nil)
 (defvar *particles* nil)
 
+;;; Звук
+(defvar *ac* nil)
+
+(defun ensure-audio-ctx ()
+  (unless *ac*
+    (setf *ac* (#j:Reflect:construct (or #j:AudioContext #j:webkitAudioContext) (#j:Array)))))
+
+(defun play-snd (wave-type freq-start freq-end vol dur)
+  (ensure-audio-ctx)
+  (let* ((osc ((jscl::oget *ac* "createOscillator")))
+         (gain ((jscl::oget *ac* "createGain")))
+         (freq (jscl::oget osc "frequency"))
+         (vol-g (jscl::oget gain "gain"))
+         (now (jscl::oget *ac* "currentTime")))
+    (setf (jscl::oget osc "type") wave-type)
+    ((jscl::oget freq "setValueAtTime") freq-start now)
+    ((jscl::oget freq "exponentialRampToValueAtTime") freq-end (+ now dur))
+    ((jscl::oget vol-g "setValueAtTime") vol now)
+    ((jscl::oget vol-g "exponentialRampToValueAtTime") 0.001 (+ now dur))
+    ((jscl::oget osc "connect") gain)
+    ((jscl::oget gain "connect") (jscl::oget *ac* "destination"))
+    ((jscl::oget osc "start") now)
+    ((jscl::oget osc "stop") (+ now dur))))
+
+(defun snd-jump () (play-snd #j"square" 300 600 0.1 0.15))
+(defun snd-collect () (play-snd #j"sine" 800 1200 0.15 0.1))
+(defun snd-hit () (play-snd #j"sawtooth" 200 50 0.2 0.3))
+(defun snd-step () (play-snd #j"triangle" 80 60 0.08 0.03))
+
 ;;; Ввод
 (defvar *keys* (make-array 256 :initial-element 0))
 (defvar *prev-space* nil)
+(defvar *prev-game-over* nil)
 (defvar *pause-clicks* 0)
 (defvar *reset-clicks* 0)
 (defvar *prev-p* nil)
 (defvar *prev-enter* nil)
+(defvar *distance* 0)
 
 (defun key-pressed (code)
   (= 1 (aref *keys* code)))
@@ -47,7 +78,8 @@
 (defun read-input ()
   (let ((space-now (key-pressed 32)))
     (when (and space-now (not *prev-space*) (not *jumping*) (not *game-over*))
-      (setf *jumping* t *jump-vy* *jump-force*))
+      (setf *jumping* t *jump-vy* *jump-force*)
+      (snd-jump))
     (setf *prev-space* space-now))
   (let ((p-now (key-pressed 80)))
     (when (and p-now (not *prev-p*)) (incf *pause-clicks*))
@@ -92,7 +124,7 @@
 
 ;;; Инициализация
 (defun reset ()
-  (setf *score* 0 *speed* 3.0 *tick* 0
+  (setf *score* 0 *speed* 3.0 *tick* 0 *distance* 0
         *game-over* nil *paused* nil
         *jumping* nil *jump-vy* 0
         *obstacles* nil *collectibles* nil *particles* nil
@@ -176,7 +208,12 @@
   (when (or *paused* *game-over*) (return-from update))
   (incf *tick*)
   (incf *score*)
-  (incf *speed* 0.0005)
+  (incf *speed* 0.005)
+  ;; Звук шага каждые 80 единиц расстояния
+  (incf *distance* *speed*)
+  (when (>= *distance* 80)
+    (decf *distance* 80)
+    (snd-step))
 
   ;; Прыжок
   (when *jumping*
@@ -243,34 +280,6 @@
             (incf *score* 50)
             (spawn-particle (+ cx 8) (+ cy 8) "#fbbf24")))))))
 
-;;; Звук
-(defvar *ac* nil)
-
-(defun ensure-audio-ctx ()
-  (unless *ac*
-    (setf *ac* (#j:Reflect:construct (or #j:AudioContext #j:webkitAudioContext) (#j:Array)))))
-
-(defun play-snd (wave-type freq-start freq-end vol dur)
-  (ensure-audio-ctx)
-  (let* ((osc ((jscl::oget *ac* "createOscillator")))
-         (gain ((jscl::oget *ac* "createGain")))
-         (freq (jscl::oget osc "frequency"))
-         (vol-g (jscl::oget gain "gain"))
-         (now (jscl::oget *ac* "currentTime")))
-    (setf (jscl::oget osc "type") wave-type)
-    ((jscl::oget freq "setValueAtTime") freq-start now)
-    ((jscl::oget freq "exponentialRampToValueAtTime") freq-end (+ now dur))
-    ((jscl::oget vol-g "setValueAtTime") vol now)
-    ((jscl::oget vol-g "exponentialRampToValueAtTime") 0.001 (+ now dur))
-    ((jscl::oget osc "connect") gain)
-    ((jscl::oget gain "connect") (jscl::oget *ac* "destination"))
-    ((jscl::oget osc "start") now)
-    ((jscl::oget osc "stop") (+ now dur))))
-
-(defun snd-jump () (play-snd #j"square" 300 600 0.1 0.15))
-(defun snd-collect () (play-snd #j"sine" 800 1200 0.15 0.1))
-(defun snd-hit () (play-snd #j"sawtooth" 200 50 0.2 0.3))
-
 ;;; Игровой цикл
 (defvar *prev-score* 0)
 
@@ -311,8 +320,10 @@
   (draw-hud)
 
   ;; Звуки
-  (when (and *game-over* (not (zerop *score*))) (snd-hit))
-  (when (> *score* (+ *prev-score* 50)) (snd-collect)))
+  (when (and *game-over* (not *prev-game-over*) (not (zerop *score*)))
+    (snd-hit))
+  (when (> *score* (+ *prev-score* 50)) (snd-collect))
+  (setf *prev-game-over* *game-over*))
 
 ;;; Точка входа
 (defun start-lambda-runner ()

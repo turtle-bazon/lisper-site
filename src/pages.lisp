@@ -196,9 +196,9 @@
              (:div :id "repl-console" :class "repl-console")))
         (:div :id "games-overlay" :class "game-overlay"
             (:div :class "game-modal"
-             (:div :class "game-header"
-              (:span :id "games-modal-title" "Lisp Игры")
-              (:button :class "game-close" "&times;"))
+              (:div :class "game-header"
+               (:a :id "games-modal-title" :href "#" "Lisp Игры")
+               (:button :class "game-close" "&times;"))
              (:div :id "games-menu" :class "games-menu"
               (:div :class "games-grid"
                (:div :class "game-card" :data-game "lisp-invaders"
