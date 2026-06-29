@@ -60,6 +60,17 @@
                     '(404 (:content-type "text/plain; charset=utf-8")
                       ("Game not found")))))
 
+             ;; Tool source download
+             ((and (>= (length path) 13)
+                   (string= (subseq path 0 13) "/tool-source/"))
+              (let* ((name (subseq path 13))
+                     (src (get-tool-source name)))
+                (if src
+                    `(200 (:content-type "text/plain; charset=utf-8")
+                          (,(cdr src)))
+                    '(404 (:content-type "text/plain; charset=utf-8")
+                      ("Tool not found")))))
+
 
              ;; Auth routes
             ((and (string= path "/login") (eq (env-method env) :GET))

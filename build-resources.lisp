@@ -86,6 +86,35 @@
     (format t "Generated ~a (~a games)~%" output (length games))))
 
 ;;; ============================================================
+;;; Tool sources — эмбеддинг CL-кодов утилит из jscl-tools/
+;;; ============================================================
+
+(defun build-tool-sources ()
+  (let* ((base (asdf:system-source-directory :lisper))
+         (tools-dir (merge-pathnames #P"jscl-tools/" base))
+         (output (merge-pathnames #P"src/tool-sources.lisp" base))
+         (tools '()))
+    (when (probe-file tools-dir)
+      (dolist (f (directory (merge-pathnames #P"*.lisp" tools-dir)))
+        (let ((name (pathname-name f))
+              (source (read-file-to-string f)))
+          (push (list name "cl" source) tools))))
+    (setf tools (nreverse tools))
+    (with-open-file (stream output :direction :output :if-exists :supersede)
+      (format stream "(in-package :lisper)~%~%")
+      (format stream ";;; Автоматически сгенерировано build-resources.lisp~%")
+      (format stream ";;; Источники: jscl-tools/*.lisp~%~%")
+      (format stream "(defparameter *tool-sources* '~%  (~%")
+      (dolist (t- tools)
+        (format stream "    (~s ~s ~s)~%" (first t-) (second t-) (third t-)))
+      (format stream "    ))~%~%")
+      (format stream "(defun get-tool-source (name)~%")
+      (format stream "  \"Возвращает (lang . source) утилиты по имени.\"~%")
+      (format stream "  (let ((g (assoc name *tool-sources* :test #'string=)))~%")
+      (format stream "    (when g (cons (second g) (third g)))))~%"))
+    (format t "Generated ~a (~a tools)~%" output (length tools))))
+
+;;; ============================================================
 ;;; Migrations — эмбеддинг SQL-файлов из migrations/
 ;;; ============================================================
 
@@ -143,5 +172,6 @@
 
 (build-resources)
 (build-game-sources)
+(build-tool-sources)
 (build-migrations)
 (quit)

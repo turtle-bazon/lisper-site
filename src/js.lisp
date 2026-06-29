@@ -2,143 +2,25 @@
 
 (defun generate-js ()
   "(function() {
-  var JSCL_CDN = '/js/';
   var loaded = false;
   var loading = false;
-  var replHistory = [];
-  var replHistoryIdx = -1;
+  var _clRead = null;
+  var _clEval = null;
 
   function loadScript(src, cb) {
     var s = document.createElement('script');
     s.src = src;
     s.onload = cb;
     s.onerror = function() {
-      appendLine('Failed to load: ' + src, 'error');
+      var c = document.getElementById('repl-console');
+      if (!c) return;
+      var div = document.createElement('div');
+      div.className = 'repl-line error';
+      div.textContent = 'Failed to load: ' + src;
+      c.appendChild(div);
+      c.scrollTop = c.scrollHeight;
     };
     document.head.appendChild(s);
-  }
-
-  function getConsole() {
-    return document.getElementById('repl-console');
-  }
-
-  function appendLine(text, cls) {
-    var c = getConsole();
-    if (!c) return;
-    var div = document.createElement('div');
-    div.className = 'repl-line' + (cls ? ' ' + cls : '');
-    div.textContent = text;
-    c.appendChild(div);
-    c.scrollTop = c.scrollHeight;
-  }
-
-  function appendHTML(html, cls) {
-    var c = getConsole();
-    if (!c) return;
-    var div = document.createElement('div');
-    div.className = 'repl-line' + (cls ? ' ' + cls : '');
-    if (typeof DOMPurify !== 'undefined') {
-      div.innerHTML = DOMPurify.sanitize(html);
-    } else {
-      div.textContent = html.replace(/<[^>]+>/g, '');
-    }
-    c.appendChild(div);
-    c.scrollTop = c.scrollHeight;
-  }
-
-  function setInputEnabled(enabled) {
-    for (var i = 0; i < replLines.length; i++) {
-      replLines[i].disabled = !enabled;
-    }
-    if (enabled && replLines.length > 0) {
-      replLines[replLines.length - 1].focus();
-    }
-  }
-
-  function getPromptText() {
-    try {
-      var pkg = jscl.CL['*PACKAGE*'];
-      if (pkg && pkg.value) {
-        var nameFn = jscl.CL['PACKAGE-NAME'];
-        if (nameFn) {
-          var name = jscl.internals.xstring(nameFn.fvalue(pkg.value));
-          if (name === 'COMMON-LISP-USER') name = 'CL-USER';
-          return name + '> ';
-        }
-      }
-    } catch(e) {}
-    return 'CL-USER> ';
-  }
-
-  var replLines = [];
-
-  function makeDots(promptText) {
-    var n = promptText.length - 1;
-    var s = '';
-    for (var i = 0; i < n; i++) s += '.';
-    return s + ' ';
-  }
-
-  function createInputLine(isContinuation, dotsStr) {
-    var c = getConsole();
-    if (!c) return;
-    var line = document.createElement('div');
-    line.className = 'repl-line repl-input-line';
-
-    var prompt = document.createElement('span');
-    prompt.className = 'repl-prompt-label';
-    if (isContinuation) {
-      prompt.textContent = dotsStr || makeDots(getPromptText());
-    } else {
-      prompt.textContent = getPromptText();
-    }
-
-    var inp = document.createElement('input');
-    inp.type = 'text';
-    inp.className = 'repl-input';
-    inp.autocomplete = 'off';
-    inp.spellcheck = false;
-    replLines.push(inp);
-
-    line.appendChild(prompt);
-    line.appendChild(inp);
-    c.appendChild(line);
-    c.scrollTop = c.scrollHeight;
-    inp.focus();
-  }
-
-  function removeInputLines() {
-    replLines = [];
-    var c = getConsole();
-    if (!c) return;
-    var lines = c.querySelectorAll('.repl-input-line');
-    for (var i = 0; i < lines.length; i++) lines[i].remove();
-  }
-
-  function isBalanced(input) {
-    var depth = 0;
-    var inString = false;
-    var escaped = false;
-    var inLineComment = false;
-    for (var i = 0; i < input.length; i++) {
-      var ch = input[i];
-      if (inLineComment) { if (ch === '\\n' || ch === '\\r') inLineComment = false; continue; }
-      if (escaped) { escaped = false; continue; }
-      if (ch === '\\\\') { escaped = true; continue; }
-      if (ch === ';') { inLineComment = true; continue; }
-      if (ch === '\\\"') { inString = !inString; continue; }
-      if (inString) continue;
-      if (ch === '(' || ch === '[' || ch === '{') depth++;
-      if (ch === ')' || ch === ']' || ch === '}') depth--;
-      if (depth < 0) return false;
-    }
-    return depth === 0;
-  }
-
-  function clEval(input) {
-    var clInput = jscl.internals.make_lisp_string(input);
-    var form = jscl.packages['COMMON-LISP'].symbols['READ-FROM-STRING'].fvalue(clInput);
-    return jscl.packages['COMMON-LISP'].symbols['EVAL'].fvalue(form);
   }
 
   function setupErrorHandler() {
@@ -158,84 +40,123 @@
     } catch(e) {}
   }
 
-  function clPrint(val) {
-    if (val === undefined || val === null) return 'NIL';
-    try {
-      var out = jscl.packages['COMMON-LISP'].symbols['PRINC-TO-STRING'].fvalue(val);
-      return jscl.internals.xstring(out);
-    } catch(e) { return String(val); }
-  }
+  function evalToolSource(source) {
+    _clRead = jscl.packages['COMMON-LISP'].symbols['READ-FROM-STRING'];
+    _clEval = jscl.packages['COMMON-LISP'].symbols['EVAL'];
 
-  function submitInput(allLines) {
-    var promptText = getPromptText();
-    var dots = makeDots(promptText);
-    var input = allLines.join(' ');
-    var historyEntry = { lines: allLines.slice(), prompt: promptText, dots: dots };
-    removeInputLines();
-
-    for (var i = 0; i < allLines.length; i++) {
-      var p = (i === 0) ? promptText : dots;
-      appendLine(p + allLines[i], 'repl-history');
-    }
-
-    var trimmed = input.trim();
-    if (trimmed) replHistory.push(historyEntry);
-    replHistoryIdx = replHistory.length;
-    if (trimmed === '(exit)' || trimmed === '(quit)' || trimmed === '(si:quit)') {
-      closeRepl();
-      return;
-    }
-    if (!trimmed) {
-      createInputLine(false);
-      return;
-    }
-    try {
-      var result = clEval(trimmed);
-      var s = clPrint(result);
-      if (s && s.length > 0) {
-        appendLine('=> ' + s, 'repl-result');
+    function skipWs(src, pos) {
+      while (pos < src.length) {
+        if (src[pos] === ';') { while (pos < src.length && src[pos] !== '\\n') pos++; }
+        else if (src[pos] === ' ' || src[pos] === '\\n' || src[pos] === '\\t' || src[pos] === '\\r') { pos++; }
+        else break;
       }
-    } catch(e) {
-      var msg = (e && e.message) ? e.message : String(e);
-      appendLine('Error: ' + msg, 'repl-error');
+      return pos;
     }
-    createInputLine(false);
+
+    function readForm(src, sp) {
+      var p = skipWs(src, sp);
+      if (p >= src.length) return -1;
+      if (src[p] !== '(') return -1;
+      var d = 0, s = false, e = false;
+      while (p < src.length) {
+        var c = src[p];
+        if (e) { e = false; p++; continue; }
+        if (c === '\\\\' && s) { e = true; p++; continue; }
+        if (c === '\"' && !e) { s = !s; p++; continue; }
+        if (s) { p++; continue; }
+        if (c === ';') { while (p < src.length && src[p] !== '\\n') p++; continue; }
+        if (c === '#' && p + 1 < src.length && src[p + 1] === '\\\\') { p += 2; if (/[a-zA-Z]/.test(src[p])) { while (p < src.length && /[a-zA-Z0-9]/.test(src[p])) p++; } else { p++; } continue; }
+        if (c === '(') d++; else if (c === ')') d--;
+        p++;
+        if (d === 0) return p;
+      }
+      return -1;
+    }
+
+    var _formCount = 0;
+    var pos = 0;
+    while (pos < source.length) {
+      var end = readForm(source, pos);
+      if (end <= 0) break;
+      var form = source.substring(pos, end);
+      try {
+        var clForm = _clRead.fvalue(jscl.internals.make_lisp_string(form));
+        _clEval.fvalue(clForm);
+        _formCount++;
+      } catch(e) { console.error('Tool form ' + _formCount + ' FAILED:', e.message, form.substring(0, 100)); }
+      pos = end;
+    }
+    console.log('evalToolSource: compiled ' + _formCount + ' forms');
   }
 
   window.openRepl = function() {
     var overlay = document.getElementById('repl-overlay');
     overlay.classList.add('active');
-    var c = getConsole();
+    var c = document.getElementById('repl-console');
     if (!c) return;
 
     if (loaded) {
-      if (replLines.length > 0) replLines[replLines.length - 1].focus();
+      try { _clEval.fvalue(_clRead.fvalue(jscl.internals.make_lisp_string('(dom-focus-last-input)'))); } catch(ex) {}
       return;
     }
     if (loading) return;
     loading = true;
 
     c.innerHTML = '';
-    appendLine('Loading JSCL...', 'repl-status');
-    createInputLine(false);
-    setInputEnabled(false);
+    var div = document.createElement('div');
+    div.className = 'repl-line repl-status';
+    div.textContent = 'Loading JSCL...';
+    c.appendChild(div);
+    c.scrollTop = c.scrollHeight;
 
     loadScript('/jscl.js', function() {
       if (typeof jscl === 'undefined') {
-        appendLine('Error: JSCL failed to load', 'repl-error');
+        div = document.createElement('div');
+        div.className = 'repl-line repl-error';
+        div.textContent = 'Error: JSCL failed to load';
+        c.appendChild(div);
         loaded = false;
         loading = false;
-        setInputEnabled(true);
         return;
       }
+      setupErrorHandler();
+
+      var sourceEl = document.getElementById('tool-source-repl');
+      if (sourceEl) {
+        try {
+          evalToolSource(sourceEl.textContent);
+        } catch(e) {
+          div = document.createElement('div');
+          div.className = 'repl-line repl-error';
+          div.textContent = 'Error loading REPL: ' + e.message;
+          c.appendChild(div);
+          loaded = false;
+          loading = false;
+          return;
+        }
+      } else {
+        div = document.createElement('div');
+        div.className = 'repl-line repl-error';
+        div.textContent = 'Error: tool-source-repl element not found';
+        c.appendChild(div);
+        loaded = false;
+        loading = false;
+        return;
+      }
+
       loaded = true;
       loading = false;
-      setupErrorHandler();
-      removeInputLines();
       c.innerHTML = '';
-      appendHTML('<span class=\"repl-credit\">Powered by <a href=\"https://github.com/jscl-project/jscl\" target=\"_blank\">JSCL</a></span>', 'repl-header-line');
-      createInputLine(false);
-      setInputEnabled(true);
+
+      try {
+        _clEval.fvalue(_clRead.fvalue(jscl.internals.make_lisp_string('(repl-start)')));
+      } catch(e) {
+        div = document.createElement('div');
+        div.className = 'repl-line repl-error';
+        div.textContent = 'Error starting REPL: ' + e.message;
+        c.appendChild(div);
+        _clEval.fvalue(_clRead.fvalue(jscl.internals.make_lisp_string('(repl-create-input-line)')));
+      }
     });
   };
 
@@ -268,65 +189,31 @@
       var inp = document.querySelector('.repl-input-line:last-child .repl-input');
       if (inp && document.activeElement === inp && !inp.disabled) {
         e.preventDefault();
-        var all = replLines.map(function(i) { return i.value; }).join(' ');
-        if (e.shiftKey || !isBalanced(all)) {
-          inp.readOnly = true;
-          createInputLine(true, makeDots(getPromptText()));
+        if (e.shiftKey) {
+          _clEval.fvalue(_clRead.fvalue(jscl.internals.make_lisp_string('(repl-enter t)')));
         } else {
-          submitInput(replLines.map(function(i) { return i.value; }));
+          _clEval.fvalue(_clRead.fvalue(jscl.internals.make_lisp_string('(repl-enter nil)')));
         }
       }
     }
     if (e.key === 'ArrowUp') {
       var inp = document.activeElement;
-      if (inp && inp.classList.contains('repl-input') &&
-          (inp.selectionStart === 0 || inp.selectionStart === inp.value.length) &&
-          replHistory.length > 0) {
+      if (inp && inp.classList.contains('repl-input')) {
         e.preventDefault();
-        if (replHistoryIdx > 0) replHistoryIdx--;
-        restoreHistory();
+        try { _clEval.fvalue(_clRead.fvalue(jscl.internals.make_lisp_string('(repl-arrow-up)'))); } catch(ex) { console.error('ArrowUp error:', ex); }
       }
     }
     if (e.key === 'ArrowDown') {
       var inp = document.activeElement;
-      if (inp && inp.classList.contains('repl-input') &&
-          (inp.selectionStart === 0 || inp.selectionStart === inp.value.length) &&
-          replHistory.length > 0) {
+      if (inp && inp.classList.contains('repl-input')) {
         e.preventDefault();
-        if (replHistoryIdx < replHistory.length - 1) {
-          replHistoryIdx++;
-          restoreHistory();
-        } else {
-          replHistoryIdx = replHistory.length;
-          removeInputLines();
-          createInputLine(false);
-        }
+        try { _clEval.fvalue(_clRead.fvalue(jscl.internals.make_lisp_string('(repl-arrow-down)'))); } catch(ex) { console.error('ArrowDown error:', ex); }
       }
     }
   });
 
-  function restoreHistory() {
-    if (replHistoryIdx >= replHistory.length) {
-      removeInputLines();
-      createInputLine(false);
-      return;
-    }
-    var entry = replHistory[replHistoryIdx];
-    if (!entry) return;
-    removeInputLines();
-    var lines = entry.lines;
-    var dots = entry.dots || makeDots(entry.prompt || getPromptText());
-    for (var i = 0; i < lines.length; i++) {
-      createInputLine(i > 0, dots);
-      replLines[replLines.length - 1].value = lines[i];
-    }
-    var last = replLines[replLines.length - 1];
-    if (last) last.focus();
-  }
-
   // === Markdown Editor ===
   document.addEventListener('DOMContentLoaded', function() {
-    // Initialize marked with highlight.js
     if (typeof marked !== 'undefined') {
       marked.setOptions({
         highlight: function(code, lang) {
@@ -343,7 +230,6 @@
       });
     }
 
-    // Render existing .md-content elements
     document.querySelectorAll('.md-content').forEach(function(el) {
       if (typeof marked !== 'undefined') {
         var raw = marked.parse(el.textContent);
@@ -354,7 +240,6 @@
       }
     });
 
-    // Initialize editors
     document.querySelectorAll('.md-editor').forEach(function(editor) {
       var textarea = editor.querySelector('.md-textarea');
       var preview = editor.querySelector('.md-preview');
@@ -420,7 +305,6 @@
         });
       });
 
-      // Tab support in textarea
       textarea.addEventListener('keydown', function(e) {
         if (e.key === 'Tab') {
           e.preventDefault();
@@ -441,11 +325,10 @@
     var currentGame = null;
     var gameAnimFrame = null;
 
-    // JSCL loading
     var jsclLoaded = false;
     var jsclLoading = false;
     var jsclLoadQueue = [];
-  var JSCL_CDN = '/';
+    var JSCL_CDN = '/';
 
     function loadGameJscl(callback) {
       if (jsclLoaded) { callback(); return; }
@@ -504,7 +387,6 @@
       var fillEl = document.getElementById('game-loading-fill');
       var textEl = loadingEl ? loadingEl.querySelector('.game-loading-text') : null;
 
-      // Pre-split into forms
       var _forms = [];
       var _splitPos = 0;
       while (_splitPos < source.length) {
@@ -524,7 +406,6 @@
       }
       var _clGameLoopRef = null;
 
-      // Compile one form at a time, yielding to browser between each
       var _formIdx = 0;
 
       function compileNextBatch() {
@@ -600,17 +481,14 @@
       var hintEl = document.getElementById('game-hint');
       if (hintEl) hintEl.textContent = hints[name] || '';
 
-      // Reset loading indicator
       var loadingEl = document.getElementById('game-loading');
       var fillEl = document.getElementById('game-loading-fill');
       if (loadingEl) loadingEl.style.display = '';
       if (fillEl) fillEl.style.width = '0%';
 
-      // Clear canvas
       var ctx = gameCanvas.getContext('2d');
       if (ctx) ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
-      // CL games need JSCL
       loadGameJscl(function() {
         var sourceEl = document.getElementById('game-source-' + name);
         if (sourceEl) {
@@ -630,7 +508,6 @@
       showGamesMenu();
     }
 
-    // Game card clicks
     document.querySelectorAll('.game-card').forEach(function(card) {
       card.addEventListener('click', function() {
         var game = card.getAttribute('data-game');
@@ -638,7 +515,6 @@
       });
     });
 
-    // Games nav button
     var gamesNav = document.getElementById('games-nav-btn');
     if (gamesNav) {
       gamesNav.addEventListener('click', function(e) {
@@ -647,7 +523,6 @@
       });
     }
 
-    // Back button
     var backBtn = document.querySelector('.game-back-btn');
     if (backBtn) {
       backBtn.addEventListener('click', function() {
@@ -657,7 +532,6 @@
       });
     }
 
-    // Close game
     document.querySelectorAll('.game-close').forEach(function(btn) {
       btn.addEventListener('click', function(e) {
         e.preventDefault();

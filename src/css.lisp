@@ -355,10 +355,15 @@
          :justify-content "space-between"
          :align-items "center")
 
-        (".repl-header span"
-         :color "#7c3aed"
-         :font-weight 600
-         :font-size "0.95rem")
+         (".repl-header a"
+          :color "#7c3aed"
+          :font-weight 600
+          :font-size "0.95rem"
+          :text-decoration "none"
+          :cursor "pointer")
+
+         (".repl-header a:hover"
+          :text-decoration "underline")
 
         (".repl-close"
          :background "none"

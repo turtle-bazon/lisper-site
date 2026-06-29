@@ -156,13 +156,13 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - Кнопка "Попробовать CL" в шапке рядом с Telegram
 - По клику — модалка с REPL (jscl-project.github.io CDN)
 - Кнопка: `id="try-repl-btn"` + `addEventListener` (не `onclick` из-за CSP)
-- Ленивая загрузка: jquery.js → jqconsole.js → jscl.js → jscl-web.js
+- Ленивая загрузка: jscl.js (CDN или `/jscl.js`)
 - `(exit)` / `(quit)` / `(si:quit)` закрывают модалку
 - Escape тоже закрывает модалку
 - **Custom terminal REPL** (не jqconsole) — свой input-элемент + appendLine/appendHTML
 - Модалка: `.repl-overlay` → `.repl-modal` → `.repl-console` (div с `.repl-line` children)
 - Стили в `css.lisp`: `.try-button` (зелёный), `.repl-overlay`, `.repl-modal`, `.repl-console`, `.repl-header`, `.repl-input`, `.repl-prompt-label`
-- JS в `js.lisp`: `openRepl()`, `closeRepl()`, `createInputLine()`, `submitInput()`, `appendLine()`, `appendHTML()`
+- JS в `js.lisp`: `openRepl()` (инициализация), `closeRepl()`, `loadScript()`, `evalToolSource()`, `setupErrorHandler()`, markdown-редактор, игры. Все REPL-логика в CL.
 - `<script src='/js'>` в `pages.lisp` после overlay (HTML-порядок: body → overlay → script)
 - **Fix (2026-06-22)**: сбалансированы скобки — overlay закрывался с 5 `)` вместо 4, лишняя `)` закрывала `:html` до `<script>`
 - **Fix (2026-06-22)**: переписано на кастомный терминал — jqconsole не работал (создавал DOM-элементы на body вместо `#repl-console`)
@@ -175,6 +175,22 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - **Fix (2026-06-23)**: пробел между промптом и вводом — CSS `gap: 8px` на `.repl-input-line`, `padding: 2px 0` на `.repl-input`
 - **Fix (2026-06-23)**: незакрытые скобки — добавлена `isBalanced(input)` (проверяет `()`, `[]`, `{}`, строки, escape, комментарии `;`); `clEval()` бросает `Error('incomplete input')` если несбалансировано
 - **Fix (2026-06-26)**: `readOneForm` не пропускал `;` комментарии внутри форм — скобки в комментариях (`; Read input from _ki array (JS updates _ki[0..4], CL reads here)`) считались реальными, depth ломался → обрезался `update` (form 35/37), `game-loop-raw` и `start-lisp-invaders` не вызывались. Исправлено: `if (c === ';') { while (pos < src.length && src[pos] !== '\\n') pos++; continue; }` в `readOneForm` перед подсчётом скобок
+- **Fix (2026-06-28)**: `readForm` ломался на `#\(` character literals в CL-исходниках — `#\(` содержит `(` который `readForm` считал реальной скобкой, depth ломался → формы мержились. Исправлено: `if (c === '#' && p+1 < src.length && src[p+1] === '\\') { p += 3; continue; }` — пропускает `#\X` литералы (3 символа). `#(` (векторы) НЕ пропускаются — там реальные скобки
+- **Fix (2026-06-28)**: REPL переписан с JS на CL (`jscl-tools/repl.lisp`): CL обрабатывает eval, print, prompt, balanced-check, exit; JS обрабатывает только DOM. Все функции с префиксом `repl-` в CL-USER (без отдельного пакета — `in-package` не сохраняется между form-by-form eval). JS вызывает через `jscl.CL['REPL-START']` и т.д.
+- **Fix (2026-06-28)**: `window.replBridge` — JS-мост для CL-кода: `printLine`, `printHTML`, `createInputLine`, `removeInputLines`, `focusLastInput`, `closeRepl`. CL вызывает через `(jscl::oget (bridge) "printLine")`
+- **Fix (2026-06-28)**: REPL полностью переписан — все JS-обёртки удалены из `js.lisp`. CL использует прямые FFI-вызовы (`jscl::oget`) для всех DOM-операций. JS обрабатывает только: `loadScript`, `evalToolSource`, `setupErrorHandler`, `openRepl` (инициализация), `closeRepl`, markdown-редактор, игры. Enter/Arrow/History полностью в CL (`repl-enter`, `repl-arrow-up/down`, `repl-restore-history`, `repl-history-push/length/current`). `*repl-history*` — JS-массив `(#j:Array)`, не CL-вектор. `repl-history-current` использует `(jscl::oget arr idx)`, не `"aref"`.
+- **Fix (2026-06-28)**: `readForm` исправлен для `#\(` — пропуск `#\X` литералов. НО: `readForm` НЕ пропускает `#|...|# ` block comments и `#(...)` vectors. Block comments редки, `#(...)` содержит реальные скобки (правильно считает depth)
+- **Fix (2026-06-28)**: `readForm` исправлен для `#\Newline` и других многосимвольных character literals — `p += 2` + skip `[a-zA-Z0-9]+` вместо `p += 3`
+- **Fix (2026-06-28)**: JS-обёртки удалены из `js.lisp` — `appendHTML`, `setInputEnabled`, `getPromptText`, `makeDots`, `createInputLine`, `removeInputLines`, `isBalanced`, `submitInput`, `restoreHistory`, `replHistory`, `replHistoryIdx`, `replLines`/`window.replLines`. JS оставляет только: `loadScript`, `evalToolSource`, `setupErrorHandler`, `openRepl`/`closeRepl`, markdown-редактор, игры. Enter/Arrow/History полностью в CL
+- **Fix (2026-06-28)**: `inp` scope bug в `repl-create-input-line` — `inp` был объявлен в `let` но использовался за его пределами (`focus`). Исправлено: перенос `appendChild`, `scrollTop`, `focus` внутрь `let`-блока `inp`
+- **Fix (2026-06-28)**: `jscl/internals:xstring` не существует — пакет `jscl/internals` не найден. JS-строки из DOM (`inp.value`) конвертируются в CL-строки через `(jscl::oget #j:jscl "internals" "make_lisp_string")`. `jscl.internals` глобально доступен (строка 40 jscl.js: `var internals = (jscl.internals = Object.create(null))`)
+- **Fix (2026-06-28)**: порядок функций — `repl-restore-history` перенесён перед `repl-arrow-up`/`repl-arrow-down`, которые его вызывают. Иначе JSCL предупреждает "function is undefined"
+- **Fix (2026-06-28)**: `*repl-history*` инициализирован как `(#j:Array)` (JS-массив), не `#()` (CL-вектор). JS-массив нужен для `push`, `length` и индексного доступа из CL через `jscl::oget`
+- **Fix (2026-06-28)**: `repl-restore-history` исправлен — `((jscl::oget entry "lines"))` пытался вызвать массив как функцию. Исправлено: `(jscl::oget entry "lines")` без лишних скобок
+- **Fix (2026-06-28)**: `repl-history-current` исправлен — `(jscl::oget *repl-history* idx)` вместо `((jscl::oget *repl-history* "aref" idx))` (нет метода "aref" у JS-массивов)
+- **Fix (2026-06-29)**: `classList.contains` в `repl-arrow-up`/`repl-arrow-down` — `((jscl::oget active "classList") "contains" ...)` пытался вызвать DOMTokenList как функцию. Исправлено: `((jscl::oget (jscl::oget active "classList") "contains") ...)` — сначала получить метод, потом вызвать
+- **Fix (2026-06-28)**: CL string escaping для REPL — незакрытые `"` в `make_lisp_string('(repl-balanced-p "' + escaped + '")')` обрезали CL-строку → JS начинался с `)'))` → syntax error. Исправлено: `'(repl-balanced-p \\"' + escaped + '\\")'` — все `"` в JS экранированы как `\\"` в CL
+- **Важно: CL string escaping**: JS-код внутри `generate-js` — это CL-строка. Всё экранируется по CL-правилам: `\\\\` → `\\` (один backslash в строке), `\\"` → `"` (не закрывает строку!). **Все `"` в JS-коде должны быть `\"` в CL-источнике**, включая: regex-литералы (`/"/g` → `/\"/g`), строковые литералы (`'\\"'` → `'\\\\\"'`), и вложенные `make_lisp_string` (`'(repl-submit "'` → `'(repl-submit \\"'`). Иначе CL-строка обрезается prematurely → JS-код ломается. Пример проверки: `python3 -c "... парсинг CL-строки ..."` — убедиться что декодированный JS корректен
 - **Fix (2026-06-26)**: лишняя `)` в `lisp-invaders.lisp` строка 239 — `(setf *game-over* t))))))` → `(setf *game-over* t)))))` (6→5 closing parens). Depth на строке 239 был 4, 6 `)` давали depth=-1 → `readOneForm` не мог найти начало следующей формы
 - **Fix (2026-06-26)**: конфликт `window._ac` — canvas `arc()` (line 417) и AudioContext (line 430) оба использовали `_ac`. AudioContext перезаписывал `_ac = null` → `draw-player` падал на `(#j:_ac ...)`. AudioContext переименован в `_actx`
 - **JSCL строки в JS**: CL-строка `"shoot"` в JSCL — объект `{string: "shoot"}`, не JS-строка. Оператор `===` всегда `false`. Извлекать через `type.string` на JS-стороне. Функция `jscl::xstring` недоступна из CL-кода
