@@ -246,4 +246,5 @@
          (cl-who:str (generate-game-script-tags))
          ;; CL-коды утилит для JSCL (скрытые script теги)
          (cl-who:str (generate-tool-script-tags))
-         (:script :src "/js?v=8"))))))
+         (:script :src "/js?v=8")
+         (:script :defer t :src "/jscl.js"))))))

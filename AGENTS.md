@@ -325,3 +325,6 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
   - Пошаговый, тайл-based, minimap, пермадет, прогрессия
   - Пока не реализовано — после доделки Lisp Invaders
 - **Порт**: 8080
+
+## Следующая сессия
+- **Autoloading jscl** — загружать jscl.js при старте страницы, а не при первом открытии REPL/игры

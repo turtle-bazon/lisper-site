@@ -5,8 +5,31 @@
   var loaded = false;
   var loading = false;
   var jsclLoaded = false;
+  var jsclLoading = false;
+  var jsclLoadQueue = [];
   var _clRead = null;
   var _clEval = null;
+
+  function isJsclReady() {
+    return typeof jscl !== 'undefined' && jscl.packages;
+  }
+
+  function onJsclLoaded(cb) {
+    if (isJsclReady()) { jsclLoaded = true; jsclLoading = false; cb(); return; }
+    jsclLoadQueue.push(cb);
+    if (jsclLoading) return;
+    jsclLoading = true;
+    loadScript('/jscl.js', function() {
+      jsclLoading = false;
+      jsclLoaded = isJsclReady();
+      while (jsclLoadQueue.length > 0) jsclLoadQueue.shift()();
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    if (isJsclReady()) { jsclLoaded = true; jsclLoading = false; }
+    while (jsclLoadQueue.length > 0) jsclLoadQueue.shift()();
+  });
 
   function loadScript(src, cb) {
     var s = document.createElement('script');
@@ -41,7 +64,7 @@
     } catch(e) {}
   }
 
-  function evalToolSource(source) {
+  function evalToolSource(source, statusEl, callback) {
     _clRead = jscl.packages['COMMON-LISP'].symbols['READ-FROM-STRING'];
     _clEval = jscl.packages['COMMON-LISP'].symbols['EVAL'];
 
@@ -74,20 +97,36 @@
       return -1;
     }
 
-    var _formCount = 0;
+    var forms = [];
     var pos = 0;
     while (pos < source.length) {
       var end = readForm(source, pos);
       if (end <= 0) break;
-      var form = source.substring(pos, end);
-      try {
-        var clForm = _clRead.fvalue(jscl.internals.make_lisp_string(form));
-        _clEval.fvalue(clForm);
-        _formCount++;
-      } catch(e) { console.error('Tool form ' + _formCount + ' FAILED:', e.message, form.substring(0, 100)); }
+      forms.push(source.substring(pos, end));
       pos = end;
     }
-    console.log('evalToolSource: compiled ' + _formCount + ' forms');
+    var total = forms.length;
+    var idx = 0;
+    var batchSize = 5;
+
+    function compileBatch() {
+      var batchEnd = Math.min(idx + batchSize, total);
+      while (idx < batchEnd) {
+        try {
+          var clForm = _clRead.fvalue(jscl.internals.make_lisp_string(forms[idx]));
+          _clEval.fvalue(clForm);
+        } catch(e) { console.error('Tool form ' + idx + '/' + total + ' FAILED:', e.message, forms[idx].substring(0, 80)); }
+        idx++;
+      }
+      if (statusEl) statusEl.textContent = 'Compiling REPL code... ' + idx + '/' + total;
+      if (idx < total) {
+        setTimeout(compileBatch, 0);
+      } else {
+        console.log('evalToolSource: compiled ' + total + ' forms');
+        if (callback) callback();
+      }
+    }
+    compileBatch();
   }
 
   window.openRepl = function() {
@@ -104,65 +143,57 @@
     loading = true;
 
     c.innerHTML = '';
-    var div = document.createElement('div');
-    div.className = 'repl-line repl-status';
-    div.textContent = 'Loading JSCL...';
-    c.appendChild(div);
-    c.scrollTop = c.scrollHeight;
 
-    function onJsclReady() {
+    function onJsclReady(existingStatus) {
       setupErrorHandler();
 
+      var statusEl = existingStatus || document.createElement('div');
+      if (!existingStatus) {
+        statusEl.className = 'repl-line repl-status';
+        statusEl.textContent = 'Compiling REPL code...';
+        c.appendChild(statusEl);
+      }
+
       var sourceEl = document.getElementById('tool-source-repl');
-      if (sourceEl) {
-        try {
-          evalToolSource(sourceEl.textContent);
-        } catch(e) {
-          div = document.createElement('div');
-          div.className = 'repl-line repl-error';
-          div.textContent = 'Error loading REPL: ' + e.message;
-          c.appendChild(div);
-          loaded = false;
-          loading = false;
-          return;
-        }
-      } else {
-        div = document.createElement('div');
-        div.className = 'repl-line repl-error';
-        div.textContent = 'Error: tool-source-repl element not found';
-        c.appendChild(div);
+      if (!sourceEl) {
+        statusEl.className = 'repl-line repl-error';
+        statusEl.textContent = 'Error: tool-source-repl element not found';
         loaded = false;
         loading = false;
         return;
       }
 
-      loaded = true;
-      loading = false;
-      c.innerHTML = '';
+      evalToolSource(sourceEl.textContent, statusEl, function() {
+        loaded = true;
+        loading = false;
+        c.innerHTML = '';
 
-      try {
-        _clEval.fvalue(_clRead.fvalue(jscl.internals.make_lisp_string('(repl-start)')));
-      } catch(e) {
-        div = document.createElement('div');
-        div.className = 'repl-line repl-error';
-        div.textContent = 'Error starting REPL: ' + e.message;
-        c.appendChild(div);
-        _clEval.fvalue(_clRead.fvalue(jscl.internals.make_lisp_string('(repl-create-input-line)')));
-      }
+        try {
+          _clEval.fvalue(_clRead.fvalue(jscl.internals.make_lisp_string('(repl-start)')));
+        } catch(e) {
+          var errDiv = document.createElement('div');
+          errDiv.className = 'repl-line repl-error';
+          errDiv.textContent = 'Error starting REPL: ' + e.message;
+          c.appendChild(errDiv);
+          _clEval.fvalue(_clRead.fvalue(jscl.internals.make_lisp_string('(repl-create-input-line)')));
+        }
+      });
     }
 
-    if (jsclLoaded) { onJsclReady(); return; }
-    loadScript('/jscl.js', function() {
-      if (typeof jscl === 'undefined') {
-        div = document.createElement('div');
-        div.className = 'repl-line repl-error';
-        div.textContent = 'Error: JSCL failed to load';
-        c.appendChild(div);
+    var statusEl = document.createElement('div');
+    statusEl.className = 'repl-line repl-status';
+    statusEl.textContent = 'Loading JSCL...';
+    c.appendChild(statusEl);
+    c.scrollTop = c.scrollHeight;
+
+    onJsclLoaded(function() {
+      if (!isJsclReady()) {
+        statusEl.className = 'repl-line repl-error';
+        statusEl.textContent = 'Error: JSCL failed to load';
         loading = false;
         return;
       }
-      jsclLoaded = true;
-      onJsclReady();
+      onJsclReady(statusEl);
     });
   };
 
@@ -331,14 +362,8 @@
     var currentGame = null;
     var gameAnimFrame = null;
 
-    var JSCL_CDN = '/';
-
     function loadGameJscl(callback) {
-      if (jsclLoaded) { callback(); return; }
-      loadScript(JSCL_CDN + 'jscl.js', function() {
-        jsclLoaded = true;
-        callback();
-      });
+      onJsclLoaded(callback);
     }
 
     function evalGameSource(source, gameName) {
