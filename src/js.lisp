@@ -4,6 +4,7 @@
   "(function() {
   var loaded = false;
   var loading = false;
+  var jsclLoaded = false;
   var _clRead = null;
   var _clEval = null;
 
@@ -109,16 +110,7 @@
     c.appendChild(div);
     c.scrollTop = c.scrollHeight;
 
-    loadScript('/jscl.js', function() {
-      if (typeof jscl === 'undefined') {
-        div = document.createElement('div');
-        div.className = 'repl-line repl-error';
-        div.textContent = 'Error: JSCL failed to load';
-        c.appendChild(div);
-        loaded = false;
-        loading = false;
-        return;
-      }
+    function onJsclReady() {
       setupErrorHandler();
 
       var sourceEl = document.getElementById('tool-source-repl');
@@ -157,6 +149,20 @@
         c.appendChild(div);
         _clEval.fvalue(_clRead.fvalue(jscl.internals.make_lisp_string('(repl-create-input-line)')));
       }
+    }
+
+    if (jsclLoaded) { onJsclReady(); return; }
+    loadScript('/jscl.js', function() {
+      if (typeof jscl === 'undefined') {
+        div = document.createElement('div');
+        div.className = 'repl-line repl-error';
+        div.textContent = 'Error: JSCL failed to load';
+        c.appendChild(div);
+        loading = false;
+        return;
+      }
+      jsclLoaded = true;
+      onJsclReady();
     });
   };
 
@@ -325,20 +331,13 @@
     var currentGame = null;
     var gameAnimFrame = null;
 
-    var jsclLoaded = false;
-    var jsclLoading = false;
-    var jsclLoadQueue = [];
     var JSCL_CDN = '/';
 
     function loadGameJscl(callback) {
       if (jsclLoaded) { callback(); return; }
-      jsclLoadQueue.push(callback);
-      if (jsclLoading) return;
-      jsclLoading = true;
       loadScript(JSCL_CDN + 'jscl.js', function() {
         jsclLoaded = true;
-        jsclLoading = false;
-        while (jsclLoadQueue.length > 0) jsclLoadQueue.shift()();
+        callback();
       });
     }
 
