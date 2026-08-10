@@ -156,7 +156,7 @@
                                                         (format nil "~A ответов · ~A" post-count cat-name)))))))))
                      (cl-who:htm
                       (:p :class "empty-state" "Пока нет тем. Будьте первым!")))))
-           (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper.ru" "lisper.ru")
+           (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
                         " &copy; 2026 | GPL-3.0")))))))))
 
 (defun forum-page-category (category user)
@@ -195,7 +195,7 @@
                                                                  post-count username last-post-at)))))))))
                      (cl-who:htm
                       (:p :class "empty-state" "Пока нет тем в этой категории.")))))
-               (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper.ru" "lisper.ru")
+               (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
                              " &copy; 2026 | GPL-3.0")))))))
         (forum-page-not-found user))))
 
@@ -269,7 +269,7 @@
                                        (cl-who:str (forum-render-editor "body" "Ваш ответ..."))
                                        (:button :class "try-button" :type "submit"
                                                  "Отправить"))))))))
-        (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper.ru" "lisper.ru")
+        (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
                       " &copy; 2026 | GPL-3.0")))))))
         (forum-page-not-found user))))
 
@@ -311,7 +311,7 @@
                (cl-who:htm
                 (:p "Войдите, чтобы создать тему. "
                     (:a :href "/login" "Войти"))))))
-         (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper.ru" "lisper.ru")
+         (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
                        " &copy; 2026 | GPL-3.0"))))))))
 
 (defun forum-page-not-found (user)
@@ -326,7 +326,7 @@
          (:h2 "Страница не найдена")
          (:p "Запрашиваемая страница не существует.")
          (:a :class "try-button" :href "/forum" "На форум")))
-       (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper.ru" "lisper.ru")
+       (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
                      " &copy; 2026 | GPL-3.0")))))))
 
 (defun forum-page-user (name user)
@@ -390,7 +390,7 @@
                                :selected (when (string= (getf u :role) r) "selected")
                                (cl-who:str r)))))
                            (:button :class "role-btn" :type "submit" "Назначить")))))))))
-                 (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper.ru" "lisper.ru")
+                 (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
                        " &copy; 2026 | GPL-3.0"))))))))
         (forum-page-not-found user))))
 
@@ -430,7 +430,7 @@
                           (:span :class "muted-badge"
                                  "Мут до "
                                  (cl-who:str (format nil "~A" (getf u :muted-until)))))))))))
-         (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper.ru" "lisper.ru")
+         (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
                        " &copy; 2026 | GPL-3.0")))))))))
 
 (defun forum-page-login (user error-message)
@@ -446,7 +446,7 @@
          (:div :class "auth-error" (cl-who:str (or error-message "Вход временно отключён. Скоро будет доступен вход через VK ID, Yandex ID и Госуслуги.")))
          (:p :style "color:#888;margin-top:16px"
              "Сейчас на сайте нельзя зарегистрироваться или войти через email."))
-        (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper.ru" "lisper.ru")
+        (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
                       " &copy; 2026 | GPL-3.0"))))))))
 
 (defun forum-page-register (user error-message)
@@ -462,5 +462,5 @@
          (:div :class "auth-error" (cl-who:str (or error-message "Регистрация временно отключена. Скоро будет доступен вход через VK ID, Yandex ID и Госуслуги.")))
          (:p :style "color:#888;margin-top:16px"
              "Сейчас на сайте нельзя зарегистрироваться или войти через email."))
-        (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper.ru" "lisper.ru")
+        (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
                       " &copy; 2026 | GPL-3.0"))))))))

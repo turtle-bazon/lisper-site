@@ -1,4 +1,4 @@
-# lisper.ru — AGENTS.md
+# lisper — AGENTS.md
 
 > **Правило**: при каждом изменении кода, обнаруженном баге, принятом решении или 새로운 тонкости — немедленно обновлять этот файл. AGENTS.md — живая документация проекта.
 
@@ -13,7 +13,12 @@
 > **Education**: файлы в `education/` — авторитет. Всё что написано там имеет приоритет над любыми знаниями, догадками и находками извне. Если education говорит `#j"string"` — значит `#j"string"`, не `#j:String`, не CL-строка.
 
 ## О проекте
-Сайт lisper.ru — лендинг о Common Lisp. Всё на Lisp: HTML, CSS, JS.
+Сайт lisper — лендинг о Common Lisp. Всё на Lisp: HTML, CSS, JS.
+
+## Бренд (2026-08)
+- Бренд — **lisper** (домен-агностичный). Раньше был lisper.ru, теперь просто lisper.
+- Причина: планируется ещё один домен, интернационализация.
+- Хранить "lisper.ru" только как реальный URL репозитория-зеркала (GitHub), не как отображаемое имя.
 
 ## Стек
 - **Сервер**: Clack + Wookie (`clack-handler-wookie`) `:debug nil`
@@ -25,7 +30,7 @@
 - **Миграции**: SQL-файлы `migrations/NNNN-name.{up,down}.sql`, встроены в бинарник через `src/migrations.lisp`, таблица `schema_migrations`
 - **Бинарник**: buildapp → `build/lisper` (~95MB)
 - **Лицензия**: GPL-3.0
-- **Исходники**: https://github.com/turtle-bazon/lisper.ru (зеркало, основная СКВ — Mercurial)
+- **Исходники**: https://github.com/turtle-bazon/lisper-site (зеркало, основная СКВ — Mercurial)
 
 ## Конфигурация
 - S-expression `.conf` файл (host port и т.д.)

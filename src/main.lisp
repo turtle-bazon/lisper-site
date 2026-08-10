@@ -5,7 +5,7 @@
   (read-config)
   (handler-case (db-connect)
     (error (e) (format t "~&Warning: DB connect failed: ~A~%" e)))
-  (format t "Starting lisper.ru on ~a:~a~%" (config :address) (config :port))
+  (format t "Starting lisper on ~a:~a~%" (config :address) (config :port))
   (let ((server (clack:clackup (make-app)
                                 :address (config :address)
                                 :port (config :port)

@@ -84,7 +84,7 @@
        (:head
         (:meta :charset "utf-8")
         (:meta :name "viewport" :content "width=device-width, initial-scale=1")
-        (:title "lisper.ru")
+        (:title "lisper")
         (:link :rel "icon" :type "image/svg+xml" :href *favicon-data-uri*)
         (:script :src "https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.2.4/purify.min.js"
                  :integrity "sha384-eEu5CTj3qGvu9PdJuS+YlkNi7d2XxQROAFYOr59zgObtlcux1ae1Il3u7jvdCSWu"
@@ -196,7 +196,7 @@
            (:li (:a :href "https://www.reddit.com/r/Common_Lisp/" "r/Common_Lisp") " — сообщество на Reddit"))))
          (:footer
           (:p
-            (:a :href "https://github.com/turtle-bazon/lisper.ru" "lisper.ru") " &copy; 2026 | GPL-3.0"))
+            (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper") " &copy; 2026 | GPL-3.0"))
         (:div :id "repl-overlay" :class "repl-overlay"
             (:div :class "repl-modal"
              (:div :class "repl-header"

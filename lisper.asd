@@ -2,7 +2,7 @@
   :name "lisper"
   :license "GPL-3.0"
   :version "1.0.0"
-  :description "lisper.ru - site about Common Lisp"
+  :description "lisper - site about Common Lisp"
   :depends-on (#:clack
                #:clack-handler-wookie
                #:cl-who
