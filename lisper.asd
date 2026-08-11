@@ -22,6 +22,7 @@
                  (:file "resources")
                   (:file "game-sources")
                    (:file "tool-sources")
+                   (:file "jscl-bundles")
                    (:file "migrations")
 (:file "db")
                   (:file "auth")

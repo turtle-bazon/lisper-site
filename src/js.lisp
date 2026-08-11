@@ -32,9 +32,35 @@
 (defun jscl-url ()
   (format nil "/jscl.js?v=~a" (jscl-cache-key)))
 
+(defvar *jscl-bundle-cache-keys* (make-hash-table :test #'equal))
+
+(defun jscl-bundle-cache-key (name)
+  "SHA-256 hex of the bundle content for the versioned URL; memoized."
+  (or (gethash name *jscl-bundle-cache-keys*)
+      (setf (gethash name *jscl-bundle-cache-keys*)
+            (let ((src (get-jscl-bundle name)))
+              (when src
+                (format nil "~{~2,'0x~}"
+                        (coerce (ironclad:digest-sequence
+                                 :sha256 (sb-ext:string-to-octets src))
+                                'list)))))))
+
+(defun jscl-bundle-url (name)
+  (let ((key (jscl-bundle-cache-key name)))
+    (when key
+      (format nil "/jscl-bundle/~a?v=~a" name key))))
+
 (defun generate-js ()
-  (string-replace-all "/jscl.js" (jscl-url)
-    "(function() {
+  (let ((bundle-urls
+          (with-output-to-string (out)
+            (dolist (name '("repl" "lisp-invaders" "lambda-runner"
+                            "paren-matcher" "s-dungeon"))
+              (let ((url (jscl-bundle-url name)))
+                (when url
+                  (format out "    \"~a\": \"~a\",~%" name url)))))))
+    (string-replace-all "/jscl.js" (jscl-url)
+      (string-replace-all "/*__JSCL_BUNDLE_URLS__*/" bundle-urls
+        "(function() {
   var loaded = false;
   var loading = false;
   var jsclLoaded = false;
@@ -42,6 +68,8 @@
   var jsclLoadQueue = [];
   var _clRead = null;
   var _clEval = null;
+  var bundleUrls = { /*__JSCL_BUNDLE_URLS__*/
+  };
 
   function isJsclReady() {
     return typeof jscl !== 'undefined' && jscl.packages;
@@ -179,24 +207,26 @@
 
     function onJsclReady(existingStatus) {
       setupErrorHandler();
+      _clRead = jscl.packages['COMMON-LISP'].symbols['READ-FROM-STRING'];
+      _clEval = jscl.packages['COMMON-LISP'].symbols['EVAL'];
 
       var statusEl = existingStatus || document.createElement('div');
       if (!existingStatus) {
         statusEl.className = 'repl-line repl-status';
-        statusEl.textContent = 'Compiling REPL code...';
+        statusEl.textContent = 'Loading REPL...';
         c.appendChild(statusEl);
       }
 
-      var sourceEl = document.getElementById('tool-source-repl');
-      if (!sourceEl) {
+      var url = bundleUrls['repl'];
+      if (!url) {
         statusEl.className = 'repl-line repl-error';
-        statusEl.textContent = 'Error: tool-source-repl element not found';
+        statusEl.textContent = 'Error: repl bundle not available (was the build done with node?)';
         loaded = false;
         loading = false;
         return;
       }
 
-      evalToolSource(sourceEl.textContent, statusEl, function() {
+      loadScript(url, function() {
         loaded = true;
         loading = false;
         c.innerHTML = '';
@@ -547,15 +577,45 @@
       if (ctx) ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
 
       loadGameJscl(function() {
+        var url = bundleUrls[name];
         var sourceEl = document.getElementById('game-source-' + name);
-        if (sourceEl) {
+        if (url) {
+          loadScript(url, function() {
+            if (loadingEl) loadingEl.style.display = 'none';
+            startCompiledGame(name);
+          });
+        } else if (sourceEl) {
           try {
             evalGameSource(sourceEl.textContent, name);
           } catch(e) {
-            if (gamePlay) gamePlay.innerHTML = '<div style=\"color:#ef4444;padding:40px;text-align:center\"><h3>\u041e\u0448\u0438\u0431\u043a\u0430 \u0437\u0430\u0433\u0440\u0443\u0441\u043a\u0438 \u0438\u0433\u0440\u044b</h3><p>' + e.message + '</p></div>';
+            if (gamePlay) gamePlay.innerHTML = '<div style=\"color:#ef4444;padding:40px;text-align:center\"><h3>\u041e\u0448\u0438\u0431\u043a\u0430 \u0437\u0430\u0433\u0440\u0443\u0437\u043a\u0438 \u0438\u0433\u0440\u044b</h3><p>' + e.message + '</p></div>';
           }
+        } else {
+          if (loadingEl) loadingEl.style.display = 'none';
+          if (gamePlay) gamePlay.innerHTML = '<div style=\"color:#ef4444;padding:40px;text-align:center\"><h3>\u041e\u0448\u0438\u0431\u043a\u0430 \u0437\u0430\u0433\u0440\u0443\u0437\u043a\u0438 \u0438\u0433\u0440\u044b</h3><p>Bundle \u0438 \u0438\u0441\u0445\u043e\u0434\u043d\u0438\u043a \u043d\u0435 \u0434\u043e\u0441\u0442\u0443\u043f\u043d\u044b</p></div>';
         }
       });
+    }
+
+    function startCompiledGame(name) {
+      var pkgName = name.toUpperCase();
+      var startFn = name + ':start-' + name;
+      var _read = jscl.packages['COMMON-LISP'].symbols['READ-FROM-STRING'];
+      var _eval = jscl.packages['COMMON-LISP'].symbols['EVAL'];
+      try {
+        _eval.fvalue(_read.fvalue(jscl.internals.make_lisp_string('(' + startFn + ')')));
+      } catch(e) {
+        console.error('startCompiledGame: start-' + name + ' failed', e);
+      }
+      var clGameLoopRef = null;
+      try { clGameLoopRef = jscl.packages[pkgName].symbols['GAME-LOOP-RAW']; } catch(e) {}
+      function jsGameLoop() {
+        try {
+          if (clGameLoopRef && clGameLoopRef.fvalue) clGameLoopRef.fvalue();
+        } catch(e) { return; }
+        gameAnimFrame = requestAnimationFrame(jsGameLoop);
+      }
+      gameAnimFrame = requestAnimationFrame(jsGameLoop);
     }
 
     function closeGame() {
@@ -603,4 +663,4 @@
       }
     });
   });
-})();"))
+})();"))))

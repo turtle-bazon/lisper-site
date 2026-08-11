@@ -170,8 +170,86 @@
         (format stream "      (cdr (assoc direction (cdr entry))))))~%"))
       (format t "Generated ~a (~a migrations)~%" output (length versions)))))
 
+;;; ============================================================
+;;; JSCL bundles — компиляция jscl-tools/ и jscl-games/ в JS
+;;; через node (jscl/jscl-node.js) и эмбеддинг в jscl-bundles.lisp
+;;; ============================================================
+
+(defun node-available-p ()
+  "T when the node binary is runnable (build step uses it to compile bundles)."
+  (handler-case
+      (multiple-value-bind (_out _err code)
+          (uiop:run-program (list "node" "--version")
+                            :output :string :error-output :string
+                            :ignore-error-status t)
+        (declare (ignore _out _err))
+        (zerop code))
+    (error () nil)))
+
+(defun build-jscl-bundles ()
+  "Compile jscl-tools/*.lisp and jscl-games/*.lisp into JS bundles with node,
+   then embed them in src/jscl-bundles.lisp. No-op (empty table) without node."
+  (let* ((base (asdf:system-source-directory :lisper))
+         (tools-dir (merge-pathnames #P"jscl-tools/" base))
+         (games-dir (merge-pathnames #P"jscl-games/" base))
+         (build-dir (merge-pathnames #P"build/jscl-bundles/" base))
+         (script-path (merge-pathnames #P"build/compile-apps.lisp" base))
+         (compiler (merge-pathnames #P"jscl/jscl-node.js" base))
+         (output (merge-pathnames #P"src/jscl-bundles.lisp" base))
+         (sources '()))
+    (dolist (d (list tools-dir games-dir))
+      (when (probe-file d)
+        (dolist (f (directory (merge-pathnames #P"*.lisp" d)))
+          (push (list (pathname-name f) (namestring f)) sources))))
+    (setf sources (sort sources #'string< :key #'first))
+    (ensure-directories-exist build-dir)
+    (ensure-directories-exist (merge-pathnames #P"build/" base))
+    (let ((bundles '())
+          (node-ok nil))
+      (when (node-available-p)
+        (setf node-ok t)
+        (with-open-file (stream script-path :direction :output :if-exists :supersede)
+          (format stream "(dolist (spec '(")
+          (dolist (s sources)
+            (format stream "~%  (~s . ~s)" (first s) (second s)))
+          (format stream "~%  ))~%")
+          (format stream "  (jscl:compile-application~%")
+          (format stream "    (list (cdr spec))~%")
+          (format stream "    (concatenate 'string ~s (car spec) ~s)~%"
+                  (namestring build-dir) ".js")
+          (format stream "    :place \"\" :jscl-name \"jscl\")~%")
+          (format stream "    (format t \"~~&BUNDLE-OK: ~~a~~%\" (car spec)))~%"))
+        (multiple-value-bind (_out err code)
+            (uiop:run-program
+             (list "node" "--stack-size=65536"
+                   (namestring compiler) (namestring script-path))
+             :output :string :error-output :string :ignore-error-status t)
+          (declare (ignore _out))
+          (unless (zerop code)
+            (format t "~&WARNING: jscl bundle compile failed (code ~a): ~a~%" code err)))
+        (dolist (s sources)
+          (let ((bundle (merge-pathnames (format nil "~a.js" (first s)) build-dir)))
+            (if (probe-file bundle)
+                (push (list (first s) (read-file-to-string bundle)) bundles)
+                (format t "~&WARNING: bundle ~a was not produced~%" (first s))))))
+      (setf bundles (nreverse bundles))
+      (with-open-file (stream output :direction :output :if-exists :supersede)
+        (format stream "(in-package :lisper)~%~%")
+        (format stream ";;; Автоматически сгенерировано build-resources.lisp~%")
+        (format stream ";;; JS-бандлы игр/тулзов, скомпилированные node-ом из jscl-tools/, jscl-games/~%~%")
+        (format stream "(defparameter *jscl-bundles*~%  '(")
+        (dolist (b bundles)
+          (format stream "~%    (~s . ~s)" (first b) (second b)))
+        (format stream "~%    ))~%~%")
+        (format stream "(defun get-jscl-bundle (name)~%")
+        (format stream "  \"Возвращает JS-бандл по имени.\"~%")
+        (format stream "  (cdr (assoc name *jscl-bundles* :test #'string=)))~%"))
+      (format t "Generated ~a (~a bundles, node=~a)~%" output (length bundles)
+              (if node-ok "yes" "NO")))))
+
 (build-resources)
 (build-game-sources)
 (build-tool-sources)
 (build-migrations)
+(build-jscl-bundles)
 (quit)

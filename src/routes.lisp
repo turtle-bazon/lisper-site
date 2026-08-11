@@ -53,6 +53,18 @@
                       :cache-control "public, max-age=31536000, immutable")
                      (,*jscl-js*)))
 
+             ;; Compiled JSCL bundle (versioned URL: /jscl-bundle/<name>?v=<hash>)
+             ((and (>= (length path) 13)
+                   (string= (subseq path 0 13) "/jscl-bundle/"))
+              (let* ((name (subseq path 13))
+                     (src (get-jscl-bundle name)))
+                (if src
+                    `(200 (:content-type "application/javascript; charset=utf-8"
+                           :cache-control "public, max-age=31536000, immutable")
+                          (,src))
+                    '(404 (:content-type "text/plain; charset=utf-8")
+                      ("Bundle not found")))))
+
              ;; Game source download
              ((and (>= (length path) 13)
                    (string= (subseq path 0 13) "/game-source/"))
