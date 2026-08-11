@@ -3,6 +3,10 @@
 (defvar *db-spec* nil
   "PostgreSQL connection spec: (database user password host &key port)")
 
+(defvar *db-available* nil
+  "Set to T after a successful db-connect. Analytics checks this instead of
+   postmodern:connected-p (which needs a connection object argument).")
+
 ;;; Migrations are embedded in src/migrations.lisp
 
 (defun db-connect ()
@@ -20,11 +24,12 @@
         name TEXT NOT NULL,
         applied_at TIMESTAMP DEFAULT NOW()
       )")
-    (run-pending-migrations)))
+    (run-pending-migrations)
+    (setf *db-available* t)))
 
 (defun db-disconnect ()
-  (when (postmodern:connected-p)
-    (postmodern:disconnect)))
+  (handler-case (postmodern:disconnect)
+    (error (e) (format t "~&db-disconnect: ~A~%" e))))
 
 (defun get-applied-migrations ()
   "Return sorted list of applied migration version numbers."

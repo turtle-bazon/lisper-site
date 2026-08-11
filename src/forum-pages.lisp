@@ -79,7 +79,8 @@
           (cl-who:htm
            (when (user-admin-p user)
              (cl-who:htm
-              (:a :class "header-admin" :href "/admin/users" "Админ")))
+              (:a :class "header-admin" :href "/admin/users" "Админ")
+              (:a :class "header-admin" :href "/admin/analytics" "Аналитика")))
            (:a :class "header-user" :href (format nil "/user/~A" (session-username user))
                (cl-who:str (session-username user)))
            (:a :class "header-logout" :href "/logout" "Выйти"))
@@ -432,6 +433,100 @@
                                  (cl-who:str (format nil "~A" (getf u :muted-until)))))))))))
          (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
                        " &copy; 2026 | GPL-3.0")))))))))
+
+(defun analytics-truncate (string &optional (limit 45))
+  (when string
+    (if (> (length string) limit)
+        (concatenate 'string (subseq string 0 limit) "…")
+        string)))
+
+(defun forum-page-analytics (user)
+  (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
+    (cl-who:htm
+     (:html :lang "ru"
+      (:head (cl-who:str (forum-render-head "Аналитика — lisper")))
+      (:body
+       (:div :class "container"
+        (:header (cl-who:str (forum-render-header user)))
+        (:div :class "section"
+         (:h2 "Аналитика посещений")
+         (:div :class "analytics-grid"
+          (:div :class "stat-card"
+           (:div :class "stat-value" (cl-who:str (format nil "~A" (analytics-total-views))))
+           (:div :class "stat-label" "Всего просмотров"))
+          (:div :class "stat-card"
+           (:div :class "stat-value" (cl-who:str (format nil "~A" (analytics-views-since 24))))
+           (:div :class "stat-label" "Просмотры · 24ч"))
+          (:div :class "stat-card"
+           (:div :class "stat-value" (cl-who:str (format nil "~A" (analytics-unique-since 24))))
+           (:div :class "stat-label" "Уникальные · 24ч"))
+          (:div :class "stat-card"
+           (:div :class "stat-value" (cl-who:str (format nil "~A" (analytics-views-since 168))))
+           (:div :class "stat-label" "Просмотры · 7 дней"))
+          (:div :class "stat-card"
+           (:div :class "stat-value" (cl-who:str (format nil "~A" (analytics-unique-since 168))))
+           (:div :class "stat-label" "Уникальные · 7 дней"))
+          (:div :class "stat-card"
+           (:div :class "stat-value" (cl-who:str (format nil "~A" (analytics-bot-count-since 168))))
+           (:div :class "stat-label" "Боты · 7 дней")))
+         (:div :class "analytics-block"
+          (:h3 "Топ страниц (7 дней)")
+          (:table :class "analytics-table"
+           (:thead (:tr (:th "Страница") (:th "Просмотров")))
+           (:tbody
+            (loop for (path count) in (analytics-top-paths 168 10)
+                  do (cl-who:htm
+                      (:tr (:td (cl-who:str path))
+                           (:td :class "analytics-num" (cl-who:str (format nil "~A" count)))))))))
+         (:div :class "analytics-block"
+          (:h3 "Источники переходов (7 дней)")
+          (:table :class "analytics-table"
+           (:thead (:tr (:th "Источник") (:th "Переходов")))
+           (:tbody
+            (loop for (ref count) in (analytics-top-referrers 168 10)
+                  do (cl-who:htm
+                      (:tr (:td (cl-who:str (analytics-truncate (or ref ""))))
+                           (:td :class "analytics-num" (cl-who:str (format nil "~A" count)))))))))
+         (:div :class "analytics-block"
+          (:h3 "Страны (7 дней)")
+          (if (analytics-geo-loaded-p)
+              (cl-who:htm
+               (:table :class "analytics-table"
+                (:thead (:tr (:th "Страна") (:th "Просмотров")))
+                (:tbody
+                 (loop for (country count) in (analytics-top-countries 168 10)
+                       do (cl-who:htm
+                           (:tr (:td (cl-who:str country))
+                                (:td :class "analytics-num" (cl-who:str (format nil "~A" count)))))))))
+              (cl-who:htm
+               (:p :class "analytics-note"
+                   "Гео-данные не загружены. Скачайте GeoLite2 Country CSV
+                    (https://dev.maxmind.com/geoip/geolite2-free-geolocation-data) и выполните
+                    make geo-load FILE=/path/to/GeoLite2-Country-CSV.csv"))))
+         (:div :class "analytics-block"
+          (:h3 "Устройства (7 дней)")
+          (:table :class "analytics-table"
+           (:thead (:tr (:th "Тип") (:th "Просмотров")))
+           (:tbody
+            (loop for (device count) in (analytics-top-devices 168 4)
+                  do (cl-who:htm
+                      (:tr (:td (cl-who:str device))
+                           (:td :class "analytics-num" (cl-who:str (format nil "~A" count)))))))))
+         (:div :class "analytics-block"
+          (:h3 "Последние визиты")
+          (:table :class "analytics-table"
+           (:thead (:tr (:th "Время") (:th "Страница") (:th "IP") (:th "Страна") (:th "Источник") (:th "Бот")))
+           (:tbody
+            (loop for (path referrer ip country is-bot ua ts) in (analytics-recent 30)
+                  do (cl-who:htm
+                      (:tr (:td (cl-who:str ts))
+                           (:td (cl-who:str path))
+                           (:td (cl-who:str (or ip "")))
+                           (:td (cl-who:str (or country "")))
+                           (:td (cl-who:str (analytics-truncate (or referrer ""))))
+                           (:td (cl-who:str (if is-bot "✓" ""))))))))))
+        (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
+                      " &copy; 2026 | GPL-3.0"))))))))
 
 (defun forum-page-login (user error-message)
   (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")

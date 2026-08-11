@@ -801,6 +801,72 @@
         (".admin-button-danger:hover"
          :background "#dc2626")
 
+        (".analytics-grid"
+         :display "grid"
+         :grid-template-columns "repeat(auto-fit, minmax(160px, 1fr))"
+         :gap "12px"
+         :margin-bottom "24px")
+
+        (".stat-card"
+         :background "#111111"
+         :border "1px solid #2a2a2a"
+         :border-radius "8px"
+         :padding "16px"
+         :text-align "center")
+
+        (".stat-value"
+         :font-size "1.7rem"
+         :font-weight "700"
+         :color "#7c3aed"
+         :line-height "1.2")
+
+        (".stat-label"
+         :font-size "0.8rem"
+         :color "#888"
+         :margin-top "4px")
+
+        (".analytics-block"
+         :margin-bottom "24px")
+
+        (".analytics-block h3"
+         :margin-bottom "8px")
+
+        (".analytics-table"
+         :width "100%"
+         :border-collapse "collapse"
+         :background "#111111"
+         :border "1px solid #2a2a2a"
+         :border-radius "8px"
+         :overflow "hidden"
+         :font-size "0.9rem")
+
+        (".analytics-table th"
+         :text-align "left"
+         :padding "8px 12px"
+         :background "#1a1a1a"
+         :color "#aaa"
+         :font-size "0.78rem"
+         :text-transform "uppercase"
+         :letter-spacing "0.4px")
+
+        (".analytics-table td"
+         :padding "8px 12px"
+         :border-top "1px solid #1e1e1e"
+         :color "#d4d4d4"
+         :word-break "break-all")
+
+        (".analytics-table tr:hover td"
+         :background "#171717")
+
+        (".analytics-num"
+         :text-align "right"
+         :font-family "monospace"
+         :color "#7c3aed")
+
+        (".analytics-note"
+         :color "#888"
+         :font-size "0.9rem")
+
         (".profile-info"
          :margin-bottom "20px")
 

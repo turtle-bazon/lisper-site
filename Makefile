@@ -15,6 +15,9 @@ prepare:
 embed-resources:
 	sbcl --load build-resources.lisp
 
+geo-load:
+	sbcl --load load-geoip.lisp -- $(FILE)
+
 build: clean prepare dev-stop embed-resources
 	sleep 3
 	sbcl --load build.lisp

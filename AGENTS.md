@@ -100,6 +100,7 @@ lisper.asd          — системное определение
 Makefile            — make build
 build.lisp          — скрипт сборки
 build-resources.lisp — генерация src/resources.lisp из resources/
+load-geoip.lisp      — загрузка GeoLite2 Country CSV (make geo-load FILE=...)
 lisper.conf.template
 License.txt         — GPL-3.0
 resources/
@@ -113,6 +114,7 @@ src/
   db.lisp           — PostgreSQL + миграции
   auth.lisp         — регистрация, логин, сессии
   forum.lisp        — CRUD операции форума
+  analytics.lisp    — аналитика: page_views, geo, уникальные посетители
   forum-pages.lisp  — HTML страницы форума
   css.lisp          — CL-CSS + raw media query
   js.lisp           — plain JS string
@@ -330,6 +332,23 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
   - Пошаговый, тайл-based, minimap, пермадет, прогрессия
   - Пока не реализовано — после доделки Lisp Invaders
 - **Порт**: 8080
+
+## Аналитика (2026-08)
+- Своя серверная аналитика в PostgreSQL: таблицы `page_views` (id, visitor_id, path, referrer, user_agent, ip, country, is_bot, created_at) и `ip_country` (network CIDR + country_code + country_name)
+- Миграция **0005** (`migrations/0005-add-analytics.{up,down}.sql`)
+- **Анализируемые HTML-страницы** (`analytics-tracked-path-p`): `/`, `/forum`, `/new-topic`, `/login`, `/register`, `/forum/*`, `/topic/*`, `/user/*`. CSS/JS/jscl.js/game-source/tool-source/admin НЕ трекаются
+- **Уникальный посетитель**: cookie `vid` (16 байт hex, Max-Age 31536000, HttpOnly) → в БД хранится `SHA-256(cookie)` первые 32 hex (не сырые данные). Новый `vid` ставится через `Set-Cookie`
+- **Логирование** в routes.lisp через `maybe-track-analytics` (оборачивает `make-app` cond): только GET + HTTP 200; ошибки логируются в консоль, ответ не ломается (важно: без БД главная работает)
+- **Боты**: `bot-user-agent-p` — маркеры (googlebot, bot, curl, wget и т.д.), колонка `is_bot`; сводка ботов на дашборде
+- **Гео**: `country-for-ip` — `SELECT country_name FROM ip_country WHERE network >>= $1::inet` (cidr containment). Сырые данные НЕ вшиты (лицензия/size); загрузка: `make geo-load FILE=/path/GeoLite2-Country-CSV.csv` (скрипт `load-geoip.lisp`, батчи по 2000, `db-connect`)
+- **Дашборд**: `/admin/analytics` (только admin): stat-карточки (всего/24ч/7д просмотры + уникальные + боты), топ страниц, источники, страны (если geo загружено), устройства (mobile/desktop), последние 30 визитов
+- Бот-фильтр: агрегаты включают ботов (страны/устройства/источники), есть отдельная карточка «Боты»
+- **Перф**: INSERT на каждый просмотр страницы; индексы (created_at, visitor_id, path)
+
+### Аналитика — подводные камни
+- **`postmodern:connected-p` требует 1 аргумент** (объект БД), не 0. Вызов без аргумента — "invalid number of arguments". То же для `postmodern:disconnect`. Аналитика не вызывает их напрямую: флаг `*db-available*` (ставится в `db-connect`) → `unless *db-available*` в `log-page-view`. `db-disconnect` обёрнут в `handler-case` (был латентный краш на `(connected-p)`)
+- **Wookie не кладёт `:remote-addr` в Clack env** — клиентский IP доступен только через заголовки `X-Real-IP` / `X-Forwarded-For` (первый хоп). Без прокси `ip` в `page_views` остаётся NULL. Извлечь peer-адрес из сокета cl-async нельзя: слот `address` не заполняется, `uv_tcp_getpeername` не обёрнут в CFFI
+- **Postmodern превращает Lisp NIL в SQL-строку "false"** (и `search`-позиции вроде 0 — в SQL false): для nullable TEXT-колонок передавать `:null` (функция `sql-null-if-nil`), булевы детекторы (`bot-user-agent-p`) должны возвращать строго T/NIL, иначе `googlebot` на позиции 3 упадёт в boolean-колонку
 
 ## Следующая сессия
 - **Autoloading jscl** — загружать jscl.js при старте страницы, а не при первом открытии REPL/игры

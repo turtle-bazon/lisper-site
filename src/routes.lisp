@@ -32,9 +32,12 @@
   (lambda (env)
     (handler-case
         (add-security-headers
-         (let* ((path (getf env :path-info))
-                (user (ignore-errors (current-user env))))
-           (cond
+         (maybe-track-analytics
+          env
+          (getf env :path-info)
+          (let* ((path (getf env :path-info))
+                 (user (ignore-errors (current-user env))))
+            (cond
             ;; Static routes
             ((string= path "/")
                    `(200 (:content-type "text/html; charset=utf-8")
@@ -150,6 +153,14 @@
                  '(403 (:content-type "text/html; charset=utf-8")
                    ("<h1>403 Доступ запрещён</h1>"))))
 
+            ;; Admin: analytics dashboard
+            ((and (string= path "/admin/analytics") (eq (env-method env) :GET))
+             (if (and user (user-admin-p user))
+                 `(200 (:content-type "text/html; charset=utf-8")
+                       (,(forum-page-analytics user)))
+                 '(403 (:content-type "text/html; charset=utf-8")
+                   ("<h1>403 Доступ запрещён</h1>"))))
+
             ;; Admin: mute user POST
             ((and (string= path "/admin/mute") (eq (env-method env) :POST))
              (handle-mute-user env user))
@@ -166,10 +177,10 @@
             ((and (string= path "/admin/toggle-forum") (eq (env-method env) :POST))
              (handle-toggle-forum env user))
 
-            ;; 404
-            (t
-             '(404 (:content-type "text/html; charset=utf-8")
-               ("<h1>404</h1>"))))))
+;; 404
+             (t
+              '(404 (:content-type "text/html; charset=utf-8")
+                ("<h1>404</h1>")))))))
       (error (err)
         (add-security-headers
          (list 500
