@@ -6,6 +6,8 @@
   (handler-case (db-connect)
     (error (e) (format t "~&Warning: DB connect failed: ~A~%" e)))
   (init-geo (config :geo-db-path))
+  (analytics-run-rollup)
+  (sb-thread:make-thread #'analytics-rollup-loop :name "analytics-rollup")
   (format t "Starting lisper on ~a:~a~%" (config :address) (config :port))
   (let ((server (clack:clackup (make-app)
                                 :address (config :address)

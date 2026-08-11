@@ -275,7 +275,7 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - `get-migration-sql` — получает SQL из `*migrations*` по version и direction (:up/:down)
 - `apply-migration` — split SQL by `;` + execute each via `postmodern:query` (не multi-statement)
 - **Fix (2026-08-11)**: `apply-migration` сначала вырезает полнострочные комментарии `--` (`strip-sql-comments`) — иначе `;` в комментарии ломал сплит (миграция 0006 падала на фрагменте "drop the PostgreSQL copy."), а фрагмент «комментарий+SQL» мог целиком быть пропущен как комментарий
-- При добавлении новой миграции: создать SQL-файлы, добавить в `*migrations*` в `src/migrations.lisp`
+- **При добавлении новой миграции**: создать SQL-файлы, `make build` сам регенерирует `src/migrations.lisp` (шаг `embed-resources`)
 
 ### Антиспам
 - **Honeypot CAPTCHA** на регистрации — скрытое поле `website`, боты его заполняют, humans нет
@@ -337,7 +337,13 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 
 ## Аналитика (2026-08)
 - Своя серверная аналитика в PostgreSQL: таблица `page_views` (id, visitor_id, path, referrer, user_agent, ip, country, is_bot, created_at). Гео — НЕ в БД, см. ниже
-- Миграции: **0005** (`page_views`), **0006** (drop `ip_country`)
+- Миграции: **0005** (`page_views`), **0006** (drop `ip_country`), **0007** (`daily_stats`)
+- **Безопасность хранения (ретеншен, 2026-08-11)**: сырые `page_views` живут `*analytics-raw-retention-days*` = 7 дней (окно дашборда), потом сворачиваются в `daily_stats` и удаляются. Рост ограничен: ~7 дней сырых + ~1-2k строк агрегатов/день
+  - `daily_stats (date, path, country, device, referrer, is_bot, views)` — аддитивно по всем измерениям, PK по всем колонкам кроме views. «OLAP для бедных»
+  - `analytics-run-rollup` — один проход: `INSERT ... SELECT ... WHERE created_at < NOW() - interval '7 days' GROUP BY ... ON CONFLICT DO NOTHING` (device через CASE по user_agent, country через COALESCE('Неизвестно')) + `DELETE` свёрнутых строк. Идемпотентный, глотает ошибки с `console.log`, no-op без БД (`*db-available*`)
+  - Запуск: в `main.lisp` при старте + фоновый поток `analytics-rollup-loop` (sb-thread, `(sleep 86400)`)
+  - `analytics-total-views` = `COUNT(page_views) + COALESCE(SUM(daily_stats.views),0)`; окна 24ч/7д читают только сырые строки (в пределах 7 дней буфера) — дашборд не переписывали
+  - Уникальность и «Последние визиты» из агрегатов не выводятся (не аддитивны / нужны сырые IP+UA) — потому и держим 7-дневный буфер сырья
 - **Анализируемые HTML-страницы** (`analytics-tracked-path-p`): `/`, `/forum`, `/new-topic`, `/login`, `/register`, `/forum/*`, `/topic/*`, `/user/*`. CSS/JS/jscl.js/game-source/tool-source/admin НЕ трекаются
 - **Уникальный посетитель**: cookie `vid` (16 байт hex, Max-Age 31536000, HttpOnly) → в БД хранится `SHA-256(cookie)` первые 32 hex (не сырые данные). Новый `vid` ставится через `Set-Cookie`
 - **Логирование** в routes.lisp через `maybe-track-analytics` (оборачивает `make-app` cond): только GET + HTTP 200; ошибки логируются в консоль, ответ не ломается (важно: без БД главная работает)

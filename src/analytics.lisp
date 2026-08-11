@@ -169,9 +169,49 @@
       response)))
 
 ;;; --- Aggregations for the admin dashboard ---
+;;; Bounded retention: raw page_views live *analytics-raw-retention-days*,
+;;; older rows are rolled up into daily_stats and deleted. Dashboard windows
+;;; (24h/7d) read raw page_views; all-time totals read daily_stats + raw.
+
+(defparameter *analytics-raw-retention-days* 7
+  "Сколько дней сырые page_views хранятся до свёртки в daily_stats (окно дашборда).")
 
 (defun analytics-total-views ()
-  (or (postmodern:query "SELECT COUNT(*) FROM page_views" :single) 0))
+  (+ (or (postmodern:query "SELECT COUNT(*) FROM page_views" :single) 0)
+     (or (postmodern:query
+          "SELECT COALESCE(SUM(views), 0) FROM daily_stats" :single)
+         0)))
+
+(defun analytics-run-rollup ()
+  "One pass: aggregate page_views older than the retention window into
+   daily_stats and delete the rolled-up raw rows. Idempotent (ON CONFLICT
+   DO NOTHING), DB-safe (no-op when the database is unavailable)."
+  (unless *db-available*
+    (return-from analytics-run-rollup))
+  (handler-case
+      (let ((window (format nil "~A days" *analytics-raw-retention-days*)))
+        (postmodern:query
+         "INSERT INTO daily_stats (date, path, country, device, referrer, is_bot, views)
+          SELECT (created_at AT TIME ZONE 'UTC')::date, path,
+                 COALESCE(country, 'Неизвестно'),
+                 CASE WHEN user_agent ~* '(mobile|android|iphone|ipad|phone|blackberry)'
+                      THEN 'Мобильные' ELSE 'Десктоп' END,
+                 COALESCE(referrer, ''),
+                 is_bot, COUNT(*)
+          FROM page_views
+          WHERE created_at < NOW() - $1::INTERVAL
+          GROUP BY 1, 2, 3, 4, 5, 6
+          ON CONFLICT (date, path, country, device, referrer, is_bot) DO NOTHING"
+         window)
+        (postmodern:query
+         "DELETE FROM page_views WHERE created_at < NOW() - $1::INTERVAL"
+         window))
+    (error (e)
+      (format t "~&Analytics rollup error: ~A~%" e))))
+
+(defun analytics-rollup-loop ()
+  "Background thread body: roll up old page_views once a day."
+  (loop (sleep 86400) (analytics-run-rollup)))
 
 (defun analytics-views-since (hours)
   (or (postmodern:query
