@@ -37,6 +37,7 @@
 - Шаблон: `lisper.conf.template`
 - **Порт по умолчанию**: 8080
 - `:geo-db-path` — путь к `GeoLite2-Country.mmdb` (MaxMind DB); если нет/не найден — гео отключено, не фатально
+- `:admin-secret` — секрет скрытого URL аналитики: `/analytics/<secret>` отдаёт дашборд без логина (вход/регистрация на сайте отключены); неверный секрет → 404, `/admin/*` по-прежнему только по admin-сессии
 
 ## Тонкости и баги
 
@@ -355,6 +356,8 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - **`postmodern:connected-p` требует 1 аргумент** (объект БД), не 0. Вызов без аргумента — "invalid number of arguments". То же для `postmodern:disconnect`. Аналитика не вызывает их напрямую: флаг `*db-available*` (ставится в `db-connect`) → `unless *db-available*` в `log-page-view`. `db-disconnect` обёрнут в `handler-case` (был латентный краш на `(connected-p)`)
 - **Wookie не кладёт `:remote-addr` в Clack env** — клиентский IP доступен только через заголовки `X-Real-IP` / `X-Forwarded-For` (первый хоп). Без прокси `ip` в `page_views` остаётся NULL. Извлечь peer-адрес из сокета cl-async нельзя: слот `address` не заполняется, `uv_tcp_getpeername` не обёрнут в CFFI
 - **Postmodern превращает Lisp NIL в SQL-строку "false"** (и `search`-позиции вроде 0 — в SQL false): для nullable TEXT-колонок передавать `:null` (функция `sql-null-if-nil`), булевы детекторы (`bot-user-agent-p`) должны возвращать строго T/NIL, иначе `googlebot` на позиции 3 упадёт в boolean-колонку
+- **Postmodern возвращает SQL NULL в результатах как символ `:NULL`** — он truthy! `(or x "")` его НЕ отсекает (`(or :NULL "")` → `:NULL`), а `length`/`string-trim` на нём падают ("The value :NULL is not of type SEQUENCE"). Дашборд аналитики ловил это в "Последние визиты" (`(analytics-truncate (or referrer ""))`). **Фикс**: `COALESCE(referrer, '')` прямо в SQL (`analytics-recent`), а не в Lisp
+- **Скрытый URL аналитики** (`/analytics/<secret>`): рендерит тот же `forum-page-analytics` с `user=nil` (header рендерится анонимным — ок). Добавлен 2026-08-11; до этого дашборд невозможно было открыть, т.к. вход/регистрация отключены
 
 ## Следующая сессия
 - **Autoloading jscl** — загружать jscl.js при старте страницы, а не при первом открытии REPL/игры

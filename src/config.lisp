@@ -11,7 +11,8 @@
     :db-name "lisper"
     :db-user "lisper"
     :db-password "lisper"
-    :geo-db-path nil))
+    :geo-db-path nil
+    :admin-secret nil))
 
 (defun config-file-paths ()
   (list (probe-file "lisper.conf")

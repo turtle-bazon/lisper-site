@@ -177,6 +177,15 @@
             ((and (string= path "/admin/toggle-forum") (eq (env-method env) :POST))
              (handle-toggle-forum env user))
 
+            ;; Hidden analytics URL (no login): /analytics/<admin-secret>
+            ;; Login/registration are disabled on the site, so the owner opens
+            ;; the dashboard via this obscure path instead of a session.
+            ((and (eq (env-method env) :GET)
+                  (config :admin-secret)
+                  (string= path (format nil "/analytics/~A" (config :admin-secret))))
+             `(200 (:content-type "text/html; charset=utf-8")
+                   (,(forum-page-analytics user))))
+
 ;; 404
              (t
               '(404 (:content-type "text/html; charset=utf-8")

@@ -6,4 +6,5 @@
  :db-name "lisper"
  :db-user "lisper"
  :db-password "lisper"
- :geo-db-path "/path/to/GeoLite2-Country.mmdb")
+ :geo-db-path "/path/to/GeoLite2-Country.mmdb"
+ :admin-secret "change-me-random-hex")

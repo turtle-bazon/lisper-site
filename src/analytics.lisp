@@ -242,8 +242,11 @@
        limit)))
 
 (defun analytics-recent (&optional (limit 30))
+  "Last visits. COALESCE the nullable columns so the renderer never sees
+   postmodern's :NULL marker (which is truthy and breaks (or x \"\") / length)."
   (postmodern:query
-   "SELECT path, referrer, ip, country, is_bot, user_agent,
+   "SELECT path, COALESCE(referrer, ''), COALESCE(ip, ''),
+           COALESCE(country, ''), is_bot, COALESCE(user_agent, ''),
            TO_CHAR(created_at, 'DD.MM HH24:MI')
     FROM page_views ORDER BY id DESC LIMIT $1"
    limit))
