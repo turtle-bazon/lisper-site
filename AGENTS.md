@@ -172,6 +172,7 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - Стили в `css.lisp`: `.try-button` (зелёный), `.repl-overlay`, `.repl-modal`, `.repl-console`, `.repl-header`, `.repl-input`, `.repl-prompt-label`
 - JS в `js.lisp`: `openRepl()` (инициализация), `closeRepl()`, `loadScript()`, `evalToolSource()`, `setupErrorHandler()`, markdown-редактор, игры. Все REPL-логика в CL.
 - `<script src='/js'>` в `pages.lisp` после overlay (HTML-порядок: body → overlay → script)
+- **Кеш jscl.js (2026-08-11)**: `/jscl.js` отдаётся с `Cache-Control: public, max-age=31536000, immutable` (2.4MB, меняется только при обновлении JSCL). URL версионируется автогенерируемым SHA-256 контента: `(jscl-url)` → `/jscl.js?v=<hash>`; хеш стабилен между сборками при неизменном бандле. Используется в `pages.lisp` (`<script src=...>`) и в `js.lisp` (`loadScript`). Хелперы `jscl-url`/`jscl-cache-key`/`string-replace-all` — в начале `js.lisp` (не в генерируемом `resources.lisp`)
 - **Fix (2026-06-22)**: сбалансированы скобки — overlay закрывался с 5 `)` вместо 4, лишняя `)` закрывала `:html` до `<script>`
 - **Fix (2026-06-22)**: переписано на кастомный терминал — jqconsole не работал (создавал DOM-элементы на body вместо `#repl-console`)
   - Каждая строка вывода = `div.repl-line` (appendLine/appendHTML)

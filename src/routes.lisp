@@ -49,7 +49,8 @@
               `(200 (:content-type "application/javascript; charset=utf-8")
                     (,(generate-js))))
              ((string= path "/jscl.js")
-               `(200 (:content-type "application/javascript; charset=utf-8")
+               `(200 (:content-type "application/javascript; charset=utf-8"
+                      :cache-control "public, max-age=31536000, immutable")
                      (,*jscl-js*)))
 
              ;; Game source download
