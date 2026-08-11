@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS ip_country;
+DROP TABLE IF EXISTS page_views;
