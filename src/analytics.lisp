@@ -1,7 +1,7 @@
 (in-package :lisper)
 
 ;;; Server-side analytics: page views, referrers, user agents, geo, unique visitors.
-;;; Data in PostgreSQL (page_views, ip_country). Admin dashboard at /admin/analytics.
+;;; Data in PostgreSQL (page_views); geo via in-memory MaxMind DB (cl-maxminddb).
 
 (defparameter *analytics-bot-markers*
   '("googlebot" "bingbot" "slurp" "duckduckbot" "yandex" "baiduspider"
@@ -87,52 +87,39 @@
           (values (subseq (sha256-hex new) 0 32)
                   (format nil "vid=~A; Path=/; Max-Age=31536000; HttpOnly" new))))))
 
-;;; --- Geo ---
+;;; --- Geo (MaxMind DB via cl-maxminddb) ---
+
+(defvar *geo-mmdb* nil
+  "Mapped GeoLite2 database object from cl-maxminddb (make-mmdb), or NIL.")
+
+(defun init-geo (path)
+  "Open a GeoLite2 .mmdb file for country lookups. Path comes from config
+   :geo-db-path. Missing file is not fatal — country lookups just return NIL."
+  (setf *geo-mmdb* nil)
+  (when (and path (probe-file path))
+    (handler-case
+        (progn
+          (setf *geo-mmdb* (cl-maxminddb:make-mmdb (namestring (probe-file path))))
+          (format t "~&Geo: loaded MaxMind DB from ~A~%" path))
+      (error (e)
+        (setf *geo-mmdb* nil)
+        (format t "~&Warning: failed to load MaxMind DB ~A: ~A~%" path e))))
+  *geo-mmdb*)
 
 (defun country-for-ip (ip)
-  "Look up country name for an IP from the ip_country table (cidr ranges)."
-  (when ip
+  "Look up the English country name for an IP from the mapped MaxMind DB.
+   Returns NIL when the DB is not loaded or the IP is not in the database
+   (a normal miss, e.g. private/local addresses)."
+  (when (and *geo-mmdb* ip)
     (handler-case
-        (let ((row (postmodern:query
-                    "SELECT country_name FROM ip_country WHERE network >>= $1::inet LIMIT 1"
-                    ip)))
-          (when row (first (first row))))
-      (error (e) (format t "~&Analytics county lookup failed for ~A: ~A~%" ip e) nil))))
-
-(defun flush-ip-batches (rows)
-  (dolist (row rows)
-    (destructuring-bind (network iso name) row
-      (postmodern:query
-       "INSERT INTO ip_country (network, country_code, country_name) VALUES ($1::cidr, $2, $3) ON CONFLICT DO NOTHING"
-       network iso name))))
-
-(defun load-ip-country-csv (path)
-  "Load GeoLite2 Country CSV (GeoLite2-Country-CSV_*/GeoLite2-Country-CSV.csv)
-   into the ip_country table. Batch insert for speed."
-  (db-connect)
-  (let ((count 0)
-        (batch '()))
-    (with-open-file (stream path :external-format :utf-8)
-      (read-line stream) ; skip header
-      (loop for line = (read-line stream nil nil)
-            while line
-            do (let* ((parts (split-sequence:split-sequence #\, line))
-                      (network (nth 0 parts))
-                      (iso (nth 6 parts))
-                      (name (string-trim '(#\Space #\Tab #\Newline #\Return)
-                                         (or (nth 7 parts) ""))))
-                 (when (and network iso name
-                            (not (string= iso ""))
-                            (not (string= name "")))
-                   (push (list network iso name) batch)
-                   (incf count))
-                 (when (>= (length batch) 2000)
-                   (flush-ip-batches batch)
-                   (setf batch '()))))
-      (when batch
-        (flush-ip-batches batch)))
-    (postmodern:execute "ANALYZE ip_country")
-    (format t "~&Loaded ~A IP ranges into ip_country~%" count)))
+        (let ((record (cl-maxminddb:mmdb-query *geo-mmdb* ip)))
+          (or (cl-maxminddb:get-in record :country :names :en)
+              (cl-maxminddb:get-in record :registered-country :names :en)
+              (cl-maxminddb:get-in record :country :iso-code)))
+      (error (e)
+        (unless (search "not in the database" (princ-to-string e))
+          (format t "~&Analytics mmdb lookup failed for ~A: ~A~%" ip e))
+        nil))))
 
 ;;; --- Page view logging ---
 
@@ -262,4 +249,5 @@
    limit))
 
 (defun analytics-geo-loaded-p ()
-  (plusp (or (postmodern:query "SELECT COUNT(*) FROM ip_country" :single) 0)))
+  "True when a MaxMind DB is mapped for country lookups."
+  (and *geo-mmdb* t))

@@ -500,9 +500,9 @@
                                 (:td :class "analytics-num" (cl-who:str (format nil "~A" count)))))))))
               (cl-who:htm
                (:p :class "analytics-note"
-                   "Гео-данные не загружены. Скачайте GeoLite2 Country CSV
-                    (https://dev.maxmind.com/geoip/geolite2-free-geolocation-data) и выполните
-                    make geo-load FILE=/path/to/GeoLite2-Country-CSV.csv"))))
+                   "Гео-данные не загружены. Укажите путь к GeoLite2 Country
+                    (https://dev.maxmind.com/geoip/geolite2-free-geolocation-data)
+                    в ключе :geo-db-path конфига (lisper.conf)."))))
          (:div :class "analytics-block"
           (:h3 "Устройства (7 дней)")
           (:table :class "analytics-table"

@@ -121,7 +121,18 @@ CREATE TABLE ip_country (
 
 CREATE INDEX idx_ip_country_network ON ip_country(network);")
           (:down . "DROP TABLE IF EXISTS ip_country;
-DROP TABLE IF EXISTS page_views;")))))
+DROP TABLE IF EXISTS page_views;")))
+    (6 . ((:up . "-- Geo moved to in-memory MaxMind DB (cl-maxminddb) - drop the PostgreSQL copy
+DROP TABLE IF EXISTS ip_country;
+")
+          (:down . "CREATE TABLE ip_country (
+    network CIDR NOT NULL PRIMARY KEY,
+    country_code CHAR(2),
+    country_name TEXT NOT NULL
+);
+
+CREATE INDEX idx_ip_country_network ON ip_country(network);
+")))))
 
 (defun get-available-migrations ()
   "Return sorted list of (version name) from embedded migrations."

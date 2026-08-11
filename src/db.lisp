@@ -43,16 +43,28 @@
   "Get migration SQL from embedded data. direction is :up or :down."
   (get-migration-sql version direction))
 
+(defun strip-sql-comments (sql)
+  "Remove full-line '--' comments so the naive ';' split in apply-migration is
+   safe. A comment line must not swallow the statement that follows it."
+  (with-output-to-string (out)
+    (with-input-from-string (in sql)
+      (loop for line = (read-line in nil nil)
+            while line
+            for trimmed = (string-trim '(#\Space #\Tab) line)
+            unless (and (>= (length trimmed) 2)
+                        (string= (subseq trimmed 0 2) "--"))
+              do (write-string line out) (write-char #\Newline out)))))
+
 (defun apply-migration (version name sql)
-  "Apply a single migration - split by semicolons and execute each."
-  (let ((stmts (split-sequence:split-sequence #\; sql)))
+  "Apply a single migration - strip comments, split by semicolons, execute each."
+  (let ((stmts (split-sequence:split-sequence #\; (strip-sql-comments sql))))
     (dolist (stmt stmts)
       (let ((trimmed (string-trim '(#\Space #\Tab #\Newline #\Return) stmt)))
         (when (plusp (length trimmed))
-          (postmodern:query trimmed)))))
-  (postmodern:query "INSERT INTO schema_migrations (version, name) VALUES ($1, $2)"
-                    version name)
-  (format t "~&Applied migration ~4,'0D: ~A~%" version name))
+          (postmodern:query trimmed))))
+    (postmodern:query "INSERT INTO schema_migrations (version, name) VALUES ($1, $2)"
+                      version name)
+    (format t "~&Applied migration ~4,'0D: ~A~%" version name)))
 
 (defun run-pending-migrations ()
   "Apply all pending migrations in order."

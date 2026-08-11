@@ -36,6 +36,7 @@
 - S-expression `.conf` файл (host port и т.д.)
 - Шаблон: `lisper.conf.template`
 - **Порт по умолчанию**: 8080
+- `:geo-db-path` — путь к `GeoLite2-Country.mmdb` (MaxMind DB); если нет/не найден — гео отключено, не фатально
 
 ## Тонкости и баги
 
@@ -100,7 +101,6 @@ lisper.asd          — системное определение
 Makefile            — make build
 build.lisp          — скрипт сборки
 build-resources.lisp — генерация src/resources.lisp из resources/
-load-geoip.lisp      — загрузка GeoLite2 Country CSV (make geo-load FILE=...)
 lisper.conf.template
 License.txt         — GPL-3.0
 resources/
@@ -114,7 +114,7 @@ src/
   db.lisp           — PostgreSQL + миграции
   auth.lisp         — регистрация, логин, сессии
   forum.lisp        — CRUD операции форума
-  analytics.lisp    — аналитика: page_views, geo, уникальные посетители
+  analytics.lisp    — аналитика: page_views, geo (cl-maxminddb mmap), уникальные посетители
   forum-pages.lisp  — HTML страницы форума
   css.lisp          — CL-CSS + raw media query
   js.lisp           — plain JS string
@@ -273,6 +273,7 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - `get-available-migrations` — возвращает список из `*migrations*`
 - `get-migration-sql` — получает SQL из `*migrations*` по version и direction (:up/:down)
 - `apply-migration` — split SQL by `;` + execute each via `postmodern:query` (не multi-statement)
+- **Fix (2026-08-11)**: `apply-migration` сначала вырезает полнострочные комментарии `--` (`strip-sql-comments`) — иначе `;` в комментарии ломал сплит (миграция 0006 падала на фрагменте "drop the PostgreSQL copy."), а фрагмент «комментарий+SQL» мог целиком быть пропущен как комментарий
 - При добавлении новой миграции: создать SQL-файлы, добавить в `*migrations*` в `src/migrations.lisp`
 
 ### Антиспам
@@ -334,14 +335,19 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - **Порт**: 8080
 
 ## Аналитика (2026-08)
-- Своя серверная аналитика в PostgreSQL: таблицы `page_views` (id, visitor_id, path, referrer, user_agent, ip, country, is_bot, created_at) и `ip_country` (network CIDR + country_code + country_name)
-- Миграция **0005** (`migrations/0005-add-analytics.{up,down}.sql`)
+- Своя серверная аналитика в PostgreSQL: таблица `page_views` (id, visitor_id, path, referrer, user_agent, ip, country, is_bot, created_at). Гео — НЕ в БД, см. ниже
+- Миграции: **0005** (`page_views`), **0006** (drop `ip_country`)
 - **Анализируемые HTML-страницы** (`analytics-tracked-path-p`): `/`, `/forum`, `/new-topic`, `/login`, `/register`, `/forum/*`, `/topic/*`, `/user/*`. CSS/JS/jscl.js/game-source/tool-source/admin НЕ трекаются
 - **Уникальный посетитель**: cookie `vid` (16 байт hex, Max-Age 31536000, HttpOnly) → в БД хранится `SHA-256(cookie)` первые 32 hex (не сырые данные). Новый `vid` ставится через `Set-Cookie`
 - **Логирование** в routes.lisp через `maybe-track-analytics` (оборачивает `make-app` cond): только GET + HTTP 200; ошибки логируются в консоль, ответ не ломается (важно: без БД главная работает)
 - **Боты**: `bot-user-agent-p` — маркеры (googlebot, bot, curl, wget и т.д.), колонка `is_bot`; сводка ботов на дашборде
-- **Гео**: `country-for-ip` — `SELECT country_name FROM ip_country WHERE network >>= $1::inet` (cidr containment). Сырые данные НЕ вшиты (лицензия/size); загрузка: `make geo-load FILE=/path/GeoLite2-Country-CSV.csv` (скрипт `load-geoip.lisp`, батчи по 2000, `db-connect`)
-- **Дашборд**: `/admin/analytics` (только admin): stat-карточки (всего/24ч/7д просмотры + уникальные + боты), топ страниц, источники, страны (если geo загружено), устройства (mobile/desktop), последние 30 визитов
+- **Гео — MaxMind DB в памяти** через `cl-maxminddb` (чисто-лисповый ридер, mmap; НЕ libmaxminddb):
+  - `make-mmdb` при старте (`init-geo` в main.lisp), путь из конфига `:geo-db-path` (`lisper.conf`)
+  - `country-for-ip` → `cl-maxminddb:mmdb-query` + `get-in record :country :names :en` (fallback `:registered-country`/`:iso-code`)
+  - `mmdb-query` **бросает ошибку** "The address ... is not in the database" для не-гео IP (127.0.0.1 и т.п.) — это нормальный miss, обрабатывается как NIL без лога
+  - Файл `.mmdb` (GeoLite2-Country.mmdb) качается вручную с MaxMind, в репозиторий не вшит; обновление = замена файла + рестарт
+  - Важно: для сборки `cl-maxminddb` нужен build-time `pkg-config` + `libffi-dev` (cffi-grovel для `cffi-libffi`, который в asd либы заявлен, но кодом не используется)
+- **Дашборд**: `/admin/analytics` (только admin): stat-карточки (всего/24ч/7д просмотры + уникальные + боты), топ страниц, источники, страны (если mmdb загружен), устройства (mobile/desktop), последние 30 визитов
 - Бот-фильтр: агрегаты включают ботов (страны/устройства/источники), есть отдельная карточка «Боты»
 - **Перф**: INSERT на каждый просмотр страницы; индексы (created_at, visitor_id, path)
 

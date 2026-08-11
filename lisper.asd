@@ -10,9 +10,10 @@
                #:cl-base64
                #:postmodern
                #:ironclad
-               #:split-sequence
-               #:flexi-streams
-               #:uiop)
+                #:split-sequence
+                #:flexi-streams
+                #:uiop
+                #:cl-maxminddb)
   :serial t
   :components ((:module "src"
                 :components

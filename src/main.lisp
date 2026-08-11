@@ -5,6 +5,7 @@
   (read-config)
   (handler-case (db-connect)
     (error (e) (format t "~&Warning: DB connect failed: ~A~%" e)))
+  (init-geo (config :geo-db-path))
   (format t "Starting lisper on ~a:~a~%" (config :address) (config :port))
   (let ((server (clack:clackup (make-app)
                                 :address (config :address)

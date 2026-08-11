@@ -3,3 +3,8 @@ build/
 *.conf
 .git
 .gitignore
+src/resources.lisp
+src/game-sources.lisp
+src/tool-sources.lisp
+src/db.fasl
+src/migrations.lisp

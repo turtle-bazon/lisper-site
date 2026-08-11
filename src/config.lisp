@@ -10,7 +10,8 @@
     :db-port 5432
     :db-name "lisper"
     :db-user "lisper"
-    :db-password "lisper"))
+    :db-password "lisper"
+    :geo-db-path nil))
 
 (defun config-file-paths ()
   (list (probe-file "lisper.conf")
