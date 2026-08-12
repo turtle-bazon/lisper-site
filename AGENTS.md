@@ -32,6 +32,23 @@
 - **Лицензия**: GPL-3.0
 - **Исходники**: https://github.com/turtle-bazon/lisper-site (зеркало, основная СКВ — Mercurial)
 
+## Интернационализация (2026-08-12)
+- **Языки**: ru, en, tr, uk (*languages*). Словари — alist ключ→строка в `src/i18n-<lang>.lisp`, регистрируются через `register-dict`
+- **Детект языка запроса** (`detect-language`, `src/i18n.lisp`): cookie `lang` → Accept-Language (q-переговоры) → суффикс домена (*domain-languages*, `.ru`→ru) → *default-language* ("en")
+- **Динамическая переменная `*lang*`** связывается в `make-app` на каждый запрос; `*path*` — для ссылки «обратно» в переключателе
+- **Переключатель языка — выпадающий dropdown** (`render-lang-switch`, `src/i18n.lisp`): кнопка `.lang-dropdown-btn` (label — native-имя текущего языка + caret `▾`) + меню `.lang-dropdown-menu` (native-имена всех языков, текущий `.active`). CSS `.lang-dropdown*` в `css.lisp`. Открытие/закрытие — `site-init-lang` в `jscl-tools/site.lisp` (клик по кнопке togglит класс `open`, `aria-expanded`; клик вне меню и Escape закрывают). Используется в шапке главной (`pages.lisp`) и форума (`forum-pages.lisp`)
+- **`tr` / `tr-format`**: перевод с fallback default-язык → `?key`; `tr-format` + `format` args
+- **Роуты**: `/set-lang?lang=..&next=..` (ставит cookie `lang`, редиректит на next/Referer/`/`) и `/i18n.js` (JS: `window.LISPER_LANG` + `window.LISPER_DICT`)
+- **Клиентский словарь**: `*client-i18n-keys*` — ключи, попадающие в `window.LISPER_DICT` (игры, подсказки, md-редактор); `client-i18n-key-name` — `:hint-lisp-invaders` → `"hint-lisp-invaders"`
+- **Подключение**: `<script defer src="/i18n.js">` ПЕРЕД jscl.js и site-бандлом (defer-скрипты выполняются по порядку; словарь готов к моменту инициализации site-бандла)
+- **Клиент**: `tget`/`tget-or` в `site.lisp` читают `window.LISPER_DICT` (вернуть CL NIL, если словарь/ключ отсутствуют); игры, подсказки и md-empty берутся из словаря, fallback — английские строки
+- **Версионирование `/i18n.js`**: НЕ версионируется (без `?v=`), но меняется per-request (зависит от cookie/заголовков) — кэшировать нельзя
+- **`analytics-device-label`/`analytics-country-label`** (`forum-pages.lisp`): перевод хранящихся в БД меток устройств ('Мобильные'/'Десктоп') и 'Неизвестно'
+- **Карточки** `*awesome-categories*`/`*cliki-categories*`: имена — ключи `:cat-*`/`:cliki-*`, рендер через `(tr key)` в `generate-cards`
+- **Проверка полноты словарей**: все `(tr :key)` в коде должны быть определены во всех 4 словарях (сейчас 173 ключа, все покрыты)
+- **Fix (2026-08-12)**: при переводе статических ответов `'(403 ... ("..."))` в `,(...)` НЕ забывать менять `'` на `` ` `` — иначе «Comma not inside a backquote». Аналогично: добавление `(cl-who:str (tr :key))` вокруг строки требует ровно +2 закрывающих скобки (по одной на `cl-who:str` и `tr`)
+- **Fix (2026-08-12)**: `render-lang-switch` переписан с inline-ссылок (`<span class="lang-switch">RU EN TR UK`) на dropdown (`.lang-dropdown`). Клиентское открытие/закрытие — в site.lisp (`site-init-lang`, вызывается из `site-init`; Escape закрывает в `site-handle-keydown`). Старые CSS-классы `.lang-switch*` удалены из `css.lisp`
+
 ## Конфигурация
 - S-expression `.conf` файл (host port и т.д.)
 - Шаблон: `lisper.conf.template`
@@ -388,5 +405,6 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - **Скрытый URL аналитики** (`/analytics/<secret>`): рендерит тот же `forum-page-analytics` с `user=nil` (header рендерится анонимным — ок). Добавлен 2026-08-11; до этого дашборд невозможно было открыть, т.к. вход/регистрация отключены
 
 ## Следующая сессия
-- **Autoloading jscl — сделан (2026-08-12)**: jscl.js + site bundle подключены `:defer t` на главной и на всех форумных страницах (`forum-render-head`), грузятся при старте страницы, не при первом открытии REPL/игры
+- **i18n (2026-08-12) — сделано**: 4 языка (ru/en/tr/uk), cookie `lang` + Accept-Language + суффикс домена, `/set-lang`, `/i18n.js` с клиентским словарём (`window.LISPER_DICT`), `tget`/`tget-or` в site.lisp. Словари проверены (173 ключа во всех 4 языках)
 - **Избавиться от node в сборке** — host-компилятор JSCL (SBCL) не компилирует наш CL с `jscl::oget`/`#j`/`jscl/ffi:jsstring` («Bad function designator» / пакет JSCL неизвестен). Чистый CL через SBCL работает. Идея: бандлы по-прежнему собирать нодой, но вынести в CI/локальный пре-шаг; либо разделить «ядро» (чистый CL, компилируется SBCL) и «обвязку» (FFI, собирается JSCL)
+- **Новые языки**: добавить `src/i18n-<lang>.lisp` + `register-dict` + `(tr :key)` для всех ключей; `*languages*`/`*language-labels*` в i18n.lisp

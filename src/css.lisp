@@ -81,6 +81,66 @@
           :align-items "center"
           :gap "16px")
 
+         (".lang-dropdown"
+          :position "relative"
+          :display "inline-block")
+
+         (".lang-dropdown-btn"
+          :display "flex"
+          :align-items "center"
+          :gap "5px"
+          :background "transparent"
+          :border "1px solid #2a2a33"
+          :color "#999"
+          :font-size "0.78rem"
+          :letter-spacing "0.04em"
+          :padding "3px 8px"
+          :border-radius "6px"
+          :cursor "pointer"
+          :transition "color 0.2s, border-color 0.2s")
+
+         (".lang-dropdown-btn:hover"
+          :color "#e0e0e0"
+          :border-color "#555")
+
+         (".lang-dropdown-caret"
+          :font-size "0.6rem"
+          :color "#888")
+
+         (".lang-dropdown-menu"
+          :display "none"
+          :position "absolute"
+          :top "calc(100% + 4px)"
+          :right "0"
+          :background "#16161c"
+          :border "1px solid #2a2a33"
+          :border-radius "8px"
+          :padding "4px"
+          :min-width "130px"
+          :z-index "1000"
+          :box-shadow "0 8px 24px rgba(0, 0, 0, 0.5)")
+
+         (".lang-dropdown.open .lang-dropdown-menu"
+          :display "block")
+
+         (".lang-dropdown-menu a"
+          :display "block"
+          :padding "6px 10px"
+          :color "#999"
+          :text-decoration "none"
+          :font-size "0.82rem"
+          :border-radius "6px"
+          :transition "color 0.15s, background 0.15s")
+
+         (".lang-dropdown-menu a:hover"
+          :color "#e0e0e0"
+          :background "rgba(255, 255, 255, 0.05)")
+
+         (".lang-dropdown-menu a.active"
+          :color "#a855f7"
+          :font-weight 600
+          :background "rgba(168, 85, 247, 0.1)")
+
          (".header-login, .header-register"
           :color "#999"
           :text-decoration "none"

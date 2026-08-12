@@ -19,6 +19,11 @@
                 :components
                 ((:file "package")
                  (:file "config")
+                 (:file "i18n")
+                 (:file "i18n-ru")
+                 (:file "i18n-en")
+                 (:file "i18n-tr")
+                 (:file "i18n-uk")
                  (:file "resources")
                   (:file "game-sources")
                    (:file "tool-sources")

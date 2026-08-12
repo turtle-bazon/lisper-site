@@ -27,7 +27,7 @@
                        (loop for byte = (read-byte body-stream nil nil)
                              while byte
                              do (vector-push-extend byte buf))
-                                               (flexi-streams:octets-to-string buf :external-format :utf-8))))
+                                              (flexi-streams:octets-to-string buf :external-format :utf-8))))
         (let ((pairs (split-sequence:split-sequence #\& content)))
           (let ((result (make-hash-table :test #'equal)))
             (loop for pair in pairs
@@ -63,6 +63,7 @@
     (:script :src "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/lisp.min.js"
              :integrity "sha384-+LHHMbAXOUlvquvrQZ9LW4KeR2nwcsh/lpp7xrWu7KuaDSGgAYBIdm8qCw97I1tq"
              :crossorigin "anonymous")
+    (:script :defer t :src "/i18n.js")
     (:script :defer t :src (jscl-url))
     (:script :defer t :src (jscl-bundle-url "site"))))
 
@@ -73,45 +74,46 @@
       (:a :href "/" :class "header-logo"
        (cl-who:str *logo-svg*)))
      (:nav :class "header-nav"
-      (:a :href "/" (:span :class "nav-icon" (cl-who:str "<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8'/><path d='M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/></svg>")) " Главная")
-      (:a :href "tg://resolve?domain=commonlisp_ru" (:span :class "nav-icon" (cl-who:str "<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 240 240'><circle cx='120' cy='120' r='120' fill='#229ED9'/><path d='M81.229,128.772l14.237,39.406s1.78,3.687,3.686,3.687,30.255-29.492,30.255-29.492l31.525-60.89L81.737,118.6Z' fill='#c8daea'/><path d='M100.106,138.878l-2.733,29.046s-1.144,8.9,7.754,0,17.415-15.763,17.415-15.763' fill='#a9c6d8'/><path d='M81.486,130.178,52.2,120.636s-3.5-1.42-2.373-4.64c.232-.664.7-1.229,2.1-2.2,6.489-4.523,120.106-45.36,120.106-45.36s3.208-1.081,5.1-.362a2.766,2.766,0,0,1,1.885,2.055,9.357,9.357,0,0,1,.254,2.585c-.009.752-.1,1.449-.169,2.542-.692,11.165-21.4,94.493-21.4,94.493s-1.239,4.876-5.678,5.043A8.13,8.13,0,0,1,146.1,172.5c-8.711-7.493-38.819-27.727-45.472-32.177a1.27,1.27,0,0,1-.546-.9c-.093-.469.417-1.05.417-1.05s52.426-46.6,53.821-51.492c.108-.379-.3-.566-.848-.4-3.482,1.281-63.844,39.4-70.506,43.607A3.21,3.21,0,0,1,81.486,130.178Z' fill='#fff'/></svg>")) " Telegram")
-      (:a :href "/forum" (:span :class "nav-icon" (cl-who:str "<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719'/></svg>")) " Форум"))
+      (:a :href "/" (:span :class "nav-icon" (cl-who:str "<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8'/><path d='M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/></svg>")) (cl-who:str (tr :nav-home)))
+      (:a :href "tg://resolve?domain=commonlisp_ru" (:span :class "nav-icon" (cl-who:str "<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 240 240'><circle cx='120' cy='120' r='120' fill='#229ED9'/><path d='M81.229,128.772l14.237,39.406s1.78,3.687,3.686,3.687,30.255-29.492,30.255-29.492l31.525-60.89L81.737,118.6Z' fill='#c8daea'/><path d='M100.106,138.878l-2.733,29.046s-1.144,8.9,7.754,0,17.415-15.763,17.415-15.763' fill='#a9c6d8'/><path d='M81.486,130.178,52.2,120.636s-3.5-1.42-2.373-4.64c.232-.664.7-1.229,2.1-2.2,6.489-4.523,120.106-45.36,120.106-45.36s3.208-1.081,5.1-.362a2.766,2.766,0,0,1,1.885,2.055,9.357,9.357,0,0,1,.254,2.585c-.009.752-.1,1.449-.169,2.542-.692,11.165-21.4,94.493-21.4,94.493s-1.239,4.876-5.678,5.043A8.13,8.13,0,0,1,146.1,172.5c-8.711-7.493-38.819-27.727-45.472-32.177a1.27,1.27,0,0,1-.546-.9c-.093-.469.417-1.05.417-1.05s52.426-46.6,53.821-51.492c.108-.379-.3-.566-.848-.4-3.482,1.281-63.844,39.4-70.506,43.607A3.21,3.21,0,0,1,81.486,130.178Z' fill='#fff'/></svg>")) (cl-who:str (tr :nav-telegram)))
+      (:a :href "/forum" (:span :class "nav-icon" (cl-who:str "<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719'/></svg>")) (cl-who:str (tr :nav-forum))))
      (:div :class "header-right"
+      (cl-who:str (render-lang-switch))
       (if user
           (cl-who:htm
            (when (user-admin-p user)
              (cl-who:htm
-              (:a :class "header-admin" :href "/admin/users" "Админ")
-              (:a :class "header-admin" :href "/admin/analytics" "Аналитика")))
+              (:a :class "header-admin" :href "/admin/users" (cl-who:str (tr :admin)))
+              (:a :class "header-admin" :href "/admin/analytics" (cl-who:str (tr :analytics)))))
            (:a :class "header-user" :href (format nil "/user/~A" (session-username user))
                (cl-who:str (session-username user)))
-           (:a :class "header-logout" :href "/logout" "Выйти"))
+           (:a :class "header-logout" :href "/logout" (cl-who:str (tr :logout))))
           (cl-who:htm
-           (:a :class "header-login" :href "/login" "Войти")
-           (:a :class "header-register" :href "/register" "Регистрация")))))))
+           (:a :class "header-login" :href "/login" (cl-who:str (tr :login)))
+           (:a :class "header-register" :href "/register" (cl-who:str (tr :register)))))))))
 
-(defun forum-render-editor (name &optional (placeholder "Напишите что-нибудь..."))
+(defun forum-render-editor (name &optional (placeholder (tr :editor-placeholder)))
   "Render a rich markdown editor with toolbar and preview."
   (cl-who:with-html-output-to-string (s)
     (:div :class "md-editor"
      (:div :class "md-toolbar"
-      (:button :type "button" :class "md-btn" :data-action "bold" :title "Жирный" "B")
-      (:button :type "button" :class "md-btn" :data-action "italic" :title "Курсив" "I")
-      (:button :type "button" :class "md-btn" :data-action "strike" :title "Зачёркнутый" "S")
+      (:button :type "button" :class "md-btn" :data-action "bold" :title (tr :md-bold) "B")
+      (:button :type "button" :class "md-btn" :data-action "italic" :title (tr :md-italic) "I")
+      (:button :type "button" :class "md-btn" :data-action "strike" :title (tr :md-strike) "S")
       (:span :class "md-sep")
-      (:button :type "button" :class "md-btn" :data-action "h1" :title "Заголовок 1" "H1")
-      (:button :type "button" :class "md-btn" :data-action "h2" :title "Заголовок 2" "H2")
-      (:button :type "button" :class "md-btn" :data-action "h3" :title "Заголовок 3" "H3")
+      (:button :type "button" :class "md-btn" :data-action "h1" :title (tr :md-h1) "H1")
+      (:button :type "button" :class "md-btn" :data-action "h2" :title (tr :md-h2) "H2")
+      (:button :type "button" :class "md-btn" :data-action "h3" :title (tr :md-h3) "H3")
       (:span :class "md-sep")
-      (:button :type "button" :class "md-btn" :data-action "ul" :title "Список" "• —")
-      (:button :type "button" :class "md-btn" :data-action "ol" :title "Нумерованный список" "1.")
-      (:button :type "button" :class "md-btn" :data-action "quote" :title "Цитата" "« »")
+      (:button :type "button" :class "md-btn" :data-action "ul" :title (tr :md-ul) "• —")
+      (:button :type "button" :class "md-btn" :data-action "ol" :title (tr :md-ol) "1.")
+      (:button :type "button" :class "md-btn" :data-action "quote" :title (tr :md-quote) "« »")
       (:span :class "md-sep")
-      (:button :type "button" :class "md-btn" :data-action "code" :title "Код" "&lt;/&gt;")
-      (:button :type "button" :class "md-btn" :data-action "link" :title "Ссылка" "🔗")
-      (:button :type "button" :class "md-btn" :data-action "image" :title "Картинка" "🖼")
+      (:button :type "button" :class "md-btn" :data-action "code" :title (tr :md-code) "&lt;/&gt;")
+      (:button :type "button" :class "md-btn" :data-action "link" :title (tr :md-link) "🔗")
+      (:button :type "button" :class "md-btn" :data-action "image" :title (tr :md-image) "🖼")
       (:span :class "md-sep")
-      (:button :type "button" :class "md-btn md-preview-btn" :data-action "preview" :title "Предпросмотр" "👁"))
+      (:button :type "button" :class "md-btn md-preview-btn" :data-action "preview" :title (tr :md-preview) "👁"))
      (:textarea :name name :class "md-textarea" :placeholder placeholder
                 :required "required")
      (:div :class "md-preview" :style "display:none"))))
@@ -121,17 +123,17 @@
         (recent (get-recent-topics 10)))
     (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
       (cl-who:htm
-       (:html :lang "ru"
-        (:head (cl-who:str (forum-render-head "Форум — Common Lisp")))
+       (:html :lang *lang*
+        (:head (cl-who:str (forum-render-head (tr :forum-title))))
         (:body
          (:div :class "container"
           (:header (cl-who:str (forum-render-header user)))
           (:div :class "section"
-           (:h2 "Форум")
+           (:h2 (cl-who:str (tr :forum)))
            (when user
              (cl-who:htm
               (:div :class "forum-actions"
-                    (:a :class "try-button" :href "/new-topic" "Новая тема"))))
+                    (:a :class "try-button" :href "/new-topic" (cl-who:str (tr :new-topic-btn))))))
            (:div :class "forum-categories"
                  (loop for (id name slug desc) in categories
                        do (cl-who:htm
@@ -141,9 +143,9 @@
                                      (:h3 (cl-who:str name))
                                      (:p (cl-who:str desc))
                                      (:span :class "forum-cat-count"
-                                            (cl-who:str (format nil "~A тем" (topic-count id)))))))))
+                                            (cl-who:str (tr-format :topics-count (topic-count id)))))))))
            (:div :class "section"
-                 (:h2 "Последние темы")
+                 (:h2 (cl-who:str (tr :recent-topics)))
                  (if recent
                      (cl-who:htm
                       (:div :class "topic-list"
@@ -156,9 +158,9 @@
                                                 (:span :class "topic-title" (cl-who:str title))
                                                 (:span :class "topic-meta"
                                                        (cl-who:str
-                                                        (format nil "~A ответов · ~A" post-count cat-name)))))))))
+                                                        (tr-format :topic-meta post-count cat-name)))))))))
                      (cl-who:htm
-                      (:p :class "empty-state" "Пока нет тем. Будьте первым!")))))
+                      (:p :class "empty-state" (cl-who:str (tr :empty-topics)))))))
            (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
                         " &copy; 2026 | GPL-3.0")))))))))
 
@@ -168,20 +170,20 @@
         (let ((topics (get-topics (getf cat :id))))
           (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
             (cl-who:htm
-             (:html :lang "ru"
-              (:head (cl-who:str (forum-render-head (format nil "~A — Форум" (getf cat :name)))))
+             (:html :lang *lang*
+              (:head (cl-who:str (forum-render-head (format nil "~A — ~A" (getf cat :name) (tr :forum)))))
               (:body
                (:div :class "container"
                 (:header (cl-who:str (forum-render-header user)))
                 (:div :class "section"
-                 (:a :class "back-link" :href "/forum" "← Назад к форуму")
+                 (:a :class "back-link" :href "/forum" (cl-who:str (tr :back-to-forum)))
                  (:h2 (cl-who:str (getf cat :name)))
                  (:p :class "section-sub" (cl-who:str (getf cat :description)))
                  (when user
                    (cl-who:htm
                     (:a :class "try-button" :href
                         (format nil "/new-topic?category=~A" (getf cat :slug))
-                        "Новая тема")))
+                        (cl-who:str (tr :new-topic-btn)))))
                  (if topics
                      (cl-who:htm
                       (:div :class "topic-list"
@@ -194,10 +196,9 @@
                                                 (:span :class "topic-title" (cl-who:str title))
                                                 (:span :class "topic-meta"
                                                        (cl-who:str
-                                                        (format nil "~A ответов · ~A · ~A"
-                                                                 post-count username last-post-at)))))))))
+                                                        (tr-format :topic-meta-2 post-count username last-post-at)))))))))
                      (cl-who:htm
-                      (:p :class "empty-state" "Пока нет тем в этой категории.")))))
+                      (:p :class "empty-state" (cl-who:str (tr :empty-category)))))))
                (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
                              " &copy; 2026 | GPL-3.0")))))))
         (forum-page-not-found user))))
@@ -208,7 +209,7 @@
         (let ((posts (get-posts topic-id)))
           (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
             (cl-who:htm
-             (:html :lang "ru"
+             (:html :lang *lang*
               (:head (cl-who:str (forum-render-head (getf topic :title))))
               (:body
                (:div :class "container"
@@ -219,7 +220,7 @@
                      (cl-who:str (format nil "← ~A" (getf topic :category-name))))
                  (:h2 (cl-who:str (getf topic :title)))
                  (:div :class "topic-info"
-                       (:span "Автор: ")
+                       (:span (cl-who:str (tr :topic-author)))
                        (:a :class "post-author" :href (format nil "/user/~A" (getf topic :username))
                            (cl-who:str (getf topic :username)))
                        (:span (cl-who:str (format nil " · ~A" (getf topic :created-at)))))
@@ -227,10 +228,10 @@
                    (cl-who:htm
                     (:div :class "topic-moderation"
                           (:form :method "POST" :action "/delete-topic" :style "display:inline"
-                                 :onsubmit "return confirm('Удалить тему со всеми сообщениями?')"
+                                 :onsubmit (format nil "return confirm('~A')" (tr :confirm-delete-topic))
                                  (:input :type "hidden" :name "topic-id" :value (getf topic :id))
                                  (:input :type "hidden" :name "category-slug" :value (getf topic :category-slug))
-                                 (:button :class "delete-btn" :type "submit" "Удалить тему")))))
+                                 (:button :class "delete-btn" :type "submit" (cl-who:str (tr :delete-topic)))))))
                  (:div :class "post-list"
                        (loop for (pid body created-at username role)
                              in posts
@@ -251,27 +252,27 @@
                                          (cl-who:htm
                                           (:div :class "post-actions"
                                                 (:form :method "POST" :action "/delete-post"
-                                                       :onsubmit "return confirm('Удалить пост?')"
+                                                       :onsubmit (format nil "return confirm('~A')" (tr :confirm-delete-post))
                                                        (:input :type "hidden" :name "post-id" :value pid)
                                                        (:input :type "hidden" :name "topic-id"
                                                                :value (getf topic :id))
                                                        (:button :class "delete-btn" :type "submit"
-                                                                "Удалить")))))))))
+                                                                (cl-who:str (tr :delete-post)))))))))))
                  (when user
                    (if (is-muted-p (session-user-id user))
                        (cl-who:htm
                         (:div :class "muted-notice"
-                              "Вы не можете писать. Мут до "
+                              (cl-who:str (tr :muted-notice))
                               (:strong (cl-who:str (format nil "~A" (getf user :muted-until))))))
                        (cl-who:htm
                         (:div :class "post-form-section"
-                              (:h3 "Ответить")
+                              (:h3 (cl-who:str (tr :reply)))
                               (:form :method "POST" :action "/new-post"
                                       (:input :type "hidden" :name "topic-id"
                                               :value (getf topic :id))
-                                       (cl-who:str (forum-render-editor "body" "Ваш ответ..."))
+                                       (cl-who:str (forum-render-editor "body" (tr :reply-placeholder)))
                                        (:button :class "try-button" :type "submit"
-                                                 "Отправить"))))))))
+                                                 (cl-who:str (tr :submit))))))))))
         (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
                       " &copy; 2026 | GPL-3.0")))))))
         (forum-page-not-found user))))
@@ -282,53 +283,53 @@
                         (get-category-by-slug category-slug))))
     (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
       (cl-who:htm
-       (:html :lang "ru"
-        (:head (cl-who:str (forum-render-head "Новая тема — Форум")))
+       (:html :lang *lang*
+        (:head (cl-who:str (forum-render-head (tr :new-topic-title))))
         (:body
          (:div :class "container"
           (:header (cl-who:str (forum-render-header user)))
           (:div :class "section"
-           (:a :class "back-link" :href "/forum" "← Назад к форуму")
-           (:h2 "Новая тема")
+           (:a :class "back-link" :href "/forum" (cl-who:str (tr :back-to-forum)))
+           (:h2 (cl-who:str (tr :new-topic)))
            (if user
                (cl-who:htm
                 (:form :method "POST" :action "/new-topic"
                        (:div :class "form-group"
-                             (:label :for "category" "Категория")
+                             (:label :for "category" (cl-who:str (tr :category)))
                              (:select :name "category" :id "category" :required "required"
                                       (loop for (id name slug desc sort) in categories
                                             do (cl-who:htm
                                                 (:option :value slug
                                                          :selected (when (and selected-cat
                                                                               (string= slug category-slug))
-                                                                         "selected")
+                                                                     "selected")
                                                          (cl-who:str name))))))
                        (:div :class "form-group"
-                             (:label :for "title" "Заголовок")
+                             (:label :for "title" (cl-who:str (tr :title-field)))
                              (:input :type "text" :name "title" :id "title"
-                                     :required "required" :placeholder "Тема"))
+                                     :required "required" :placeholder (tr :title-placeholder)))
                        (:div :class "form-group"
-                              (:label :for "body" "Текст")
-                              (cl-who:str (forum-render-editor "body" "Сообщение...")))
-                       (:button :class "try-button" :type "submit" "Создать тему")))
+                              (:label :for "body" (cl-who:str (tr :body-field)))
+                              (cl-who:str (forum-render-editor "body" (tr :body-placeholder))))
+                       (:button :class "try-button" :type "submit" (cl-who:str (tr :create-topic)))))
                (cl-who:htm
-                (:p "Войдите, чтобы создать тему. "
-                    (:a :href "/login" "Войти"))))))
-         (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
-                       " &copy; 2026 | GPL-3.0"))))))))
+                (:p (cl-who:str (tr :login-to-create))
+                    (:a :href "/login" (cl-who:str (tr :login))))))))
+          (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
+                        " &copy; 2026 | GPL-3.0"))))))))
 
 (defun forum-page-not-found (user)
   (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
     (cl-who:htm
-     (:html :lang "ru"
+     (:html :lang *lang*
       (:head (cl-who:str (forum-render-head "404")))
       (:body
        (:div :class "container"
         (:header (cl-who:str (forum-render-header user)))
         (:div :class "section"
-         (:h2 "Страница не найдена")
-         (:p "Запрашиваемая страница не существует.")
-         (:a :class "try-button" :href "/forum" "На форум")))
+         (:h2 (cl-who:str (tr :not-found)))
+         (:p (cl-who:str (tr :not-found-text)))
+         (:a :class "try-button" :href "/forum" (cl-who:str (tr :go-to-forum)))))
        (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
                      " &copy; 2026 | GPL-3.0")))))))
 
@@ -339,49 +340,49 @@
               (post-count (get-user-post-count (getf u :id))))
           (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
             (cl-who:htm
-             (:html :lang "ru"
-              (:head (cl-who:str (forum-render-head (format nil "~A — Профиль" name))))
+             (:html :lang *lang*
+              (:head (cl-who:str (forum-render-head (tr-format :profile-title name))))
               (:body
                (:div :class "container"
                 (:header (cl-who:str (forum-render-header user)))
                 (:div :class "section"
                  (:h2 (cl-who:str name))
                  (:div :class "profile-info"
-                  (:p "Роль: " (:strong (cl-who:str (getf u :role))))
-                  (:p "Тем: " (:span (cl-who:str (format nil "~A" topic-count))))
-                  (:p "Сообщений: " (:span (cl-who:str (format nil "~A" post-count)))))
+                  (:p (cl-who:str (tr :role-label)) (:strong (cl-who:str (getf u :role))))
+                  (:p (cl-who:str (tr :topics-label)) (:span (cl-who:str (format nil "~A" topic-count))))
+                  (:p (cl-who:str (tr :posts-label)) (:span (cl-who:str (format nil "~A" post-count)))))
                  (when (and user (user-moderator-p user))
                    (cl-who:htm
                     (:div :class "mod-panel"
-                     (:h3 "Модерация")
+                     (:h3 (cl-who:str (tr :moderation)))
                      (if (is-muted-p (getf u :id))
                          (cl-who:htm
                           (:p :class "muted-status"
-                              "Замьючен до "
+                              (cl-who:str (tr :muted-until))
                               (:strong (cl-who:str (format nil "~A" (getf u :muted-until)))))
                           (:form :method "POST" :action "/admin/unmute" :style "display:inline"
                            (:input :type "hidden" :name "user-id" :value (getf u :id))
                            (:input :type "hidden" :name "back"
                                    :value (format nil "/user/~A" name))
-                           (:button :class "unmute-btn" :type "submit" "Снять мут")))
+                           (:button :class "unmute-btn" :type "submit" (cl-who:str (tr :unmute)))))
                          (cl-who:htm
                           (:form :method "POST" :action "/admin/mute" :style "display:inline"
                            (:input :type "hidden" :name "user-id" :value (getf u :id))
                            (:input :type "hidden" :name "back"
                                    :value (format nil "/user/~A" name))
-                           (:label "Мут на: ")
+                           (:label (cl-who:str (tr :mute-for)))
                            (:select :name "duration"
-                            (:option :value "1 hour" "1 час")
-                            (:option :value "1 day" "1 день")
-                            (:option :value "3 days" "3 дня")
-                            (:option :value "1 week" "Неделю")
-                            (:option :value "1 month" "Месяц"))
-                           (:button :class "mute-btn" :type "submit" "Замутить"))))
+                            (:option :value "1 hour" (cl-who:str (tr :dur-1h)))
+                            (:option :value "1 day" (cl-who:str (tr :dur-1d)))
+                            (:option :value "3 days" (cl-who:str (tr :dur-3d)))
+                            (:option :value "1 week" (cl-who:str (tr :dur-1w)))
+                            (:option :value "1 month" (cl-who:str (tr :dur-1m))))
+                           (:button :class "mute-btn" :type "submit" (cl-who:str (tr :mute))))))
                      (when (and (user-admin-p user)
                                 (not (= (getf user :id) (getf u :id))))
                        (cl-who:htm
                         (:div :class "role-change"
-                         (:h4 "Изменить роль")
+                         (:h4 (cl-who:str (tr :change-role)))
                          (:form :method "POST" :action "/admin/set-role"
                           (:input :type "hidden" :name "user-id" :value (getf u :id))
                           (:input :type "hidden" :name "back"
@@ -392,7 +393,7 @@
                               (:option :value r
                                :selected (when (string= (getf u :role) r) "selected")
                                (cl-who:str r)))))
-                           (:button :class "role-btn" :type "submit" "Назначить")))))))))
+                           (:button :class "role-btn" :type "submit" (cl-who:str (tr :assign)))))))))))
                  (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
                        " &copy; 2026 | GPL-3.0"))))))))
         (forum-page-not-found user))))
@@ -402,23 +403,23 @@
         (forum-closed (forum-closed-p)))
     (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
       (cl-who:htm
-       (:html :lang "ru"
-        (:head (cl-who:str (forum-render-head "Админ — Форум")))
+       (:html :lang *lang*
+        (:head (cl-who:str (forum-render-head (tr :admin-title))))
         (:body
          (:div :class "container"
           (:header (cl-who:str (forum-render-header user)))
           (:div :class "section"
-           (:h2 "Управление форумом")
+           (:h2 (cl-who:str (tr :forum-management)))
            (:div :class "admin-forum-status"
-            (:p "Статус форума: "
+            (:p (cl-who:str (tr :forum-status))
                 (if forum-closed
-                    (cl-who:htm (:span :class "status-closed" "ЗАКРЫТ"))
-                    (cl-who:htm (:span :class "status-open" "ОТКРЫТ"))))
+                    (cl-who:htm (:span :class "status-closed" (cl-who:str (tr :status-closed))))
+                    (cl-who:htm (:span :class "status-open" (cl-who:str (tr :status-open))))))
             (:form :method "POST" :action "/admin/toggle-forum" :style "display:inline"
                    (:button :type "submit" :class (if forum-closed "try-button" "admin-button-danger")
-                            (if forum-closed "Открыть форум" "Закрыть форум")))))
+                            (cl-who:str (if forum-closed (tr :open-forum) (tr :close-forum)))))))
           (:div :class "section"
-           (:h2 "Управление пользователями")
+           (:h2 (cl-who:str (tr :user-management)))
            (:div :class "admin-user-list"
             (loop for u in users
                   do (cl-who:htm
@@ -431,7 +432,7 @@
                        (when (is-muted-p (getf u :id))
                          (cl-who:htm
                           (:span :class "muted-badge"
-                                 "Мут до "
+                                 (cl-who:str (tr :muted-badge))
                                  (cl-who:str (format nil "~A" (getf u :muted-until)))))))))))
          (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
                        " &copy; 2026 | GPL-3.0")))))))))
@@ -442,122 +443,132 @@
         (concatenate 'string (subseq string 0 limit) "…")
         string)))
 
+(defun analytics-device-label (device)
+  "Перевод хранящихся в БД меток устройств ('Мобильные'/'Десктоп')."
+  (cond ((string= device "Мобильные") (tr :device-mobile))
+        ((string= device "Десктоп") (tr :device-desktop))
+        (t device)))
+
+(defun analytics-country-label (country)
+  "Перевод 'Неизвестно' из БД."
+  (if (string= country "Неизвестно") (tr :unknown) country))
+
 (defun forum-page-analytics (user)
   (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
     (cl-who:htm
-     (:html :lang "ru"
-      (:head (cl-who:str (forum-render-head "Аналитика — lisper")))
+     (:html :lang *lang*
+      (:head (cl-who:str (forum-render-head (tr :analytics-title))))
       (:body
        (:div :class "container"
         (:header (cl-who:str (forum-render-header user)))
         (:div :class "section"
-         (:h2 "Аналитика посещений")
+         (:h2 (cl-who:str (tr :analytics-h2)))
          (:div :class "analytics-grid"
           (:div :class "stat-card"
            (:div :class "stat-value" (cl-who:str (format nil "~A" (analytics-total-views))))
-           (:div :class "stat-label" "Всего просмотров"))
-          (:div :class "stat-card"
-           (:div :class "stat-value" (cl-who:str (format nil "~A" (analytics-views-since 24))))
-           (:div :class "stat-label" "Просмотры · 24ч"))
-          (:div :class "stat-card"
-           (:div :class "stat-value" (cl-who:str (format nil "~A" (analytics-unique-since 24))))
-           (:div :class "stat-label" "Уникальные · 24ч"))
-          (:div :class "stat-card"
-           (:div :class "stat-value" (cl-who:str (format nil "~A" (analytics-views-since 168))))
-           (:div :class "stat-label" "Просмотры · 7 дней"))
-          (:div :class "stat-card"
-           (:div :class "stat-value" (cl-who:str (format nil "~A" (analytics-unique-since 168))))
-           (:div :class "stat-label" "Уникальные · 7 дней"))
-          (:div :class "stat-card"
-           (:div :class "stat-value" (cl-who:str (format nil "~A" (analytics-bot-count-since 168))))
-           (:div :class "stat-label" "Боты · 7 дней")))
-         (:div :class "analytics-block"
-          (:h3 "Топ страниц (7 дней)")
-          (:table :class "analytics-table"
-           (:thead (:tr (:th "Страница") (:th "Просмотров")))
-           (:tbody
-            (loop for (path count) in (analytics-top-paths 168 10)
-                  do (cl-who:htm
-                      (:tr (:td (cl-who:str path))
-                           (:td :class "analytics-num" (cl-who:str (format nil "~A" count)))))))))
-         (:div :class "analytics-block"
-          (:h3 "Источники переходов (7 дней)")
-          (:table :class "analytics-table"
-           (:thead (:tr (:th "Источник") (:th "Переходов")))
-           (:tbody
-            (loop for (ref count) in (analytics-top-referrers 168 10)
-                  do (cl-who:htm
-                      (:tr (:td (cl-who:str (analytics-truncate (or ref ""))))
-                           (:td :class "analytics-num" (cl-who:str (format nil "~A" count)))))))))
-         (:div :class "analytics-block"
-          (:h3 "Страны (7 дней)")
-          (if (analytics-geo-loaded-p)
-              (cl-who:htm
-               (:table :class "analytics-table"
-                (:thead (:tr (:th "Страна") (:th "Просмотров")))
-                (:tbody
-                 (loop for (country count) in (analytics-top-countries 168 10)
-                       do (cl-who:htm
-                           (:tr (:td (cl-who:str country))
-                                (:td :class "analytics-num" (cl-who:str (format nil "~A" count)))))))))
-              (cl-who:htm
-               (:p :class "analytics-note"
-                   "Гео-данные не загружены. Укажите путь к GeoLite2 Country
-                    (https://dev.maxmind.com/geoip/geolite2-free-geolocation-data)
-                    в ключе :geo-db-path конфига (lisper.conf)."))))
-         (:div :class "analytics-block"
-          (:h3 "Устройства (7 дней)")
-          (:table :class "analytics-table"
-           (:thead (:tr (:th "Тип") (:th "Просмотров")))
-           (:tbody
-            (loop for (device count) in (analytics-top-devices 168 4)
-                  do (cl-who:htm
-                      (:tr (:td (cl-who:str device))
-                           (:td :class "analytics-num" (cl-who:str (format nil "~A" count)))))))))
-         (:div :class "analytics-block"
-          (:h3 "Последние визиты")
-          (:table :class "analytics-table"
-           (:thead (:tr (:th "Время") (:th "Страница") (:th "IP") (:th "Страна") (:th "Источник") (:th "Бот")))
-           (:tbody
-            (loop for (path referrer ip country is-bot ua ts) in (analytics-recent 30)
-                  do (cl-who:htm
-                      (:tr (:td (cl-who:str ts))
-                           (:td (cl-who:str path))
-                           (:td (cl-who:str (or ip "")))
-                           (:td (cl-who:str (or country "")))
-                           (:td (cl-who:str (analytics-truncate (or referrer ""))))
-                           (:td (cl-who:str (if is-bot "✓" ""))))))))))
+            (:div :class "stat-label" (cl-who:str (tr :total-views))))
+            (:div :class "stat-card"
+            (:div :class "stat-value" (cl-who:str (format nil "~A" (analytics-views-since 24))))
+            (:div :class "stat-label" (cl-who:str (tr :views-24h))))
+           (:div :class "stat-card"
+            (:div :class "stat-value" (cl-who:str (format nil "~A" (analytics-unique-since 24))))
+            (:div :class "stat-label" (cl-who:str (tr :unique-24h))))
+           (:div :class "stat-card"
+            (:div :class "stat-value" (cl-who:str (format nil "~A" (analytics-views-since 168))))
+            (:div :class "stat-label" (cl-who:str (tr :views-7d))))
+           (:div :class "stat-card"
+            (:div :class "stat-value" (cl-who:str (format nil "~A" (analytics-unique-since 168))))
+            (:div :class "stat-label" (cl-who:str (tr :unique-7d))))
+           (:div :class "stat-card"
+            (:div :class "stat-value" (cl-who:str (format nil "~A" (analytics-bot-count-since 168))))
+            (:div :class "stat-label" (cl-who:str (tr :bots-7d)))))
+          (:div :class "analytics-block"
+           (:h3 (cl-who:str (tr :top-pages)))
+           (:table :class "analytics-table"
+            (:thead (:tr (:th (cl-who:str (tr :page))) (:th (cl-who:str (tr :views)))))
+            (:tbody
+             (loop for (path count) in (analytics-top-paths 168 10)
+                   do (cl-who:htm
+                       (:tr (:td (cl-who:str path))
+                            (:td :class "analytics-num" (cl-who:str (format nil "~A" count)))))))))
+          (:div :class "analytics-block"
+           (:h3 (cl-who:str (tr :sources)))
+           (:table :class "analytics-table"
+            (:thead (:tr (:th (cl-who:str (tr :source))) (:th (cl-who:str (tr :referrals)))))
+            (:tbody
+             (loop for (ref count) in (analytics-top-referrers 168 10)
+                   do (cl-who:htm
+                       (:tr (:td (cl-who:str (analytics-truncate (or ref ""))))
+                            (:td :class "analytics-num" (cl-who:str (format nil "~A" count)))))))))
+          (:div :class "analytics-block"
+           (:h3 (cl-who:str (tr :countries)))
+           (if (analytics-geo-loaded-p)
+               (cl-who:htm
+                (:table :class "analytics-table"
+                 (:thead (:tr (:th (cl-who:str (tr :country))) (:th (cl-who:str (tr :views)))))
+                 (:tbody
+                  (loop for (country count) in (analytics-top-countries 168 10)
+                        do (cl-who:htm
+                            (:tr (:td (cl-who:str (analytics-country-label country)))
+                                 (:td :class "analytics-num" (cl-who:str (format nil "~A" count)))))))))
+               (cl-who:htm
+                (:p :class "analytics-note"
+                    (cl-who:str (tr :geo-not-loaded))))))
+          (:div :class "analytics-block"
+           (:h3 (cl-who:str (tr :devices)))
+           (:table :class "analytics-table"
+            (:thead (:tr (:th (cl-who:str (tr :device-type))) (:th (cl-who:str (tr :views)))))
+            (:tbody
+             (loop for (device count) in (analytics-top-devices 168 4)
+                   do (cl-who:htm
+                       (:tr (:td (cl-who:str (analytics-device-label device)))
+                            (:td :class "analytics-num" (cl-who:str (format nil "~A" count)))))))))
+          (:div :class "analytics-block"
+           (:h3 (cl-who:str (tr :recent-visits)))
+           (:table :class "analytics-table"
+            (:thead (:tr (:th (cl-who:str (tr :time))) (:th (cl-who:str (tr :page)))
+                         (:th (cl-who:str (tr :ip))) (:th (cl-who:str (tr :country)))
+                         (:th (cl-who:str (tr :referrer))) (:th (cl-who:str (tr :bot)))))
+            (:tbody
+             (loop for (path referrer ip country is-bot ua ts) in (analytics-recent 30)
+                   do (cl-who:htm
+                       (:tr (:td (cl-who:str ts))
+                            (:td (cl-who:str path))
+                            (:td (cl-who:str (or ip "")))
+                            (:td (cl-who:str (analytics-country-label (or country ""))))
+                            (:td (cl-who:str (analytics-truncate (or referrer ""))))
+                            (:td (cl-who:str (if is-bot "✓" ""))))))))))
         (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
                       " &copy; 2026 | GPL-3.0"))))))))
 
 (defun forum-page-login (user error-message)
   (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
     (cl-who:htm
-     (:html :lang "ru"
-      (:head (cl-who:str (forum-render-head "Вход — Форум")))
+     (:html :lang *lang*
+      (:head (cl-who:str (forum-render-head (tr :login-title))))
       (:body
        (:div :class "container"
         (:header (cl-who:str (forum-render-header user)))
         (:div :class "auth-section"
-         (:h2 "Вход")
-         (:div :class "auth-error" (cl-who:str (or error-message "Вход временно отключён. Скоро будет доступен вход через VK ID, Yandex ID и Госуслуги.")))
+         (:h2 (cl-who:str (tr :login)))
+         (:div :class "auth-error" (cl-who:str (or error-message (tr :login-disabled))))
          (:p :style "color:#888;margin-top:16px"
-             "Сейчас на сайте нельзя зарегистрироваться или войти через email."))
+             (cl-who:str (tr :no-email-auth))))
         (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
                       " &copy; 2026 | GPL-3.0"))))))))
 
 (defun forum-page-register (user error-message)
   (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
     (cl-who:htm
-     (:html :lang "ru"
-      (:head (cl-who:str (forum-render-head "Регистрация — Форум")))
+     (:html :lang *lang*
+      (:head (cl-who:str (forum-render-head (tr :register-title))))
       (:body
        (:div :class "container"
         (:header (cl-who:str (forum-render-header user)))
         (:div :class "auth-section"
-         (:h2 "Регистрация")
-         (:div :class "auth-error" (cl-who:str (or error-message "Регистрация временно отключена. Скоро будет доступен вход через VK ID, Yandex ID и Госуслуги.")))
+         (:h2 (cl-who:str (tr :register)))
+         (:div :class "auth-error" (cl-who:str (or error-message (tr :register-disabled))))
          (:p :style "color:#888;margin-top:16px"
-             "Сейчас на сайте нельзя зарегистрироваться или войти через email."))
+             (cl-who:str (tr :no-email-auth))))
         (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
                       " &copy; 2026 | GPL-3.0"))))))))

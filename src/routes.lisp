@@ -31,13 +31,21 @@
 (defun make-app ()
   (lambda (env)
     (handler-case
-        (add-security-headers
-         (maybe-track-analytics
-          env
-          (getf env :path-info)
-          (let* ((path (getf env :path-info))
-                 (user (ignore-errors (current-user env))))
+        (let* ((path (getf env :path-info))
+               (*lang* (detect-language env))
+               (*path* path)
+               (user (ignore-errors (current-user env))))
+          (add-security-headers
+           (maybe-track-analytics
+            env
+            path
             (cond
+            ;; i18n: переключение языка (cookie) + клиентский словарь
+            ((string= path "/set-lang")
+             (handle-set-lang env))
+            ((string= path "/i18n.js")
+             `(200 (:content-type "application/javascript; charset=utf-8")
+                   (,(render-i18n-js *lang*))))
             ;; Static routes
             ((string= path "/")
                    `(200 (:content-type "text/html; charset=utf-8")
@@ -159,17 +167,17 @@
             ((and (string= path "/admin/users") (eq (env-method env) :GET))
              (if (and user (user-admin-p user))
                  `(200 (:content-type "text/html; charset=utf-8")
-                       (,(forum-page-admin-users user)))
-                 '(403 (:content-type "text/html; charset=utf-8")
-                   ("<h1>403 Доступ запрещён</h1>"))))
+                        (,(forum-page-admin-users user)))
+                  `(403 (:content-type "text/html; charset=utf-8")
+                    (,(format nil "<h1>~A</h1>" (tr :403))))))
 
             ;; Admin: analytics dashboard
             ((and (string= path "/admin/analytics") (eq (env-method env) :GET))
              (if (and user (user-admin-p user))
                  `(200 (:content-type "text/html; charset=utf-8")
-                       (,(forum-page-analytics user)))
-                 '(403 (:content-type "text/html; charset=utf-8")
-                   ("<h1>403 Доступ запрещён</h1>"))))
+                        (,(forum-page-analytics user)))
+                  `(403 (:content-type "text/html; charset=utf-8")
+                    (,(format nil "<h1>~A</h1>" (tr :403))))))
 
             ;; Admin: mute user POST
             ((and (string= path "/admin/mute") (eq (env-method env) :POST))
@@ -204,17 +212,17 @@
         (add-security-headers
          (list 500
                (list :content-type "text/html; charset=utf-8")
-               (list (format nil "<h1>Ошибка</h1><p>~A</p>" err))))))))
+               (list (format nil "<h1>~A</h1><p>~A</p>" (tr :500-error) err))))))))
 
 (defun handle-login (env)
   (let ((user (ignore-errors (current-user env))))
     `(200 (:content-type "text/html; charset=utf-8")
-          (,(forum-page-login user "Вход временно отключён. Скоро будет доступен вход через VK ID, Yandex ID и Госуслуги.")))))
+          (,(forum-page-login user (tr :login-disabled))))))
 
 (defun handle-register (env)
   (let ((user (ignore-errors (current-user env))))
     `(200 (:content-type "text/html; charset=utf-8")
-          (,(forum-page-register user "Регистрация временно отключена. Скоро будет доступен вход через VK ID, Yandex ID и Госуслуги.")))))
+          (,(forum-page-register user (tr :register-disabled))))))
 
 (defun handle-logout (env)
   (let ((token (extract-session-token env)))
@@ -287,8 +295,8 @@
   (if (not user)
       '(302 (:location "/login") (""))
       (if (not (user-moderator-p user))
-          '(403 (:content-type "text/html; charset=utf-8")
-            ("<h1>403 Доступ запрещён</h1>"))
+          `(403 (:content-type "text/html; charset=utf-8")
+            (,(format nil "<h1>~A</h1>" (tr :403))))
           (let* ((body (parse-post-body env))
                  (topic-id (ignore-errors (parse-integer (gethash "topic-id" body))))
                  (cat-slug (gethash "category-slug" body)))

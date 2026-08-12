@@ -73,6 +73,21 @@
 (defun site-log-error (&rest parts)
   ((jscl::oget #j:console "error") (js-str (apply #'concatenate 'string parts))))
 
+;;; ------------------------------------------------------------
+;;; Клиентский i18n (window.LISPER_DICT из /i18n.js; *lang* не нужен)
+;;; ------------------------------------------------------------
+
+(defun tget (key)
+  "Значение из window.LISPER_DICT по строковому ключу или CL NIL."
+  (let ((d (jscl::oget #j:window "LISPER_DICT")))
+    (when (not (eq d #j:undefined))
+      (let ((v (jscl::oget d (js-str key))))
+        (when (not (eq v #j:undefined)) (cl-str v))))))
+
+(defun tget-or (key fallback)
+  "Перевод из window.LISPER_DICT или FALLBACK (если словарь не загружен)."
+  (or (tget key) fallback))
+
 ;;; ============================================================
 ;;; Кросс-пакетные вызовы (REPL и игры — отдельные бандлы)
 ;;; ============================================================
@@ -171,10 +186,10 @@
 
 (defun game-hint-for (name)
   (cdr (assoc name
-              '(("lisp-invaders" . "← → — движение | пробел — стрелять | P — пауза | Enter — заново")
-                ("lambda-runner" . "пробел — прыжок | P — пауза | Enter — заново")
-                ("paren-matcher" . "← → A D — лови скобки | P — пауза | Enter — заново")
-                ("s-dungeon" . "← → ↑ ↓ WASD — движение | . — ждать | Enter — заново"))
+              (list (cons "lisp-invaders" (tget-or "hint-lisp-invaders" "← → — move | space — shoot | P — pause | Enter — restart"))
+                    (cons "lambda-runner" (tget-or "hint-lambda-runner" "space — jump | P — pause | Enter — restart"))
+                    (cons "paren-matcher" (tget-or "hint-paren-matcher" "← → A D — catch brackets | P — pause | Enter — restart"))
+                    (cons "s-dungeon" (tget-or "hint-s-dungeon" "← → ↑ ↓ WASD — move | . — wait | Enter — restart")))
               :test #'string=)))
 
 (defun site-games-show-menu ()
@@ -184,7 +199,7 @@
     (when menu (set-display menu ""))
     (when play (set-display play "none"))
     (when title
-      (set-text title "Lisp Игры")
+      (set-text title (tget-or "games-title" "Lisp Игры"))
       (setf (jscl::oget title "href") (js-str "#")))))
 
 (defun site-games-open ()
@@ -226,7 +241,8 @@
   (let ((play (el-by-id "game-play")))
     (when play
       (set-html play
-                (format nil "<div style=\"color:#ef4444;padding:40px;text-align:center\"><h3>Ошибка загрузки игры</h3><p>~A</p></div>"
+                (format nil "<div style=\"color:#ef4444;padding:40px;text-align:center\"><h3>~A</h3><p>~A</p></div>"
+                        (tget-or "game-load-error-title" "Ошибка загрузки игры")
                         text)))))
 
 (defun site-game-start (name)
@@ -256,7 +272,7 @@
         (progn
           (let ((loading (el-by-id "game-loading")))
             (when loading (set-display loading "none")))
-          (site-game-show-error "Бандл и исходник недоступны")))))
+          (site-game-show-error (tget-or "game-no-bundle" "Бандл и исходник недоступны"))))))
 
 (defun site-game-back ()
   (site-game-stop-loop)
@@ -345,7 +361,7 @@
       (progn
         (when (marked-defined-p)
           (let ((src (get-value ta)))
-            (when (string= src "") (setf src "_Пусто_"))
+            (when (string= src "") (setf src (tget-or "md-empty" "_Пусто_")))
             (let ((raw ((jscl::oget #j:marked "parse") (js-str src))))
               (set-html preview (sanitize-html (cl-str raw)))
               (highlight-pre-code preview))))
@@ -415,6 +431,28 @@
                          ((jscl::oget e "stopPropagation"))
                          (site-close-repl)))))))
 
+(defun site-init-lang ()
+  (let ((dropdowns (qsa ".lang-dropdown")))
+    (loop for i from 0 below (qsa-len dropdowns)
+          do (let ((dd (qsa-item dropdowns i)))
+               (let ((btn ((jscl::oget dd "querySelector") #j".lang-dropdown-btn")))
+                 (when (not (eq btn #j:null))
+                   (listen btn "click"
+                           (lambda (e)
+                             ((jscl::oget e "stopPropagation"))
+                             (if (has-class-p dd "open")
+                                 (remove-class dd "open")
+                                 (add-class dd "open"))
+                             (if (has-class-p dd "open")
+                                 ((jscl::oget btn "setAttribute") #j"aria-expanded" #j"true")
+                                 ((jscl::oget btn "setAttribute") #j"aria-expanded" #j"false")))))))))
+  (listen #j:document "click"
+          (lambda (e)
+            (declare (ignore e))
+            (let ((open (qsa ".lang-dropdown.open")))
+              (loop for i from 0 below (qsa-len open)
+                    do (remove-class (qsa-item open i) "open"))))))
+
 (defun site-init-games ()
   (let ((nav (el-by-id "games-nav-btn")))
     (when nav
@@ -453,7 +491,10 @@
        (let ((repl (el-by-id "repl-overlay"))
              (games (el-by-id "games-overlay")))
          (when (and repl (has-class-p repl "active")) (site-close-repl))
-         (when (and games (has-class-p games "active")) (site-game-close))))
+         (when (and games (has-class-p games "active")) (site-game-close))
+         (let ((open (qsa ".lang-dropdown.open")))
+           (loop for i from 0 below (qsa-len open)
+                 do (remove-class (qsa-item open i) "open")))))
       ((string= key "Enter")
        (let ((inp ((jscl::oget #j:document "querySelector")
                    #j".repl-input-line:last-child .repl-input")))
@@ -476,6 +517,7 @@
   (site-init-repl)
   (site-init-games)
   (site-init-markdown)
+  (site-init-lang)
   (listen #j:document "keydown" #'site-handle-keydown))
 
 (defun site-boot ()
