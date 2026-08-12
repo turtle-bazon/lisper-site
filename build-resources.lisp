@@ -98,7 +98,11 @@
       (dolist (f (directory (merge-pathnames #P"*.lisp" tools-dir)))
         (let ((name (pathname-name f))
               (source (read-file-to-string f)))
-          (push (list name "cl" source) tools))))
+          ;; site.lisp — это клиентский код сайта, компилируется отдельно
+          ;; в бандл /jscl-bundle/site (см. build-jscl-bundles); как исходник
+          ;; для form-by-form eval (tool-source) не используется
+          (unless (string= name "site")
+            (push (list name "cl" source) tools)))))
     (setf tools (nreverse tools))
     (with-open-file (stream output :direction :output :if-exists :supersede)
       (format stream "(in-package :lisper)~%~%")
@@ -186,6 +190,35 @@
         (zerop code))
     (error () nil)))
 
+(defun file-sha256-hex (path)
+  "SHA-256 hex файла через node crypto (совпадает с ironclad hex в рантайме)."
+  (multiple-value-bind (out _err code)
+      (uiop:run-program
+       (list "node" "-e"
+             (format nil "const fs=require('fs'),c=require('crypto');process.stdout.write(c.createHash('sha256').update(fs.readFileSync(~s)).digest('hex'))"
+                     (namestring path)))
+       :output :string :error-output :string :ignore-error-status t)
+    (declare (ignore _err))
+    (when (and (zerop code) out)
+      (string-trim '(#\Newline #\Space #\Tab) out))))
+
+(defun write-site-prelude (build-dir hashes)
+  "Пишет прелюдию для site-бандла: (defpackage :site ...) + *site-bundle-urls*.
+   Возвращает путь к прелюдии."
+  (let ((prelude (merge-pathnames #P"site-prelude.lisp" build-dir)))
+    (with-open-file (stream prelude :direction :output :if-exists :supersede)
+      (format stream ";;; Автоген. build-resources.lisp — прелюдия site-бандла~%")
+      (format stream "(defpackage :site (:use :cl) (:import-from :jscl/ffi))~%")
+      (format stream "(in-package :site)~%~%")
+      (format stream "(defparameter *site-bundle-urls*~%  '(")
+      (dolist (name '("repl" "lisp-invaders" "lambda-runner" "paren-matcher" "s-dungeon"))
+        (let ((hash (gethash name hashes)))
+          (when hash
+            (format stream "~%    (~s . ~s)"
+                    name (format nil "/jscl-bundle/~a?v=~a" name hash)))))
+      (format stream "~%    ))~%"))
+    prelude))
+
 (defun build-jscl-bundles ()
   "Compile jscl-tools/*.lisp and jscl-games/*.lisp into JS bundles with node,
    then embed them in src/jscl-bundles.lisp. No-op (empty table) without node."
@@ -200,7 +233,9 @@
     (dolist (d (list tools-dir games-dir))
       (when (probe-file d)
         (dolist (f (directory (merge-pathnames #P"*.lisp" d)))
-          (push (list (pathname-name f) (namestring f)) sources))))
+          ;; site.lisp компилируется отдельно вместе с прелюдией (см. ниже)
+          (unless (string= (pathname-name f) "site")
+            (push (list (pathname-name f) (namestring f)) sources)))))
     (setf sources (sort sources #'string< :key #'first))
     (ensure-directories-exist build-dir)
     (ensure-directories-exist (merge-pathnames #P"build/" base))
@@ -231,7 +266,35 @@
           (let ((bundle (merge-pathnames (format nil "~a.js" (first s)) build-dir)))
             (if (probe-file bundle)
                 (push (list (first s) (read-file-to-string bundle)) bundles)
-                (format t "~&WARNING: bundle ~a was not produced~%" (first s))))))
+                (format t "~&WARNING: bundle ~a was not produced~%" (first s)))))
+        ;; --- Site bundle: прелюдия (*site-bundle-urls*) + jscl-tools/site.lisp ---
+        (let ((site-src (merge-pathnames #P"jscl-tools/site.lisp" base)))
+          (when (probe-file site-src)
+            (let ((hashes (make-hash-table :test #'equal)))
+              (dolist (name '("repl" "lisp-invaders" "lambda-runner" "paren-matcher" "s-dungeon"))
+                (let ((bundle (merge-pathnames (format nil "~a.js" name) build-dir)))
+                  (when (probe-file bundle)
+                    (setf (gethash name hashes) (file-sha256-hex bundle)))))
+              (let ((prelude (write-site-prelude build-dir hashes))
+                    (site-out (merge-pathnames #P"site.js" build-dir))
+                    (site-compile (merge-pathnames #P"build/compile-site.lisp" base)))
+                (with-open-file (stream site-compile :direction :output :if-exists :supersede)
+                  (format stream "(jscl:compile-application~%")
+                  (format stream "  (list ~s ~s)~%"
+                          (namestring prelude) (namestring site-src))
+                  (format stream "  ~s~%" (namestring site-out))
+                  (format stream "  :place \"\" :jscl-name \"jscl\")~%"))
+                (multiple-value-bind (_out err code)
+                    (uiop:run-program
+                     (list "node" "--stack-size=65536"
+                           (namestring compiler) (namestring site-compile))
+                     :output :string :error-output :string :ignore-error-status t)
+                  (declare (ignore _out))
+                  (unless (zerop code)
+                    (format t "~&WARNING: site bundle compile failed (code ~a): ~a~%" code err)))
+                (when (probe-file site-out)
+                  (push (list "site" (read-file-to-string site-out)) bundles)
+                  (format t "~&BUNDLE-OK: site~%")))))))
       (setf bundles (nreverse bundles))
       (with-open-file (stream output :direction :output :if-exists :supersede)
         (format stream "(in-package :lisper)~%~%")

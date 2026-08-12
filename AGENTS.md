@@ -101,16 +101,27 @@
 lisper.asd          — системное определение
 Makefile            — make build
 build.lisp          — скрипт сборки
-build-resources.lisp — генерация src/resources.lisp из resources/
+build-resources.lisp — генерация src/resources.lisp из resources/ + JSCL-бандлы
 lisper.conf.template
 License.txt         — GPL-3.0
 resources/
   logo.svg          — лого Common Lisp (фиолетовые цвета)
   favicon.svg       — favicon
+jscl/
+  jscl.js           — вендоренный JSCL runtime (module.exports, ставит self.jscl)
+  jscl-node.js      — node-компилятор JSCL
+jscl-tools/
+  repl.lisp         — REPL-модалка на чистом CL (пакет :repl)
+  site.lisp         — клиентский код сайта на CL (пакет :site, компилируется в /jscl-bundle/site)
+jscl-games/
+  lisp-invaders.lisp, lambda-runner.lisp, paren-matcher.lisp, s-dungeon.lisp
 src/
   package.lisp      — пакет :lisper
   config.lisp       — чтение .conf файлов
   resources.lisp    — загруженные ресурсы (генерируется build-resources.lisp)
+  game-sources.lisp — CL-коды игр (генерируется из jscl-games/; /game-source/<name>)
+  tool-sources.lisp — CL-коды утилит (генерируется из jscl-tools/; /tool-source/<name>)
+  jscl-bundles.lisp — скомпилированные JS-бандлы (генерируется build-resources.lisp)
   migrations.lisp   — встроенные SQL-миграции (генерируется из migrations/)
   db.lisp           — PostgreSQL + миграции
   auth.lisp         — регистрация, логин, сессии
@@ -118,7 +129,7 @@ src/
   analytics.lisp    — аналитика: page_views, geo (cl-maxminddb mmap), уникальные посетители
   forum-pages.lisp  — HTML страницы форума
   css.lisp          — CL-CSS + raw media query
-  js.lisp           — plain JS string
+  js.lisp           — серверные хелперы URL/кэша (jscl-url, jscl-bundle-url)
   pages.lisp        — CL-WHO HTML (cat-card генерация)
   routes.lisp       — роутинг через path-info
   main.lisp         — entry point
@@ -170,11 +181,19 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - **Custom terminal REPL** (не jqconsole) — свой input-элемент + appendLine/appendHTML
 - Модалка: `.repl-overlay` → `.repl-modal` → `.repl-console` (div с `.repl-line` children)
 - Стили в `css.lisp`: `.try-button` (зелёный), `.repl-overlay`, `.repl-modal`, `.repl-console`, `.repl-header`, `.repl-input`, `.repl-prompt-label`
-- JS в `js.lisp`: `openRepl()` (инициализация), `closeRepl()`, `loadScript()`, `evalToolSource()`, `setupErrorHandler()`, markdown-редактор, игры. Все REPL-логика в CL.
-- `<script src='/js'>` в `pages.lisp` после overlay (HTML-порядок: body → overlay → script)
-- **Кеш jscl.js (2026-08-11)**: `/jscl.js` отдаётся с `Cache-Control: public, max-age=31536000, immutable` (2.4MB, меняется только при обновлении JSCL). URL версионируется автогенерируемым SHA-256 контента: `(jscl-url)` → `/jscl.js?v=<hash>`; хеш стабилен между сборками при неизменном бандле. Используется в `pages.lisp` (`<script src=...>`) и в `js.lisp` (`loadScript`). Хелперы `jscl-url`/`jscl-cache-key`/`string-replace-all` — в начале `js.lisp` (не в генерируемом `resources.lisp`)
+- **Клиентский код — на CL** (см. «Site bundle» ниже): REPL-модалка, игры, markdown-редактор. JS-строки в `js.lisp` удалены
+- **Site bundle (2026-08-12)**: `/js` и `generate-js` (JS-строка в `js.lisp`) **удалены**. Весь клиентский код переписан на CL в `jscl-tools/site.lisp` (пакет `:site`) и компилируется node-ом в бандл `/jscl-bundle/site`. `build-jscl-bundles` компилирует site.lisp ВМЕСТЕ с автогенерируемой прелюдией `build/jscl-bundles/site-prelude.lisp` (`(defpackage :site ...)` + `*site-bundle-urls*` — alist имя→`/jscl-bundle/<name>?v=<sha256>`, хеши бандлов считаются node crypto, совпадают с ironclad-хешами сервера). site.lisp исключён из `*tool-sources*` и из независимой компиляции бандлов. Подключение: `jscl.js` + `site.js`, оба `:defer t`, на главной (`pages.lisp`) и в `forum-render-head` (`forum-pages.lisp`). Маршрут `/js` удалён, `/game-source`/`/tool-source` оставлены
+- **FFI-готчи (обязательны для site.lisp и всего клиентского кода)**:
+  - **JS null/undefined/false/0/"" — truthy в CL!** `if`/`when`/`not` проверяют только `!== NIL-символ`. Проверка существования: `(eq el #j:null)` / `(eq v #j:undefined)`; булевы свойства (`shiftKey`, `disabled`) — через `jscl/ffi:clbool`
+  - `el-by-id` возвращает CL NIL вместо JS null (чтобы `(when el ...)` работал); `document.activeElement`/querySelector — проверять `(not (eq x #j:null))` явно
+  - Конвертеры: `jscl/ffi:jsstring` (CL→JS), `jscl/ffi:clstring` (JS→CL), `jscl/ffi:clbool` (JS bool→CL, на объектах type-error), `jscl/ffi:jsbool` (CL T/nil→JS)
+  - Чтение свойства: `(jscl::oget obj "prop")` без вызывающих скобок; метод: `((jscl::oget obj "method") args)`
+  - Кросс-пакетные вызовы (REPL/игры — отдельные бандлы): `jscl.packages[PKG].symbols[SYM].fvalue` → `(funcall fn ...)`/`(apply fn args)`; site.lisp оборачивает в `pkg-sym`/`pkg-fn`/`call-pkg-fn` (возвращают CL NIL если пакет/символ не найден)
+  - `#j:true`/`#j:false`/`#j:null`/`#j:undefined` — настоящие JS-литералы; `#j:42` — НЕ число (использовать CL-числа)
+  - **JSCL-lambda как JS-обработчик должен принимать event-аргумент** — браузер вызывает `onload`/`addEventListener`-колбэки с объектом события, а JSCL проверяет арность (`checkArgsAtMost`): 0-арговая лямбда кидает «too many arguments». Фикс: `(lambda (e) (declare (ignore e)) ...)`; `site-init` сделан `(&optional e)` из-за `DOMContentLoaded`. НЕ вызывать CL-функции напрямую как обработчики без учёта арности
+- **Кеш jscl.js (2026-08-11)**: `/jscl.js` отдаётся с `Cache-Control: public, max-age=31536000, immutable` (2.4MB, меняется только при обновлении JSCL). URL версионируется автогенерируемым SHA-256 контента: `(jscl-url)` → `/jscl.js?v=<hash>`; хеш стабилен между сборками при неизменном бандле. Хелперы `jscl-url`/`jscl-cache-key`/`jscl-bundle-url`/`jscl-bundle-cache-key`/`string-replace-all` — в начале `js.lisp` (не в генерируемом `resources.lisp`)
 - **Скомпилированные бандлы (2026-08-11)**: `jscl-tools/*.lisp` и `jscl-games/*.lisp` компилируются в JS НОДОЙ при `make build` (`build-jscl-bundles` в `build-resources.lisp`) → `src/jscl-bundles.lisp` (`*jscl-bundles*` — alist имя→JS, `get-jscl-bundle`). Отдаются на `/jscl-bundle/<name>` с `Cache-Control: public, max-age=31536000, immutable`; версионированный URL — `(jscl-bundle-url name)` → `/jscl-bundle/<name>?v=<sha256>` (хеш мемоизирован в `*jscl-bundle-cache-keys*`). Без node — пустая таблица + warning, билд не падает
-- **Загрузчик переключён на бандлы (2026-08-11)**: `generate-js` вшивает карту `bundleUrls` (`name → /jscl-bundle/<name>?v=<hash>`) в `/js`. REPL при открытии грузит `bundleUrls['repl']` как `<script>` и зовёт `(repl-start)`; игры — `bundleUrls[name]` → `startCompiledGame(name)` (вызов `(name:start-name)` + `jscl.packages[PKG].symbols['GAME-LOOP-RAW'].fvalue()` в rAF-цикле). Raw-компиляция в браузере (`evalToolSource`/`evalGameSource`) осталась как fallback, если бандла нет (сборка без node). Бандл сам находит runtime: `typeof require !== 'undefined' ? require('jscl') : window.jscl : self.jscl`; jscl.js ставит `self.jscl` (в браузере `self===window`). Вендоренный jscl.js (в `jscl/`) умеет `module.exports` — проверено в node: бандлы регистрируют пакеты и функции (LISP-INVADERS с START-LISP-INVADERS/GAME-LOOP-RAW, REPL-START fbound из CL-USER)
+- **Загрузка бандлов (2026-08-12)**: REPL/игры грузятся site-бандлом по URL из `*site-bundle-urls*` (прелюдия) через свой `load-script` (`<script>` + onload-колбэк). Игры запускаются через `START-<PKG>` + rAF-цикл `GAME-LOOP-RAW` (`game-tick`, `*game-loop-alive*`/`*game-loop-anim-frame*`); REPL — через `REPL-START`. Бандл сам находит runtime: `typeof require !== 'undefined' ? require('jscl') : window.jscl : self.jscl`; jscl.js ставит `self.jscl` (в браузере `self===window`). Вендоренный jscl.js (в `jscl/`) умеет `module.exports` — проверено в node: бандлы регистрируют пакеты и функции. Проверка site-бандла в node: `/tmp/run_site.js` (DOM-стаб, 32 ассерта: REPL-флоу, игры, markdown-редактор, кросс-пакетные вызовы, keydown Escape) и `/tmp/run_site_md.js` (рендер markdown с marked/DOMPurify/hljs стабами). После изменений в site.lisp: `make build` + прогнать node-тесты
 - **Fix (2026-06-22)**: сбалансированы скобки — overlay закрывался с 5 `)` вместо 4, лишняя `)` закрывала `:html` до `<script>`
 - **Fix (2026-06-22)**: переписано на кастомный терминал — jqconsole не работал (создавал DOM-элементы на body вместо `#repl-console`)
   - Каждая строка вывода = `div.repl-line` (appendLine/appendHTML)
@@ -369,5 +388,5 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - **Скрытый URL аналитики** (`/analytics/<secret>`): рендерит тот же `forum-page-analytics` с `user=nil` (header рендерится анонимным — ок). Добавлен 2026-08-11; до этого дашборд невозможно было открыть, т.к. вход/регистрация отключены
 
 ## Следующая сессия
-- **Autoloading jscl** — загружать jscl.js при старте страницы, а не при первом открытии REPL/игры
+- **Autoloading jscl — сделан (2026-08-12)**: jscl.js + site bundle подключены `:defer t` на главной и на всех форумных страницах (`forum-render-head`), грузятся при старте страницы, не при первом открытии REPL/игры
 - **Избавиться от node в сборке** — host-компилятор JSCL (SBCL) не компилирует наш CL с `jscl::oget`/`#j`/`jscl/ffi:jsstring` («Bad function designator» / пакет JSCL неизвестен). Чистый CL через SBCL работает. Идея: бандлы по-прежнему собирать нодой, но вынести в CI/локальный пре-шаг; либо разделить «ядро» (чистый CL, компилируется SBCL) и «обвязку» (FFI, собирается JSCL)

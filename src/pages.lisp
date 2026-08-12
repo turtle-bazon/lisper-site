@@ -59,24 +59,6 @@
         (format out "<a href='~a~a' class='cat-card' style='--accent: ~a'>~a</a>~%"
                 base-url slug color name)))))
 
-(defun generate-game-script-tags ()
-  "Генерирует HTML script теги с CL-кодами игр для JSCL."
-  (with-output-to-string (out)
-    (dolist (game *game-sources*)
-      (let ((name (first game))
-            (source (third game)))
-        (format out "<script type=\"text/lisp\" id=\"game-source-~a\" style=\"display:none\">~a</script>~%"
-                name source)))))
-
-(defun generate-tool-script-tags ()
-  "Генерирует HTML script теги с CL-кодами утилит для JSCL."
-  (with-output-to-string (out)
-    (dolist (tool *tool-sources*)
-      (let ((name (first tool))
-            (source (third tool)))
-        (format out "<script type=\"text/lisp\" id=\"tool-source-~a\" style=\"display:none\">~a</script>~%"
-                name source)))))
-
 (defun page-index (user)
   (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
     (cl-who:htm
@@ -242,9 +224,6 @@
                 (:span :class "game-score-label" "Очки: ")
                 (:span :id "game-score" "0")
                  (:span :id "game-hint" :class "game-hint" "")))))
-         ;; CL-коды игр для JSCL (скрытые script теги — ВНЕ overlay)
-         (cl-who:str (generate-game-script-tags))
-         ;; CL-коды утилит для JSCL (скрытые script теги)
-         (cl-who:str (generate-tool-script-tags))
-         (:script :src "/js?v=8")
-         (:script :defer t :src (jscl-url)))))))
+         ;; jscl.js (рантайм JSCL) + site bundle (весь клиентский код на CL)
+         (:script :defer t :src (jscl-url))
+         (:script :defer t :src (jscl-bundle-url "site")))))))

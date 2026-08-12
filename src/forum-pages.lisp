@@ -62,7 +62,9 @@
              :crossorigin "anonymous")
     (:script :src "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/lisp.min.js"
              :integrity "sha384-+LHHMbAXOUlvquvrQZ9LW4KeR2nwcsh/lpp7xrWu7KuaDSGgAYBIdm8qCw97I1tq"
-             :crossorigin "anonymous")))
+             :crossorigin "anonymous")
+    (:script :defer t :src (jscl-url))
+    (:script :defer t :src (jscl-bundle-url "site"))))
 
 (defun forum-render-header (user)
   (cl-who:with-html-output-to-string (s)
