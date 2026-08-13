@@ -453,6 +453,10 @@
   "Перевод 'Неизвестно' из БД."
   (if (string= country "Неизвестно") (tr :unknown) country))
 
+(defun analytics-ua-label (label)
+  "Перевод 'Другое' из БД (браузеры/ОС)."
+  (if (string= label "Другое") (tr :unknown) label))
+
 (defun forum-page-analytics (user &optional (bot-filter :all) (own-hosts nil)
                                       (tab-base "/admin/analytics"))
   (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
@@ -555,15 +559,33 @@
               (cl-who:htm
                (:p :class "analytics-note"
                    (cl-who:str (tr :geo-not-loaded))))))
-         (:div :class "analytics-block"
-          (:h3 (cl-who:str (tr :devices)))
-          (:table :class "analytics-table"
-           (:thead (:tr (:th (cl-who:str (tr :device-type))) (:th (cl-who:str (tr :views)))))
-           (:tbody
-            (loop for (device count) in (analytics-top-devices bot-filter 168 4)
-                  do (cl-who:htm
-                      (:tr (:td (cl-who:str (analytics-device-label device)))
-                           (:td :class "analytics-num" (cl-who:str (format nil "~A" count)))))))))
+(:div :class "analytics-block"
+           (:h3 (cl-who:str (tr :devices)))
+           (:table :class "analytics-table"
+            (:thead (:tr (:th (cl-who:str (tr :device-type))) (:th (cl-who:str (tr :views)))))
+            (:tbody
+             (loop for (device count) in (analytics-top-devices bot-filter 168 4)
+                   do (cl-who:htm
+                       (:tr (:td (cl-who:str (analytics-device-label device)))
+                            (:td :class "analytics-num" (cl-who:str (format nil "~A" count)))))))))
+          (:div :class "analytics-block"
+           (:h3 (cl-who:str (tr :browsers)))
+           (:table :class "analytics-table"
+            (:thead (:tr (:th (cl-who:str (tr :browser))) (:th (cl-who:str (tr :views)))))
+            (:tbody
+             (loop for (browser count) in (analytics-top-browsers bot-filter 6)
+                   do (cl-who:htm
+                       (:tr (:td (cl-who:str (analytics-ua-label browser)))
+                            (:td :class "analytics-num" (cl-who:str (format nil "~A" count)))))))))
+          (:div :class "analytics-block"
+           (:h3 (cl-who:str (tr :os)))
+           (:table :class "analytics-table"
+            (:thead (:tr (:th (cl-who:str (tr :os-name))) (:th (cl-who:str (tr :views)))))
+            (:tbody
+             (loop for (os count) in (analytics-top-os bot-filter 6)
+                   do (cl-who:htm
+                       (:tr (:td (cl-who:str (analytics-ua-label os)))
+                            (:td :class "analytics-num" (cl-who:str (format nil "~A" count)))))))))
          (:div :class "analytics-block"
           (:h3 (cl-who:str (tr :recent-visits)))
           (:table :class "analytics-table"

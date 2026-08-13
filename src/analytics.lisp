@@ -255,17 +255,22 @@
   (handler-case
       (let ((window (format nil "~A days" *analytics-raw-retention-days*)))
         (postmodern:query
-         "INSERT INTO daily_stats (date, path, country, device, referrer, is_bot, views)
-          SELECT (created_at AT TIME ZONE 'UTC')::date, path,
-                 COALESCE(country, 'Неизвестно'),
-                 CASE WHEN user_agent ~* '(mobile|android|iphone|ipad|phone|blackberry)'
-                      THEN 'Мобильные' ELSE 'Десктоп' END,
-                 COALESCE(referrer, ''),
-                 is_bot, COUNT(*)
-          FROM page_views
-          WHERE created_at < NOW() - $1::INTERVAL
-          GROUP BY 1, 2, 3, 4, 5, 6
-          ON CONFLICT (date, path, country, device, referrer, is_bot) DO NOTHING"
+         (concatenate 'string
+                      "INSERT INTO daily_stats (date, path, country, device, browser, os, referrer, is_bot, views)
+                       SELECT (created_at AT TIME ZONE 'UTC')::date, path,
+                              COALESCE(country, 'Неизвестно'),
+                              CASE WHEN user_agent ~* '(mobile|android|iphone|ipad|phone|blackberry)'
+                                   THEN 'Мобильные' ELSE 'Десктоп' END,"
+                      (analytics-browser-case)
+                      ","
+                      (analytics-os-case)
+                      ", COALESCE(referrer, ''),
+                              is_bot, COUNT(*)
+                       FROM page_views
+                       WHERE created_at < NOW() - $1::INTERVAL
+                       GROUP BY 1, 2, 3, 4, 5, 6, 7, 8
+                       ON CONFLICT (date, path, country, device, browser, os, referrer, is_bot) DO NOTHING"
+                      )
          window)
         (postmodern:query
          "DELETE FROM page_views WHERE created_at < NOW() - $1::INTERVAL"
@@ -388,6 +393,54 @@
                     (analytics-bot-where bot-filter)
                     " GROUP BY device ORDER BY c DESC LIMIT $1")
        limit)))
+
+;;; Browser/OS breakdown from user_agent. Canonical English labels are stored in
+;;; daily_stats (survives the 7-day rollup); 'Другое' is translated at render.
+(defun analytics-browser-case ()
+  "SQL CASE expression mapping user_agent to a browser family label.
+   Order matters: Edge/Opera (Chromium, contain 'chrome') and Android browsers
+   must be matched before plain Chrome/Safari."
+  "CASE
+      WHEN user_agent ~* '(edg|msie|trident)' THEN 'Edge/IE'
+      WHEN user_agent ~* '(opr/|opera)' THEN 'Opera'
+      WHEN user_agent ~* '(chrome|crios)' THEN 'Chrome'
+      WHEN user_agent ~* '(firefox|fxios)' THEN 'Firefox'
+      WHEN user_agent ~* 'safari' THEN 'Safari'
+      ELSE 'Другое' END")
+
+(defun analytics-os-case ()
+  "SQL CASE expression mapping user_agent to an OS family label.
+   Order matters: Android UA contains 'linux', iOS UA contains 'mac os'."
+  "CASE
+      WHEN user_agent ~* 'windows' THEN 'Windows'
+      WHEN user_agent ~* 'android' THEN 'Android'
+      WHEN user_agent ~* '(iphone|ipad|ipod)' THEN 'iOS'
+      WHEN user_agent ~* '(mac os|macintosh)' THEN 'macOS'
+      WHEN user_agent ~* 'linux' THEN 'Linux'
+      ELSE 'Другое' END")
+
+(defun analytics-ua-breakdown (bot-filter case-sql agg-column &optional (limit 6))
+  "All-time UA breakdown: UNION of the raw page_views buffer (7d) and the
+   daily_stats rollup (older history), so the result survives retention."
+  (postmodern:query
+   (concatenate 'string
+                "SELECT label, SUM(c) AS total FROM ("
+                " SELECT " case-sql " AS label, COUNT(*) AS c FROM page_views"
+                (analytics-bot-where bot-filter)
+                " GROUP BY label"
+                " UNION ALL"
+                " SELECT " agg-column " AS label, views AS c FROM daily_stats"
+                (analytics-bot-where bot-filter)
+                ") u GROUP BY label ORDER BY total DESC LIMIT $1")
+   limit))
+
+(defun analytics-top-browsers (bot-filter &optional (limit 6))
+  "All-time browser family breakdown across the raw buffer + daily_stats rollup."
+  (analytics-ua-breakdown bot-filter (analytics-browser-case) "browser" limit))
+
+(defun analytics-top-os (bot-filter &optional (limit 6))
+  "All-time OS family breakdown across the raw buffer + daily_stats rollup."
+  (analytics-ua-breakdown bot-filter (analytics-os-case) "os" limit))
 
 (defun analytics-top-langs (bot-filter &optional (limit 10))
   "Views per served UI language (only raw page_views — the ~7-day buffer)."

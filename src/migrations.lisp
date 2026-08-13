@@ -162,7 +162,21 @@ CREATE INDEX idx_page_views_lang ON page_views(lang);
           (:down . "ALTER TABLE page_views DROP COLUMN lang;
 
 DROP INDEX idx_page_views_lang;
-")))))
+")))
+    (9 . ((:up . "-- Analytics: browser and OS breakdown, persisted through the daily rollup.
+-- device stayed as the coarse parent; browser/os give a finer view and are
+-- part of the PK so the rollup keeps them separate per (browser, os).
+
+ALTER TABLE daily_stats DROP CONSTRAINT daily_stats_pkey;
+ALTER TABLE daily_stats ADD COLUMN browser TEXT NOT NULL DEFAULT 'Unknown';
+ALTER TABLE daily_stats ADD COLUMN os TEXT NOT NULL DEFAULT 'Unknown';
+ALTER TABLE daily_stats ADD PRIMARY KEY (date, path, country, device, browser, os, referrer, is_bot);")
+          (:down . "-- Drop browser/os breakdown from daily_stats, restore the original PK.
+
+ALTER TABLE daily_stats DROP CONSTRAINT daily_stats_pkey;
+ALTER TABLE daily_stats DROP COLUMN browser;
+ALTER TABLE daily_stats DROP COLUMN os;
+ALTER TABLE daily_stats ADD PRIMARY KEY (date, path, country, device, referrer, is_bot);")))))
 
 (defun get-available-migrations ()
   "Return sorted list of (version name) from embedded migrations."
