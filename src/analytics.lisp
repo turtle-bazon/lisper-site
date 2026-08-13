@@ -144,12 +144,13 @@
     (let* ((ua (request-user-agent env))
            (ip (request-ip env)))
       (postmodern:execute
-       "INSERT INTO page_views (visitor_id, path, referrer, user_agent, ip, country, is_bot)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)"
+       "INSERT INTO page_views (visitor_id, path, referrer, user_agent, ip, country, is_bot, lang)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)"
        vid path (sql-null-if-nil (request-referrer env)) ua
        (sql-null-if-nil ip)
        (sql-null-if-nil (country-for-ip ip))
-       (bot-user-agent-p ua))
+       (bot-user-agent-p ua)
+       (sql-null-if-nil *lang*))
       set-cookie)))
 
 (defun maybe-track-analytics (env path response)
@@ -176,10 +177,73 @@
 (defparameter *analytics-raw-retention-days* 7
   "Сколько дней сырые page_views хранятся до свёртки в daily_stats (окно дашборда).")
 
-(defun analytics-total-views ()
-  (+ (or (postmodern:query "SELECT COUNT(*) FROM page_views" :single) 0)
+;;; Фильтр «люди / только боты»: :all / :people / :bots
+(defun analytics-bot-and (bot-filter)
+  "AND-fragment for queries that already have a WHERE clause."
+  (case bot-filter
+    (:people " AND is_bot = FALSE")
+    (:bots " AND is_bot = TRUE")
+    (otherwise "")))
+
+(defun analytics-bot-where (bot-filter)
+  "WHERE-fragment for queries without an existing WHERE clause."
+  (case bot-filter
+    (:people " WHERE is_bot = FALSE")
+    (:bots " WHERE is_bot = TRUE")
+    (otherwise "")))
+
+(defun analytics-parse-tab (query-string)
+  "Parse the dashboard ?tab=all|people|bots filter into a bot-filter keyword."
+  (let* ((pairs (when query-string (split-sequence:split-sequence #\& query-string)))
+         (tab (loop for pair in pairs
+                    for parts = (split-sequence:split-sequence #\= pair)
+                    when (string= (url-decode (first parts)) "tab")
+                      return (string-downcase (url-decode (or (second parts) ""))))))
+    (cond ((null tab) :all)
+          ((string= tab "people") :people)
+          ((string= tab "bots") :bots)
+          (t :all))))
+
+(defun analytics-strip-port (host)
+  (let ((i (position #\: host)))
+    (if i (subseq host 0 i) host)))
+
+(defun analytics-internal-referrer-clause (own-hosts)
+  "SQL AND-clause dropping internal/empty referrers from the sources report.
+   own-hosts is one host name or a list (own domain names, e.g. the request Host
+   header). Always also excludes localhost/loopback. Hosts are escaped before
+   interpolation (Host header is attacker-influenced input)."
+  (let* ((base (list "localhost" "127.0.0.1" "::1"))
+         (extra (when own-hosts
+                  (mapcar (lambda (h)
+                            (let* ((h (string-downcase (string-trim " " h)))
+                                   (h (analytics-strip-port h)))
+                              (if (and (>= (length h) 4)
+                                       (string= h "www." :start1 0 :end1 4))
+                                  (subseq h 4)
+                                  h)))
+                          (if (listp own-hosts) own-hosts (list own-hosts)))))
+         (hosts (remove-duplicates
+                 (remove-if (lambda (h) (zerop (length h))) (append base extra))
+                 :test #'string=)))
+    (when hosts
+      (format nil
+              " AND (substring(referrer FROM 'https?://([^/]+)') IS NOT NULL AND regexp_replace(lower(split_part(substring(referrer FROM 'https?://([^/]+)'), ':', 1)), '^www\.', '') NOT IN (~{~A~^,~}))"
+              (mapcar (lambda (h)
+                        (concatenate 'string "'"
+                                     (string-replace-all "'" "''" h) "'"))
+                      hosts)))))
+
+(defun analytics-total-views (bot-filter)
+  (+ (or (postmodern:query
+          (concatenate 'string "SELECT COUNT(*) FROM page_views"
+                       (analytics-bot-where bot-filter))
+          :single)
+         0)
      (or (postmodern:query
-          "SELECT COALESCE(SUM(views), 0) FROM daily_stats" :single)
+          (concatenate 'string "SELECT COALESCE(SUM(views), 0) FROM daily_stats"
+                       (analytics-bot-where bot-filter))
+          :single)
          0)))
 
 (defun analytics-run-rollup ()
@@ -213,15 +277,19 @@
   "Background thread body: roll up old page_views once a day."
   (loop (sleep 86400) (analytics-run-rollup)))
 
-(defun analytics-views-since (hours)
+(defun analytics-views-since (bot-filter hours)
   (or (postmodern:query
-       "SELECT COUNT(*) FROM page_views WHERE created_at >= NOW() - $1::INTERVAL"
+       (concatenate 'string
+                    "SELECT COUNT(*) FROM page_views WHERE created_at >= NOW() - $1::INTERVAL"
+                    (analytics-bot-and bot-filter))
        (format nil "~A hours" hours) :single)
       0))
 
-(defun analytics-unique-since (hours)
+(defun analytics-unique-since (bot-filter hours)
   (or (postmodern:query
-       "SELECT COUNT(DISTINCT visitor_id) FROM page_views WHERE created_at >= NOW() - $1::INTERVAL"
+       (concatenate 'string
+                    "SELECT COUNT(DISTINCT visitor_id) FROM page_views WHERE created_at >= NOW() - $1::INTERVAL"
+                    (analytics-bot-and bot-filter))
        (format nil "~A hours" hours) :single)
       0))
 
@@ -231,64 +299,138 @@
        (format nil "~A hours" hours) :single)
       0))
 
-(defun analytics-top-paths (&optional (hours 0) (limit 10))
+(defun analytics-people-unique-since (hours)
+  "Unique non-bot visitors in the window — the users actually worth understanding."
+  (or (postmodern:query
+       "SELECT COUNT(DISTINCT visitor_id) FROM page_views
+        WHERE NOT is_bot AND created_at >= NOW() - $1::INTERVAL"
+       (format nil "~A hours" hours) :single)
+      0))
+
+(defun analytics-people-share-since (hours)
+  "Share (percent) of page views in the window that are NOT bots."
+  (let ((total (analytics-views-since :all hours))
+        (people (analytics-views-since :people hours)))
+    (if (plusp total) (round (* 100.0 (/ people total))) 0)))
+
+(defun analytics-top-paths (bot-filter &optional (hours 0) (limit 10))
   (if (and hours (plusp hours))
       (postmodern:query
-       "SELECT path, COUNT(*) AS c FROM page_views
-        WHERE created_at >= NOW() - $1::INTERVAL GROUP BY path ORDER BY c DESC LIMIT $2"
+       (concatenate 'string
+                    "SELECT path, COUNT(*) AS c FROM page_views
+                     WHERE created_at >= NOW() - $1::INTERVAL"
+                    (analytics-bot-and bot-filter)
+                    " GROUP BY path ORDER BY c DESC LIMIT $2")
        (format nil "~A hours" hours) limit)
       (postmodern:query
-       "SELECT path, COUNT(*) AS c FROM page_views GROUP BY path ORDER BY c DESC LIMIT $1"
+       (concatenate 'string
+                    "SELECT path, COUNT(*) AS c FROM page_views"
+                    (analytics-bot-where bot-filter)
+                    " GROUP BY path ORDER BY c DESC LIMIT $1")
        limit)))
 
-(defun analytics-top-referrers (&optional (hours 0) (limit 10))
-  (if (and hours (plusp hours))
-      (postmodern:query
-       "SELECT referrer, COUNT(*) AS c FROM page_views
-        WHERE referrer IS NOT NULL AND referrer <> ''
-          AND created_at >= NOW() - $1::INTERVAL
-        GROUP BY referrer ORDER BY c DESC LIMIT $2"
-       (format nil "~A hours" hours) limit)
-      (postmodern:query
-       "SELECT referrer, COUNT(*) AS c FROM page_views
-        WHERE referrer IS NOT NULL AND referrer <> ''
-        GROUP BY referrer ORDER BY c DESC LIMIT $1"
-       limit)))
+(defun analytics-top-referrers (bot-filter own-hosts &optional (hours 0) (limit 10))
+  "Top external sources: referrer reduced to its host, own/internal hosts excluded."
+  (let ((excl (analytics-internal-referrer-clause own-hosts)))
+    (if (and hours (plusp hours))
+        (postmodern:query
+         (concatenate 'string
+                      "SELECT regexp_replace(lower(split_part(substring(referrer FROM 'https?://([^/]+)'), ':', 1)), '^www\.', '') AS host, COUNT(*) AS c
+                       FROM page_views
+                       WHERE referrer IS NOT NULL AND referrer <> ''
+                         AND created_at >= NOW() - $1::INTERVAL"
+                      (analytics-bot-and bot-filter)
+                      excl
+                      " GROUP BY host ORDER BY c DESC LIMIT $2")
+         (format nil "~A hours" hours) limit)
+        (postmodern:query
+         (concatenate 'string
+                      "SELECT regexp_replace(lower(split_part(substring(referrer FROM 'https?://([^/]+)'), ':', 1)), '^www\.', '') AS host, COUNT(*) AS c
+                       FROM page_views
+                       WHERE referrer IS NOT NULL AND referrer <> ''"
+                      (analytics-bot-and bot-filter)
+                      excl
+                      " GROUP BY host ORDER BY c DESC LIMIT $1")
+         limit))))
 
-(defun analytics-top-countries (&optional (hours 0) (limit 10))
+(defun analytics-top-countries (bot-filter &optional (hours 0) (limit 10))
   (let ((rows (if (and hours (plusp hours))
                   (postmodern:query
-                   "SELECT COALESCE(country, 'Неизвестно') AS country, COUNT(*) AS c FROM page_views
-                    WHERE created_at >= NOW() - $1::INTERVAL GROUP BY country ORDER BY c DESC LIMIT $2"
+                   (concatenate 'string
+                                "SELECT COALESCE(country, 'Неизвестно') AS country, COUNT(*) AS c FROM page_views
+                                 WHERE created_at >= NOW() - $1::INTERVAL"
+                                (analytics-bot-and bot-filter)
+                                " GROUP BY country ORDER BY c DESC LIMIT $2")
                    (format nil "~A hours" hours) limit)
                   (postmodern:query
-                   "SELECT COALESCE(country, 'Неизвестно') AS country, COUNT(*) AS c FROM page_views
-                    GROUP BY country ORDER BY c DESC LIMIT $1"
+                   (concatenate 'string
+                                "SELECT COALESCE(country, 'Неизвестно') AS country, COUNT(*) AS c FROM page_views"
+                                (analytics-bot-where bot-filter)
+                                " GROUP BY country ORDER BY c DESC LIMIT $1")
                    limit))))
     rows))
 
-(defun analytics-top-devices (&optional (hours 0) (limit 4))
+(defun analytics-top-devices (bot-filter &optional (hours 0) (limit 4))
   (if (and hours (plusp hours))
       (postmodern:query
-       "SELECT CASE WHEN user_agent ~* '(mobile|android|iphone|ipad|phone|blackberry)'
-                     THEN 'Мобильные' ELSE 'Десктоп' END AS device, COUNT(*) AS c
-        FROM page_views WHERE created_at >= NOW() - $1::INTERVAL
-        GROUP BY device ORDER BY c DESC LIMIT $2"
+       (concatenate 'string
+                    "SELECT CASE WHEN user_agent ~* '(mobile|android|iphone|ipad|phone|blackberry)'
+                                 THEN 'Мобильные' ELSE 'Десктоп' END AS device, COUNT(*) AS c
+                     FROM page_views WHERE created_at >= NOW() - $1::INTERVAL"
+                    (analytics-bot-and bot-filter)
+                    " GROUP BY device ORDER BY c DESC LIMIT $2")
        (format nil "~A hours" hours) limit)
       (postmodern:query
-       "SELECT CASE WHEN user_agent ~* '(mobile|android|iphone|ipad|phone|blackberry)'
-                     THEN 'Мобильные' ELSE 'Десктоп' END AS device, COUNT(*) AS c
-        FROM page_views GROUP BY device ORDER BY c DESC LIMIT $1"
+       (concatenate 'string
+                    "SELECT CASE WHEN user_agent ~* '(mobile|android|iphone|ipad|phone|blackberry)'
+                                 THEN 'Мобильные' ELSE 'Десктоп' END AS device, COUNT(*) AS c
+                     FROM page_views"
+                    (analytics-bot-where bot-filter)
+                    " GROUP BY device ORDER BY c DESC LIMIT $1")
        limit)))
 
-(defun analytics-recent (&optional (limit 30))
+(defun analytics-top-langs (bot-filter &optional (limit 10))
+  "Views per served UI language (only raw page_views — the ~7-day buffer)."
+  (postmodern:query
+   (concatenate 'string
+                "SELECT COALESCE(lang, '?') AS lang, COUNT(*) AS c FROM page_views"
+                (analytics-bot-where bot-filter)
+                " GROUP BY lang ORDER BY c DESC LIMIT $1")
+   limit))
+
+(defun analytics-daily-trend (bot-filter &optional (days 30))
+  "Views per day for the last DAYS days. Combines the raw page_views buffer with
+   the older daily_stats rollup (no overlap thanks to the retention window) and
+   fills gap days with 0. Returns ((label views) ...), label is 'DD.MM'."
+  (let* ((and-clause (analytics-bot-and bot-filter))
+         (sql (concatenate 'string
+               "SELECT TO_CHAR(d, 'DD.MM') AS day, COALESCE(v.views, 0) AS views
+                FROM generate_series(CURRENT_DATE - $1::int, CURRENT_DATE, '1 day') d
+                LEFT JOIN (
+                  SELECT day, SUM(views) AS views FROM (
+                    SELECT (created_at AT TIME ZONE 'UTC')::date AS day, COUNT(*) AS views
+                    FROM page_views WHERE created_at >= CURRENT_DATE - $1::int"
+               and-clause
+               " GROUP BY day
+                    UNION ALL
+                    SELECT date AS day, views FROM daily_stats WHERE date >= CURRENT_DATE - $1::int"
+               and-clause
+               " ) u GROUP BY day
+                ) v ON v.day = d::date
+                ORDER BY d")))
+    (postmodern:query sql (1- days))))
+
+(defun analytics-recent (bot-filter &optional (limit 30))
   "Last visits. COALESCE the nullable columns so the renderer never sees
    postmodern's :NULL marker (which is truthy and breaks (or x \"\") / length)."
   (postmodern:query
-   "SELECT path, COALESCE(referrer, ''), COALESCE(ip, ''),
-           COALESCE(country, ''), is_bot, COALESCE(user_agent, ''),
-           TO_CHAR(created_at, 'DD.MM HH24:MI')
-    FROM page_views ORDER BY id DESC LIMIT $1"
+   (concatenate 'string
+                "SELECT path, COALESCE(referrer, ''), COALESCE(ip, ''),
+                        COALESCE(country, ''), is_bot, COALESCE(user_agent, ''),
+                        TO_CHAR(created_at, 'DD.MM HH24:MI')
+                 FROM page_views"
+                (analytics-bot-where bot-filter)
+                " ORDER BY id DESC LIMIT $1")
    limit))
 
 (defun analytics-geo-loaded-p ()

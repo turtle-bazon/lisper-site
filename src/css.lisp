@@ -927,6 +927,63 @@
          :color "#888"
          :font-size "0.9rem")
 
+        (".analytics-tabs"
+         :display "flex"
+         :gap "8px"
+         :margin-bottom "16px")
+
+        (".analytics-tab"
+         :display "inline-block"
+         :padding "6px 14px"
+         :border-radius "6px"
+         :border "1px solid #2a2a33"
+         :color "#999"
+         :font-size "0.85rem"
+         :text-decoration "none"
+         :transition "color 0.15s, background 0.15s, border-color 0.15s")
+
+        (".analytics-tab:hover"
+         :color "#e0e0e0"
+         :border-color "#555")
+
+        (".analytics-tab.active"
+         :color "#a855f7"
+         :border-color "rgba(168, 85, 247, 0.4)"
+         :background "rgba(168, 85, 247, 0.1)")
+
+        (".trend-chart"
+         :display "flex"
+         :align-items "flex-end"
+         :gap "3px"
+         :height "140px"
+         :padding "12px 8px 0"
+         :background "#111111"
+         :border "1px solid #2a2a2a"
+         :border-radius "8px"
+         :overflow-x "auto")
+
+        (".trend-bar-wrap"
+         :display "flex"
+         :flex-direction "column"
+         :align-items "center"
+         :justify-content "flex-end"
+         :flex "1 1 0"
+         :min-width "14px"
+         :height "100%")
+
+        (".trend-bar"
+         :width "100%"
+         :min-height "1px"
+         :background "linear-gradient(to top, #7c3aed, #a855f7)"
+         :border-radius "3px 3px 0 0"
+         :transition "height 0.2s")
+
+        (".trend-bar-label"
+         :margin-top "6px"
+         :font-size "0.62rem"
+         :color "#666"
+         :white-space "nowrap")
+
         (".profile-info"
          :margin-bottom "20px")
 

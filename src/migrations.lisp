@@ -152,6 +152,16 @@ CREATE TABLE daily_stats (
 CREATE INDEX idx_daily_stats_date ON daily_stats(date);
 ")
           (:down . "DROP TABLE IF EXISTS daily_stats;
+")))
+    (8 . ((:up . "-- Analytics: track which UI language each page view was served in.
+
+ALTER TABLE page_views ADD COLUMN lang TEXT;
+
+CREATE INDEX idx_page_views_lang ON page_views(lang);
+")
+          (:down . "ALTER TABLE page_views DROP COLUMN lang;
+
+DROP INDEX idx_page_views_lang;
 ")))))
 
 (defun get-available-migrations ()

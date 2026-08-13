@@ -171,13 +171,15 @@
                   `(403 (:content-type "text/html; charset=utf-8")
                     (,(format nil "<h1>~A</h1>" (tr :403))))))
 
-            ;; Admin: analytics dashboard
+;; Admin: analytics dashboard
             ((and (string= path "/admin/analytics") (eq (env-method env) :GET))
              (if (and user (user-admin-p user))
-                 `(200 (:content-type "text/html; charset=utf-8")
-                        (,(forum-page-analytics user)))
-                  `(403 (:content-type "text/html; charset=utf-8")
-                    (,(format nil "<h1>~A</h1>" (tr :403))))))
+                 (let ((bot-filter (analytics-parse-tab (getf env :query-string)))
+                       (own-hosts (list (request-header env "host"))))
+                   `(200 (:content-type "text/html; charset=utf-8")
+                         (,(forum-page-analytics user bot-filter own-hosts "/admin/analytics"))))
+                 `(403 (:content-type "text/html; charset=utf-8")
+                   (,(format nil "<h1>~A</h1>" (tr :403))))))
 
             ;; Admin: mute user POST
             ((and (string= path "/admin/mute") (eq (env-method env) :POST))
@@ -201,8 +203,11 @@
             ((and (eq (env-method env) :GET)
                   (config :admin-secret)
                   (string= path (format nil "/analytics/~A" (config :admin-secret))))
-             `(200 (:content-type "text/html; charset=utf-8")
-                   (,(forum-page-analytics user))))
+             (let ((bot-filter (analytics-parse-tab (getf env :query-string)))
+                   (tab-base (format nil "/analytics/~A" (config :admin-secret)))
+                   (own-hosts (list (request-header env "host"))))
+               `(200 (:content-type "text/html; charset=utf-8")
+                     (,(forum-page-analytics user bot-filter own-hosts tab-base)))))
 
 ;; 404
              (t

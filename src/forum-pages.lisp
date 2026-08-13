@@ -394,7 +394,7 @@
                                :selected (when (string= (getf u :role) r) "selected")
                                (cl-who:str r)))))
                            (:button :class "role-btn" :type "submit" (cl-who:str (tr :assign)))))))))))
-                 (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
+(:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
                        " &copy; 2026 | GPL-3.0"))))))))
         (forum-page-not-found user))))
 
@@ -453,7 +453,8 @@
   "Перевод 'Неизвестно' из БД."
   (if (string= country "Неизвестно") (tr :unknown) country))
 
-(defun forum-page-analytics (user)
+(defun forum-page-analytics (user &optional (bot-filter :all) (own-hosts nil)
+                                      (tab-base "/admin/analytics"))
   (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
     (cl-who:htm
      (:html :lang *lang*
@@ -463,83 +464,121 @@
         (:header (cl-who:str (forum-render-header user)))
         (:div :class "section"
          (:h2 (cl-who:str (tr :analytics-h2)))
+         (:div :class "analytics-tabs"
+          (:a :class (if (eq bot-filter :all) "analytics-tab active" "analytics-tab")
+              :href (format nil "~A?tab=all" tab-base)
+              (cl-who:str (tr :filter-all)))
+          (:a :class (if (eq bot-filter :people) "analytics-tab active" "analytics-tab")
+              :href (format nil "~A?tab=people" tab-base)
+              (cl-who:str (tr :filter-people))))
          (:div :class "analytics-grid"
           (:div :class "stat-card"
-           (:div :class "stat-value" (cl-who:str (format nil "~A" (analytics-total-views))))
+           (:div :class "stat-value" (cl-who:str (format nil "~A" (analytics-total-views bot-filter))))
             (:div :class "stat-label" (cl-who:str (tr :total-views))))
             (:div :class "stat-card"
-            (:div :class "stat-value" (cl-who:str (format nil "~A" (analytics-views-since 24))))
+            (:div :class "stat-value" (cl-who:str (format nil "~A" (analytics-views-since bot-filter 24))))
             (:div :class "stat-label" (cl-who:str (tr :views-24h))))
            (:div :class "stat-card"
-            (:div :class "stat-value" (cl-who:str (format nil "~A" (analytics-unique-since 24))))
+            (:div :class "stat-value" (cl-who:str (format nil "~A" (analytics-unique-since bot-filter 24))))
             (:div :class "stat-label" (cl-who:str (tr :unique-24h))))
            (:div :class "stat-card"
-            (:div :class "stat-value" (cl-who:str (format nil "~A" (analytics-views-since 168))))
+            (:div :class "stat-value" (cl-who:str (format nil "~A" (analytics-views-since bot-filter 168))))
             (:div :class "stat-label" (cl-who:str (tr :views-7d))))
            (:div :class "stat-card"
-            (:div :class "stat-value" (cl-who:str (format nil "~A" (analytics-unique-since 168))))
+            (:div :class "stat-value" (cl-who:str (format nil "~A" (analytics-unique-since bot-filter 168))))
             (:div :class "stat-label" (cl-who:str (tr :unique-7d))))
            (:div :class "stat-card"
+            (:div :class "stat-value" (cl-who:str (format nil "~A" (analytics-people-unique-since 168))))
+            (:div :class "stat-label" (cl-who:str (tr :people-7d))))
+           (:div :class "stat-card"
             (:div :class "stat-value" (cl-who:str (format nil "~A" (analytics-bot-count-since 168))))
-            (:div :class "stat-label" (cl-who:str (tr :bots-7d)))))
-          (:div :class "analytics-block"
-           (:h3 (cl-who:str (tr :top-pages)))
-           (:table :class "analytics-table"
-            (:thead (:tr (:th (cl-who:str (tr :page))) (:th (cl-who:str (tr :views)))))
-            (:tbody
-             (loop for (path count) in (analytics-top-paths 168 10)
-                   do (cl-who:htm
-                       (:tr (:td (cl-who:str path))
-                            (:td :class "analytics-num" (cl-who:str (format nil "~A" count)))))))))
-          (:div :class "analytics-block"
-           (:h3 (cl-who:str (tr :sources)))
-           (:table :class "analytics-table"
-            (:thead (:tr (:th (cl-who:str (tr :source))) (:th (cl-who:str (tr :referrals)))))
-            (:tbody
-             (loop for (ref count) in (analytics-top-referrers 168 10)
-                   do (cl-who:htm
-                       (:tr (:td (cl-who:str (analytics-truncate (or ref ""))))
-                            (:td :class "analytics-num" (cl-who:str (format nil "~A" count)))))))))
-          (:div :class "analytics-block"
-           (:h3 (cl-who:str (tr :countries)))
-           (if (analytics-geo-loaded-p)
-               (cl-who:htm
-                (:table :class "analytics-table"
-                 (:thead (:tr (:th (cl-who:str (tr :country))) (:th (cl-who:str (tr :views)))))
-                 (:tbody
-                  (loop for (country count) in (analytics-top-countries 168 10)
-                        do (cl-who:htm
-                            (:tr (:td (cl-who:str (analytics-country-label country)))
-                                 (:td :class "analytics-num" (cl-who:str (format nil "~A" count)))))))))
-               (cl-who:htm
-                (:p :class "analytics-note"
-                    (cl-who:str (tr :geo-not-loaded))))))
-          (:div :class "analytics-block"
-           (:h3 (cl-who:str (tr :devices)))
-           (:table :class "analytics-table"
-            (:thead (:tr (:th (cl-who:str (tr :device-type))) (:th (cl-who:str (tr :views)))))
-            (:tbody
-             (loop for (device count) in (analytics-top-devices 168 4)
-                   do (cl-who:htm
-                       (:tr (:td (cl-who:str (analytics-device-label device)))
-                            (:td :class "analytics-num" (cl-who:str (format nil "~A" count)))))))))
-          (:div :class "analytics-block"
-           (:h3 (cl-who:str (tr :recent-visits)))
-           (:table :class "analytics-table"
-            (:thead (:tr (:th (cl-who:str (tr :time))) (:th (cl-who:str (tr :page)))
-                         (:th (cl-who:str (tr :ip))) (:th (cl-who:str (tr :country)))
-                         (:th (cl-who:str (tr :referrer))) (:th (cl-who:str (tr :bot)))))
-            (:tbody
-             (loop for (path referrer ip country is-bot ua ts) in (analytics-recent 30)
-                   do (cl-who:htm
-                       (:tr (:td (cl-who:str ts))
-                            (:td (cl-who:str path))
-                            (:td (cl-who:str (or ip "")))
-                            (:td (cl-who:str (analytics-country-label (or country ""))))
-                            (:td (cl-who:str (analytics-truncate (or referrer ""))))
-                            (:td (cl-who:str (if is-bot "✓" ""))))))))))
+            (:div :class "stat-label" (cl-who:str (tr :bots-7d))))
+           (:div :class "stat-card"
+            (:div :class "stat-value" (cl-who:str (format nil "~A%" (analytics-people-share-since 168))))
+            (:div :class "stat-label" (cl-who:str (tr :people-share)))))
+         (:div :class "analytics-block"
+          (:h3 (cl-who:str (tr :trend)))
+          (let ((trend (analytics-daily-trend bot-filter)))
+            (cl-who:htm
+             (:div :class "trend-chart"
+              (let ((max (loop for (day views) in trend maximize views)))
+                (loop for (day views) in trend
+                      do (cl-who:htm
+                          (:div :class "trend-bar-wrap"
+                           (:div :class "trend-bar"
+                                :style (format nil "height: ~A%"
+                                               (if (plusp max)
+                                                   (round (* 100 (/ views max)))
+                                                   0))
+                                :title (format nil "~A: ~A" day views))
+                           (:div :class "trend-bar-label" (cl-who:str day)))))))))
+         (:div :class "analytics-block"
+          (:h3 (cl-who:str (tr :top-pages)))
+          (:table :class "analytics-table"
+           (:thead (:tr (:th (cl-who:str (tr :page))) (:th (cl-who:str (tr :views)))))
+           (:tbody
+            (loop for (path count) in (analytics-top-paths bot-filter 168 10)
+                  do (cl-who:htm
+                      (:tr (:td (cl-who:str path))
+                           (:td :class "analytics-num" (cl-who:str (format nil "~A" count)))))))))
+         (:div :class "analytics-block"
+          (:h3 (cl-who:str (tr :sources)))
+          (:table :class "analytics-table"
+           (:thead (:tr (:th (cl-who:str (tr :source))) (:th (cl-who:str (tr :referrals)))))
+           (:tbody
+            (loop for (ref count) in (analytics-top-referrers bot-filter own-hosts 168 10)
+                  do (cl-who:htm
+                      (:tr (:td (cl-who:str (analytics-truncate (or ref ""))))
+                           (:td :class "analytics-num" (cl-who:str (format nil "~A" count)))))))))
+         (:div :class "analytics-block"
+          (:h3 (cl-who:str (tr :langs)))
+          (:table :class "analytics-table"
+           (:thead (:tr (:th (cl-who:str (tr :language))) (:th (cl-who:str (tr :views)))))
+           (:tbody
+            (loop for (lang count) in (analytics-top-langs bot-filter 10)
+                  do (cl-who:htm
+                      (:tr (:td (cl-who:str lang))
+                           (:td :class "analytics-num" (cl-who:str (format nil "~A" count)))))))))
+         (:div :class "analytics-block"
+          (:h3 (cl-who:str (tr :countries)))
+          (if (analytics-geo-loaded-p)
+              (cl-who:htm
+               (:table :class "analytics-table"
+                (:thead (:tr (:th (cl-who:str (tr :country))) (:th (cl-who:str (tr :views)))))
+                (:tbody
+                 (loop for (country count) in (analytics-top-countries bot-filter 168 10)
+                       do (cl-who:htm
+                           (:tr (:td (cl-who:str (analytics-country-label country)))
+                                (:td :class "analytics-num" (cl-who:str (format nil "~A" count)))))))))
+              (cl-who:htm
+               (:p :class "analytics-note"
+                   (cl-who:str (tr :geo-not-loaded))))))
+         (:div :class "analytics-block"
+          (:h3 (cl-who:str (tr :devices)))
+          (:table :class "analytics-table"
+           (:thead (:tr (:th (cl-who:str (tr :device-type))) (:th (cl-who:str (tr :views)))))
+           (:tbody
+            (loop for (device count) in (analytics-top-devices bot-filter 168 4)
+                  do (cl-who:htm
+                      (:tr (:td (cl-who:str (analytics-device-label device)))
+                           (:td :class "analytics-num" (cl-who:str (format nil "~A" count)))))))))
+         (:div :class "analytics-block"
+          (:h3 (cl-who:str (tr :recent-visits)))
+          (:table :class "analytics-table"
+           (:thead (:tr (:th (cl-who:str (tr :time))) (:th (cl-who:str (tr :page)))
+                        (:th (cl-who:str (tr :ip))) (:th (cl-who:str (tr :country)))
+                        (:th (cl-who:str (tr :referrer))) (:th (cl-who:str (tr :bot)))))
+           (:tbody
+            (loop for (path referrer ip country is-bot ua ts) in (analytics-recent bot-filter 30)
+                  do (cl-who:htm
+                      (:tr (:td (cl-who:str ts))
+                           (:td (cl-who:str path))
+                           (:td (cl-who:str (or ip "")))
+                           (:td (cl-who:str (analytics-country-label (or country ""))))
+                           (:td (cl-who:str (analytics-truncate (or referrer ""))))
+                           (:td (cl-who:str (if is-bot "✓" ""))))))))))
         (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
-                      " &copy; 2026 | GPL-3.0"))))))))
+                      " &copy; 2026 | GPL-3.0")))))))))
 
 (defun forum-page-login (user error-message)
   (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
