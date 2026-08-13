@@ -978,6 +978,12 @@
          :border-radius "3px 3px 0 0"
          :transition "height 0.2s")
 
+        (".trend-bar-value"
+         :margin-bottom "4px"
+         :font-size "0.6rem"
+         :color "#a78bfa"
+         :line-height "1")
+
         (".trend-bar-label"
          :margin-top "6px"
          :font-size "0.62rem"

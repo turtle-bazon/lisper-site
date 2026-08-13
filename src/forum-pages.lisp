@@ -505,6 +505,8 @@
                 (loop for (day views) in trend
                       do (cl-who:htm
                           (:div :class "trend-bar-wrap"
+                           (:div :class "trend-bar-value"
+                                (cl-who:str (format nil "~A" views)))
                            (:div :class "trend-bar"
                                 :style (format nil "height: ~A%"
                                                (if (plusp max)
