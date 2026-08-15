@@ -369,11 +369,14 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - **Ввод**: клавиатура через CL `(make-array 256)` + `aref` (не hash-table — `equal` не работает с JS numbers)
 - **Звук**: полностью в CL через JSCL FFI (`*ac*` AudioContext, `play-snd`)
 - **Загрузка игр**: `evalGameSource(source, name)` динамически ищет пакет `{name}` и функции `{name}:start-{name}`, `{name}:game-loop-raw`
-- **S-Expression Dungeon** (планируется) — roguelike с картами из S-выражений:
-  - Комната = `(room (enemies defun lambda) (items macro-quote) (doors left right))`
-  - Герой — интерпретатор, враги — баги (void-function, wrong-type-argument), лут — макросы
-  - Пошаговый, тайл-based, minimap, пермадет, прогрессия
-  - Пока не реализовано — после доделки Lisp Invaders
+- **S-Expression Dungeon** — реиграбельный пошаговый roguelike (в игре с 2026-06-27):
+  - **Генерация**: комнаты (tile 1) без пересечений + L-образные коридоры по цепочке `(car (last conn))`; stairs (tile 3) в первой сгенерированной комнате, игрок стартует в последней
+  - **Враги** (`*enemies*`): void-fn (V, 3hp/1dmg/10xp), wrong-type (W, 4/2/15), unbound (U, 2/1/8), overflow (O, 6/3/25), null-ref (N, 3/2/12) — плэйснется по 1-2/комнату, кроме стартовой; ходят к игроку (диагональ + fallback по вертикали)
+  - **Лут** (`*items*`): defun (λ, heal +3), defmacro (M, +maxHP), setf (=, +dmg), progn (+, heal +6)
+  - **Ход**: игрок (стрелки/WASD, `.` = wait) → `move-enemies`; атака врага при шаге на клетку без занятия её; стены (tile 0) блокируют
+  - **Прогрессия**: XP → level (lvl×20), уровень = +2 maxHP/+1 dmg; камера следует за игроком, minimap справа, HUD с HP/DMG/Lvl/Fl/Score/Best
+  - **Death = permadeath**: game over экран + Enter → `reset-game` (счётчик Best сохраняется)
+  - **Звук**: `snd-*` серии через `play-snd` (AudioContext, `ensure-audio-ctx`)
 - **Порт**: 8080
 
 ## Аналитика (2026-08)
@@ -452,5 +455,4 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - **i18n (2026-08-12) — сделано**: 4 языка (ru/en/tr/uk), cookie `lang` + Accept-Language + суффикс домена, `/set-lang`, `/i18n.js` с клиентским словарём (`window.LISPER_DICT`), `tget`/`tget-or` в site.lisp. Словари проверены (173 ключа во всех 4 языках)
 - **Markdown-парсер (2026-08-14/15) — сделано полностью**: emphasis переписан и проверен + мод-3 правило + тесты в `tests/markdown/` + чистый CL-рендер с экранированием (см. раздел выше). СДЕЛАНО (2026-08-15): highlight.js УДАЛЁН, подсветка Lisp встроена в `markdown:render-to-html` (`highlight-lisp`, см. «Подсветка синтаксиса Lisp на чистом CL»), внешних CDN-скриптов на сайте больше НЕТ. `./tests/markdown/run-tests.sh` PASS=178 FAIL=0, node-тесты site-бандла (/tmp/run_site3.js — ALL PASS, /tmp/run_site_md_built.js — ALL PASS)
 - **Избавиться от node в сборке** — host-компилятор JSCL (SBCL) не компилирует наш CL с `jscl::oget`/`#j`/`jscl/ffi:jsstring` («Bad function designator» / пакет JSCL неизвестен). Чистый CL через SBCL работает. Идея: бандлы по-прежнему собирать нодой, но вынести в CI/локальный пре-шаг; либо разделить «ядро» (чистый CL, компилируется SBCL) и «обвязку» (FFI, собирается JSCL)
-- **Секция «Игры»: S-Expression Dungeon не реализована** — roguelike на тайлах из S-выражений (детали в разделе «Lisp Игры»); приоритет после избавления от node в сборке
 - **Новые языки**: добавить `src/i18n-<lang>.lisp` + `register-dict` + `(tr :key)` для всех ключей; `*languages*`/`*language-labels*` в i18n.lisp
