@@ -47,16 +47,7 @@
     (:meta :name "viewport" :content "width=device-width, initial-scale=1")
     (:title (cl-who:str title))
     (:link :rel "icon" :type "image/svg+xml" :href *favicon-data-uri*)
-    (:link :rel "stylesheet" :href "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"
-           :integrity "sha384-wH75j6z1lH97ZOpMOInqhgKzFkAInZPPSPlZpYKYTOqsaizPvhQZmAtLcPKXpLyH"
-           :crossorigin "anonymous")
     (:style (cl-who:str (generate-css)))
-    (:script :src "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"
-             :integrity "sha384-F/bZzf7p3Joyp5psL90p/p89AZJsndkSoGwRpXcZhleCWhd8SnRuoYo4d0yirjJp"
-             :crossorigin "anonymous")
-    (:script :src "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/lisp.min.js"
-             :integrity "sha384-+LHHMbAXOUlvquvrQZ9LW4KeR2nwcsh/lpp7xrWu7KuaDSGgAYBIdm8qCw97I1tq"
-             :crossorigin "anonymous")
     (:script :defer t :src "/i18n.js")
     (:script :defer t :src (jscl-url))
     (:script :defer t :src (jscl-bundle-url "site"))))

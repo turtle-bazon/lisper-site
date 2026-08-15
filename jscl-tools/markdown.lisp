@@ -10,7 +10,7 @@
 
 (defpackage :markdown
   (:use :cl)
-  (:export :render-to-html))
+  (:export :render-to-html :highlight-lisp))
 
 (in-package :markdown)
 
@@ -257,9 +257,9 @@
     (when (< i len)
       (let ((c (char line i)))
         (cond
-          ((prefix-p line "<!--" i)
-           (let ((end (search "-->" line :start2 (+ i 4))))
-             (when end t)))
+((prefix-p line "<!--" i)
+            (let ((end (hl-find-string "-->" line (+ i 4))))
+              (when end t)))
           ((and (< (1+ i) len) (char= (char line (1+ i)) #\/))
            (let ((j (+ i 2)))
              (when (and (< j len) (alpha-char-p (char line j)))
@@ -739,7 +739,7 @@
   (let ((len (length text)))
     (cond
       ((prefix-p text "<!--" pos)
-       (let ((end (search "-->" text :start2 (+ pos 4))))
+       (let ((end (hl-find-string "-->" text (+ pos 4))))
          (when end (+ end 3))))
       ((and (< (1+ pos) len) (char= (char text (1+ pos)) #\/))
        (let ((j (+ pos 2)))
@@ -1027,8 +1027,172 @@
        (loop for scheme in '("http://" "https://" "mailto:" "ftp://" "data:image/"
                              "#" "/" "./" "../")
              thereis (prefix-p lower scheme 0))
-       (not (or (search "javascript:" lower)
-                (search "vbscript:" lower)))))))
+(not (or (search "javascript:" lower)
+                 (search "vbscript:" lower)))))))
+
+;;; ============================================================
+;;; Подсветка синтаксиса Lisp (чистый CL, для code-блоков)
+;;; ============================================================
+
+(defparameter *hl-builtins*
+  '("defun" "defmacro" "defvar" "defparameter" "defconstant" "defstruct"
+    "defclass" "defmethod" "defgeneric" "defpackage" "in-package" "use-package"
+    "import" "export" "lambda" "let" "let*" "if" "when" "unless" "cond"
+    "case" "ecase" "typecase" "etypecase" "loop" "do" "do*" "dolist"
+    "dotimes" "progn" "prog1" "prog2" "labels" "flet" "macrolet" "setq"
+    "setf" "quote" "function" "return" "return-from" "block" "tagbody"
+    "go" "multiple-value-bind" "multiple-value-list" "multiple-value-call"
+    "the" "declare" "handler-case" "handler-bind" "ignore-errors"
+    "unwind-protect" "values" "apply" "funcall" "mapcar" "mapc" "reduce"
+    "sort" "remove" "remove-if" "find" "position" "subseq" "concatenate"
+    "length" "car" "cdr" "cons" "list" "append" "first" "rest" "nth"
+    "format" "prin1" "princ" "print" "terpri" "error" "warn" "assert"
+    "eval" "load" "compile" "t" "nil" "+" "-" "*" "/"))
+
+(defun builtin-symbol-p (tok)
+  (loop for s in *hl-builtins* thereis (string= s tok)))
+
+(defun hl-symbol-end (s i len)
+  "Конец атома: до whitespace или структурного разделителя ()\"';` и ,."
+  (loop for j from i below len
+        for c = (char s j)
+        while (not (or (char= c #\Space) (char= c #\Tab) (char= c #\Newline)
+                       (char= c #\() (char= c #\)) (char= c #\")
+                       (char= c #\;) (char= c #\') (char= c #\`) (char= c #\,)))
+        finally (return j)))
+
+(defun hl-find-string (pat s start)
+  "Позиция подстроки PAT в S начиная с START (JSCL: поиск с начала — search
+  с :start2 не поддерживается). Возвращает индекс или NIL."
+  (let ((plen (length pat))
+        (slen (length s)))
+    (loop for i from start below (- slen plen)
+          when (prefix-p s pat i)
+            do (return-from hl-find-string i))
+    nil))
+
+(defun hl-block-comment-end (s start len)
+  "Конец блочного комментария #|...|# (или NIL, если не найден)."
+  (let ((found (hl-find-string "|#" s start)))
+    (when found (+ found 2))))
+
+(defun hl-string-end (s start len)
+  "Конец строкового литерала \"...\" с учётом \\-экранирования."
+  (let ((j start))
+    (loop while (< j len)
+          for c = (char s j)
+          do (cond ((char= c #\\) (incf j 2))
+                   ((char= c #\") (return-from hl-string-end (1+ j)))
+                   (t (incf j))))
+    len))
+
+(defun hl-char-literal-end (s start len)
+  "Конец char-литерала #\\x (start — позиция бэкслеша)."
+  (let ((j (1+ start)))
+    (when (< j len)
+      (if (or (alpha-char-p (char s j)) (digit-char-p (char s j)))
+          (loop while (and (< j len)
+                           (or (alpha-char-p (char s j)) (digit-char-p (char s j))))
+                do (incf j))
+          (incf j)))
+    j))
+
+(defun hl-number-start-p (s i len)
+  (let ((c (char s i)))
+    (or (digit-char-p c)
+        (and (find c "+-")
+             (< (1+ i) len)
+             (digit-char-p (char s (1+ i))))
+        (and (char= c #\#)
+             (< (1+ i) len)
+             (find (char s (1+ i)) "xXbBoOdD")
+             (< (+ i 2) len)
+             (digit-char-p (char s (+ i 2)))))))
+
+(defun hl-number-end (s i len)
+  "Конец числа (десятичное, float, ratio, radix #x/#b/#o/#d)."
+  (let ((j (if (and (char= (char s i) #\#) (< (1+ i) len)) (+ i 2) i)))
+    (loop while (and (< j len)
+                     (let ((c (char s j)))
+                       (or (digit-char-p c)
+                           (find c ".eEsSfFdDlL+/"))))
+          do (incf j))
+    j))
+
+(defun highlight-lisp (s)
+  "Подсветка синтаксиса Lisp на чистом CL. Экранирует HTML, токены
+  оборачивает в <span class=\"hl-*\">."
+  (let ((len (length s))
+        (out '())
+        (i 0))
+    (labels ((emit (x) (push x out))
+             (span (cls x)
+               (push (concatenate 'string
+                                  "<span class=\"" cls "\">"
+                                  (escape-html x)
+                                  "</span>")
+                     out)))
+      (loop while (< i len)
+            for c = (char s i)
+            do (cond
+                 ;; whitespace
+                 ((or (char= c #\Space) (char= c #\Newline) (char= c #\Tab))
+                  (let ((j i))
+                    (loop while (and (< j len)
+                                     (let ((cc (char s j)))
+                                       (or (char= cc #\Space)
+                                           (char= cc #\Newline)
+                                           (char= cc #\Tab))))
+                          do (incf j))
+                    (emit (subseq s i j))
+                    (setf i j)))
+                 ;; line comment
+                 ((char= c #\;)
+                  (let ((j (or (position #\Newline s :start (1+ i)) len)))
+                    (span "hl-comment" (subseq s i j))
+                    (setf i j)))
+                 ;; block comment #|...|#
+                 ((and (char= c #\#) (< (1+ i) len) (char= (char s (1+ i)) #\|))
+                  (let ((j (or (hl-block-comment-end s (1+ i) len) len)))
+                    (span "hl-comment" (subseq s i j))
+                    (setf i j)))
+                 ;; string
+                 ((char= c #\")
+                  (let ((j (hl-string-end s (1+ i) len)))
+                    (span "hl-string" (subseq s i j))
+                    (setf i j)))
+                 ;; char literal
+                 ((and (char= c #\#) (< (1+ i) len) (char= (char s (1+ i)) #\\))
+                  (let ((j (hl-char-literal-end s (1+ i) len)))
+                    (span "hl-char" (subseq s i j))
+                    (setf i j)))
+                 ;; quote / backquote / comma (read-time синтаксис)
+                 ((or (char= c #\') (char= c #\`) (char= c #\,))
+                  (span "hl-paren" (string c))
+                  (incf i))
+                 ;; parens
+                 ((or (char= c #\() (char= c #\)))
+                  (span "hl-paren" (string c))
+                  (incf i))
+                 ;; number
+                 ((hl-number-start-p s i len)
+                  (let ((j (hl-number-end s i len)))
+                    (span "hl-number" (subseq s i j))
+                    (setf i j)))
+                 ;; keyword :foo
+                 ((char= c #\:)
+                  (let ((j (hl-symbol-end s i len)))
+                    (span "hl-keyword" (subseq s i j))
+                    (setf i j)))
+                 ;; symbol
+                 (t
+                  (let* ((j (hl-symbol-end s i len))
+                         (tok (subseq s i j)))
+                    (cond
+                      ((builtin-symbol-p tok) (span "hl-builtin" tok))
+                      (t (emit (escape-html tok))))
+                    (setf i j)))))
+      (apply #'concatenate 'string (nreverse out)))))
 
 (defun render-inline-node (node)
   (cond
@@ -1114,9 +1278,9 @@
            (when (plusp (length (trim-str info)))
              (let ((lang (first (split-str (trim-str info) #\Space))))
                (w (format nil " class=\"language-~A\"" (string-downcase lang))))))
-         (w ">")
-         (w (escape-html (getf block :content)))
-         (w (concatenate 'string "</code></pre>" *nl*)))
+(w ">")
+          (w (highlight-lisp (getf block :content)))
+          (w (concatenate 'string "</code></pre>" *nl*)))
         (:thematic-break (w (concatenate 'string "<hr/>" *nl*)))
         (:html-block (w (escape-html (getf block :content))))
         (otherwise (w ""))))

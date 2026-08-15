@@ -292,17 +292,10 @@
   "HTML из markdown:render-to-html уже безопасен (raw HTML экранируется)."
   html)
 
-(defun highlight-pre-code (root)
-  (when (not (eq (jscl::oget #j:window "hljs") #j:undefined))
-    (let ((blocks ((jscl::oget root "querySelectorAll") #j"pre code")))
-      (loop for i from 0 below (jscl::oget blocks "length")
-            do ((jscl::oget #j:hljs "highlightElement") (jscl::oget blocks i))))))
-
 (defun render-markdown-to (el)
-  "el.textContent → markdown:render-to-html → hljs.highlightElement."
+  "el.textContent → markdown:render-to-html (подсветка синтаксиса уже встроена)."
   (let ((html (markdown:render-to-html (get-text el))))
-    (set-html el (sanitize-html html))
-    (highlight-pre-code el)))
+    (set-html el (sanitize-html html))))
 
 ;;; --- Markdown-редактор ---
 
@@ -348,8 +341,7 @@
         (let ((src (get-value ta)))
           (when (string= src "") (setf src (tget-or "md-empty" "_Пусто_")))
           (let ((html (markdown:render-to-html src)))
-            (set-html preview (sanitize-html html))
-            (highlight-pre-code preview)))
+            (set-html preview (sanitize-html html))))
         (set-display preview "block")
         (set-display ta "none")
         (add-class btn "active"))))

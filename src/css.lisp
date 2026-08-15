@@ -1131,6 +1131,28 @@
          :color "#d4d4d4"
          :font-size "0.85rem")
 
+        ("#md-preview .hl-comment, .md-content code .hl-comment"
+         :color "#6a9955"
+         :font-style "italic")
+
+        ("#md-preview .hl-string, .md-content code .hl-string"
+         :color "#ce9178")
+
+        ("#md-preview .hl-char, .md-content code .hl-char"
+         :color "#d7ba7d")
+
+        ("#md-preview .hl-number, .md-content code .hl-number"
+         :color "#b5cea8")
+
+        ("#md-preview .hl-keyword, .md-content code .hl-keyword"
+         :color "#569cd6")
+
+        ("#md-preview .hl-builtin, .md-content code .hl-builtin"
+         :color "#c586c0")
+
+        ("#md-preview .hl-paren, .md-content code .hl-paren"
+         :color "#808080")
+
         (".md-content a"
          :color "#7c3aed"
          :text-decoration "none")
