@@ -10,6 +10,8 @@
 
 > **Таймауты**: максимальный таймаут для команд — 30000 мс (30 секунд).
 
+> **Рефакторинг**: функция длиннее 40 строк должна быть разбита на меньшие функции СРАЗУ, как только это обнаружено. Не откладывать.
+
 > **Education**: файлы в `education/` — авторитет. Всё что написано там имеет приоритет над любыми знаниями, догадками и находками извне. Если education говорит `#j"string"` — значит `#j"string"`, не `#j:String`, не CL-строка.
 
 ## О проекте
@@ -104,9 +106,9 @@
 - **Важно**: не запускать/останавливать сервер вручную — `pkill`, `rm -rf build`, `mkdir -p build` только если есть проблемы с make
 
 ### Безопасность
-- **XSS через marked.js**: `marked.parse()` без санитизации → добавлен DOMPurify (`DOMPurify.sanitize()`)
-- **XSS через appendHTML()**: `div.innerHTML = html` → санитизация через DOMPurify, fallback на strip tags
-- **SRI**: все CDN-скрипты (marked, highlight.js, DOMPurify) и CSS имеют `integrity` + `crossorigin="anonymous"`
+- **XSS через marked.js**: `marked.parse()` без санитизации → добавлен DOMPurify (`DOMPurify.sanitize()`) — **УСТАРЕЛО (2026-08-14)**: marked.js/DOMPurify удалены, markdown рендерит чистый CL-парсер `markdown:render-to-html` (raw HTML экранируется на этапе парсинга)
+- **XSS через appendHTML()**: `div.innerHTML = html` → санитизация через DOMPurify, fallback на strip tags — **УСТАРЕЛО (2026-08-14)**: `dom-append-html` в repl.lisp переписан на `textContent`
+- **SRI**: все CDN-скрипты (highlight.js — единственный оставшийся) и CSS имеют `integrity` + `crossorigin="anonymous"`
 - **Security Headers**: CSP, X-Frame-Options: DENY, X-Content-Type-Options: nosniff, Referrer-Policy, X-XSS-Protection: 0
 - **CSP + inline handlers**: CSP `script-src` без `'unsafe-inline'` блокирует `onclick=""` → заменить на `id` + `addEventListener` в JS
 - **Timestamps**: PostgreSQL `TIMESTAMP` возвращает сырые числа → исправлено через `TO_CHAR(created_at, 'DD.MM.YYYY HH24:MI')` в SQL
@@ -210,7 +212,7 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
   - **JSCL-lambda как JS-обработчик должен принимать event-аргумент** — браузер вызывает `onload`/`addEventListener`-колбэки с объектом события, а JSCL проверяет арность (`checkArgsAtMost`): 0-арговая лямбда кидает «too many arguments». Фикс: `(lambda (e) (declare (ignore e)) ...)`; `site-init` сделан `(&optional e)` из-за `DOMContentLoaded`. НЕ вызывать CL-функции напрямую как обработчики без учёта арности
 - **Кеш jscl.js (2026-08-11)**: `/jscl.js` отдаётся с `Cache-Control: public, max-age=31536000, immutable` (2.4MB, меняется только при обновлении JSCL). URL версионируется автогенерируемым SHA-256 контента: `(jscl-url)` → `/jscl.js?v=<hash>`; хеш стабилен между сборками при неизменном бандле. Хелперы `jscl-url`/`jscl-cache-key`/`jscl-bundle-url`/`jscl-bundle-cache-key`/`string-replace-all` — в начале `js.lisp` (не в генерируемом `resources.lisp`)
 - **Скомпилированные бандлы (2026-08-11)**: `jscl-tools/*.lisp` и `jscl-games/*.lisp` компилируются в JS НОДОЙ при `make build` (`build-jscl-bundles` в `build-resources.lisp`) → `src/jscl-bundles.lisp` (`*jscl-bundles*` — alist имя→JS, `get-jscl-bundle`). Отдаются на `/jscl-bundle/<name>` с `Cache-Control: public, max-age=31536000, immutable`; версионированный URL — `(jscl-bundle-url name)` → `/jscl-bundle/<name>?v=<sha256>` (хеш мемоизирован в `*jscl-bundle-cache-keys*`). Без node — пустая таблица + warning, билд не падает
-- **Загрузка бандлов (2026-08-12)**: REPL/игры грузятся site-бандлом по URL из `*site-bundle-urls*` (прелюдия) через свой `load-script` (`<script>` + onload-колбэк). Игры запускаются через `START-<PKG>` + rAF-цикл `GAME-LOOP-RAW` (`game-tick`, `*game-loop-alive*`/`*game-loop-anim-frame*`); REPL — через `REPL-START`. Бандл сам находит runtime: `typeof require !== 'undefined' ? require('jscl') : window.jscl : self.jscl`; jscl.js ставит `self.jscl` (в браузере `self===window`). Вендоренный jscl.js (в `jscl/`) умеет `module.exports` — проверено в node: бандлы регистрируют пакеты и функции. Проверка site-бандла в node: `/tmp/run_site.js` (DOM-стаб, 32 ассерта: REPL-флоу, игры, markdown-редактор, кросс-пакетные вызовы, keydown Escape) и `/tmp/run_site_md.js` (рендер markdown с marked/DOMPurify/hljs стабами). После изменений в site.lisp: `make build` + прогнать node-тесты
+- **Загрузка бандлов (2026-08-12)**: REPL/игры грузятся site-бандлом по URL из `*site-bundle-urls*` (прелюдия) через свой `load-script` (`<script>` + onload-колбэк). Игры запускаются через `START-<PKG>` + rAF-цикл `GAME-LOOP-RAW` (`game-tick`, `*game-loop-alive*`/`*game-loop-anim-frame*`); REPL — через `REPL-START`. Бандл сам находит runtime: `typeof require !== 'undefined' ? require('jscl') : window.jscl : self.jscl`; jscl.js ставит `self.jscl` (в браузере `self===window`). Вендоренный jscl.js (в `jscl/`) умеет `module.exports` — проверено в node: бандлы регистрируют пакеты и функции. Проверка site-бандла в node: `/tmp/run_site3.js` (DOM-стаб, 36 ассертов: REPL-флоу, игры, markdown-редактор, кросс-пакетные вызовы, keydown Escape) и `/tmp/run_site_md_built.js` (рендер markdown чистым CL-парсером + hljs-стабом, XSS-экранирование). После изменений в site.lisp/repl.lisp/markdown.lisp: `make build` + прогнать node-тесты + `./tests/markdown/run-tests.sh`
 - **Fix (2026-06-22)**: сбалансированы скобки — overlay закрывался с 5 `)` вместо 4, лишняя `)` закрывала `:html` до `<script>`
 - **Fix (2026-06-22)**: переписано на кастомный терминал — jqconsole не работал (создавал DOM-элементы на body вместо `#repl-console`)
   - Каждая строка вывода = `div.repl-line` (appendLine/appendHTML)
@@ -329,17 +331,17 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - Вызывается из handlers в `routes.lisp` после каждого действия
 
 ### Редактор постов
-- **Markdown** — посты хранятся как raw markdown, рендерятся клиентски через marked.js
-- **Подсветка кода** — highlight.js с поддержкой Common Lisp и других языков
+- **Markdown** — посты хранятся как raw markdown, рендерятся клиентски чистым CL-парсером `markdown:render-to-html`
+- **Подсветка кода** — highlight.js (CDN, единственный оставшийся внешний скрипт) поверх безопасного HTML от CL-парсера
 - **Тулбар** — жирный, курсив, заголовки, списки, цитаты, код, ссылки, картинки, превью
 - **Превью** — кнопка 👁 переключает между редактированием и предпросмотром
 - **Компонент**: `forum-render-editor` — переиспользуемый для new-topic и reply
-- **Клиентский рендеринг**: `.md-content` класс инициализируется marked.js при загрузке страницы
+- **Клиентский рендеринг**: `.md-content` класс рендерится site-бандлом (`render-markdown-to`) при загрузке страницы
 
 ## Отчёт по безопасности (24.06.2026)
 Полный отчёт в `/tmp/report.txt`. Исправлено:
-1. **Stored XSS через marked.js** → DOMPurify санитизация
-2. **XSS через appendHTML()** → DOMPurify санитизация, fallback strip tags
+1. **Stored XSS через marked.js** → DOMPurify санитизация — **УСТАРЕЛО (2026-08-14)**: markdown рендерит чистый CL-парсер, raw HTML экранируется
+2. **XSS через appendHTML()** → DOMPurify санитизация, fallback strip tags — **УСТАРЕЛО (2026-08-14)**: `dom-append-html` → `textContent`
 3. **Нет SRI** → integrity + crossorigin на всех CDN-скриптах и CSS
 4. **Нет Security Headers** → CSP, X-Frame-Options: DENY, X-Content-Type-Options: nosniff, Referrer-Policy, X-XSS-Protection: 0
 5. **Таймстемпы** → `TO_CHAR(created_at, 'DD.MM.YYYY HH24:MI')` в SQL
@@ -421,7 +423,24 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - **Postmodern возвращает SQL NULL в результатах как символ `:NULL`** — он truthy! `(or x "")` его НЕ отсекает (`(or :NULL "")` → `:NULL`), а `length`/`string-trim` на нём падают ("The value :NULL is not of type SEQUENCE"). Дашборд аналитики ловил это в "Последние визиты" (`(analytics-truncate (or referrer ""))`). **Фикс**: `COALESCE(referrer, '')` прямо в SQL (`analytics-recent`), а не в Lisp
 - **Скрытый URL аналитики** (`/analytics/<secret>`): рендерит тот же `forum-page-analytics` с `user=nil` (header рендерится анонимным — ок). Добавлен 2026-08-11; до этого дашборд невозможно было открыть, т.к. вход/регистрация отключены
 
+## Markdown-парсер на чистом CL (JSCL) (2026-08-14)
+- Цель: заменить marked.js + DOMPurify + highlight.js на чистый CL-парсер, компилируемый JSCL. Живёт в `jscl-tools/markdown.lisp` (пакет `:markdown`, экспорт `render-to-html`)
+- **Подключён в site-бандл (2026-08-14)**: `build-resources.lisp` компилирует site-бандл как `(prelude markdown.lisp site.lisp)` (порядок важен: markdown ДО site, чтобы `markdown:render-to-html` резолвился). markdown.lisp исключён из `*tool-sources*` и из независимых бандлов (тот же механизм, что у site.lisp)
+- **marked.js + DOMPurify УДАЛЕНЫ (2026-08-14)**: `render-markdown-to`/`md-toggle-preview` в site.lisp зовут `markdown:render-to-html` напрямую (без `marked-defined-p`/`set-markdown-options`/`sanitize-html`-обвязки — парсер сам экранирует raw HTML). CDN-скрипты `marked.min.js` и `purify.min.js` убраны из `forum-render-head` (`forum-pages.lisp`) и из `page-index` (`pages.lisp`). highlight.js остался (подсветка кода поверх безопасного HTML). REPL: `repl-start` печатает кредиты строкой (`dom-append-line`), `dom-append-html` переписан на textContent (без DOMPurify-ветки)
+- **Компиляция вручную**: `cp jscl-tools/markdown.lisp /tmp/md_iterN.lisp` (свежий путь — кэш JSCL по пути!) → `node --stack-size=65536 jscl/jscl-node.js /tmp/compile_mdN.lisp` (`compile-application`, `:place ""`, имя бандла `/tmp/md_iterN.js`) → тест `sed` бандла в `/tmp/mdtest2.js`/`/tmp/mdtests_full.js` (заменой `/tmp/md_iter4.js`)
+- **Benign (2026-08-14)**: в конце compile-скрипта `(quit)` кидает `UNDEFINED-FUNCTION: QUIT` ПОСЛЕ записи бандла — это норма, проверять успех через `ls -la` бандла + `MD-COMPILE-OK`
+- **Emphasis — переписан с нуля (2026-08-14)**: двухпроходный delimiter-stack по CommonMark. Проход 1 `find-emphasis-matches`: стек открывающих, flanking-правила (`*`: open=left-flanking, close=right-flanking; `_`: open=lf&&(!rf||before-punct), close=rf&&(!lf||after-punct); границы строки и break-токены = whitespace), для каждого closer ищется ближайший одноранговый opener, записывается `(closer . k)` (k=2 если обе досижение ≥2 иначе 1), обрезаются длины, стек выше opener удаляется, leftover дописывается обратно. `opener-matches` после прохода в хронологическом порядке (внешние раньше — `nreverse`!). Проход 2 `build-emphasis-tree`: фреймы `(opener-idx pending-matches children)` строят `:emph`/`:strong`, общий opener+closer даёт `***both***` → `em<strong>`, остатки — литерал через `literal-delim`. `find-close-delim` удалён
+- **Важный баг-урок (2026-08-14)**: неправильное распределение `)` в `build-emphasis-tree` было «сбалансировано» и читалось SBCL как 66 форм, НО структура оказалась другой: `(labels ((emit ...) (loop for ...)) ...)` — `(loop ...)` уехал в список локальных функций labels как определение `(LOOP FOR J FROM ...)` → JSCL при компиляции падал `TYPE-ERROR: FOR is not a CONS` в `list-until-keyword`/`parse-lambda-list`. Правильно: `(push node (third frame)))))` — 5 закрывающих (emit из 3 вложений), `(nreverse (third root))))` — 4. Диагностика: JSCL compile ловит то, что SBCL READ не замечает — проверять структуру через `(read ...)` и печатать форму целиком (SBLC покажет `(LOOP FOR J ...)` в списке labels!). Бинсекция через под-файлы `defun` по одному
+- **Мод-3 правило реализовано (2026-08-14)**: `emphasis-match-forbidden-p` + `find-opener` (сигнатура `(tokens leftover stack j)`) — если opener ИЛИ closer может и открывать, и закрывать, а `(olen+clen)%3==0` при `clen%3!=0` — пара НЕ образует эмфазу, ищем более старый opener (cmark `process_emphasis`). `*foo**bar*` → `<em>foo**bar</em>`, `*foo**bar**baz*` → `<em>foo<strong>bar</strong>baz</em>`, `***both***` → `<em><strong>both</strong></em>` — все spec Examples 410-418 PASS. Замечание: `opener-matches` после прохода в хронологическом порядке (внешний создаётся первым — `nreverse`!), порядок критичен для shared opener/closer
+- **Spec-тесты**: `tests/markdown/spec-emphasis.test.js` — 132 примера из CommonMark 0.31.2 section 6.2 (парсер из HTML spec). UPDATE: PASS=132 FAIL=0 (все примеры emphasis проходят; сыро-html inline 475/476/477 — намеренное отклонение: наш парсер экранирует raw HTML вместо пропуска как CommonMark — sanitizer требует)
+- **Эмфаза в label ссылок (2026-08-14)**: `[*bar*](/url)` → `<em>bar</em>`. `parse-inline-link` теперь хранит children label'а как inline-узлы через `parse-label-inline` = `(parse-emphasis (parse-inline-lex label t))`; `parse-inline-lex` получил опциональный `no-links` (в label'ах ссылки не парсятся, `[`/`!` — текст). Узел `:link` — `(:link url title . children)` (children НЕ вложенным списком, а спреднуты; иначе рендер печатал `(b a r)`), `:image` label остаётся строкой (4-й элемент)
+- **`&quot;`-эскейпинг**: text-контент экранирует `"` → `&quot;` (CommonMark-совместимо; тест full `& < > "` обновлён)
+- **Тест-экстракция мультистрочных примеров**: 367/384/394/405/423/432 в spec-emphasis.test.js были обрезаны на `\n` (ожидание `<p>...` без закрывающего), 354 — потеряны `</p>\n` между абзацами. Все исправлены на полные spec.json-ожидания
+- **Тесты (tests/)**: `tests/markdown/run-tests.sh` — компилирует `jscl-tools/markdown.lisp` нодой (`compile.lisp`, бандл `$TMPDIR/markdown.test.bundle.js`) и прогоняет `smoke` (9), `full` (28), `edge` (5), `spec-emphasis` (132) → **PASS=174 FAIL=0** (все зелёные: ASCII+Unicode ws/punct, `&quot;`-эскейпинг, эмфаза в link text, NBSP `£`/`€`; raw HTML inline 475/476/477 — намеренное отклонение, отражено в ожиданиях теста); команда: `./tests/markdown/run-tests.sh`
+- Таймстемп структур: `(cons :emph inner)`/`(cons :strong inner)`, `render-inline-node` гардирует символы, `*nl*` = newline, JSCL без regex
+
 ## Следующая сессия
 - **i18n (2026-08-12) — сделано**: 4 языка (ru/en/tr/uk), cookie `lang` + Accept-Language + суффикс домена, `/set-lang`, `/i18n.js` с клиентским словарём (`window.LISPER_DICT`), `tget`/`tget-or` в site.lisp. Словари проверены (173 ключа во всех 4 языках)
+- **Markdown-парсер (2026-08-14)**: emphasis переписан и проверен + мод-3 правило реализовано + тесты перенесены в `tests/markdown/` (см. раздел выше). СДЕЛАНО (2026-08-14): `&quot;`-эскейпинг, Unicode ws/punct (NBSP+`£`/`€`), эмфаза в link text (419/433), тест-экстракция мультистрочных примеров (354/367/384/394/405/423/432) — PASS=174 FAIL=0. СДЕЛАНО (2026-08-14, вторая половина): `markdown.lisp` подключён в site-бандл (`build-resources.lisp`: prelude + markdown + site), marked.js/DOMPurify удалены из `site.lisp` и CDN-скриптов (`forum-pages.lisp`, `pages.lisp`), highlight.js остался, REPL кредиты переведены на plain-строку. `./tests/markdown/run-tests.sh` PASS=174 FAIL=0, node-тесты site-бандла (/tmp/run_site3.js — 36 PASS, /tmp/run_site_md_built.js — ALL PASS). Осталось: highlight.js тоже заменить чистым CL (опционально, подсветка синтаксиса на CL)
 - **Избавиться от node в сборке** — host-компилятор JSCL (SBCL) не компилирует наш CL с `jscl::oget`/`#j`/`jscl/ffi:jsstring` («Bad function designator» / пакет JSCL неизвестен). Чистый CL через SBCL работает. Идея: бандлы по-прежнему собирать нодой, но вынести в CI/локальный пре-шаг; либо разделить «ядро» (чистый CL, компилируется SBCL) и «обвязку» (FFI, собирается JSCL)
 - **Новые языки**: добавить `src/i18n-<lang>.lisp` + `register-dict` + `(tr :key)` для всех ключей; `*languages*`/`*language-labels*` в i18n.lisp

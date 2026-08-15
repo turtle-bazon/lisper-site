@@ -68,9 +68,6 @@
         (:meta :name "viewport" :content "width=device-width, initial-scale=1")
         (:title "lisper")
         (:link :rel "icon" :type "image/svg+xml" :href *favicon-data-uri*)
-        (:script :src "https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.2.4/purify.min.js"
-                 :integrity "sha384-eEu5CTj3qGvu9PdJuS+YlkNi7d2XxQROAFYOr59zgObtlcux1ae1Il3u7jvdCSWu"
-                 :crossorigin "anonymous")
         (:style (cl-who:str (generate-css))))
       (:body
         (:div :class "container"

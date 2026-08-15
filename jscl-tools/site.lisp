@@ -288,15 +288,9 @@
 ;;; Markdown (рендер .md-content + .md-editor)
 ;;; ============================================================
 
-(defun marked-defined-p ()
-  (not (eq (jscl::oget #j:window "marked") #j:undefined)))
-
 (defun sanitize-html (html)
-  "Прогнать HTML (CL-строка) через DOMPurify; без DOMPurify — вернуть как есть."
-  (let ((purify (jscl::oget #j:window "DOMPurify")))
-    (if (eq purify #j:undefined)
-        html
-        (cl-str ((jscl::oget purify "sanitize") (js-str html))))))
+  "HTML из markdown:render-to-html уже безопасен (raw HTML экранируется)."
+  html)
 
 (defun highlight-pre-code (root)
   (when (not (eq (jscl::oget #j:window "hljs") #j:undefined))
@@ -304,19 +298,11 @@
       (loop for i from 0 below (jscl::oget blocks "length")
             do ((jscl::oget #j:hljs "highlightElement") (jscl::oget blocks i))))))
 
-(defun set-markdown-options ()
-  (when (marked-defined-p)
-    (let ((opts (#j:Reflect:construct #j:Object (#j:Array))))
-      (setf (jscl::oget opts "breaks") (js-bool t))
-      (setf (jscl::oget opts "gfm") (js-bool t))
-      ((jscl::oget #j:marked "setOptions") opts))))
-
 (defun render-markdown-to (el)
-  "el.textContent → marked.parse → DOMPurify → hljs.highlightElement."
-  (when (marked-defined-p)
-    (let ((raw ((jscl::oget #j:marked "parse") (js-str (get-text el)))))
-      (set-html el (sanitize-html (cl-str raw)))
-      (highlight-pre-code el))))
+  "el.textContent → markdown:render-to-html → hljs.highlightElement."
+  (let ((html (markdown:render-to-html (get-text el))))
+    (set-html el (sanitize-html html))
+    (highlight-pre-code el)))
 
 ;;; --- Markdown-редактор ---
 
@@ -359,12 +345,11 @@
         (remove-class btn "active")
         ((jscl::oget ta "focus")))
       (progn
-        (when (marked-defined-p)
-          (let ((src (get-value ta)))
-            (when (string= src "") (setf src (tget-or "md-empty" "_Пусто_")))
-            (let ((raw ((jscl::oget #j:marked "parse") (js-str src))))
-              (set-html preview (sanitize-html (cl-str raw)))
-              (highlight-pre-code preview))))
+        (let ((src (get-value ta)))
+          (when (string= src "") (setf src (tget-or "md-empty" "_Пусто_")))
+          (let ((html (markdown:render-to-html src)))
+            (set-html preview (sanitize-html html))
+            (highlight-pre-code preview)))
         (set-display preview "block")
         (set-display ta "none")
         (add-class btn "active"))))
@@ -403,7 +388,6 @@
                     (md-tab ta))))))))
 
 (defun site-init-markdown ()
-  (set-markdown-options)
   (let ((contents (qsa ".md-content")))
     (loop for i from 0 below (qsa-len contents)
           do (render-markdown-to (qsa-item contents i))))

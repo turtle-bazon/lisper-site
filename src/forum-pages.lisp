@@ -51,12 +51,6 @@
            :integrity "sha384-wH75j6z1lH97ZOpMOInqhgKzFkAInZPPSPlZpYKYTOqsaizPvhQZmAtLcPKXpLyH"
            :crossorigin "anonymous")
     (:style (cl-who:str (generate-css)))
-    (:script :src "https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.2.4/purify.min.js"
-             :integrity "sha384-eEu5CTj3qGvu9PdJuS+YlkNi7d2XxQROAFYOr59zgObtlcux1ae1Il3u7jvdCSWu"
-             :crossorigin "anonymous")
-    (:script :src "https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"
-             :integrity "sha384-NNQgBjjuhtXzPmmy4gurS5X7P4uTt1DThyevz4Ua0IVK5+kazYQI1W27JHjbbxQz"
-             :crossorigin "anonymous")
     (:script :src "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"
              :integrity "sha384-F/bZzf7p3Joyp5psL90p/p89AZJsndkSoGwRpXcZhleCWhd8SnRuoYo4d0yirjJp"
              :crossorigin "anonymous")

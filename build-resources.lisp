@@ -98,10 +98,10 @@
       (dolist (f (directory (merge-pathnames #P"*.lisp" tools-dir)))
         (let ((name (pathname-name f))
               (source (read-file-to-string f)))
-          ;; site.lisp — это клиентский код сайта, компилируется отдельно
-          ;; в бандл /jscl-bundle/site (см. build-jscl-bundles); как исходник
-          ;; для form-by-form eval (tool-source) не используется
-          (unless (string= name "site")
+          ;; site.lisp и markdown.lisp — это клиентский код сайта, компилируются
+          ;; отдельно в бандл /jscl-bundle/site (см. build-jscl-bundles); как
+          ;; исходник для form-by-form eval (tool-source) не используются
+          (unless (or (string= name "site") (string= name "markdown"))
             (push (list name "cl" source) tools)))))
     (setf tools (nreverse tools))
     (with-open-file (stream output :direction :output :if-exists :supersede)
@@ -233,8 +233,9 @@
     (dolist (d (list tools-dir games-dir))
       (when (probe-file d)
         (dolist (f (directory (merge-pathnames #P"*.lisp" d)))
-          ;; site.lisp компилируется отдельно вместе с прелюдией (см. ниже)
-          (unless (string= (pathname-name f) "site")
+          ;; site.lisp и markdown.lisp компилируются отдельно вместе с прелюдией (см. ниже)
+          (unless (or (string= (pathname-name f) "site")
+                      (string= (pathname-name f) "markdown"))
             (push (list (pathname-name f) (namestring f)) sources)))))
     (setf sources (sort sources #'string< :key #'first))
     (ensure-directories-exist build-dir)
@@ -268,7 +269,8 @@
                 (push (list (first s) (read-file-to-string bundle)) bundles)
                 (format t "~&WARNING: bundle ~a was not produced~%" (first s)))))
         ;; --- Site bundle: прелюдия (*site-bundle-urls*) + jscl-tools/site.lisp ---
-        (let ((site-src (merge-pathnames #P"jscl-tools/site.lisp" base)))
+        (let ((site-src (merge-pathnames #P"jscl-tools/site.lisp" base))
+              (md-src (merge-pathnames #P"jscl-tools/markdown.lisp" base)))
           (when (probe-file site-src)
             (let ((hashes (make-hash-table :test #'equal)))
               (dolist (name '("repl" "lisp-invaders" "lambda-runner" "paren-matcher" "s-dungeon"))
@@ -280,8 +282,9 @@
                     (site-compile (merge-pathnames #P"build/compile-site.lisp" base)))
                 (with-open-file (stream site-compile :direction :output :if-exists :supersede)
                   (format stream "(jscl:compile-application~%")
-                  (format stream "  (list ~s ~s)~%"
-                          (namestring prelude) (namestring site-src))
+                  (format stream "  (list ~s" (namestring prelude))
+                  (format stream "~%        ~s" (namestring md-src))
+                  (format stream "~%        ~s)~%" (namestring site-src))
                   (format stream "  ~s~%" (namestring site-out))
                   (format stream "  :place \"\" :jscl-name \"jscl\")~%"))
                 (multiple-value-bind (_out err code)

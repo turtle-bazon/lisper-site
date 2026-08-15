@@ -50,12 +50,8 @@
                   #j"repl-line"
                   (jscl/ffi:jsstring
                    (concatenate 'string "repl-line " cls))))
-        (if (jscl::oget #j:window "DOMPurify")
-            (setf (jscl::oget div "innerHTML")
-                  ((jscl::oget #j:DOMPurify "sanitize")
-                   (jscl/ffi:jsstring html)))
-            (setf (jscl::oget div "textContent")
-                  (jscl/ffi:jsstring html)))
+        (setf (jscl::oget div "textContent")
+              (jscl/ffi:jsstring html))
         ((jscl::oget c "appendChild") div)
         (setf (jscl::oget c "scrollTop") (jscl::oget c "scrollHeight"))))))
 
@@ -322,9 +318,7 @@
 (defun repl-start ()
   (setf *package* (find-package "COMMON-LISP-USER"))
   (dom-remove-input-lines)
-  (dom-append-html
-   "<span class=\"repl-credit\">Powered by <a href=\"https://github.com/jscl-project/jscl\" target=\"_blank\">JSCL</a></span>"
-   "repl-header-line")
+  (dom-append-line "Powered by JSCL (jscl-project.github.io)" "repl-header-line")
   (repl-create-input-line))
 
 (shadowing-import '(repl-start repl-enter repl-create-input-line
