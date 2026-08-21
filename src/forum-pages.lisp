@@ -188,7 +188,7 @@
                              " &copy; 2026 | GPL-3.0")))))))
         (forum-page-not-found user))))
 
-(defun forum-page-topic (topic-id user)
+(defun forum-page-topic (topic-id user &optional throttled)
   (let ((topic (get-topic topic-id)))
     (if topic
         (let ((posts (get-posts topic-id)))
@@ -243,8 +243,11 @@
                                                                :value (getf topic :id))
                                                        (:button :class "delete-btn" :type "submit"
                                                                 (cl-who:str (tr :delete-post)))))))))))
-                 (when user
-                   (if (is-muted-p (session-user-id user))
+                  (when user
+                    (when throttled
+                      (cl-who:htm
+                       (:div :class "muted-notice" (cl-who:str (tr :throttled-notice)))))
+                    (if (is-muted-p (session-user-id user))
                        (cl-who:htm
                         (:div :class "muted-notice"
                               (cl-who:str (tr :muted-notice))
@@ -262,7 +265,7 @@
                       " &copy; 2026 | GPL-3.0")))))))
         (forum-page-not-found user))))
 
-(defun forum-page-new-topic (user category-slug)
+(defun forum-page-new-topic (user category-slug &optional throttled)
   (let ((categories (get-categories))
         (selected-cat (when category-slug
                         (get-category-by-slug category-slug))))
@@ -276,6 +279,9 @@
           (:div :class "section"
            (:a :class "back-link" :href "/forum" (cl-who:str (tr :back-to-forum)))
            (:h2 (cl-who:str (tr :new-topic)))
+           (when throttled
+             (cl-who:htm
+              (:div :class "muted-notice" (cl-who:str (tr :throttled-notice)))))
            (if user
                (cl-who:htm
                 (:form :method "POST" :action "/new-topic"
@@ -599,9 +605,22 @@
         (:header (cl-who:str (forum-render-header user)))
         (:div :class "auth-section"
          (:h2 (cl-who:str (tr :login)))
-         (:div :class "auth-error" (cl-who:str (or error-message (tr :login-disabled))))
-         (:p :style "color:#888;margin-top:16px"
-             (cl-who:str (tr :no-email-auth))))
+         (when error-message
+           (cl-who:htm
+            (:div :class "auth-error" (cl-who:str error-message))))
+         (:form :method "POST" :action "/login"
+                (:input :type "hidden" :name "fts" :value (make-form-token))
+                (:div :class "form-group"
+                      (:label :for "email" (cl-who:str (tr :email-label)))
+                      (:input :type "email" :name "email" :id "email" :required "required"))
+                (:div :class "form-group"
+                      (:label :for "password" (cl-who:str (tr :password-label)))
+                      (:input :type "password" :name "password" :id "password"
+                              :required "required"))
+                (:button :class "try-button" :type "submit" (cl-who:str (tr :login))))
+         (:p :class "auth-switch"
+             (cl-who:str (tr :no-account)) " "
+             (:a :href "/register" (cl-who:str (tr :register)))))
         (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
                       " &copy; 2026 | GPL-3.0"))))))))
 
@@ -615,8 +634,28 @@
         (:header (cl-who:str (forum-render-header user)))
         (:div :class "auth-section"
          (:h2 (cl-who:str (tr :register)))
-         (:div :class "auth-error" (cl-who:str (or error-message (tr :register-disabled))))
-         (:p :style "color:#888;margin-top:16px"
-             (cl-who:str (tr :no-email-auth))))
+         (when error-message
+           (cl-who:htm
+            (:div :class "auth-error" (cl-who:str error-message))))
+         (:form :method "POST" :action "/register"
+                (:input :type "hidden" :name "fts" :value (make-form-token))
+                (:div :class "form-group"
+                      (:label :for "username" (cl-who:str (tr :username-label)))
+                      (:input :type "text" :name "username" :id "username"
+                              :required "required" :minlength "3" :maxlength "20"))
+                (:div :class "form-group"
+                      (:label :for "email" (cl-who:str (tr :email-label)))
+                      (:input :type "email" :name "email" :id "email" :required "required"))
+                (:div :class "form-group"
+                      (:label :for "password" (cl-who:str (tr :password-label)))
+                      (:input :type "password" :name "password" :id "password"
+                              :required "required" :minlength "8"))
+                ;; Honeypot: скрытое поле, боты его заполняют, люди — нет
+                (:div :style "position:absolute;left:-9999px" :aria-hidden "true"
+                      (:input :type "text" :name "website" :tabindex "-1" :autocomplete "off"))
+                (:button :class "try-button" :type "submit" (cl-who:str (tr :register))))
+         (:p :class "auth-switch"
+             (cl-who:str (tr :have-account)) " "
+             (:a :href "/login" (cl-who:str (tr :login)))))
         (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
                       " &copy; 2026 | GPL-3.0"))))))))

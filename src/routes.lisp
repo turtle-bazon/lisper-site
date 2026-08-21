@@ -122,10 +122,11 @@
 
             ;; New topic GET
             ((and (string= path "/new-topic") (eq (env-method env) :GET))
-             (let ((cat (let ((qs (parse-query-string env)))
-                          (when qs (gethash "category" qs)))))
+             (let* ((qs (parse-query-string env))
+                    (cat (when qs (gethash "category" qs)))
+                    (throttled (and qs (gethash "throttled" qs))))
                `(200 (:content-type "text/html; charset=utf-8")
-                     (,(forum-page-new-topic user cat)))))
+                     (,(forum-page-new-topic user cat throttled)))))
 
             ;; New topic POST
             ((and (string= path "/new-topic") (eq (env-method env) :POST))
@@ -135,11 +136,13 @@
             ((and (>= (length path) 7)
                   (string= (subseq path 0 7) "/topic/")
                   (eq (env-method env) :GET))
-             (let ((id (ignore-errors
-                        (parse-integer (subseq path 7)))))
+             (let* ((id (ignore-errors
+                         (parse-integer (subseq path 7))))
+                    (qs (parse-query-string env))
+                    (throttled (and qs (gethash "throttled" qs))))
                (if id
                    `(200 (:content-type "text/html; charset=utf-8")
-                         (,(forum-page-topic id user)))
+                         (,(forum-page-topic id user throttled)))
                    '(404 (:content-type "text/html; charset=utf-8")
                      ("<h1>404</h1>")))))
 
@@ -198,8 +201,8 @@
              (handle-toggle-forum env user))
 
             ;; Hidden analytics URL (no login): /analytics/<admin-secret>
-            ;; Login/registration are disabled on the site, so the owner opens
-            ;; the dashboard via this obscure path instead of a session.
+            ;; Для владельца, если сессия недоступна; /admin/* по-прежнему
+            ;; только по admin-сессии.
             ((and (eq (env-method env) :GET)
                   (config :admin-secret)
                   (string= path (format nil "/analytics/~A" (config :admin-secret))))
@@ -219,15 +222,72 @@
                (list :content-type "text/html; charset=utf-8")
                (list (format nil "<h1>~A</h1><p>~A</p>" (tr :500-error) err))))))))
 
+(defun auth-session-cookie (token)
+  (format nil "session=~A; Path=/; Max-Age=2592000; HttpOnly; SameSite=Lax" token))
+
 (defun handle-login (env)
-  (let ((user (ignore-errors (current-user env))))
-    `(200 (:content-type "text/html; charset=utf-8")
-          (,(forum-page-login user (tr :login-disabled))))))
+  (rate-maybe-cleanup)
+  (let* ((body (parse-post-body env))
+         (ip (or (request-ip env) "unknown"))
+         (email (gethash "email" body))
+         (password (gethash "password" body))
+         (fts (gethash "fts" body)))
+    (labels ((page (msg)
+               (let ((user (ignore-errors (current-user env))))
+                 `(200 (:content-type "text/html; charset=utf-8")
+                       (,(forum-page-login user msg))))))
+      (cond
+        ;; Brute-force защита: 10 попыток в 15 минут на IP
+        ((not (rate-allowed-p (list :login ip) 10 900))
+         (page (tr :auth-rate-limited)))
+        ;; Слепые POST без подписанной формы — бот
+        ((not (verify-form-token fts))
+         (page (tr :auth-too-fast)))
+        (t
+         (let ((token (when (and email password)
+                        (ignore-errors (authenticate-user email password)))))
+           (if token
+               `(302 (:set-cookie ,(auth-session-cookie token)
+                                  :location "/forum")
+                     (""))
+               (page (tr :login-failed)))))))))
 
 (defun handle-register (env)
-  (let ((user (ignore-errors (current-user env))))
-    `(200 (:content-type "text/html; charset=utf-8")
-          (,(forum-page-register user (tr :register-disabled))))))
+  (rate-maybe-cleanup)
+  (let* ((body (parse-post-body env))
+         (ip (or (request-ip env) "unknown"))
+         (username (gethash "username" body))
+         (email (gethash "email" body))
+         (password (gethash "password" body))
+         (website (gethash "website" body))
+         (fts (gethash "fts" body)))
+    (labels ((page (msg)
+               (let ((user (ignore-errors (current-user env))))
+                 `(200 (:content-type "text/html; charset=utf-8")
+                       (,(forum-page-register user msg))))))
+      (cond
+        ;; Не более 5 регистраций в час с одного IP
+        ((not (rate-allowed-p (list :register ip) 5 3600))
+         (page (tr :auth-rate-limited)))
+        ;; Honeypot заполнен — бот; отдаём generic-ошибку, не раскрывая причину
+        ((and website (plusp (length (string-trim " " website))))
+         (page (tr :register-failed)))
+        ;; Форма отправлена раньше 2 секунд после рендера или подпись битая
+        ((not (verify-form-token fts))
+         (page (tr :auth-too-fast)))
+        ((not (valid-username-p username))
+         (page (tr :invalid-username)))
+        ((not (valid-email-p email))
+         (page (tr :invalid-email)))
+        ((not (valid-password-p password))
+         (page (tr :weak-password)))
+        (t
+         (let ((token (register-user username email password)))
+           (if token
+               `(302 (:set-cookie ,(auth-session-cookie token)
+                                  :location "/forum")
+                     (""))
+               (page (tr :register-failed)))))))))
 
 (defun handle-logout (env)
   (let ((token (extract-session-token env)))
@@ -236,46 +296,68 @@
                        :location "/")
           (""))))
 
+(defun user-last-content-age (user-id)
+  "Секунды с последнего поста/топика пользователя; NIL, если ещё ничего не писал."
+  (postmodern:query
+   "SELECT COALESCE(EXTRACT(EPOCH FROM (NOW() - MAX(created_at))), 99999)::int
+    FROM (SELECT created_at FROM posts WHERE user_id = $1
+          UNION ALL SELECT created_at FROM topics WHERE user_id = $1) t"
+   user-id :single))
+
+(defun posting-throttled-p (user-id &optional (min-interval 30))
+  "Антиспам: не чаще одного поста/топика в MIN-INTERVAL секунд."
+  (let ((age (user-last-content-age user-id)))
+    (and age (< age min-interval))))
+
 (defun handle-new-topic (env user)
   (if (not user)
       '(302 (:location "/login") (""))
-      (if (and (forum-closed-p) (not (user-admin-p user)))
-          `(302 (:location "/forum?closed=1")
-                (""))
-          (if (is-muted-p (session-user-id user))
-              `(302 (:location ,(format nil "/topic/0?muted=1"))
-                    (""))
-              (let* ((body (parse-post-body env))
-                     (category-slug (gethash "category" body))
-                     (title (gethash "title" body))
-                     (post-body (gethash "body" body))
-                     (cat (when category-slug (get-category-by-slug category-slug))))
-                (if (and cat title post-body (plusp (length title)) (plusp (length post-body)))
-                    (let ((topic-id (create-topic (getf cat :id) (session-user-id user) title post-body)))
-                      `(302 (:location ,(format nil "/topic/~A" topic-id))
-                            ("")))
-                    `(302 (:location "/new-topic") (""))))))))
+      (let* ((body (parse-post-body env))
+             (category-slug (gethash "category" body))
+             (title (gethash "title" body))
+             (post-body (gethash "body" body))
+             (cat (when category-slug (get-category-by-slug category-slug))))
+        (cond
+          ((and (forum-closed-p) (not (user-admin-p user)))
+           `(302 (:location "/forum?closed=1")
+                 ("")))
+          ((is-muted-p (session-user-id user))
+           `(302 (:location ,(format nil "/topic/0?muted=1"))
+                 ("")))
+          ;; Антиспам: не чаще поста в 30 секунд
+          ((posting-throttled-p (session-user-id user))
+           `(302 (:location "/new-topic?throttled=1")
+                 ("")))
+          ((and cat title post-body (plusp (length title)) (plusp (length post-body)))
+           (let ((topic-id (create-topic (getf cat :id) (session-user-id user) title post-body)))
+             `(302 (:location ,(format nil "/topic/~A" topic-id))
+                   (""))))
+          (t
+           `(302 (:location "/new-topic") ("")))))))
 
 (defun handle-new-post (env user)
   (if (not user)
       '(302 (:location "/login") (""))
-      (if (and (forum-closed-p) (not (user-admin-p user)))
-          (let ((topic-id (ignore-errors (parse-integer (gethash "topic-id" (parse-post-body env))))))
-            `(302 (:location ,(format nil "/topic/~A?closed=1" (or topic-id 0)))
-                  ("")))
-          (if (is-muted-p (session-user-id user))
-              (let ((topic-id (ignore-errors (parse-integer (gethash "topic-id" (parse-post-body env))))))
-                `(302 (:location ,(format nil "/topic/~A" (or topic-id 0)))
-                      ("")))
-              (let* ((body (parse-post-body env))
-                     (topic-id (ignore-errors (parse-integer (gethash "topic-id" body))))
-                     (post-body (gethash "body" body)))
-                (if (and topic-id post-body (plusp (length post-body)))
-                    (progn
-                      (create-post topic-id (session-user-id user) post-body)
-                      `(302 (:location ,(format nil "/topic/~A" topic-id))
-                            ("")))
-                     `(302 (:location "/forum") (""))))))))
+      (let* ((body (parse-post-body env))
+             (topic-id (ignore-errors (parse-integer (gethash "topic-id" body))))
+             (post-body (gethash "body" body)))
+        (cond
+          ((and (forum-closed-p) (not (user-admin-p user)))
+           `(302 (:location ,(format nil "/topic/~A?closed=1" (or topic-id 0)))
+                 ("")))
+          ((is-muted-p (session-user-id user))
+           `(302 (:location ,(format nil "/topic/~A" (or topic-id 0)))
+                 ("")))
+          ;; Антиспам: не чаще поста в 30 секунд
+          ((posting-throttled-p (session-user-id user))
+           `(302 (:location ,(format nil "/topic/~A?throttled=1" (or topic-id 0)))
+                 ("")))
+          ((and topic-id post-body (plusp (length post-body)))
+           (create-post topic-id (session-user-id user) post-body)
+           `(302 (:location ,(format nil "/topic/~A" topic-id))
+                 ("")))
+          (t
+           `(302 (:location "/forum") ("")))))))
 
 (defun handle-delete-post (env user)
   (if (not user)

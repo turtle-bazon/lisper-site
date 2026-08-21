@@ -56,7 +56,8 @@
 - Шаблон: `lisper.conf.template`
 - **Порт по умолчанию**: 8080
 - `:geo-db-path` — путь к `GeoLite2-Country.mmdb` (MaxMind DB); если нет/не найден — гео отключено, не фатально
-- `:admin-secret` — секрет скрытого URL аналитики: `/analytics/<secret>` отдаёт дашборд без логина (вход/регистрация на сайте отключены); неверный секрет → 404, `/admin/*` по-прежнему только по admin-сессии
+- `:admin-secret` — секрет скрытого URL аналитики: `/analytics/<secret>` отдаёт дашборд без логина; неверный секрет → 404, `/admin/*` по-прежнему только по admin-сессии
+- `:form-secret` — секрет HMAC антиспам-токенов форм (регистрация/логин); если не задан — fallback на `:admin-secret`
 
 ## Тонкости и баги
 
@@ -318,8 +319,14 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - **Fix (2026-08-11)**: `apply-migration` сначала вырезает полнострочные комментарии `--` (`strip-sql-comments`) — иначе `;` в комментарии ломал сплит (миграция 0006 падала на фрагменте "drop the PostgreSQL copy."), а фрагмент «комментарий+SQL» мог целиком быть пропущен как комментарий
 - **При добавлении новой миграции**: создать SQL-файлы, `make build` сам регенерирует `src/migrations.lisp` (шаг `embed-resources`)
 
-### Антиспам
-- **Honeypot CAPTCHA** на регистрации — скрытое поле `website`, боты его заполняют, humans нет
+### Антиспам (расширен 2026-08-21, `src/antispam.lisp`)
+- **Регистрация/логин открыты** (2026-08-21): self-hosted email+пароль, БЕЗ внешней авторизации. Формы восстановлены в `forum-page-login`/`forum-page-register` (i18n, honeypot, скрытый токен `fts`)
+- **Rate limiting** — in-memory sliding window (`rate-allowed-p key limit window`, таблица `*rate-table*` + чистка `rate-maybe-cleanup` раз в ~1000 вызовов): регистрация ≤5/час/IP, логин ≤10/15мин/IP. IP через `request-ip` (X-Real-IP/XFF), без заголовков — общий бакет "unknown" (за прокси все легитимные юзеры имеют реальные IP; прямые боты по IP душатся коллективно)
+- **HMAC таймстамп-токены форм** (`make-form-token` → `"ts:hmac"`, `verify-form-token`): подпись SHA-256 секретом `:form-secret` (fallback `:admin-secret`); форма валидна только если отправлена через ≥2с после рендера и ≤24ч — слепые POST-боты отсекаются (`:auth-too-fast`)
+- **Honeypot CAPTCHA** на регистрации — скрытое поле `website`, боты его заполняют, humans нет; при срабатывании — generic «register-failed», причину не раскрываем
+- **Валидация**: username 3–20 `[A-Za-z0-9_]` (`valid-username-p`, CL: `alphanumericp` — НЕ `char-alphanumericp`, его нет!), email базовая проверка (`valid-email-p`), пароль 8–128 (`valid-password-p`)
+- **Троттлинг постинга** (`posting-throttled-p`, 30с): не чаще 1 поста/топика на пользователя (MAX(created_at) по posts+topics UNION); редирект `/new-topic?throttled=1` или `/topic/N?throttled=1`, notice рендерится в обеих страницах (`forum-page-topic`/`forum-page-new-topic` получили optional `throttled` аргумент)
+- **Сессия**: cookie теперь `HttpOnly; SameSite=Lax` (`auth-session-cookie` в routes.lisp)
 - **Закрытие форума** — флаг `forum_closed` в таблице `settings`, админ может закрыть/открыть через `/admin/toggle-forum`
 - Когда форум закрыт: обычные пользователи не могут создавать топики/посты, админы могут
 - Статус форума виден в админке: "ОТКРЫТ" (зелёный) / "ЗАКРЫТ" (красный) + кнопка toggle
@@ -424,7 +431,7 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - **Wookie не кладёт `:remote-addr` в Clack env** — клиентский IP доступен только через заголовки `X-Real-IP` / `X-Forwarded-For` (первый хоп). Без прокси `ip` в `page_views` остаётся NULL. Извлечь peer-адрес из сокета cl-async нельзя: слот `address` не заполняется, `uv_tcp_getpeername` не обёрнут в CFFI
 - **Postmodern превращает Lisp NIL в SQL-строку "false"** (и `search`-позиции вроде 0 — в SQL false): для nullable TEXT-колонок передавать `:null` (функция `sql-null-if-nil`), булевы детекторы (`bot-user-agent-p`) должны возвращать строго T/NIL, иначе `googlebot` на позиции 3 упадёт в boolean-колонку
 - **Postmodern возвращает SQL NULL в результатах как символ `:NULL`** — он truthy! `(or x "")` его НЕ отсекает (`(or :NULL "")` → `:NULL`), а `length`/`string-trim` на нём падают ("The value :NULL is not of type SEQUENCE"). Дашборд аналитики ловил это в "Последние визиты" (`(analytics-truncate (or referrer ""))`). **Фикс**: `COALESCE(referrer, '')` прямо в SQL (`analytics-recent`), а не в Lisp
-- **Скрытый URL аналитики** (`/analytics/<secret>`): рендерит тот же `forum-page-analytics` с `user=nil` (header рендерится анонимным — ок). Добавлен 2026-08-11; до этого дашборд невозможно было открыть, т.к. вход/регистрация отключены
+- **Скрытый URL аналитики** (`/analytics/<secret>`): рендерит тот же `forum-page-analytics` с `user=nil` (header рендерится анонимным — ок). Добавлен 2026-08-11 (когда вход/регистрация были отключены; с 2026-08-21 авторизация снова работает, но URL оставлен как запасной вход)
 
 ## Markdown-парсер на чистом CL (JSCL) (2026-08-14)
 - Цель: заменить marked.js + DOMPurify + highlight.js на чистый CL-парсер, компилируемый JSCL. Живёт в `jscl-tools/markdown.lisp` (пакет `:markdown`, экспорт `render-to-html`)
@@ -452,6 +459,7 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - Таймстемп структур: `(cons :emph inner)`/`(cons :strong inner)`, `render-inline-node` гардирует символы, `*nl*` = newline, JSCL без regex
 
 ## Следующая сессия
+- **Открытие регистрации (2026-08-21) — сделано**: self-hosted email+пароль без внешней авторизации; антиспам — rate limiting + HMAC токены форм + honeypot + валидация + троттлинг постинга 30с (см. «Антиспам»). Протестировано curl-ом (все ветки: слепой POST, мгновенный сабмит, honeypot, дубликаты, валидация, брутфорс-лимиты, троттлинг). Тестовые данные из dev-БД удалены
 - **i18n (2026-08-12) — сделано**: 4 языка (ru/en/tr/uk), cookie `lang` + Accept-Language + суффикс домена, `/set-lang`, `/i18n.js` с клиентским словарём (`window.LISPER_DICT`), `tget`/`tget-or` в site.lisp. Словари проверены (173 ключа во всех 4 языках)
 - **Markdown-парсер (2026-08-14/15) — сделано полностью**: emphasis переписан и проверен + мод-3 правило + тесты в `tests/markdown/` + чистый CL-рендер с экранированием (см. раздел выше). СДЕЛАНО (2026-08-15): highlight.js УДАЛЁН, подсветка Lisp встроена в `markdown:render-to-html` (`highlight-lisp`, см. «Подсветка синтаксиса Lisp на чистом CL»), внешних CDN-скриптов на сайте больше НЕТ. `./tests/markdown/run-tests.sh` PASS=178 FAIL=0, node-тесты site-бандла (/tmp/run_site3.js — ALL PASS, /tmp/run_site_md_built.js — ALL PASS)
 - **S-Dungeon аудит (2026-08-21) — сделано**: игра полностью рабочая, AGENTS.md обновлён (был устаревший статус «не реализована»). Проверено node-харнессом: загрузка бандла + START, генерация (≥5 комнат, stairs/enemies/items), движение стрелки/WASD/`.`, бой, game-over → Enter-restart, 20× RESET-GAME без крашей

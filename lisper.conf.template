@@ -7,4 +7,7 @@
  :db-user "lisper"
  :db-password "lisper"
  :geo-db-path "/path/to/GeoLite2-Country.mmdb"
- :admin-secret "change-me-random-hex")
+ :admin-secret "change-me-random-hex"
+ ;; Секрет HMAC подписей антиспам-токенов форм (регистрация/логин);
+ ;; если не задан — используется admin-secret
+ :form-secret "change-me-another-random-hex")
