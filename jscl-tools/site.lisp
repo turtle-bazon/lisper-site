@@ -487,6 +487,98 @@
            (call-pkg-fn "REPL"
                         (if (string= key "ArrowUp") "REPL-ARROW-UP" "REPL-ARROW-DOWN"))))))))
 
+;;; ------------------------------------------------------------
+;;; Proof-of-work для формы регистрации: solver на SubtleCrypto
+;;; (батчами, чтобы не блокировать UI), стартует сразу при загрузке,
+;;; nonce дописывается в скрытое поле; submit ждёт готовности.
+;;; ------------------------------------------------------------
+
+(defvar *pow-solver-js*
+  "window.LISPER_POW_SOLVE = function(salt, difficulty) {
+  return new Promise(function(resolve, reject) {
+    var enc = new TextEncoder();
+    var saltBytes = enc.encode(salt);
+    var BATCH = 400;
+    var nonce = 0;
+    function zbits(buf) {
+      var b = new Uint8Array(buf);
+      for (var i = 0; i < b.length; i++) {
+        if (b[i] !== 0) { var z = i*8, v = b[i]; while ((v & 128) === 0) { z++; v <<= 1; } return z; }
+      }
+      return b.length * 8;
+    }
+    function cat(n) {
+      var nb = enc.encode(String(n));
+      var out = new Uint8Array(saltBytes.length + nb.length);
+      out.set(saltBytes); out.set(nb, saltBytes.length);
+      return out;
+    }
+    function step() {
+      var ps = [];
+      for (var i = 0; i < BATCH; i++) ps.push(crypto.subtle.digest('SHA-256', cat(nonce + i)));
+      Promise.all(ps).then(function(hashes) {
+        for (var j = 0; j < hashes.length; j++) {
+          if (zbits(hashes[j]) >= difficulty) { resolve(String(nonce + j)); return; }
+        }
+        nonce += BATCH;
+        setTimeout(step, 0);
+      }).catch(function(e){ reject(e); });
+    }
+    step();
+  });
+};")
+
+(defun site-pow-on-solved (nonce-input nonce-js)
+  (setf (jscl::oget nonce-input "value") (cl-str nonce-js))
+  (setf (jscl::oget #j:window "__powReady") #j:true)
+  (site-log "pow solved"))
+
+(defun site-pow-wait-submit (form)
+  ;; form.submit() не вызывает submit-событие, рекурсии нет
+  (if (cl-bool (jscl::oget #j:window "__powReady"))
+      ((jscl::oget form "submit"))
+      ((jscl::oget #j:window "setTimeout")
+       (lambda () (site-pow-wait-submit form))
+       150)))
+
+(defun site-init-pow ()
+  (let ((challenge (el-by-id "pow-challenge"))
+        (nonce-input (el-by-id "pow-nonce"))
+        (form (el-by-id "register-form")))
+    (when (and challenge nonce-input form)
+      ;; Определить solver (идемпотентно: oget для отсутствующего свойства
+      ;; возвращает не #j:undefined, поэтому проверку на наличие не делаем)
+      ((jscl::oget #j:window "eval") (js-str *pow-solver-js*))
+      ;; токен "ts:diff:salt:mac", salt и mac — hex, разбираем по позициям
+      (let* ((raw (get-value challenge))
+             (c1 (position #\: raw))
+             (c2 (and c1 (position #\: raw :start (1+ c1))))
+             (c3 (and c2 (position #\: raw :start (1+ c2)))))
+        (when c3
+          (let ((diff (ignore-errors (parse-integer (subseq raw 0 c1))))
+                (salt (subseq raw (1+ c2) c3)))
+            (cond
+             ((or (not diff) (<= diff 0) (< (- c3 c2) 1))
+              (site-log-error "pow: bad challenge token"))
+             (t
+              (setf (jscl::oget #j:window "__powReady") #j:false)
+              (handler-case
+                  ;; вызов метода как ((oget p "then") cb) сохраняет this;
+                  ;; извлекать .then в переменную нельзя (this потеряется)
+                  ((jscl::oget (funcall (jscl::oget #j:window "LISPER_POW_SOLVE")
+                                        (js-str salt) diff)
+                               "then")
+                   (lambda (nonce-js)
+                     (site-pow-on-solved nonce-input nonce-js)))
+                (error (e)
+                  (site-log-error "pow solver error: " (princ-to-string e))))
+              ;; Submit до готовности — ждём решения, потом отправляем сами
+              (listen form "submit"
+                      (lambda (e)
+                        (unless (cl-bool (jscl::oget #j:window "__powReady"))
+                          ((jscl::oget e "preventDefault"))
+                          (site-pow-wait-submit form))))))))))))
+
 (defun site-init (&optional e)
   (declare (ignore e))
   (site-log "site bundle: init")
@@ -494,6 +586,7 @@
   (site-init-games)
   (site-init-markdown)
   (site-init-lang)
+  (site-init-pow)
   (listen #j:document "keydown" #'site-handle-keydown))
 
 (defun site-boot ()
@@ -503,3 +596,5 @@
         (listen #j:document "DOMContentLoaded" #'site-init))))
 
 (site-boot)
+
+

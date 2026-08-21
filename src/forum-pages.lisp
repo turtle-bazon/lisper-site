@@ -650,10 +650,13 @@
                                   (and closed (tr :registration-closed)))))))
          (unless closed
           (cl-who:htm
-           (:form :method "POST" :action "/register"
+           (:form :method "POST" :action "/register" :id "register-form"
                 (let ((captcha (make-captcha)))
                   (cl-who:htm
                    (:input :type "hidden" :name "fts" :value (make-form-token))
+                   (:input :type "hidden" :name "pow-challenge" :id "pow-challenge"
+                           :value (make-pow-challenge))
+                   (:input :type "hidden" :name "pow-nonce" :id "pow-nonce" :value "")
                    (:div :class "form-group"
                          (:label :for "username" (cl-who:str (tr :username-label)))
                          (:input :type "text" :name "username" :id "username"

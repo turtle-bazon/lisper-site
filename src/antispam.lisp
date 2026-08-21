@@ -81,6 +81,59 @@
                      (and (>= age min-age) (<= age max-age)))))))))))
 
 ;;; ------------------------------------------------------------
+;;; Proof-of-work (hashcash): клиент ищет nonce, для которого
+;;; SHA-256(salt ‖ nonce) имеет DIFF ведущих нулевых бит.
+;;; Stateless: соль и сложность подписаны HMAC в токене формы.
+;;; ------------------------------------------------------------
+
+(defvar *pow-difficulty* 18
+  "Ведущих нулевых бит. 18 ≈ 260k хешей (~0.3-1с в браузере).")
+
+(defun leading-zero-bits (bytes)
+  "Число ведущих нулевых бит дайджеста (до первого ненулевого байта)."
+  (let ((bits 0))
+    (loop for b across bytes
+          do (cond ((= b 0) (incf bits 8))
+                   (t
+                    (loop for k from 7 downto 0
+                          until (logbitp k b)
+                          do (incf bits))
+                    (return-from leading-zero-bits bits))))
+    bits))
+
+(defun make-pow-challenge ()
+  "Токен вида \"ts:diff:salt:hmac(ts:diff:salt)\"."
+  (let* ((ts (get-universal-time))
+         (salt (ironclad:byte-array-to-hex-string
+                (ironclad:random-data 12)))
+         (diff *pow-difficulty*)
+         (msg (format nil "~A:~A:~A" ts diff salt)))
+    (format nil "~A:~A" msg (hmac-hex msg))))
+
+(defun verify-pow (token nonce &key (max-age 3600))
+  "Проверяет подпись challenge, возраст и что SHA-256(salt ‖ nonce)
+даёт не меньше бит нулей, чем заявлено в токене."
+  (when (and token nonce)
+    (let ((parts (split-sequence:split-sequence #\: token)))
+      (when (= (length parts) 4)
+        (destructuring-bind (ts-str diff-str salt mac) parts
+          (let ((ts (ignore-errors (parse-integer ts-str)))
+                (diff (ignore-errors (parse-integer diff-str)))
+                (n (ignore-errors (parse-integer nonce))))
+            (when (and ts diff n (> diff 0) (<= diff 26))
+              (and (string= mac (hmac-hex (format nil "~A:~A:~A" ts-str diff-str salt)))
+                   (let ((age (- (get-universal-time) ts)))
+                     (when (and (>= age 0) (<= age max-age))
+                       (>= (leading-zero-bits
+                            (ironclad:digest-sequence
+                             :sha256
+                             (concatenate '(vector (unsigned-byte 8))
+                                          (ironclad:ascii-string-to-byte-array salt)
+                                          (ironclad:ascii-string-to-byte-array
+                                           (write-to-string n)))))
+                           diff)))))))))))
+
+;;; ------------------------------------------------------------
 ;;; Валидация полей регистрации
 ;;; ------------------------------------------------------------
 

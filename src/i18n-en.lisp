@@ -167,6 +167,7 @@
     (:register-must-agree . "You must agree to the rules and data processing.")
     (:captcha-label . "Type the digits from the picture:")
     (:captcha-failed . "Wrong answer to the check question.")
+    (:pow-failed . "Browser check failed. Reload the page and try again.")
 
     (:md-bold . "Bold")
     (:md-italic . "Italic")

@@ -167,6 +167,7 @@
     (:register-must-agree . "Kuralları ve veri işlemeyi kabul etmelisiniz.")
     (:captcha-label . "Resimdeki rakamları yazın:")
     (:captcha-failed . "Kontrol sorusuna yanlış cevap.")
+    (:pow-failed . "Tarayıcı denetimi başarısız. Sayfayı yenileyip tekrar deneyin.")
 
     (:md-bold . "Kalın")
     (:md-italic . "İtalik")

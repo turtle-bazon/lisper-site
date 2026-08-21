@@ -294,6 +294,10 @@
         ;; Анимированная noise-CAPTCHA
         ((not (verify-captcha captcha-token captcha))
          (page (tr :captcha-failed)))
+        ;; Proof-of-work: клиент обязан был потратить CPU
+        ((not (verify-pow (gethash "pow-challenge" body)
+                          (gethash "pow-nonce" body)))
+         (page (tr :pow-failed)))
         ;; Согласие с правилами и обработкой персональных данных
         ((not (gethash "agree" body))
          (page (tr :register-must-agree)))
