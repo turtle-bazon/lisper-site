@@ -256,11 +256,14 @@
   (rate-maybe-cleanup)
   (let* ((body (parse-post-body env))
          (ip (or (request-ip env) "unknown"))
+         (ua (request-user-agent env))
          (username (gethash "username" body))
          (email (gethash "email" body))
          (password (gethash "password" body))
          (website (gethash "website" body))
-         (fts (gethash "fts" body)))
+         (fts (gethash "fts" body))
+         (captcha (gethash "captcha" body))
+         (captcha-token (gethash "captcha-token" body)))
     (labels ((page (msg)
                (let ((user (ignore-errors (current-user env))))
                  `(200 (:content-type "text/html; charset=utf-8")
@@ -269,12 +272,18 @@
         ;; Не более 5 регистраций в час с одного IP
         ((not (rate-allowed-p (list :register ip) 5 3600))
          (page (tr :auth-rate-limited)))
+        ;; Известные bot-UA (curl/wget/...) — generic-ошибка, не раскрываем причину
+        ((bot-user-agent-p ua)
+         (page (tr :register-failed)))
         ;; Honeypot заполнен — бот; отдаём generic-ошибку, не раскрывая причину
         ((and website (plusp (length (string-trim " " website))))
          (page (tr :register-failed)))
         ;; Форма отправлена раньше 2 секунд после рендера или подпись битая
         ((not (verify-form-token fts))
          (page (tr :auth-too-fast)))
+        ;; Арифметическая CAPTCHA
+        ((not (verify-captcha captcha-token captcha))
+         (page (tr :captcha-failed)))
         ((not (valid-username-p username))
          (page (tr :invalid-username)))
         ((not (valid-email-p email))
@@ -446,3 +455,4 @@
         (log-audit (session-user-id user) "toggle-forum" "setting" nil (if (forum-closed-p) "closed" "opened"))
         `(302 (:location "/admin/users")
               ("")))))
+

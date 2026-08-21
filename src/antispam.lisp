@@ -105,3 +105,36 @@
 
 (defun valid-password-p (s)
   (and (stringp s) (>= (length s) 8) (<= (length s) 128)))
+
+;;; ------------------------------------------------------------
+;;; Арифметическая CAPTCHA (stateless: ответ спрятан в HMAC-токене)
+;;; ------------------------------------------------------------
+
+(defun make-captcha ()
+  "Генерирует простой пример на сложение. Возвращает cons
+(вопрос . токен), токен = \"ts:hmac(ts:answer)\" — ответ внутри подписи,
+в HTML не попадает."
+  (let* ((a (+ 2 (random 8)))
+         (b (+ 1 (random 9)))
+         (ts (get-universal-time))
+         (msg (format nil "~A:~A" ts (+ a b))))
+    (cons (format nil "~A + ~A" a b)
+          (format nil "~A:~A" ts (hmac-hex msg)))))
+
+(defun verify-captcha (token user-answer &key (max-age 86400))
+  "Проверка: перподписываем ts:ответ-пользователя и сравниваем с mac из
+токена — совпадёт только при верном ответе."
+  (when (and token user-answer)
+    (let ((parts (split-sequence:split-sequence #\: token)))
+      (when (= (length parts) 2)
+        (let ((ts (ignore-errors (parse-integer (first parts)))))
+          (when ts
+            (let ((age (- (get-universal-time) ts)))
+              (when (and (>= age 0) (<= age max-age))
+                (let ((n (ignore-errors
+                          (parse-integer (string-trim " " user-answer)))))
+                  (and n
+                       (string= (second parts)
+                                (hmac-hex (format nil "~A:~A" (first parts) n)))))))))))))
+
+

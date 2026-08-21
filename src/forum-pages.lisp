@@ -638,18 +638,26 @@
            (cl-who:htm
             (:div :class "auth-error" (cl-who:str error-message))))
          (:form :method "POST" :action "/register"
-                (:input :type "hidden" :name "fts" :value (make-form-token))
-                (:div :class "form-group"
-                      (:label :for "username" (cl-who:str (tr :username-label)))
-                      (:input :type "text" :name "username" :id "username"
-                              :required "required" :minlength "3" :maxlength "20"))
-                (:div :class "form-group"
-                      (:label :for "email" (cl-who:str (tr :email-label)))
-                      (:input :type "email" :name "email" :id "email" :required "required"))
-                (:div :class "form-group"
-                      (:label :for "password" (cl-who:str (tr :password-label)))
-                      (:input :type "password" :name "password" :id "password"
-                              :required "required" :minlength "8"))
+                (let ((captcha (make-captcha)))
+                  (cl-who:htm
+                   (:input :type "hidden" :name "fts" :value (make-form-token))
+                   (:div :class "form-group"
+                         (:label :for "username" (cl-who:str (tr :username-label)))
+                         (:input :type "text" :name "username" :id "username"
+                                 :required "required" :minlength "3" :maxlength "20"))
+                   (:div :class "form-group"
+                         (:label :for "email" (cl-who:str (tr :email-label)))
+                         (:input :type "email" :name "email" :id "email" :required "required"))
+                   (:div :class "form-group"
+                         (:label :for "password" (cl-who:str (tr :password-label)))
+                         (:input :type "password" :name "password" :id "password"
+                                 :required "required" :minlength "8"))
+                   (:div :class "form-group"
+                         (:label :for "captcha" (cl-who:str (tr-format :captcha-label (car captcha))))
+                         (:input :type "text" :name "captcha" :id "captcha"
+                                 :required "required" :autocomplete "off"
+                                 :inputmode "numeric"))
+                    (:input :type "hidden" :name "captcha-token" :value (cdr captcha))))
                 ;; Honeypot: скрытое поле, боты его заполняют, люди — нет
                 (:div :style "position:absolute;left:-9999px" :aria-hidden "true"
                       (:input :type "text" :name "website" :tabindex "-1" :autocomplete "off"))
