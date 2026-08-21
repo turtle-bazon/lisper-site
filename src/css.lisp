@@ -745,6 +745,26 @@
          :display "block"
          :border-radius "6px")
 
+        (".agree-label"
+         :display "block"
+         :font-size "0.85rem"
+         :color "#9ca3af"
+         :margin-bottom "12px")
+
+        (".agree-label input"
+         :margin-right "6px")
+
+        (".rules-section"
+         :max-width "720px")
+
+        (".rules-list"
+         :padding-left "20px"
+         :color "#d1d5db")
+
+        (".rules-section p"
+         :color "#9ca3af"
+         :margin "10px 0")
+
         (".auth-switch"
          :margin-top "16px"
          :color "#888"

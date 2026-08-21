@@ -106,6 +106,9 @@
              (handle-register env))
             ((and (string= path "/logout") (eq (env-method env) :GET))
              (handle-logout env))
+            ((and (string= path "/rules") (eq (env-method env) :GET))
+             `(200 (:content-type "text/html; charset=utf-8")
+                   (,(forum-page-rules user))))
 
             ;; Forum routes
             ((and (string= path "/forum") (eq (env-method env) :GET))
@@ -281,9 +284,12 @@
         ;; Форма отправлена раньше 2 секунд после рендера или подпись битая
         ((not (verify-form-token fts))
          (page (tr :auth-too-fast)))
-        ;; Арифметическая CAPTCHA
+        ;; Анимированная noise-CAPTCHA
         ((not (verify-captcha captcha-token captcha))
          (page (tr :captcha-failed)))
+        ;; Согласие с правилами и обработкой персональных данных
+        ((not (gethash "agree" body))
+         (page (tr :register-must-agree)))
         ((not (valid-username-p username))
          (page (tr :invalid-username)))
         ((not (valid-email-p email))

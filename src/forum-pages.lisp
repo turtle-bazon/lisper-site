@@ -660,13 +660,45 @@
                                  :required "required" :autocomplete "off"
                                  :inputmode "numeric" :pattern "[0-9 ]*"
                                  :maxlength "8"))
-                    (:input :type "hidden" :name "captcha-token" :value (cdr captcha))))
+                    (:div :class "form-group"
+                         (:label :class "agree-label"
+                                 (:input :type "checkbox" :name "agree"
+                                         :value "yes" :required "required")
+                                 " "
+                                 (cl-who:str (tr :i-agree)) " "
+                                 (:a :href "/rules" :target "_blank"
+                                     (cl-who:str (tr :rules-link)))))
+                   (:input :type "hidden" :name "captcha-token" :value (cdr captcha))))
                 ;; Honeypot: скрытое поле, боты его заполняют, люди — нет
                 (:div :style "position:absolute;left:-9999px" :aria-hidden "true"
                       (:input :type "text" :name "website" :tabindex "-1" :autocomplete "off"))
                 (:button :class "try-button" :type "submit" (cl-who:str (tr :register))))
-         (:p :class "auth-switch"
-             (cl-who:str (tr :have-account)) " "
-             (:a :href "/login" (cl-who:str (tr :login)))))
+          (:p :class "auth-switch"
+              (cl-who:str (tr :have-account)) " "
+              (:a :href "/login" (cl-who:str (tr :login)))))
+         (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
+                       " &copy; 2026 | GPL-3.0"))))))))
+
+(defun forum-page-rules (user)
+  (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
+    (cl-who:htm
+     (:html :lang *lang*
+      (:head (cl-who:str (forum-render-head (tr :rules-title))))
+      (:body
+       (:div :class "container"
+        (:header (cl-who:str (forum-render-header user)))
+        (:div :class "section rules-section"
+         (:h2 (cl-who:str (tr :rules-title)))
+         (:h3 (cl-who:str (tr :rules-h)))
+         (:ul :class "rules-list"
+          (:li (cl-who:str (tr :rule-1)))
+          (:li (cl-who:str (tr :rule-2)))
+          (:li (cl-who:str (tr :rule-3)))
+          (:li (cl-who:str (tr :rule-4))))
+         (:h3 (cl-who:str (tr :privacy-h)))
+         (:p (cl-who:str (tr :privacy-store)))
+         (:p (cl-who:str (tr :privacy-analytics)))
+         (:p (cl-who:str (tr :privacy-purpose)))
+         (:p (cl-who:str (tr :privacy-rights))))
         (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
                       " &copy; 2026 | GPL-3.0"))))))))
