@@ -147,10 +147,51 @@
       (progn (set-setting "registration_closed" "false") nil)
       (progn (set-setting "registration_closed" "true") t)))
 
+;;; Управление разделами (категориями) форума — только админ
+
+(defun valid-slug-p (s)
+  (and (stringp s)
+       (>= (length s) 2) (<= (length s) 50)
+       (every (lambda (c) (or (char= c #\-) (alphanumericp c))) s)))
+
+(defun category-topic-count (category-id)
+  (postmodern:query "SELECT COUNT(*) FROM topics WHERE category_id = $1"
+                    category-id :single))
+
+(defun create-category (name slug description sort-order)
+  (handler-case
+      (progn
+        (postmodern:execute
+         "INSERT INTO categories (name, slug, description, sort_order) VALUES ($1, $2, $3, $4)"
+         name slug description sort-order)
+        t)
+    (cl-postgres:database-error () nil)))
+
+(defun update-category (id name description sort-order)
+  "slug не меняется — на него могут ссылаться внешние ссылки."
+  (postmodern:execute
+   "UPDATE categories SET name = $2, description = $3, sort_order = $4 WHERE id = $1"
+   id name description sort-order))
+
+(defun delete-category (id)
+  "Удаляет раздел только если в нём нет тем. Возвращает T/NIL."
+  (handler-case
+      (if (zerop (category-topic-count id))
+          (progn
+            (postmodern:execute "DELETE FROM categories WHERE id = $1" id)
+            t)
+          nil)
+    (cl-postgres:database-error () nil)))
+
 ;;; Audit logging
 
 (defun log-audit (user-id action &optional target-type target-id details)
-  "Log a moderation action."
+  "Log a moderation action. NIL -> SQL NULL (:null), иначе postmodern
+превращает NIL в строку \"false\" и INTEGER-колонка падает (22P02)."
   (postmodern:execute
    "INSERT INTO audit_log (user_id, action, target_type, target_id, details) VALUES ($1, $2, $3, $4, $5)"
-   user-id action target-type target-id details))
+   (if user-id user-id :null)
+   action
+   (if target-type target-type :null)
+   (if target-id target-id :null)
+   (if details details :null)))

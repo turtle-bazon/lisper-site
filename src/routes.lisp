@@ -207,6 +207,25 @@
             ((and (string= path "/admin/toggle-registration") (eq (env-method env) :POST))
              (handle-toggle-registration env user))
 
+            ;; Admin: категории форума
+            ((and (string= path "/admin/categories") (eq (env-method env) :GET))
+             (if (and user (user-admin-p user))
+                 `(200 (:content-type "text/html; charset=utf-8")
+                       (,(forum-page-admin-categories
+                          user (gethash "error" (or (parse-query-string env)
+                                                    (make-hash-table :test #'equal))))))
+                 `(403 (:content-type "text/html; charset=utf-8")
+                   (,(format nil "<h1>~A</h1>" (tr :403))))))
+
+            ((and (string= path "/admin/category-create") (eq (env-method env) :POST))
+             (handle-category-create env user))
+
+            ((and (string= path "/admin/category-update") (eq (env-method env) :POST))
+             (handle-category-update env user))
+
+            ((and (string= path "/admin/category-delete") (eq (env-method env) :POST))
+             (handle-category-delete env user))
+
             ;; Hidden analytics URL (no login): /analytics/<admin-secret>
             ;; Для владельца, если сессия недоступна; /admin/* по-прежнему
             ;; только по admin-сессии.
@@ -482,4 +501,58 @@
         (log-audit (session-user-id user) "toggle-registration" "setting" nil (if (registration-closed-p) "closed" "opened"))
         `(302 (:location "/admin/users")
               ("")))))
+
+(defun admin-cat-redirect (&optional error-msg)
+  `(302 (:location ,(if error-msg
+                        (format nil "/admin/categories?error=~A"
+                                (url-encode error-msg))
+                        "/admin/categories"))
+        ("")))
+
+(defun handle-category-create (env user)
+  (if (not (and user (user-admin-p user)))
+      '(403 (:content-type "text/html; charset=utf-8")
+        ("<h1>403</h1>"))
+      (let* ((body (parse-post-body env))
+             (name (string-trim " " (or (gethash "name" body) "")))
+             (slug (string-trim " " (or (gethash "slug" body) "")))
+             (desc (or (gethash "description" body) ""))
+             (sort (ignore-errors (parse-integer (gethash "sort" body)))))
+        (cond
+          ((or (not sort) (< (length name) 1) (not (valid-slug-p slug)))
+           (admin-cat-redirect (tr :cat-invalid)))
+          ((not (create-category name slug desc sort))
+           ;; дубликат slug или другая ошибка БД
+           (admin-cat-redirect (tr :cat-slug-taken)))
+          (t
+           (log-audit (session-user-id user) "category-create" "category" nil
+                      (format nil "slug=~A name=~A" slug name))
+           (admin-cat-redirect))))))
+
+(defun handle-category-update (env user)
+  (if (not (and user (user-admin-p user)))
+      '(403 (:content-type "text/html; charset=utf-8")
+        ("<h1>403</h1>"))
+      (let* ((body (parse-post-body env))
+             (id (ignore-errors (parse-integer (gethash "id" body))))
+             (name (string-trim " " (or (gethash "name" body) "")))
+             (desc (or (gethash "description" body) ""))
+             (sort (ignore-errors (parse-integer (gethash "sort" body)))))
+        (when (and id sort (plusp (length name)))
+          (update-category id name desc sort)
+          (log-audit (session-user-id user) "category-update" "category" id))
+        (admin-cat-redirect))))
+
+(defun handle-category-delete (env user)
+  (if (not (and user (user-admin-p user)))
+      '(403 (:content-type "text/html; charset=utf-8")
+        ("<h1>403</h1>"))
+      (let* ((body (parse-post-body env))
+             (id (ignore-errors (parse-integer (gethash "id" body)))))
+        (if (and id (delete-category id))
+            (progn
+              (log-audit (session-user-id user) "category-delete" "category" id)
+              (admin-cat-redirect))
+            ;; в разделе есть темы — удалить нельзя
+            (admin-cat-redirect (tr :cat-not-empty))))))
 

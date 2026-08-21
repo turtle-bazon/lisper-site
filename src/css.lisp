@@ -773,6 +773,35 @@
          :color "#9ca3af"
          :margin "10px 0")
 
+        (".cat-form"
+         :display "flex"
+         :flex-wrap "wrap"
+         :gap "8px"
+         :margin "8px 0")
+
+        (".cat-form input[type=\"text\"], .cat-form input[type=\"number\"]"
+         :background-color "#161b22"
+         :border "1px solid #30363d"
+         :border-radius "6px"
+         :color "#e6edf3"
+         :padding "8px 10px"
+         :font-size "0.9rem")
+
+        (".cat-form input[name=\"name\"]" :flex "2")
+        (".cat-form input[name=\"description\"]" :flex "3")
+        (".cat-form input[name=\"sort\"]" :width "90px")
+
+        (".admin-cat-row"
+         :padding "10px"
+         :border "1px solid #21262d"
+         :border-radius "8px"
+         :margin-bottom "10px")
+
+        (".cat-slug"
+         :color "#6e7681"
+         :font-size "0.85rem"
+         :margin-right "12px")
+
         (".auth-switch"
          :margin-top "16px"
          :color "#888"

@@ -410,6 +410,9 @@
             (:form :method "POST" :action "/admin/toggle-forum" :style "display:inline"
                    (:button :type "submit" :class (if forum-closed "try-button" "admin-button-danger")
                             (cl-who:str (if forum-closed (tr :open-forum) (tr :close-forum))))))
+           (:p :style "margin:8px 0"
+               (:a :href "/admin/categories" (cl-who:str (tr :categories-title))) " · "
+               (:a :href "/admin/analytics" (cl-who:str (tr :analytics))))
            (:div :class "admin-forum-status"
             (:p (cl-who:str (tr :registration-status))
                 (if registration-closed
@@ -434,8 +437,67 @@
                           (:span :class "muted-badge"
                                  (cl-who:str (tr :muted-badge))
                                  (cl-who:str (format nil "~A" (getf u :muted-until)))))))))))
-         (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
-                       " &copy; 2026 | GPL-3.0"))))))))
+          (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
+                        " &copy; 2026 | GPL-3.0"))))))))
+
+(defun forum-page-admin-categories (user &optional notice)
+  (let ((categories (get-categories)))
+    (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
+      (cl-who:htm
+       (:html :lang *lang*
+        (:head (cl-who:str (forum-render-head (tr :categories-title))))
+        (:body
+         (:div :class "container"
+          (:header (cl-who:str (forum-render-header user)))
+          (:div :class "section"
+           (:h2 (cl-who:str (tr :categories-title)))
+           (when notice
+             (cl-who:htm (:div :class "auth-error" (cl-who:str notice))))
+           ;; Создание раздела
+           (:h3 (cl-who:str (tr :cat-add)))
+           (:form :method "POST" :action "/admin/category-create" :class "cat-form"
+                  (:input :type "text" :name "name" :placeholder (tr :name-label)
+                          :required "required" :maxlength "100")
+                  (:input :type "text" :name "slug" :placeholder (tr :slug-label)
+                          :required "required" :maxlength "50"
+                          :pattern "[a-zA-Z0-9\\-]{2,50}")
+                  (:input :type "number" :name "sort" :placeholder (tr :sort-label)
+                          :value "10" :required "required")
+                  (:input :type "text" :name "description" :placeholder (tr :desc-label)
+                          :maxlength "200")
+                  (:button :class "try-button" :type "submit"
+                           (cl-who:str (tr :cat-create))))
+           ;; Список существующих
+           (:h3 (cl-who:str (tr :cat-existing)))
+           (loop for (id name slug description sort-order) in categories
+                 do (cl-who:htm
+                     (:div :class "admin-cat-row"
+                      (:form :method "POST" :action "/admin/category-update"
+                             :class "cat-form"
+                             (:input :type "hidden" :name "id" :value id)
+                             (:input :type "text" :name "name" :value name
+                                     :required "required" :maxlength "100")
+                             (:input :type "number" :name "sort" :value sort-order
+                                     :required "required")
+                             (:input :type "text" :name "description" :value description
+                                     :maxlength "200")
+                             (:button :class "try-button" :type "submit"
+                                      (cl-who:str (tr :save))))
+                      (:span :class "cat-slug" (cl-who:str (format nil "/forum/~A" slug)))
+                      (let ((topics (category-topic-count id)))
+                        (if (zerop topics)
+                            (cl-who:htm
+                             (:form :method "POST" :action "/admin/category-delete"
+                                    :class "cat-form cat-del"
+                                    (:input :type "hidden" :name "id" :value id)
+                                    (:button :class "delete-btn" :type "submit"
+                                             (cl-who:str (tr :cat-delete)))))
+                            (cl-who:htm
+                             (:span :class "muted-badge"
+                                    (cl-who:str (format nil "~A ~A"
+                                                        topics (tr :topics-count))))))))))))
+          (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
+                        " &copy; 2026 | GPL-3.0"))))))))
 
 (defun analytics-truncate (string &optional (limit 45))
   (when string

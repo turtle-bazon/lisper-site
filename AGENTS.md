@@ -338,9 +338,15 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 
 ### Аудит
 - Таблица `audit_log` (id, user_id, action, target_type, target_id, details, created_at)
-- Функция `log-audit` в `forum.lisp` — логирует все действия модерации
-- Действия: delete-post, delete-topic, mute-user, unmute-user, set-role, toggle-forum
+- Функция `log-audit` в `forum.lisp` — логирует все действия модерации. **NIL-аргументы оборачиваются в `:null`** — иначе postmodern превращает NIL в строку "false" и INTEGER `target_id` падает с 22P02 (ломало toggle-forum/registration и category-create)
+- Действия: delete-post, delete-topic, mute-user, unmute-user, set-role, toggle-forum, toggle-registration, category-create/update/delete
 - Вызывается из handlers в `routes.lisp` после каждого действия
+
+### Управление разделами (2026-08-21)
+- `/admin/categories` (admin-only): форма создания (name/slug/sort/description) + список существующих с inline-редактированием (name/sort/description) и кнопкой удаления
+- Роуты: `/admin/category-create`, `/admin/category-update`, `/admin/category-delete` (POST, admin-only, audit-log). Ошибки возвратом на страницу c `?error=` + notice
+- Slug: 2–50 символов `[a-zA-Z0-9-]` (`valid-slug-p`), уникален в БД; **slug при update не меняется** (внешние ссылки). Удаление — только пустых разделов (`category-topic-count` > 0 → отказ «cat-not-empty»)
+- Кнопки-ссылки админки в `/admin/users`: разделы и аналитика. CSS `.cat-form/.admin-cat-row/.cat-slug` в css.lisp
 
 ### Редактор постов
 - **Markdown** — посты хранятся как raw markdown, рендерятся клиентски чистым CL-парсером `markdown:render-to-html`
