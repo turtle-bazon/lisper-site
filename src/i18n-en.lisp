@@ -153,7 +153,7 @@
     (:rule-2 . "No spam or advertising — except presenting your Lisp project in the Projects category.")
     (:rule-3 . "Illegal content is prohibited.")
     (:rule-4 . "Moderators may delete posts and mute violators.")
-    (:privacy-h . "Personal Data (GDPR)")
+    (:privacy-h . "Personal Data")
     (:privacy-store . "Upon registration we store: username, email, password hash (PBKDF2), your topics and posts.")
     (:privacy-analytics . "Analytics: we collect IP, User-Agent, country and visited pages; raw records are kept for 7 days, then aggregated. The visitor identifier is stored only as a SHA-256 hash of a cookie.")
     (:privacy-purpose . "Data is used only for operating the forum, spam protection and traffic statistics. We do not share data with third parties.")

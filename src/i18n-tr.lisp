@@ -153,7 +153,7 @@
     (:rule-2 . "Spam ve reklam yok — Projeler bölümünde Lisp projenizi tanıtmak hariç.")
     (:rule-3 . "Yasadışı içerik yasaktır.")
     (:rule-4 . "Moderatörler mesajları silebilir ve ihlal edenleri susturabilir.")
-    (:privacy-h . "Kişisel Veriler (GDPR)")
+    (:privacy-h . "Kişisel Veriler")
     (:privacy-store . "Kayıt sırasında saklıyoruz: kullanıcı adı, e-posta, şifre özeti (PBKDF2), konu ve mesajlarınız.")
     (:privacy-analytics . "Analitik: IP, User-Agent, ülke ve ziyaret edilen sayfaları topluyoruz; ham kayıtlar 7 gün tutulur, sonra birleştirilir. Ziyaretçi kimliği yalnızca çerezin SHA-256 özeti olarak saklanır.")
     (:privacy-purpose . "Veriler yalnızca forumun işleyişi, spam koruması ve trafik istatistikleri için kullanılır. Verileri üçüncü taraflarla paylaşmıyoruz.")

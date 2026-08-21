@@ -746,13 +746,21 @@
          :border-radius "6px")
 
         (".agree-label"
-         :display "block"
+         :display "flex"
+         :align-items "flex-start"
+         :gap "8px"
          :font-size "0.85rem"
+         :line-height "1.5"
          :color "#9ca3af"
-         :margin-bottom "12px")
+         :margin-bottom "12px"
+         :cursor "pointer")
 
         (".agree-label input"
-         :margin-right "6px")
+         :flex-shrink "0"
+         :width "15px"
+         :height "15px"
+         :margin-top "3px"
+         :accent-color "#22c55e")
 
         (".rules-section"
          :max-width "720px")
