@@ -28,5 +28,12 @@ else
   total_pass=$((total_pass + ${p:-0})); total_fail=$((total_fail + ${f:-0}))
 fi
 
+echo "== node: клик по кнопке (submit gating) =="
+out=$(timeout 60 node --stack-size=65536 tests/pow/click.test.js 2>&1 | grep -E '^PASS|^FAIL|PASS=' || true)
+echo "$out"
+p=$(echo "$out" | tail -1 | grep -oE 'PASS=[0-9]+' | grep -oE '[0-9]+')
+f=$(echo "$out" | tail -1 | grep -oE 'FAIL=[0-9]+' | grep -oE '[0-9]+')
+total_pass=$((total_pass + ${p:-0})); total_fail=$((total_fail + ${f:-0}))
+
 echo "== ИТОГО: PASS=$total_pass FAIL=$total_fail =="
 [ "$total_fail" -eq 0 ]

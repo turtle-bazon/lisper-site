@@ -571,7 +571,8 @@ window.LISPER_POW_SOLVE = function(salt, difficulty) {
 };")
 
 (defun site-pow-on-solved (nonce-input nonce-js)
-  (setf (jscl::oget nonce-input "value") (cl-str nonce-js))
+  ;; nonce-js — JS-строка; в DOM нельзя класть CL-строку (объект!), только js-str
+  (setf (jscl::oget nonce-input "value") (js-str (cl-str nonce-js)))
   (setf (jscl::oget #j:window "__powReady") #j:true)
   (site-log "pow solved"))
 
@@ -607,10 +608,12 @@ window.LISPER_POW_SOLVE = function(salt, difficulty) {
              (c2 (and c1 (position #\: raw :start (1+ c1))))
              (c3 (and c2 (position #\: raw :start (1+ c2)))))
         (when c3
-          (let ((diff (ignore-errors (parse-integer (subseq raw 0 c1))))
+          ;; ВНИМАНИЕ: части токена = ts:diff:salt:mac — diff это ВТОРАЯ
+          ;; часть (между c1 и c2), не первая!
+          (let ((diff (ignore-errors (parse-integer (subseq raw (1+ c1) c2))))
                 (salt (subseq raw (1+ c2) c3)))
             (cond
-             ((or (not diff) (<= diff 0) (< (- c3 c2) 1))
+             ((or (not diff) (<= diff 0) (> diff 26) (< (- c3 c2) 1))
               (site-log-error "pow: bad challenge token"))
              (t
               (setf (jscl::oget #j:window "__powReady") #j:false)
