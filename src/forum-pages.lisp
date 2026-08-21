@@ -420,7 +420,7 @@
                     (cl-who:htm (:span :class "status-open" (cl-who:str (tr :status-open))))))
             (:form :method "POST" :action "/admin/toggle-registration" :style "display:inline"
                    (:button :type "submit" :class (if registration-closed "try-button" "admin-button-danger")
-                            (cl-who:str (if registration-closed (tr :open-registration) (tr :close-registration))))))))
+                            (cl-who:str (if registration-closed (tr :open-registration) (tr :close-registration)))))))
           (:div :class "section"
            (:h2 (cl-who:str (tr :user-management)))
            (:div :class "admin-user-list"
@@ -438,7 +438,7 @@
                                  (cl-who:str (tr :muted-badge))
                                  (cl-who:str (format nil "~A" (getf u :muted-until)))))))))))
           (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
-                        " &copy; 2026 | GPL-3.0"))))))))
+                        " &copy; 2026 | GPL-3.0")))))))))
 
 (defun forum-page-admin-categories (user &optional notice)
   (let ((categories (get-categories)))
@@ -780,6 +780,10 @@
          (:p (cl-who:str (tr :privacy-rights))))
         (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
                       " &copy; 2026 | GPL-3.0"))))))))
+
+
+
+
 
 
 
