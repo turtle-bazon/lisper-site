@@ -738,6 +738,13 @@
          :margin-bottom "16px"
          :font-size "0.9rem")
 
+        (".captcha-box"
+         :margin-bottom "8px")
+
+        (".captcha-box svg"
+         :display "block"
+         :border-radius "6px")
+
         (".auth-switch"
          :margin-top "16px"
          :color "#888"

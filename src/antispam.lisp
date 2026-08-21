@@ -107,23 +107,98 @@
   (and (stringp s) (>= (length s) 8) (<= (length s) 128)))
 
 ;;; ------------------------------------------------------------
-;;; Арифметическая CAPTCHA (stateless: ответ спрятан в HMAC-токене)
+;;; CAPTCHA «анимированный шум» (как на AliExpress): 4 цифры,
+;;; каждая мигает в своём слоте времени поверх мерцающего шума.
+;;; Человек «досматривает» кадры глазами, скрапер видит только
+;;; разметку с координатами штрихов (текста в HTML нет).
+;;; Stateless: код спрятан в HMAC-токене.
 ;;; ------------------------------------------------------------
 
+(defvar *captcha-dur* 2.4)      ; полный цикл анимации, сек
+(defvar *captcha-slot* 0.6)     ; слот одной цифры, сек
+(defvar *captcha-visible* 0.42) ; сколько секунд цифра видна в слоте
+
+(defun seven-seg-lines ()
+  "Координаты штрихов 7-сегментной ячейки 16x28: сегмент -> (x1 y1 x2 y2)."
+  '((#\a . (2 1 14 1))
+    (#\b . (15 2 15 13))
+    (#\c . (15 15 15 26))
+    (#\d . (2 27 14 27))
+    (#\e . (1 15 1 26))
+    (#\f . (1 2 1 13))
+    (#\g . (2 14 14 14))))
+
+(defun digit-segments (digit)
+  (nth digit
+       '((#\a #\b #\c #\d #\e #\f)          ; 0
+         (#\b #\c)                              ; 1
+         (#\a #\b #\g #\e #\d)               ; 2
+         (#\a #\b #\g #\c #\d)               ; 3
+         (#\f #\g #\b #\c)                    ; 4
+         (#\a #\f #\g #\c #\d)               ; 5
+         (#\a #\f #\g #\e #\d #\c)          ; 6
+         (#\a #\b #\c)                         ; 7
+         (#\a #\b #\c #\d #\e #\f #\g)     ; 8
+         (#\a #\b #\c #\d #\f #\g))))       ; 9
+
+(defun captcha-jitter ()
+  "Случайный сдвиг координаты -1..+1: ломает парсинг разметки по
+фиксированной карте сегментов (каждый запрос имеет свою геометрию)."
+  (- (random 3) 1))
+
+(defun captcha-digit-group (digit index stream)
+  "Одна цифра: 7-сегментные штрихи со случайным джиттером, видны только
+в своём временном слоте."
+  (let* ((x (+ 12 (* index 36)))
+         (rot (- (random 17) 8))
+         (start (* index (/ *captcha-slot* *captcha-dur*)))
+         (end (+ start (/ *captcha-visible* *captcha-dur*)))
+         (sw (+ 3 (random 2))))
+    (format stream "<g transform=\"translate(~d,10) rotate(~d 8 14)\">" x rot)
+    (dolist (seg (digit-segments digit))
+      (let ((l (cdr (assoc seg (seven-seg-lines)))))
+        (format stream
+                "<line x1=\"~d\" y1=\"~d\" x2=\"~d\" y2=\"~d\" stroke=\"#22c55e\" stroke-width=\"~d\" stroke-linecap=\"round\"><animate attributeName=\"opacity\" values=\"0;1;0\" keyTimes=\"0;~,3f;~,3f\" calcMode=\"discrete\" dur=\"~,1fs\" repeatCount=\"indefinite\"/></line>"
+                (+ (first l) (captcha-jitter))
+                (+ (second l) (captcha-jitter))
+                (+ (third l) (captcha-jitter))
+                (+ (fourth l) (captcha-jitter))
+                sw start end *captcha-dur*)))
+    (format stream "</g>")))
+
+(defun captcha-noise (stream count)
+  "Мерцающие прямоугольники шума со случайными фазами."
+  (dotimes (i count)
+    (let* ((x (random 156)) (y (random 44))
+           (w (+ 2 (random 3))) (h (+ 2 (random 3)))
+           (dur (/ (+ 25 (random 55)) 100))
+           (begin (- (/ (random 80) 100)))
+           (col (nth (random 4)
+                     '("#1f2937" "#374151" "#4b5563" "#6b7280"))))
+      (format stream
+              "<rect x=\"~,0f\" y=\"~,0f\" width=\"~d\" height=\"~d\" fill=\"~a\"><animate attributeName=\"opacity\" values=\"0;1;0\" keyTimes=\"0;0.5;1\" dur=\"~,2fs\" begin=\"~,2fs\" repeatCount=\"indefinite\"/></rect>"
+              x y w h col dur begin))))
+
 (defun make-captcha ()
-  "Генерирует простой пример на сложение. Возвращает cons
-(вопрос . токен), токен = \"ts:hmac(ts:answer)\" — ответ внутри подписи,
-в HTML не попадает."
-  (let* ((a (+ 2 (random 8)))
-         (b (+ 1 (random 9)))
+  "Возвращает cons (svg-строка . токен); токен = \"ts:hmac(ts:код)\"."
+  (let* ((code (loop repeat 4 collect (random 10)))
+         (code-str (format nil "~{~d~}" code))
          (ts (get-universal-time))
-         (msg (format nil "~A:~A" ts (+ a b))))
-    (cons (format nil "~A + ~A" a b)
-          (format nil "~A:~A" ts (hmac-hex msg)))))
+         (token (format nil "~A:~A" ts
+                        (hmac-hex (format nil "~A:~A" ts code-str))))
+         (svg (with-output-to-string (s)
+                (format s "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"160\" height=\"48\" viewBox=\"0 0 160 48\" role=\"img\" aria-label=\"captcha\">")
+                (format s "<rect width=\"160\" height=\"48\" rx=\"6\" fill=\"#0d1117\"/>")
+                (captcha-noise s 110)
+                (loop for d in code
+                      for i from 0
+                      do (captcha-digit-group d i s))
+                (format s "</svg>"))))
+    (cons svg token)))
 
 (defun verify-captcha (token user-answer &key (max-age 86400))
   "Проверка: перподписываем ts:ответ-пользователя и сравниваем с mac из
-токена — совпадёт только при верном ответе."
+токена — совпадёт только при верном коде."
   (when (and token user-answer)
     (let ((parts (split-sequence:split-sequence #\: token)))
       (when (= (length parts) 2)
@@ -131,10 +206,10 @@
           (when ts
             (let ((age (- (get-universal-time) ts)))
               (when (and (>= age 0) (<= age max-age))
-                (let ((n (ignore-errors
-                          (parse-integer (string-trim " " user-answer)))))
-                  (and n
+                (let ((answer (string-trim " " user-answer)))
+                  (and (plusp (length answer))
                        (string= (second parts)
-                                (hmac-hex (format nil "~A:~A" (first parts) n)))))))))))))
+                                (hmac-hex (format nil "~A:~A" (first parts) answer)))))))))))))
+
 
 

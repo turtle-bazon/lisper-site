@@ -147,7 +147,7 @@
     (:invalid-email . "Geçersiz e-posta.")
     (:weak-password . "Şifre en az 8 karakter olmalıdır.")
     (:throttled-notice . "Bu kadar hızlı olmayın: gönderiler arasında yaklaşık 30 saniye bekleyin.")
-    (:captcha-label . "~a kaç eder?")
+    (:captcha-label . "Resimdeki rakamları yazın:")
     (:captcha-failed . "Kontrol sorusuna yanlış cevap.")
 
     (:md-bold . "Kalın")

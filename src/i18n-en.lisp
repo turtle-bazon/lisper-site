@@ -147,7 +147,7 @@
     (:invalid-email . "Invalid email.")
     (:weak-password . "Password must be at least 8 characters.")
     (:throttled-notice . "Not so fast: wait about 30 seconds between posts.")
-    (:captcha-label . "What is ~a?")
+    (:captcha-label . "Type the digits from the picture:")
     (:captcha-failed . "Wrong answer to the check question.")
 
     (:md-bold . "Bold")

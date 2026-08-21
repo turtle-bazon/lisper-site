@@ -653,10 +653,13 @@
                          (:input :type "password" :name "password" :id "password"
                                  :required "required" :minlength "8"))
                    (:div :class "form-group"
-                         (:label :for "captcha" (cl-who:str (tr-format :captcha-label (car captcha))))
+                         (:label :for "captcha" (cl-who:str (tr :captcha-label)))
+                         (:div :class "captcha-box"
+                               (cl-who:str (car captcha)))
                          (:input :type "text" :name "captcha" :id "captcha"
                                  :required "required" :autocomplete "off"
-                                 :inputmode "numeric"))
+                                 :inputmode "numeric" :pattern "[0-9 ]*"
+                                 :maxlength "8"))
                     (:input :type "hidden" :name "captcha-token" :value (cdr captcha))))
                 ;; Honeypot: скрытое поле, боты его заполняют, люди — нет
                 (:div :style "position:absolute;left:-9999px" :aria-hidden "true"
