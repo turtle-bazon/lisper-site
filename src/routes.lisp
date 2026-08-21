@@ -99,11 +99,11 @@
                    (,(forum-page-login user nil))))
             ((and (string= path "/login") (eq (env-method env) :POST))
              (handle-login env))
-            ((and (string= path "/register") (eq (env-method env) :GET))
-             `(200 (:content-type "text/html; charset=utf-8")
-                   (,(forum-page-register user nil))))
-            ((and (string= path "/register") (eq (env-method env) :POST))
-             (handle-register env))
+             ((and (string= path "/register") (eq (env-method env) :GET))
+              `(200 (:content-type "text/html; charset=utf-8")
+                    (,(forum-page-register user nil (registration-closed-p)))))
+             ((and (string= path "/register") (eq (env-method env) :POST))
+              (handle-register env))
             ((and (string= path "/logout") (eq (env-method env) :GET))
              (handle-logout env))
             ((and (string= path "/rules") (eq (env-method env) :GET))
@@ -203,6 +203,10 @@
             ((and (string= path "/admin/toggle-forum") (eq (env-method env) :POST))
              (handle-toggle-forum env user))
 
+            ;; Admin: toggle registration
+            ((and (string= path "/admin/toggle-registration") (eq (env-method env) :POST))
+             (handle-toggle-registration env user))
+
             ;; Hidden analytics URL (no login): /analytics/<admin-secret>
             ;; Для владельца, если сессия недоступна; /admin/* по-прежнему
             ;; только по admin-сессии.
@@ -272,6 +276,9 @@
                  `(200 (:content-type "text/html; charset=utf-8")
                        (,(forum-page-register user msg))))))
       (cond
+        ;; Регистрация закрыта админом
+        ((registration-closed-p)
+         (page (tr :registration-closed)))
         ;; Не более 5 регистраций в час с одного IP
         ((not (rate-allowed-p (list :register ip) 5 3600))
          (page (tr :auth-rate-limited)))
@@ -459,6 +466,16 @@
       (progn
         (toggle-forum)
         (log-audit (session-user-id user) "toggle-forum" "setting" nil (if (forum-closed-p) "closed" "opened"))
+        `(302 (:location "/admin/users")
+              ("")))))
+
+(defun handle-toggle-registration (env user)
+  (if (not (and user (user-admin-p user)))
+      '(403 (:content-type "text/html; charset=utf-8")
+        ("<h1>403</h1>"))
+      (progn
+        (toggle-registration)
+        (log-audit (session-user-id user) "toggle-registration" "setting" nil (if (registration-closed-p) "closed" "opened"))
         `(302 (:location "/admin/users")
               ("")))))
 

@@ -136,6 +136,17 @@
       (progn (set-setting "forum_closed" "false") nil)
       (progn (set-setting "forum_closed" "true") t)))
 
+(defun registration-closed-p ()
+  "Check if new registrations are temporarily closed."
+  (let ((val (get-setting "registration_closed")))
+    (and val (string= val "true"))))
+
+(defun toggle-registration ()
+  "Toggle registration open/closed state. Returns new state."
+  (if (registration-closed-p)
+      (progn (set-setting "registration_closed" "false") nil)
+      (progn (set-setting "registration_closed" "true") t)))
+
 ;;; Audit logging
 
 (defun log-audit (user-id action &optional target-type target-id details)

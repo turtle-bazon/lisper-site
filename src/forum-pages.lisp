@@ -391,7 +391,8 @@
 
 (defun forum-page-admin-users (user)
   (let ((users (get-all-users))
-        (forum-closed (forum-closed-p)))
+        (forum-closed (forum-closed-p))
+        (registration-closed (registration-closed-p)))
     (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
       (cl-who:htm
        (:html :lang *lang*
@@ -408,7 +409,15 @@
                     (cl-who:htm (:span :class "status-open" (cl-who:str (tr :status-open))))))
             (:form :method "POST" :action "/admin/toggle-forum" :style "display:inline"
                    (:button :type "submit" :class (if forum-closed "try-button" "admin-button-danger")
-                            (cl-who:str (if forum-closed (tr :open-forum) (tr :close-forum)))))))
+                            (cl-who:str (if forum-closed (tr :open-forum) (tr :close-forum))))))
+           (:div :class "admin-forum-status"
+            (:p (cl-who:str (tr :registration-status))
+                (if registration-closed
+                    (cl-who:htm (:span :class "status-closed" (cl-who:str (tr :status-closed))))
+                    (cl-who:htm (:span :class "status-open" (cl-who:str (tr :status-open))))))
+            (:form :method "POST" :action "/admin/toggle-registration" :style "display:inline"
+                   (:button :type "submit" :class (if registration-closed "try-button" "admin-button-danger")
+                            (cl-who:str (if registration-closed (tr :open-registration) (tr :close-registration))))))))
           (:div :class "section"
            (:h2 (cl-who:str (tr :user-management)))
            (:div :class "admin-user-list"
@@ -426,7 +435,7 @@
                                  (cl-who:str (tr :muted-badge))
                                  (cl-who:str (format nil "~A" (getf u :muted-until)))))))))))
          (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
-                       " &copy; 2026 | GPL-3.0")))))))))
+                       " &copy; 2026 | GPL-3.0"))))))))
 
 (defun analytics-truncate (string &optional (limit 45))
   (when string
@@ -624,7 +633,7 @@
         (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
                       " &copy; 2026 | GPL-3.0"))))))))
 
-(defun forum-page-register (user error-message)
+(defun forum-page-register (user error-message &optional closed)
   (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
     (cl-who:htm
      (:html :lang *lang*
@@ -634,10 +643,14 @@
         (:header (cl-who:str (forum-render-header user)))
         (:div :class "auth-section"
          (:h2 (cl-who:str (tr :register)))
-         (when error-message
+         (when (or error-message closed)
            (cl-who:htm
-            (:div :class "auth-error" (cl-who:str error-message))))
-         (:form :method "POST" :action "/register"
+            (:div :class "auth-error"
+                  (cl-who:str (or error-message
+                                  (and closed (tr :registration-closed)))))))
+         (unless closed
+          (cl-who:htm
+           (:form :method "POST" :action "/register"
                 (let ((captcha (make-captcha)))
                   (cl-who:htm
                    (:input :type "hidden" :name "fts" :value (make-form-token))
@@ -672,7 +685,7 @@
                 ;; Honeypot: скрытое поле, боты его заполняют, люди — нет
                 (:div :style "position:absolute;left:-9999px" :aria-hidden "true"
                       (:input :type "text" :name "website" :tabindex "-1" :autocomplete "off"))
-                (:button :class "try-button" :type "submit" (cl-who:str (tr :register))))
+                (:button :class "try-button" :type "submit" (cl-who:str (tr :register))))))
           (:p :class "auth-switch"
               (cl-who:str (tr :have-account)) " "
               (:a :href "/login" (cl-who:str (tr :login)))))
@@ -702,3 +715,6 @@
          (:p (cl-who:str (tr :privacy-rights))))
         (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
                       " &copy; 2026 | GPL-3.0"))))))))
+
+
+
