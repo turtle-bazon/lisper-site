@@ -802,6 +802,10 @@
          :font-size "0.85rem"
          :margin-right "12px")
 
+        (".legacy-html"
+         :line-height "1.5"
+         :word-wrap "break-word")
+
         (".old-author"
          :color "#fbbf24"
          :font-size "0.85rem")

@@ -79,16 +79,24 @@ def parse_thread(path, url_hint):
     title = None
 
     # --- первый пост (topic)
+    # структура .topic: <div><big>title</big></div>, topic-info(автор),
+    # затем <div class="topicbody">BODY</div> до конца блока
     topic_blocks = extract_block(html, 'topic')
-    # блок class="topic" один; внутри него topic-info с автором идёт ПОСЛЕ body
     if topic_blocks:
         tb = topic_blocks[0]
         tm = TITLE_RE.search(tb)
         if tm:
             title = htmllib.unescape(re.sub(r'<[^>]+>', '', tm.group(1))).strip()
-        bodym = re.search(r'<div class="topicbody">(.*?)(?=<div class="topic-info">)',
-                          tb, re.S)
-        body = bodym.group(1) if bodym else ''
+        body = ''
+        bm = re.search(r'<div class="topicbody">', tb)
+        if bm:
+            bend = find_balanced_div(tb, bm.start())
+            if bend > 0:
+                body = inner(tb, bm.end(), bend - len('</div>'))
+            else:
+                warnings.append('topicbody: unbalanced')
+        else:
+            warnings.append('topicbody not found')
         am = AUTHOR_DATE_RE.search(tb)
         author = am.group(1).strip() if am else None
         date = am.group(2) if am else None
@@ -99,7 +107,7 @@ def parse_thread(path, url_hint):
     else:
         warnings.append('no topic block')
 
-    # --- ответы
+    # --- ответы: replybody закрывается перед финальным topic-info
     for m in re.finditer(r'<div class="reply" id="comment-(\d+)"[^>]*>', html):
         msg_id = m.group(1)
         end = find_balanced_div(html, m.start())
@@ -107,9 +115,12 @@ def parse_thread(path, url_hint):
             warnings.append(f'reply {msg_id}: unbalanced block')
             continue
         rb = inner(html, m.end(), end - len('</div>'))
-        bodym = re.search(r'<div class="replybody">(.*?)(?=<div class="topic-info">)',
-                          rb, re.S)
-        body = bodym.group(1) if bodym else ''
+        body = ''
+        bm = re.search(r'<div class="replybody">', rb)
+        if bm:
+            bend = find_balanced_div(rb, bm.start())
+            if bend > 0:
+                body = inner(rb, bm.end(), bend - len('</div>'))
         rt = REPLY_TO_RE.search(rb)
         reply_to = rt.group(1) if rt else None
         # автор ответа: последний topic-author strong в блоке

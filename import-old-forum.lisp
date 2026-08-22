@@ -69,13 +69,27 @@
 ;;; --- санитизация старого HTML (wayback мог сохранить скрипты)
 (defun sanitize-old-html (html)
   (when html
-    (let ((s (cl-ppcre:regex-replace-all "(?is)<script.*?</script>" html "")))
+    (let ((s html))
+      ;; скрипты/фреймы/объекты целиком
+      (setf s (cl-ppcre:regex-replace-all "(?is)<script.*?</script>" s ""))
       (setf s (cl-ppcre:regex-replace-all "(?is)<iframe.*?</iframe>" s ""))
       (setf s (cl-ppcre:regex-replace-all "(?is)<object.*?</object>" s ""))
       ;; on*-обработчики и javascript:-ссылки
       (setf s (cl-ppcre:regex-replace-all
                "(?i)\\son[a-z]+\\s*=\\s*(\"[^\"]*\"|'[^']*'|[^\\s>]+)" s ""))
       (setf s (cl-ppcre:regex-replace-all "(?i)javascript:" s ""))
+      ;; структурные теги старой вёрстки -> <br>: незакрытые <div> ломали
+      ;; вёрстку страницы каскадом; текст по строкам сохраняем
+      (setf s (cl-ppcre:regex-replace-all "(?i)<div[^>]*>" s ""))
+      (setf s (cl-ppcre:regex-replace-all "(?i)</div>" s "<br>"))
+      (setf s (cl-ppcre:regex-replace-all "(?i)<p[^>]*>" s ""))
+      (setf s (cl-ppcre:regex-replace-all "(?i)</p>" s "<br>"))
+      ;; сжать подряд идущие <br> и обрезать края
+      (loop
+        (let ((cleaned (cl-ppcre:regex-replace-all "(?i)(<br>\\s*){2,}" s "<br>")))
+          (if (string= cleaned s) (return) (setf s cleaned))))
+      (setf s (cl-ppcre:regex-replace-all "^(?i)(<br>\\s*)+" s ""))
+      (setf s (cl-ppcre:regex-replace-all "(?i)(<br>\\s*)+$" s ""))
       s)))
 
 (defun parse-date (s)

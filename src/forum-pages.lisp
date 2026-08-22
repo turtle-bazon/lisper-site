@@ -235,7 +235,10 @@
                                                 (:span :class (format nil "role-badge role-~A" role)
                                                         (cl-who:str role))))
                                              (:span :class "post-date" (cl-who:str created-at)))
-                                       (:div :class "post-body md-content" (cl-who:str body))
+                                       (:div :class (if old-author
+                                                        "post-body legacy-html"
+                                                        "post-body md-content")
+                                             (cl-who:str body))
                                        (when (and user (or (user-moderator-p user)
                                                            (= (getf user :id) (getf topic :user-id))))
                                          (cl-who:htm
