@@ -802,6 +802,10 @@
          :font-size "0.85rem"
          :margin-right "12px")
 
+        (".old-author"
+         :color "#fbbf24"
+         :font-size "0.85rem")
+
         (".auth-switch"
          :margin-top "16px"
          :color "#888"

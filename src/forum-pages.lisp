@@ -218,13 +218,17 @@
                                  (:input :type "hidden" :name "category-slug" :value (getf topic :category-slug))
                                  (:button :class "delete-btn" :type "submit" (cl-who:str (tr :delete-topic)))))))
                  (:div :class "post-list"
-                       (loop for (pid body created-at username role)
+                       (loop for (pid body created-at username role old-author)
                              in posts
                              do (cl-who:htm
                                  (:div :class "post-card"
                                        (:div :class "post-header"
                                              (:a :class "post-author" :href (format nil "/user/~A" username)
                                                  (cl-who:str username))
+                                             (when old-author
+                                               (cl-who:htm
+                                                (:span :class "old-author"
+                                                       (cl-who:str (format nil "· ~A: ~A" (tr :old-author) old-author)))))
                                              (when (or (string= role "admin")
                                                        (string= role "moderator"))
                                                (cl-who:htm

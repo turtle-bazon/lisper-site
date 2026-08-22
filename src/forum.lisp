@@ -35,7 +35,7 @@
   (let ((row (postmodern:query
               "SELECT t.id, t.category_id, t.user_id, t.title, TO_CHAR(t.created_at, 'DD.MM.YYYY HH24:MI'), t.post_count,
                       c.name AS category_name, c.slug AS category_slug,
-                      u.username
+                      u.username, c.archived, t.old_author
                FROM topics t
                JOIN categories c ON t.category_id = c.id
                JOIN users u ON t.user_id = u.id
@@ -51,7 +51,7 @@
 
 (defun get-posts (topic-id &optional (offset 0) (limit 50))
   (postmodern:query
-   "SELECT p.id, p.body, TO_CHAR(p.created_at, 'DD.MM.YYYY HH24:MI'), u.username, u.role
+   "SELECT p.id, p.body, TO_CHAR(p.created_at, 'DD.MM.YYYY HH24:MI'), u.username, u.role, p.old_author
     FROM posts p
     JOIN users u ON p.user_id = u.id
     WHERE p.topic_id = $1
@@ -79,6 +79,19 @@
   (postmodern:execute
    "UPDATE topics SET post_count = (SELECT COUNT(*) FROM posts WHERE topic_id = $1), last_post_at = NOW() WHERE id = $1"
    topic-id))
+
+(defun category-archived-p (category-id)
+  "Архивные разделы read-only."
+  (let ((v (postmodern:query
+            "SELECT archived FROM categories WHERE id = $1"
+            category-id :single)))
+    (and v (not (eq v :null)))))
+
+(defun topic-category-archived-p (topic-id)
+  (let ((row (postmodern:query
+              "SELECT c.archived FROM topics t JOIN categories c ON c.id = t.category_id WHERE t.id = $1"
+              topic-id :single)))
+    (and row (not (eq row :null)))))
 
 (defun topic-count (category-id)
   (postmodern:query

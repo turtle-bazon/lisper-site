@@ -176,7 +176,35 @@ ALTER TABLE daily_stats ADD PRIMARY KEY (date, path, country, device, browser, o
 ALTER TABLE daily_stats DROP CONSTRAINT daily_stats_pkey;
 ALTER TABLE daily_stats DROP COLUMN browser;
 ALTER TABLE daily_stats DROP COLUMN os;
-ALTER TABLE daily_stats ADD PRIMARY KEY (date, path, country, device, referrer, is_bot);")))))
+ALTER TABLE daily_stats ADD PRIMARY KEY (date, path, country, device, referrer, is_bot);")))
+    (10 . ((:up . "-- Старый форум lisper.ru: флаг архивности категорий + поля для
+-- сохранения оригинальных авторов/id из старой базы.
+ALTER TABLE categories ADD COLUMN archived BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE topics ADD COLUMN old_thread_id INTEGER;
+ALTER TABLE topics ADD COLUMN old_author VARCHAR(100);
+ALTER TABLE posts ADD COLUMN old_msg_id INTEGER;
+ALTER TABLE posts ADD COLUMN old_author VARCHAR(100);
+ALTER TABLE posts ADD COLUMN old_reply_to INTEGER;
+
+CREATE INDEX idx_topics_old_thread ON topics(old_thread_id);
+CREATE INDEX idx_posts_old_msg ON posts(old_msg_id);
+")
+          (:down . "-- Откат импорта старого форума: удаляем архивные категории
+-- (темы/посты уйдут по каскаду? нет — FK без ON DELETE, поэтому
+-- сначала чистим контент, потом колонки).
+DELETE FROM posts WHERE old_msg_id IS NOT NULL;
+DELETE FROM topics WHERE old_thread_id IS NOT NULL;
+DELETE FROM categories WHERE archived = TRUE;
+
+DROP INDEX IF EXISTS idx_posts_old_msg;
+DROP INDEX IF EXISTS idx_topics_old_thread;
+ALTER TABLE posts DROP COLUMN old_reply_to;
+ALTER TABLE posts DROP COLUMN old_author;
+ALTER TABLE posts DROP COLUMN old_msg_id;
+ALTER TABLE topics DROP COLUMN old_author;
+ALTER TABLE topics DROP COLUMN old_thread_id;
+ALTER TABLE categories DROP COLUMN archived;
+")))))
 
 (defun get-available-migrations ()
   "Return sorted list of (version name) from embedded migrations."

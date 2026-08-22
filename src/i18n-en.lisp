@@ -168,6 +168,7 @@
     (:captcha-label . "Type the digits from the picture:")
     (:captcha-failed . "Wrong answer to the check question.")
     (:pow-failed . "Browser check failed. Reload the page and try again.")
+    (:old-author . "original author")
     (:categories-title . "Forum Categories")
     (:cat-add . "New category")
     (:cat-existing . "Existing categories")

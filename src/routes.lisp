@@ -373,6 +373,10 @@
           ((posting-throttled-p (session-user-id user))
            `(302 (:location "/new-topic?throttled=1")
                  ("")))
+          ;; Архивные разделы read-only
+          ((and cat (category-archived-p (getf cat :id)))
+           `(302 (:location ,(format nil "/forum/~A" category-slug))
+                 ("")))
           ((and cat title post-body (plusp (length title)) (plusp (length post-body)))
            (let ((topic-id (create-topic (getf cat :id) (session-user-id user) title post-body)))
              `(302 (:location ,(format nil "/topic/~A" topic-id))
@@ -396,6 +400,10 @@
           ;; Антиспам: не чаще поста в 30 секунд
           ((posting-throttled-p (session-user-id user))
            `(302 (:location ,(format nil "/topic/~A?throttled=1" (or topic-id 0)))
+                 ("")))
+          ;; Архивные разделы read-only
+          ((and topic-id (topic-category-archived-p topic-id))
+           `(302 (:location ,(format nil "/topic/~A" topic-id))
                  ("")))
           ((and topic-id post-body (plusp (length post-body)))
            (create-post topic-id (session-user-id user) post-body)
