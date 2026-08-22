@@ -42,12 +42,12 @@
                WHERE t.id = $1"
               topic-id)))
     (when row
-      (destructuring-bind (id cat-id user-id title created-at post-count cat-name cat-slug username)
+      (destructuring-bind (id cat-id user-id title created-at post-count cat-name cat-slug username archived old-author)
           (first row)
         (list :id id :category-id cat-id :user-id user-id :title title
               :created-at created-at :post-count post-count
               :category-name cat-name :category-slug cat-slug
-              :username username)))))
+              :username username :archived archived :old-author old-author)))))
 
 (defun get-posts (topic-id &optional (offset 0) (limit 50))
   (postmodern:query
