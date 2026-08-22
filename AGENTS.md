@@ -470,6 +470,13 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - Таймстемп структур: `(cons :emph inner)`/`(cons :strong inner)`, `render-inline-node` гардирует символы, `*nl*` = newline, JSCL без regex
 
 ## Следующая сессия
+- **Импорт старого lisper.ru (2026-08-22) — план задач** (исходник: `wayback/site/` — 1430 файлов, зеркало с Wayback Machine; инвентарь `wayback/cdx_unique.json`; скрипт `wayback/download.py`):
+  1. **Blog engine**: личные блоги пользователей — таблица posts (author→users, markdown-тело, slug), роуты /blog + /blog/<user>/<slug>, лента «все блоги» + по автору; рендер через существующий markdown-парсер
+  2. **Старый форум**: импорт тредов `wayback/site/forum/thread/*.html` (~300 шт.) в БД как read-only категории («Старый форум: common-lisp», …), просмотр на нашем движке по пути /forum-old, ссылка со страницы /forum; скрипт-парсер HTML → topics/posts
+  3. **Articles ↔ blog**: решить, как влить старые статьи (/articles/cl-* и оконные) в blog engine (посты от admin-аккаунта? отдельный тип?) — сначала дизайн, потом код
+  4. **PCL по-русски** (`wayback/pcl/`, 32 главы): решить формат хостинга (статика vs посты); не приоритет
+  5. **Wiki как посты** (`wayback/wiki/`, 59 файлов: Cookbook ru, FAQ): блог-формат + навигация
+  - Уроки скачивания: archive.org требует `--http1.1` (HTTP/2 ломается), `id_/<ts>/<url>` = сырой контент без тулбара; при параллелизме >2 соединений throttle (FAIL 000), ретраи проходят следующими прогонами; /login* и /bitrix/* — мусор, не качать. Тестовый админ dev-БД: admin@lisper.local / LispAdmin-2026!
 - **Открытие регистрации (2026-08-21) — сделано**: self-hosted email+пароль без внешней авторизации; антиспам — rate limiting + HMAC токены форм + honeypot + анимированная noise-CAPTCHA + bot-UA блок + валидация + троттлинг постинга 30с (см. «Антиспам»). Протестировано curl-ом (все ветки: слепой POST, мгновенный сабмит, honeypot, неверный/верный код CAPTCHA — python-декодер SVG, bot-UA, дубликаты, валидация, брутфорс-лимиты, троттлинг). Тестовые данные из dev-БД удалены. Согласие с правилами/GDPR: чекбокс на регистрации + страница `/rules` (i18n ×4). Админ-тогглы: закрытие регистрации (`/admin/toggle-registration`) и форума (`/admin/toggle-forum`) — кнопки в `/admin/users`
 - **Против LLM-ботов (идея на будущее)**: proof-of-work — СДЕЛАНО 2026-08-21 (см. «Антиспам»); email verification (нужен SMTP) — не сделано
 - **i18n (2026-08-12) — сделано**: 4 языка (ru/en/tr/uk), cookie `lang` + Accept-Language + суффикс домена, `/set-lang`, `/i18n.js` с клиентским словарём (`window.LISPER_DICT`), `tget`/`tget-or` в site.lisp. Словари проверены (173 ключа во всех 4 языках)
