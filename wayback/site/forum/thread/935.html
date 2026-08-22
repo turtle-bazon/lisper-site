@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru"> <head> <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> <meta name="keywords" content="Common Lisp,lisp,лисп" /> <title>Пытаюсь поднять rulisp у себя...</title> <link href="/css/style.css" rel="stylesheet" type="text/css" /><link href="/css/jquery.wysiwyg.css" rel="stylesheet" type="text/css" /><link href="/css/forum.css" rel="stylesheet" type="text/css" /><link href="/css/colorize.css" rel="stylesheet" type="text/css" /> <script src="/forum/js/jquery.js" type="text/javascript"></script><script src="/forum/js/jquery.wysiwyg.js" type="text/javascript"></script><script src="/forum/js/jqModal.js" type="text/javascript"></script><script src="/forum/js/forum.js" type="text/javascript"></script> </head> <body> <div class="top"> <div id="login"> <a href="/register">Регистрация</a> | <a href="/login?done=/forum/thread/935">Войти</a> </div> </div> <div id="caution"> <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png" /> <a href="http://www.vkusnoserver.ru/" target="_blank" style="float: right;"> <img src="/vkusnoserver.png" /> </a> </div> <div id="mainmenu"> <ul> <li> <a href="/">Главная</a> </li><li> <a href="/articles/">Статьи</a> </li><li> <a href="/planet/">Планета</a> </li><li> <a href="/forum/">Форум</a> </li><li> <a href="/apps/">Сервисы</a> </li><li> <a href="/pcl/">Practical Common Lisp</a> </li><li> <a href="/wiki/">Wiki</a> </li><li> <a href="/files/">Файлы</a> </li><li> <a href="/search">Поиск</a> </li> </ul> </div> <div id="content"> <div class="thread"> <div id="forum-nav-panel"> <a class="rss-link" href="/forum/rss/threads/935.rss">RSS</a> <ul> <li> <a href="/forum/">Список форумов</a> </li> <li> <a href="/forum/rulisp">Обсуждение проекта</a> </li> <li> <strong>Пытаюсь поднять rulisp у себя...</strong> </li> </ul> </div> <div class="topic"> <div> <big>Пытаюсь поднять rulisp у себя...</big> </div> <div class="topic-info"> <span class="topic-author"> <strong>motopeh</strong> - 10.03.2013 07:43, Сообщений - 4 </span> </div> <div class="topicbody"> Собрал вроде всё самое свежее:<br><br><pre class="code">$ ls
+cl-closure-template   esrap		  restas-colorize	      restas-planet	  wiki-parser
+cl-data-forms-master  hunchentoot-master  restas-directory-publisher  restas-simple-auth
+data-sift-master      restas		  restas-forum		      restas-wiki</pre><br>Остальное на доле quicklisp.<br><br>Все мои патчи:<br><ul><li>В restas-directory-publisher:<br><div class="code"><span class="variable">diff --git </span><span class="symbol">a/restas-directory-publisher.asd</span><span class="variable"> </span><span class="symbol">b/restas-directory-publisher.asd</span><span class="diff-normal"><br>
+</span><span class="variable">index e56cb6d..7b51e39 100644</span><span class="diff-normal"><br>
+</span><span class="string">--- a/restas-directory-publisher.asd<br>
+</span><span class="string">+++ b/restas-directory-publisher.asd<br>
+</span><span class="variable">@@ -9,6 +9,6 @@</span><span class="diff-normal"><br>
+</span><span class="diff-normal"> &nbsp;&nbsp;:defsystem-depends-on (#:closure-template)</span><span class="diff-normal"><br>
+</span><span class="diff-normal"> &nbsp;&nbsp;:depends-on (#:restas #:local-time)</span><span class="diff-normal"><br>
+</span><span class="diff-normal"> &nbsp;&nbsp;:pathname "src"</span><span class="diff-normal"><br>
+</span><span class="diff-deleted">- &nbsp;:serial t<br>
+</span><span class="diff-added">+; &nbsp;:serial t<br>
+</span><span class="diff-normal"> &nbsp;&nbsp;:components ((:closure-template "autoindex")</span><span class="diff-normal"><br>
+</span><span class="diff-normal"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(:file "directory-publisher")))</span></div>Без этого почему-то исходники модуля тупо не грузились. ASDF от sbcl.<br></li><li>В самом rulisp:<br><div class="code"><span class="variable">diff --git </span><span class="symbol">a/src/rulisp.lisp</span><span class="variable"> </span><span class="symbol">b/src/rulisp.lisp</span><span class="diff-normal"><br>
+</span><span class="variable">index ac911ed..8183330 100644</span><span class="diff-normal"><br>
+</span><span class="string">--- a/src/rulisp.lisp<br>
+</span><span class="string">+++ b/src/rulisp.lisp<br>
+</span><span class="variable">@@ -196,7 +196,7 @@</span><span class="diff-normal"><br>
+</span><span class="diff-normal"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:content (restas.directory-publisher.view:autoindex-content data))</span><span class="diff-normal"><br>
+</span><span class="diff-normal"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;out)))</span><span class="diff-normal"><br>
+</span><span class="diff-normal"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(closure-template:ttable-register-template ttable "AUTOINDEX" #'rulisp-autoindex :supersede t)</span><span class="diff-normal"><br>
+</span><span class="diff-deleted">- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(closure-template:ttable-sync-package ttable '#:rulisp.directory-publisher.view))))<br>
+</span><span class="diff-added">+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(closure-template:ttable-extend-package ttable '#:rulisp.directory-publisher.view))))<br>
+</span><span class="diff-normal"> </span><span class="diff-normal"><br>
+</span><span class="diff-normal"> (restas:mount-module -static- (#:restas.directory-publisher)</span><span class="diff-normal"><br>
+</span><span class="diff-normal"> &nbsp;&nbsp;(restas.directory-publisher:*directory* (merge-pathnames "static/" *resources-dir*)))</span></div>В связи с <a href="https://github.com/archimag/cl-closure-template/commit/ce6c09e745e4d8a14396904c100086c981366959">изменениями</a>.</li></ul><p>Сейчас разбираю ошибку в маршруте "/forum". Сервер просто занимается какой-то фигнёй, вместо того чтобы достать упакованный рендер при монтировании форума:</p><p><br></p><pre class="code">  0: (RESTAS:RENDER-OBJECT #<function identity="">
+                           (:FORUMS
+                            ((:TITLE "Common Lisp" :HREF
+                              "/forum/common%20lisp"))
+                            :FEED-HREF "/forum/rss/all.rss" :TITLE
+                            "Все форумы"))
+    1: (RESTAS:RENDER-OBJECT NIL
+                             (:FORUMS
+                              ((:TITLE "Common Lisp" :HREF
+                                "/forum/common%20lisp"))
+                              :FEED-HREF "/forum/rss/all.rss" :TITLE
+                              "Все форумы"))</function></pre> </div>  </div> <div class="topic-pages">  </div> <div class="reply" id="comment-8949"> <div class="topic-info">  [<a href="/forum/messages/8949">#</a>]  </div> <div class="replybody"> Первый аргумент нулевого вызова - <br><div class="code">#&lt;FUNCTION IDENTITY&gt;</div> </div> <div class="topic-info"> <span class="topic-author"> <strong>motopeh</strong> - 10.03.2013 08:51 </span>  </div> </div><div class="reply" id="comment-8950"> <div class="topic-info">  [<a href="/forum/messages/8950">#</a>] Ответ на <a href="/forum/messages/8949">комментарий</a> от motopeh 10.03.2013 08:51 </div> <div class="replybody"> Короче, restas::route-render-method просто обходит систему монтирования. </div> <div class="topic-info"> <span class="topic-author"> <strong>motopeh</strong> - 10.03.2013 10:29 </span>  </div> </div><div class="reply" id="comment-8951"> <div class="topic-info">  [<a href="/forum/messages/8951">#</a>] Ответ на <a href="/forum/messages/8950">комментарий</a> от motopeh 10.03.2013 10:29 </div> <div class="replybody"> Я пока не могу помочь :( Другим сильно занят. </div> <div class="topic-info"> <span class="topic-author"> <strong>archimag</strong> - 10.03.2013 10:51 </span>  </div> </div><div class="reply" id="comment-8952"> <div class="topic-info">  [<a href="/forum/messages/8952">#</a>] Ответ на <a href="/forum/messages/8951">комментарий</a> от archimag 10.03.2013 10:51 </div> <div class="replybody"> Вот мои грязные хаки и костыли:<br><br><pre class="code">	Modified   src/route.lisp
+diff --git a/src/route.lisp b/src/route.lisp
+index b7d7e48..b4e71e3 100644
+--- a/src/route.lisp
++++ b/src/route.lisp
+@@ -23,9 +23,15 @@
+    (additional-variables :initarg :additional-variables :initform nil)))
+ 
+ (defun route-render-method (route)
+-  (or (slot-value route 'render-method)
+-      (module-render-method (route-module route))
+-      #'identity))
++  (let* ((module (route-module route))
++	 (symbol (module-symbol module)))
++    (or (gethash :render-method
++	      (nth 2
++		   (gethash symbol
++			    (pkgmodule-traits-modules (symbol-package symbol)))))
++	(slot-value route 'render-method)
++	(module-render-method module)
++	#'identity)))</pre><br>Но ИМХО надо систему монтирования переделывать, там какая-то лапша из списков и хэш-таблиц. </div> <div class="topic-info"> <span class="topic-author"> <strong>motopeh</strong> - 10.03.2013 11:43 </span>  </div> </div> <div class="topic-pages">  </div> </div>  </div> <div class="bottom">@2009-2013 lisper.ru</div> 
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-7734690-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+ </body> </html>

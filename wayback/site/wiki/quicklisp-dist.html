@@ -1,0 +1,22 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru"> <head> <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> <meta name="keywords" content="Common Lisp,lisp,лисп" /> <title>quicklisp-dist</title> <link href="/css/style.css" rel="stylesheet" type="text/css" /><link href="/css/wiki.css" rel="stylesheet" type="text/css" /><link href="/css/colorize.css" rel="stylesheet" type="text/css" />  </head> <body> <div class="top"> <div id="login"> <a href="/register">Регистрация</a> | <a href="/login?done=/wiki/quicklisp-dist">Войти</a> </div> </div> <div id="caution"> <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png" /> </div> <div id="mainmenu"> <ul> <li> <a href="/">Главная</a> </li><li> <a href="/articles/">Статьи</a> </li><li> <a href="/planet/">Планета</a> </li><li> <a href="/forum/">Форум</a> </li><li> <a href="/apps/">Сервисы</a> </li><li> <a href="/pcl/">Practical Common Lisp</a> </li><li> <a href="/wiki/">Wiki</a> </li><li> <a href="/files/">Файлы</a> </li><li> <a href="/search">Поиск</a> </li> </ul> </div> <div id="content"> <ul class="wiki-page-menu"> <li> <a href="/wiki/edit/quicklisp-dist">Edit</a> </li>  <li> <a href="/wiki/history/quicklisp-dist">History</a> </li>   </ul><div class="article">
+<p>Речь пойдёт о том, как создать свой собственный quicklisp репозиторий. За реализацию этого проекта <a href="https://github.com/orivej/quickdist">https://github.com/orivej/quickdist</a> мегаспасибо orivej.
+</p>
+<p>План такой: разместить свой проект с зависимостями так, чтобы пользователь в две строки мог загрузить его себе. Для этого нам необходим всего лишь хостинг для статических файлов. Github это дело умеет.
+</p>
+<p>Скачайте проект quickdist в папку с локальными проектами. В официальном ql репозитории quickdist нет:
+</p><pre>cd ~/quicklisp/local-projects<br/>git clone https://github.com/orivej/quickdist.git<br/></pre>
+<p>Расположите свои проекты в одной директории, например, ~/projects.
+</p>
+<p>Теперь создайте репозиторий, например в папку ~/projects/cl-systems. На этом шаге нужно знать по какой ссылке будет доступен репозитарий. Если вы расположитесь на гитхабе, ссылка будет выглядеть так: 
+</p><pre>http://%username%.github.com/%projectname%<br/></pre>
+<p>Вызов функции выглядит так (не забудьте заменить %reponame%, %nickname%, %projectname% на свои данные):
+</p><pre>sbcl<br/>(quickdist:quickdist :name "%reponame%" :base-url "http://%nickname%.github.com/%projectname%" :projects-dir "~/projects" :dists-dir "~/projects/cl-systems")<br/></pre>
+<p>Перейдите в папку с репозиторием и поколдуйте гитом, примерно так:
+</p><pre>touch index.html # index.html нужен чтобы гитхаб раздавал http доступ к отдельным файлам проекта<br/>git init <br/>git add .<br/>git commit -a -m "initial commit"<br/>git checkout -b gh-pages # гитхаб раздаёт http доступ только для файлов из ветки gh-pages<br/>git push -u origin master<br/>git push -u origin gh-pages<br/></pre>
+<p>Теперь вы можете добавить ваш репозитарий таким образом:
+</p><pre>(unless (ql-dist:find-dist "%reponame%")<br/>  (ql-dist:install-dist "http://%username%.github.com/%projectname%/%reponame%.txt" :prompt nil))<br/></pre>
+<p>Удаление ссылки на репозиторий выполняется функцией ql:uninstall-dist.
+</p><pre>(ql:uninstall-dist "%reponame%")<br/></pre>
+<p>Лисповая библиотека будет загружаться из наиболее последнего установленного дистрибутива. Изменить данное поведение можно с помощью <code>(ql-dist:preference (ql-dist:find-dist "%reponame%")))</code>. 
+</p></div> </div> <div class="bottom">@2009-2013 lisper.ru</div> </body> </html>

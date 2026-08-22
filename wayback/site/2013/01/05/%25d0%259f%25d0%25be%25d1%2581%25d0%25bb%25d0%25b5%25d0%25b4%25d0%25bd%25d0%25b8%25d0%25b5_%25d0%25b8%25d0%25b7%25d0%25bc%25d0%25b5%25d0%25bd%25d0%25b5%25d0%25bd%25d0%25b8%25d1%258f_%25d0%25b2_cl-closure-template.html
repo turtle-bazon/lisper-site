@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html> <head> <title>Последние изменения в cl-closure-template</title> <link rel="stylesheet" href="/static/mirev/css/style.css"> <link rel="stylesheet" href="/static/mirev/css/prettify.css"> <link rel="alternate" type="application/atom+xml" title="archimag: blog entries feed" href="/feeds/atom" /> <link rel="alternate" type="application/rss+xml" title="archimag: comments feed" href="http://archimagblog.disqus.com/latest.rss" />  </head> <body> <a href="http://github.com/archimag/"> <img style="position: absolute; top: 0; left: 0; border: 0;" src="/static/archimag/image/forkme.png" alt="Fork me on GitHub"> </a> <div id="header"> <a href="/" id="blogname">archimag</a> </div> <div id="content"> <div class="blog-post"> <h2><a href="/2013/01/05/%d0%9f%d0%be%d1%81%d0%bb%d0%b5%d0%b4%d0%bd%d0%b8%d0%b5_%d0%b8%d0%b7%d0%bc%d0%b5%d0%bd%d0%b5%d0%bd%d0%b8%d1%8f_%d0%b2_cl-closure-template">Последние изменения в cl-closure-template</a></h2> <div class="post-metadata"> <div class="post-published"> <a href="/2013/"> 2013 </a>, <a href="/2013/01/"> January </a> <a href="/2013/01/05/"> 5 </a> </div> <div class="post-tags"> <a href="/tags/">Tags</a>:  <a href="/tags/lisp">lisp</a> <a href="/tags/closuretemplates">closuretemplates</a> </div> </div> <div class="document"><p>Тут незадолго до нового года вышел <a class="reference" href="https://developers.google.com/closure/templates/docs/whats_new"><span>новый релиз </span></a> <a class="reference" href="https://developers.google.com/closure/templates/"><span>Google Closure Templates</span></a> и я решил посмотреть, что же изменилось в библиотеке пока я занимался разными другими делами. Оказалось, что разрыв в возможностях с <a class="reference" href="https://github.com/archimag/cl-closure-template"><span>cl-closure-template</span></a> уже довольно внушительный, так что я решил его немного сократить. Правда, некоторые решения оригинальной реализации мне не понравились и я решил от них отклониться. Итак, в последнее время в <a class="reference" href="https://github.com/archimag/cl-closure-template"><span>cl-closure-template</span></a> были добавлены:</p>
+<ul>
+<li><p class="first">Поддержка литералов для списков: <em><span>[&lt;expr1&gt;, &lt;expr2&gt;, ...]</span></em>. Например: <em><span>[1, 'two', [3, false]]</span></em>. <em><span>[]</span></em> - пустой список.</p>
+</li>
+<li><p class="first">Поддержка литералов для словарей: <em><span>{&lt;keyExpr1&gt;: &lt;valueExpr1&gt;, &lt;keyExpr2&gt;: &lt;valueExpr2&gt;, ...}</span></em>. Например: <em><span>{'aaa': 42, 'bbb': 'hello'}</span></em>. <em><span>{:}</span></em> - пустой словарь. В оригинальной версии вместо фигурных скобок используются квадратные и мотивируется это тем, что фигурные уже используются для команд. И в начале я тоже сделал на квадратных. Но потом решил что это не нормально, что гораздо естественнее и приятнее использовать всё таки фигурные скобки. Скорей всего такое решение в оригинальной реализации обусловлено особенностями парсера, но у меня таких особенностей нет, поэтому в итоге переделал на фигурные скобки.</p>
+</li>
+<li><p class="first">Добавлена функция <em><span>keys</span></em>. <em><span>keys(map)</span></em> - возвращает ключи словаря map в виде списка.</p>
+</li>
+<li><p class="first">Добавлена функция <em><span>augmentMap</span></em>. <em><span>augmentMap(baseMap, additionalMap)</span></em> - создаёт новый словарь (ну, реализация несколько сложнее, не просто словарь), содержащий записи как из <em><span>additionalMap</span></em>, так и из <em><span>baseMap</span></em>. При поиске ключа в таком словаре он сначала ищется в <em><span>additionalMap</span></em>, а если не найден, то поиск продолжается в <em><span>baseMap</span></em>. Для Common Lisp получилась хорошая реализация, без лишних движений, а вот в случае JavaScript приходиться заниматься копированием <em><span>additionalMap</span></em>.</p>
+</li>
+<li><p class="first">Добавлена функция <em><span>strContains</span></em>. <em><span>strContains(str, subStr)</span></em> - проверят является ли <em><span>subStr</span></em> частью <em><span>str</span></em>.</p>
+</li>
+<li><p class="first">Добавлена функция <em><span>isNonnull</span></em>. <em><span>isNonnull(value)</span></em> - возвращает <em><span>true</span></em> если <em><span>value</span></em> определенна и не равна <em><span>null</span></em>.</p>
+</li>
+<li><p class="first">Реализована возможность вызывать (call) шаблоны из других namespace. Например:</p>
+<p><pre>{namespace mytemplate.test1}
+
+{template helloWorld}
+    Hello world!
+{/template}</pre></p>
+<p><pre>{namespace mytemplate.test2}
+
+{template callHelloWorld}
+    {call mytemplate.test1.helloWorld /}
+{/template}</pre></p>
+<p>В случае Common Lisp вызвать таким образом можно только зарегистрированный шаблон, а в JavaScript всё что угодно.</p>
+</li>
+<li><p class="first">Добавлена команда <em><span>let</span></em>. Мне не понравилось как она <a class="reference" href="https://developers.google.com/closure/templates/docs/commands#let"><span>сделана </span></a> в <a class="reference" href="https://developers.google.com/closure/templates/"><span>Google Closure Templates</span></a> - не ясно как определяется область видимости создаваемых переменных. При чём, не ясно как в спецификации, там и при просмотре кода шаблоны так же могут быть трудности. Поэтому я решил сделать вариант с более чёткой структурой: <em><span>{let $&lt;identifier1&gt;="&lt;expression1&gt;" $&lt;identifierN&gt;="&lt;expressionN&gt;"}...{/let}</span></em></p>
+<p>Пример:</p>
+<p><pre>{let $x="1" $y="$foo.bar + 10"}
+  // Здесь код, использующий $x и $y
+{/let}</pre></p>
+<p>Честно говоря, ранее у меня уже была команда <em><span>with</span></em>, которая делала то же самое. Но <em><span>let</span></em>, конечно, куда лучше подходит по названию, плюс я немного поправил синтаксис. Правда, при этом была потеряна одна возможность (rendering to string) оригинальной реализации, но я считаю её совершенно несущественной.</p>
+</li>
+</ul>
+<p>В <a class="reference" href="https://developers.google.com/closure/templates/"><span>Google Closure Templates</span></a> сейчас есть такая штука, как "delegates", с которой связанно несколько команд: <em><span>delpackage</span></em>, <em><span>deltemplate</span></em> и <em><span>delcall</span></em>. Я считаю данный функционал исключительно мутным и реализовывать что-либо подобное не хочу. А вместо это предлагаю, как мне представляется, куда более простой и понятный механизм - прототипы пространств имён.</p>
+<p>Рассмотрим Common Lisp backend. При компиляции namespace создаётся <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_pkg.htm" class="common-lisp-entity">package</a> с таким же именем, а в нём функции для каждого шаблона из namespace. Но эти функции на самом деле никакой реализации не содержат, а просто обращаются к объекту <tt class="docutils literal">
+<span class="pre">*ttable*</span></tt>, находящемся в том же пакете. <tt class="docutils literal">
+<span class="pre">*ttable*</span></tt> это объект класса closure-template:ttable, который содержит в себе словарь с реальными обработчикам. Так вот, при создании этого объекта ему можно указать prototype - другой объект класса ttable. Вот небольшой пример, скажем у нас есть такой незамысловатый namespace:</p>
+<p><pre>{namespace myapp.view.base}
+
+{template helloWorld}
+    Hello world!
+{/template}
+
+{template mainPage}
+    &lt;h1&gt;{call helloWorld /}&lt;/h1&gt;
+{/template}</pre></p>
+<p>Если теперь выполнить:</p>
+<p><div class="code"><span class="paren1">(<span class="">closure-template:ensure-ttable-package<br>&nbsp;&nbsp;'<span class="keyword">#:myapp.view.mytheme</span><br>&nbsp;&nbsp;<span class="keyword">:prototype</span> <span class="paren2">(<span class="">closure-template:package-ttable '<span class="keyword">#:myapp.view.base</span></span>)</span></span>)</span></div></p>
+<p>И скомпилировать файл с шаблонами:</p>
+<p><pre>{namespace myapp.view.mytheme}
+
+{template helloWorld}
+    Привет мир!
+{/template}</pre></p>
+<p>То станет возможным выполнить следующий код:</p>
+<p><div class="code">CL-USER&gt; <span class="paren1">(<span class="">myapp.view.base:main-page</span>)</span><br>
+"&lt;h1&gt;Hello world!&lt;/h1&gt;"<br>
+CL-USER&gt; <span class="paren1">(<span class="">myapp.view.mytheme:main-page</span>)</span><br>
+"&lt;h1&gt;Привет мир!&lt;/h1&gt;"</div></p>
+<p>Надеюсь демонстрация получилась достаточно наглядной. Для JavaScript никакой специальной поддержки нет, достаточно просто реализовать такое поведение написав несколько строк на JavaScript:</p>
+<p><pre>myapp.view.mytheme = (function () {
+    function C () {}
+    C.prototype = myapp.view.base;
+    return new C;
+})();</pre></p>
+<p>Вообще, из-за накопления различий и появлением не вполне очевидных возможностей задумался про написание документации.</p>
+</div> </div> <div id="disqus_thread"></div> <script type="text/javascript"> var disqus_shortname = "archimagblog"; var disqus_identifier = "8d03c3a211d5e22c771f6bcf4855acd46fca3960"; var disqus_url = "http://archimag.lisper.ru/permalink/posts/8d03c3a211d5e22c771f6bcf4855acd46fca3960";  
+     (function() {
+     var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+     dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+     })();
+      </script> <noscript> Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a> </noscript> <a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a> </div> <div id="footer"> <div class="right"> Copyright (c) Moskvitin Andrey <br /> Powered by <a href="http://restas.lisper.ru">RESTAS</a> <div id="buttons"> <a href="http://www.sbcl.org/"> <img src="/static/archimag/image/sbclbutton.png" alt="SBCL" /> </a> <a href="http://weitz.de/hunchentoot/"> <img src="/static/archimag/image/hunchentoot10.png" alt="Hunchentoot" /> </a> <a href="http://www.mongodb.org/"> <img src="/static/archimag/image/logo-mongodb.png" alt="mongoDB" /> </a> </div> </div> <a href="/feeds/atom" class="feed">Posts feed</a> <br /> <a href="http://archimagblog.disqus.com/latest.rss" class="feed">Comments feed</a> </div> 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-22971320-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+     </body> </html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru"> <head> <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> <meta name="keywords" content="Common Lisp,lisp,лисп" /> <title>Строковые ключи в hash-таблице</title> <link href="/css/style.css" rel="stylesheet" type="text/css" /><link href="/css/jquery.wysiwyg.css" rel="stylesheet" type="text/css" /><link href="/css/forum.css" rel="stylesheet" type="text/css" /><link href="/css/colorize.css" rel="stylesheet" type="text/css" /> <script src="/forum/js/jquery.js" type="text/javascript"></script><script src="/forum/js/jquery.wysiwyg.js" type="text/javascript"></script><script src="/forum/js/jqModal.js" type="text/javascript"></script><script src="/forum/js/forum.js" type="text/javascript"></script> </head> <body> <div class="top"> <div id="login"> <a href="/register">Регистрация</a> | <a href="/login?done=/forum/thread/683">Войти</a> </div> </div> <div id="caution"> <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png" /> <a href="http://www.vkusnoserver.ru/" target="_blank" style="float: right;"> <img src="/vkusnoserver.png" /> </a> </div> <div id="mainmenu"> <ul> <li> <a href="/">Главная</a> </li><li> <a href="/articles/">Статьи</a> </li><li> <a href="/planet/">Планета</a> </li><li> <a href="/forum/">Форум</a> </li><li> <a href="/apps/">Сервисы</a> </li><li> <a href="/pcl/">Practical Common Lisp</a> </li><li> <a href="/wiki/">Wiki</a> </li><li> <a href="/files/">Файлы</a> </li><li> <a href="/search">Поиск</a> </li> </ul> </div> <div id="content"> <div class="thread"> <div id="forum-nav-panel"> <a class="rss-link" href="/forum/rss/threads/683.rss">RSS</a> <ul> <li> <a href="/forum/">Список форумов</a> </li> <li> <a href="/forum/common-lisp">Common Lisp</a> </li> <li> <strong>Строковые ключи в hash-таблице</strong> </li> </ul> </div> <div class="topic"> <div> <big>Строковые ключи в hash-таблице</big> </div> <div class="topic-info"> <span class="topic-author"> <strong>Lighten</strong> - 29.12.2011 15:07, Сообщений - 8 </span> </div> <div class="topicbody"> <P>В стандартном common lisp, функция gethash принимает в качестве аргумента символ. Но символы ограничены на некоторые буквы и знаки. А мне нужны они все. Попробовал вводить в качестве ключа строки, ошибки не выдал, но по запросу соответствующее значение не возвращает, а просто nil. При выводе всех ключей и соответствующих значений всё нормально, значение есть и оно не nil. Но нужен-то не полный перебор, а доступ по ключу!!! А заменять знаки, которые допустимы в символах и потом их переводить... лучше свой хэш написать))) Вопрос - есть ли способ работать с хэшем со строковым ключом, или какую какую библиотеку подскажите, пожалуйста.</P><P>PS: Использую SBCL+emacs+SLIME.</P><P><BR></P> </div>  </div> <div class="topic-pages">  </div> <div class="reply" id="comment-6746"> <div class="topic-info">  [<a href="/forum/messages/6746">#</a>]  </div> <div class="replybody"> <br><div class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_mk_has.htm" class="symbol">make-hash-table</a> <span class="keyword">:test</span> #'<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_equal.htm" class="symbol">equal</a></span>)</span></div> </div> <div class="topic-info"> <span class="topic-author"> <strong>lithp</strong> - 29.12.2011 15:22 </span>  </div> </div><div class="reply" id="comment-6747"> <div class="topic-info">  [<a href="/forum/messages/6747">#</a>]  </div> <div class="replybody"> смотрите через Slime по комбинации C-c C-d h значение make-hash-table в hyperspec прежде чем задаете вопросы<br><br>&nbsp;<a name="make-hash-table"><i>Function</i> <b>MAKE-HASH-TABLE</b></a> 
+<p>
+</p><p><b>Syntax:</b>
+</p><p>
+</p><p><b>make-hash-table</b> <i><tt>&amp;key</tt> test size rehash-size 
+rehash-threshold</i> =&gt; <i>hash-table</i>
+</p><p>
+</p><p>
+</p><p><b>Arguments and Values:</b>
+</p><p>
+</p><p><i>test</i>---a <a href="26_glo_d.htm#designator" rel="DEFINITION"><i>designator</i></a> for one of the <a href="26_glo_f.htm#function" rel="DEFINITION"><i>functions</i></a> <a href="f_eq.htm#eq" rel="DEFINITION"><b>eq</b></a>, <a href="f_eql.htm#eql" rel="DEFINITION"><b>eql</b></a>, <a href="f_equal.htm#equal" rel="DEFINITION"><b>equal</b></a>, or <a href="f_equalp.htm#equalp" rel="DEFINITION"><b>equalp</b></a>. The default is <a href="f_eql.htm#eql" rel="DEFINITION"><b>eql</b></a>. 
+</p><p><i>size</i>---a non-negative <a href="26_glo_i.htm#integer" rel="DEFINITION"><i>integer</i></a>. The default is <a href="26_glo_i.htm#implementation-dependent" rel="DEFINITION"><i>implementation-dependent</i></a>. 
+</p><p><i>rehash-size</i>---a <a href="t_real.htm#real" rel="DEFINITION"><i>real</i></a> of <a href="26_glo_t.htm#type" rel="DEFINITION"><i>type</i></a> <tt>(or (integer 1 *) (float (1.0) *))</tt>. The 
+default is <a href="26_glo_i.htm#implementation-dependent" rel="DEFINITION"><i>implementation-dependent</i></a>. 
+</p><p><i>rehash-threshold</i>---a <a href="t_real.htm#real" rel="DEFINITION"><i>real</i></a> of <a href="26_glo_t.htm#type" rel="DEFINITION"><i>type</i></a> <tt>(real 0 1)</tt>. The default is <a href="26_glo_i.htm#implementation-dependent" rel="DEFINITION"><i>implementation-dependent</i></a>. 
+</p><p><i>hash-table</i>---a <a href="26_glo_h.htm#hash_table" rel="DEFINITION"><i>hash table</i></a>. 
+</p><p>
+</p><p><b>Description:</b>
+</p><p>
+</p><p>Creates and returns a new <a href="26_glo_h.htm#hash_table" rel="DEFINITION"><i>hash table</i></a>. 
+</p><p><i>test</i> determines how <a href="26_glo_k.htm#key" rel="DEFINITION"><i>keys</i></a> are compared. An <a href="26_glo_o.htm#object" rel="DEFINITION"><i>object</i></a> is said to be present in the <i>hash-table</i> 
+if that <a href="26_glo_o.htm#object" rel="DEFINITION"><i>object</i></a> is the <a href="26_glo_s.htm#same" rel="DEFINITION"><i>same</i></a> under the <i>test</i> as 
+the <a href="26_glo_k.htm#key" rel="DEFINITION"><i>key</i></a> for some entry in 
+the <i>hash-table</i>. 
+</p><p><i>size</i> is a hint to the <a href="26_glo_i.htm#implementation" rel="DEFINITION"><i>implementation</i></a> about how much initial space to 
+allocate in the <i>hash-table</i>. This information, taken together with the 
+<i>rehash-threshold</i>, controls the approximate number of entries which it 
+should be possible to insert before the table has to grow. The actual size might 
+be rounded up from <i>size</i> to the next `good' size; for example, some <a href="26_glo_i.htm#implementation" rel="DEFINITION"><i>implementations</i></a> 
+might round to the next prime number. 
+</p><p><i>rehash-size</i> specifies a minimum amount to increase the size of the 
+<i>hash-table</i> when it becomes full enough to require rehashing; see 
+<i>rehash-theshold</i> below. If <i>rehash-size</i> is an <a href="26_glo_i.htm#integer" rel="DEFINITION"><i>integer</i></a>, the expected 
+growth rate for the table is additive and the <a href="26_glo_i.htm#integer" rel="DEFINITION"><i>integer</i></a> is the number of entries to add; if it is a <a href="26_glo_f.htm#float" rel="DEFINITION"><i>float</i></a>, the expected growth 
+rate for the table is multiplicative and the <a href="26_glo_f.htm#float" rel="DEFINITION"><i>float</i></a> is the ratio of the new size to the old size. As 
+with <i>size</i>, the actual size of the increase might be rounded up. 
+</p><p><i>rehash-threshold</i> specifies how full the <i>hash-table</i> can get 
+before it must grow. It specifies the maximum desired hash-table occupancy 
+level. 
+</p><p>The <a href="26_glo_v.htm#value" rel="DEFINITION"><i>values</i></a> of 
+<i>rehash-size</i> and <i>rehash-threshold</i> do not constrain the <a href="26_glo_i.htm#implementation" rel="DEFINITION"><i>implementation</i></a> to 
+use any particular method for computing when and by how much the size of 
+<i>hash-table</i> should be enlarged. Such decisions are <a href="26_glo_i.htm#implementation-dependent" rel="DEFINITION"><i>implementation-dependent</i></a>, and these <a href="26_glo_v.htm#value" rel="DEFINITION"><i>values</i></a> only hints from the 
+<a href="26_glo_p.htm#programmer" rel="DEFINITION"><i>programmer</i></a> to the <a href="26_glo_i.htm#implementation" rel="DEFINITION"><i>implementation</i></a>, and 
+the <a href="26_glo_i.htm#implementation" rel="DEFINITION"><i>implementation</i></a> is permitted to ignore them. 
+</p><p>
+</p><p><b>Examples:</b>
+</p><p>
+</p><pre> (setq table (make-hash-table)) =&gt;  #&lt;HASH-TABLE EQL 0/120 46142754&gt;
+ (setf (gethash "one" table) 1) =&gt;  1
+ (gethash "one" table) =&gt;  NIL, <a href="26_glo_f.htm#false" rel="DEFINITION">false</a>
+ (setq table (make-hash-table :test 'equal)) =&gt;  #&lt;HASH-TABLE EQUAL 0/139 46145547&gt;
+ (setf (gethash "one" table) 1) =&gt;  1
+ (gethash "one" table) =&gt;  1, T
+ (make-hash-table :rehash-size 1.5 :rehash-threshold 0.7) 
+=&gt;  #&lt;HASH-TABLE EQL 0/120 46156620&gt;
+</pre>
+<p>
+</p><p>
+</p><p><b>Affected By:</b> None. 
+</p><p>
+</p><p><b>Exceptional Situations:</b> None. 
+</p><p>
+</p><p><b>See Also:</b>
+</p><p>
+</p><p><a href="f_gethas.htm#gethash" rel="DEFINITION"><b>gethash</b></a>, <a href="t_hash_t.htm#hash-table" rel="DEFINITION"><b>hash-table</b></a> 
+</p><p>
+</p><p><b>Notes:</b> None. </p> </div> <div class="topic-info"> <span class="topic-author"> <strong>bach74</strong> - 29.12.2011 16:32 </span>  </div> </div><div class="reply" id="comment-6748"> <div class="topic-info">  [<a href="/forum/messages/6748">#</a>] Ответ на <a href="/forum/messages/6747">комментарий</a> от bach74 29.12.2011 16:32 </div> <div class="replybody"> там даже примеры со стрингами есть.&nbsp; Кроме того, есть масса другой литературы. Ее легко скачать. </div> <div class="topic-info"> <span class="topic-author"> <strong>bach74</strong> - 29.12.2011 16:33 </span>  </div> </div><div class="reply" id="comment-6749"> <div class="topic-info">  [<a href="/forum/messages/6749">#</a>]  </div> <div class="replybody"> * (intern "Ну?<br>И каких символов не хватает?<br>!№;%:?*()~@#$%^&amp;|/\\")<br><br>|Ну?<br>И каких символов не хватает?<br>!№;%:?*()~@#$%^&amp;\|/\\|<br>NIL<br>*  </div> <div class="topic-info"> <span class="topic-author"> <strong>andy128k</strong> - 29.12.2011 17:03 </span>  </div> </div><div class="reply" id="comment-6750"> <div class="topic-info">  [<a href="/forum/messages/6750">#</a>] Ответ на <a href="/forum/messages/6746">комментарий</a> от lithp 29.12.2011 15:22 </div> <div class="replybody"> Спасибо большое! </div> <div class="topic-info"> <span class="topic-author"> <strong>Lighten</strong> - 29.12.2011 20:32 </span>  </div> </div><div class="reply" id="comment-6751"> <div class="topic-info">  [<a href="/forum/messages/6751">#</a>] Ответ на <a href="/forum/messages/6750">комментарий</a> от Lighten 29.12.2011 20:32 </div> <div class="replybody"> <P>благодарю, на emacs и slime только перешёл, с emacs'ом вообще на "вы", из книг пока только PCL, Paradigms of Artificail intelligence и Land of Lisp выдержками почитал, искал в них, возможно пропустил... Про intern знаю, но не знаю как его правильно применить скажем вот к такому связыванию:</P><P><BR><DIV class="code"><SPAN class="paren1">(<SPAN class=""><A href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</A> <SPAN class="paren2">(<SPAN class=""><A href="http://www.lispworks.com/reference/HyperSpec/Body/f_intern.htm" class="symbol">intern</A> <SPAN class="string">"Сколько будет дважды два?"</SPAN></SPAN>)</SPAN> <BR>
+<SPAN class="paren2">(<SPAN class=""><A href="http://www.lispworks.com/reference/HyperSpec/Body/f_intern.htm" class="symbol">intern</A> <SPAN class="string">"Сам считай!"</SPAN></SPAN>)</SPAN></SPAN>)</SPAN></DIV><BR></P><P>чтобы получилось: </P><P>REPL</P><P>&gt; Сколько будет дважды два?</P><P>&gt;Сам считай!</P> </div> <div class="topic-info"> <span class="topic-author"> <strong>Lighten</strong> - 29.12.2011 20:47 </span>  </div> </div><div class="reply" id="comment-6752"> <div class="topic-info">  [<a href="/forum/messages/6752">#</a>] Ответ на <a href="/forum/messages/6751">комментарий</a> от Lighten 29.12.2011 20:47 </div> <div class="replybody"> <P>Разве что так:</P><P><BR><DIV class="code"><SPAN class="paren1">(<SPAN class=""><A href="http://www.lispworks.com/reference/HyperSpec/Body/f_eval.htm" class="symbol">eval</A> <SPAN class="paren2">(<SPAN class=""><A href="http://www.lispworks.com/reference/HyperSpec/Body/a_list.htm" class="symbol">list</A> '<A href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</A> <SPAN class="paren3">(<SPAN class=""><A href="http://www.lispworks.com/reference/HyperSpec/Body/f_intern.htm" class="symbol">intern</A> <SPAN class="string">"Сколько будет дважды два?"</SPAN></SPAN>)</SPAN> <SPAN class="string">"Сам считай!"</SPAN></SPAN>)</SPAN></SPAN>)</SPAN><BR>
+<SPAN class="paren1">(<SPAN class=""><A href="http://www.lispworks.com/reference/HyperSpec/Body/f_eval.htm" class="symbol">eval</A> <SPAN class="paren2">(<SPAN class=""><A href="http://www.lispworks.com/reference/HyperSpec/Body/f_intern.htm" class="symbol">intern</A> <SPAN class="paren3">(<SPAN class=""><A href="http://www.lispworks.com/reference/HyperSpec/Body/f_rd_lin.htm" class="symbol">read-line</A></SPAN>)</SPAN></SPAN>)</SPAN></SPAN>)</SPAN></DIV>Короче, спасибо всем, кто помог лучше познать lisp!! Буду дальше стараться!<BR></P> </div> <div class="topic-info"> <span class="topic-author"> <strong>Lighten</strong> - 29.12.2011 21:18 </span>  </div> </div><div class="reply" id="comment-6753"> <div class="topic-info">  [<a href="/forum/messages/6753">#</a>] Ответ на <a href="/forum/messages/6752">комментарий</a> от Lighten 29.12.2011 21:18 </div> <div class="replybody"> <br><div class="code">CL-USER 1 &gt; <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_symb_5.htm" class="symbol">symbol-value</a> <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_intern.htm" class="symbol">intern</a> <span class="string">"Сколько будет дважды два?"</span></span>)</span></span>)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_intern.htm" class="symbol">intern</a> <span class="string">"Сам считай!"</span></span>)</span></span>)</span><br>
+Сам\ считай!<br>
+<br>CL-USER 2 &gt; |Сколько будет дважды два?|<br>
+Сам\ считай!</div> </div> <div class="topic-info"> <span class="topic-author"> <strong>lithp</strong> - 30.12.2011 04:07 </span>  </div> </div> <div class="topic-pages">  </div> </div>  </div> <div class="bottom">@2009-2013 lisper.ru</div> 
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-7734690-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+ </body> </html>

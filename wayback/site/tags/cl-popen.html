@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html> <head> <title>archimag: cl-popen</title> <link rel="stylesheet" href="/static/mirev/css/style.css"> <link rel="stylesheet" href="/static/mirev/css/prettify.css"> <link rel="alternate" type="application/atom+xml" title="archimag: blog entries feed" href="/feeds/atom" />  <link rel="alternate" type="application/rss+xml" title="All articles, tagged with “cl-popen”" href="/feeds/atom/tag/cl-popen" /> </head> <body> <a href="http://github.com/archimag/"> <img style="position: absolute; top: 0; left: 0; border: 0;" src="/static/archimag/image/forkme.png" alt="Fork me on GitHub"> </a> <div id="header"> <a href="/" id="blogname">archimag</a> </div> <div id="content"> <h1><a href="/feeds/atom/tag/cl-popen" class="bigfeed">All articles, tagged with “cl-popen”</a></h1> <div class="blog-post"> <h2><a href="/2010/11/15/cl-popen">cl-popen</a></h2> <div class="post-metadata"> <div class="post-published"> <a href="/2010/"> 2010 </a>, <a href="/2010/11/"> November </a> <a href="/2010/11/15/"> 15 </a> </div> <div class="post-tags"> <a href="/tags/">Tags</a>:  <a href="/tags/lisp">lisp</a> <a href="/tags/cl-popen">cl-popen</a> </div> </div> Переименовал свою либу iolib.process в <a href="https://github.com/archimag/cl-popen">cl-popen</a> и несколько изменил интерфейс. Использовать для создания и взаимодействия с дочерними потоками через стандартные потоки ввода/вывода можно, например, так: <pre>(popen:with-popen2 ("cat | grep good" conveyer pin pout)<br />  (write-line "Java is bad" pin)<br />  (write-line "Python is bad" pin)<br />  (write-line "Common Lisp is good" pin)<br />  (write-line "imho" pin)<br />  (close pin)<br />  (read-line pout))</pre> Поскольку стал использовать эту либу по работе, то добавил ebuild в <a href="https://github.com/archimag/archimag-lisp-overlay">свой оверлей</a>. </div>  </div> <div id="footer"> <div class="right"> Copyright (c) Moskvitin Andrey <br /> Powered by <a href="http://restas.lisper.ru">RESTAS</a> <div id="buttons"> <a href="http://www.sbcl.org/"> <img src="/static/archimag/image/sbclbutton.png" alt="SBCL" /> </a> <a href="http://weitz.de/hunchentoot/"> <img src="/static/archimag/image/hunchentoot10.png" alt="Hunchentoot" /> </a> <a href="http://www.mongodb.org/"> <img src="/static/archimag/image/logo-mongodb.png" alt="mongoDB" /> </a> </div> </div> <a href="/feeds/atom" class="feed">Posts feed</a>  </div> 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-22971320-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+     </body> </html>

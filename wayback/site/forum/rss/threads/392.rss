@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0"><channel><title>Lisper.ru: Динамическая компиляция в slime</title><link>http://lisper.ru/forum/thread/392</link><description>&#13;
+&lt;meta name="qrichtext" content="1"&gt;&lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8"&gt;&lt;style type="text/css"&gt;&#13;
+p, li { white-space: pre-wrap; }&#13;
+&lt;/style&gt;&#13;
+&lt;p style="margin: 0px; text-indent: 0px;"&gt;&lt;!--StartFragment--&gt;Как сделать так, чтобы после динамического переопределения функции и/или перекомпиляции (sbcl компилирует автоматически определённую функцию) сохранялась информация о исходнике? Это возможно сейчас в Slime? Или надо допиливать?&lt;!--EndFragment--&gt;&lt;/p&gt;</description><item><title>LinkFly: Динамическая компиляция в slime</title><link>http://lisper.ru/forum/messages/4171</link><description>&#13;
+&lt;meta name="qrichtext" content="1"&gt;&lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8"&gt;&lt;style type="text/css"&gt;&#13;
+p, li { white-space: pre-wrap; }&#13;
+&lt;/style&gt;&#13;
+&lt;p style="margin: 0px; text-indent: 0px;"&gt;&lt;!--StartFragment--&gt;Как сделать так, чтобы после динамического переопределения функции и/или перекомпиляции (sbcl компилирует автоматически определённую функцию) сохранялась информация о исходнике? Это возможно сейчас в Slime? Или надо допиливать?&lt;!--EndFragment--&gt;&lt;/p&gt;</description><pubDate>MON, 23 Aug 2010 08:01:39 GMT</pubDate></item></channel></rss>

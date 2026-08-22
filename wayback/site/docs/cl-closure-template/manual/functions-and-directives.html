@@ -1,0 +1,106 @@
+<html> <head> <meta http-equiv="Content-Type" content="text/html; charset='utf-8'" /> <link rel="stylesheet" type="text/css" href="../_static/style.css" /> <title>Функции и директивы печати</title> </head> <body> <div id="header"> <h1>cl-closure-template</h1> <span>Use Closure Templates from Common Lisp</span> </div> <div id="menu"> <ul> <li> <a href="../index.html">Начало</a>  </li><li> <a href="contents.html">Руководство</a> <ul> <li> <a href="hello-world-js.html">Hello World с JavaScript</a> </li><li> <a href="hello-world-cl.html">Hello World с Common Lisp</a> </li><li> <a href="concepts.html">Основы</a> </li><li> <a href="commands.html">Команды</a> </li><li> <span>Функции и директивы печати</span> </li><li> <a href="common-lisp-usage.html">Использование с Common Lisp</a> </li> </ul> </li><li> <a href="../ref/index.html">API reference</a>  </li><li> <a href="../differences.html">Отличия от оригинальной реализации</a>  </li> </ul> </div> <div id="content"> <div id="функции-и-директивы-печати" class="document"><h1>Функции и директивы печати<a href="#функции-и-директивы-печати" class="headerlink" title="Permalink to this headline">¶</a></h1><!-- -*- RST -*- -->
+<a id="functions-and-directives" class="target" name="functions-and-directives"></a><div id="table-of-contents" class="topic contents"><ul class="simple">
+<li><a name="id1" class="reference" id="id1" href="#функции"><span id="id1">Функции</span></a></li>
+<li><a name="id2" class="reference" id="id2" href="#директивы-print"><span id="id2">Директивы print</span></a></li>
+</ul>
+</div>
+<div id="функции" class="section"><h2>Функции<a href="#функции" class="headerlink" title="Permalink to this headline">¶</a></h2><table class="docutils"><colgroup><col width="39%" /><col width="61%" /></colgroup>
+<thead valign="bottom"><tr><th>Функция</th>
+<th>Использование</th>
+</tr>
+</thead>
+<tbody valign="top"><tr><td><tt class="docutils literal">
+<span class="pre">isFirst($var)</span></tt></td>
+<td>Используется только внутри блока <tt class="docutils literal">
+<span class="pre">foreach</span></tt>. См. подробности в разделе <a href="commands.html#foreach-ifempty-foreach">foreach, ifempty, /foreach</a></td>
+</tr>
+<tr><td><tt class="docutils literal">
+<span class="pre">isLast($var)</span></tt></td>
+<td>Используется только внутри блока <tt class="docutils literal">
+<span class="pre">foreach</span></tt>. См. подробности в разделе <a href="commands.html#foreach-ifempty-foreach">foreach, ifempty, /foreach</a></td>
+</tr>
+<tr><td><tt class="docutils literal">
+<span class="pre">index($var)</span></tt></td>
+<td>Используется только внутри блока <tt class="docutils literal">
+<span class="pre">foreach</span></tt>. См. подробности в разделе <a href="commands.html#foreach-ifempty-foreach">foreach, ifempty, /foreach</a></td>
+</tr>
+<tr><td><tt class="docutils literal">
+<span class="pre">isNonnull(value)</span></tt></td>
+<td>Возвращает <tt class="docutils literal">
+<span class="pre">true</span></tt> если значение определенно и не равно <tt class="docutils literal">
+<span class="pre">null</span></tt></td>
+</tr>
+<tr><td><tt class="docutils literal">
+<span class="pre">length(list)</span></tt></td>
+<td>Длина списка</td>
+</tr>
+<tr><td><tt class="docutils literal">
+<span class="pre">keys(map)</span></tt></td>
+<td>Возвращает ключи словаря в виде списка. Какой-либо порядок не гарантируется.</td>
+</tr>
+<tr><td><tt class="docutils literal">
+<span class="pre">augmentMap(baseMap,</span> <span class="pre">additionalMap)</span></tt></td>
+<td>Создаёт "расширенный" словарь, содержащий значения как из baseMap, так и из additionalMap. Если какой-либо ключ есть в обоих словарях, то значение берётся из additionalMap.</td>
+</tr>
+<tr><td><tt class="docutils literal">
+<span class="pre">round(number)</span></tt></td>
+<td>Округляет до целого.</td>
+</tr>
+<tr><td><tt class="docutils literal">
+<span class="pre">round(number,</span> <span class="pre">numDigitsAfterDecimalPoint)</span></tt></td>
+<td>numDigitsAfterDecimalPoint обозначает количество знаков после запятой</td>
+</tr>
+<tr><td><tt class="docutils literal">
+<span class="pre">floor(number)</span></tt></td>
+<td>Возвращает наибольшее целое, меньшее или равное аргументу</td>
+</tr>
+<tr><td><tt class="docutils literal">
+<span class="pre">ceiling(number)</span></tt></td>
+<td>Возвращает наименьшее целое, большее или равное аргументу</td>
+</tr>
+<tr><td><tt class="docutils literal">
+<span class="pre">min(number,</span> <span class="pre">number)</span></tt></td>
+<td>Возвращает минимальное из двух чисел</td>
+</tr>
+<tr><td><tt class="docutils literal">
+<span class="pre">max(number,</span> <span class="pre">number)</span></tt></td>
+<td>Возвращает максимальное из двух чисел</td>
+</tr>
+<tr><td><tt class="docutils literal">
+<span class="pre">randomInt(range)</span></tt></td>
+<td>Возвращает случайное целое в диапазоне [0, range - 1] (range должно быть положительным целым)</td>
+</tr>
+<tr><td><tt class="docutils literal">
+<span class="pre">strContains(str,</span> <span class="pre">subStr)</span></tt></td>
+<td>Проверяет является ли subStr частью str</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="директивы-print" class="section"><h2>Директивы print<a href="#директивы-print" class="headerlink" title="Permalink to this headline">¶</a></h2><table class="docutils"><colgroup><col width="39%" /><col width="61%" /></colgroup>
+<thead valign="bottom"><tr><th>Функция</th>
+<th>Использование</th>
+</tr>
+</thead>
+<tbody valign="top"><tr><td><tt class="docutils literal">
+<span class="pre">noAutoescape</span></tt></td>
+<td>Данная директива отключает автоматическое экранирование специальных символов HTML, которое производится для защиты от <a class="reference" href="http://en.wikipedia.org/wiki/Cross-site_scripting"><span>XSS</span></a>.</td>
+</tr>
+<tr><td><tt class="docutils literal">
+<span class="pre">escapeHtml</span></tt></td>
+<td>Включает автоматическое экранирование специальных символов HTML для защиты от <a class="reference" href="http://en.wikipedia.org/wiki/Cross-site_scripting"><span>XSS</span></a>. Эта директива используется в шаблонах, для которых отключено автоматическое экранирование.</td>
+</tr>
+<tr><td><tt class="docutils literal">
+<span class="pre">escapeUri</span></tt></td>
+<td>Используется для экранирования строки, которая может быть использована в качестве параметра URI</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div> </div> <div id="foother"> Copyright @2010-2013 <a href="mailto:archimag@gmail.com">Moskvitin Andrey</a> </div> <div id="comments"> <div id="disqus_thread"></div> <script type="text/javascript"> var disqus_shortname = "archimagblog"; 
+     (function() {
+     var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+     dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+     })();
+      </script> <noscript> Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a> </noscript> <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a> </div> </body> </html>

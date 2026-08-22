@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru"> <head> <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> <meta name="keywords" content="Common Lisp,lisp,лисп" /> <meta name="google-site-verification" content="28QkbFqLuUHaFym8hWK_O_grW1_wSyBF5m_uaVOBf00" />  <title>StumpWM</title>   <link href="/css/style.css" rel="stylesheet" type="text/css" />  <link href="/css/wiki.css" rel="stylesheet" type="text/css" />  <link href="/css/colorize.css" rel="stylesheet" type="text/css" />   </head> <body> <div class="top">  <div id="login"> <a href="/register">Регистрация</a> | <a href="/login?done=/wiki/StumpWM">Войти</a> </div>  </div> <div id="caution"> <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png" /> </div> <div id="mainmenu"> <ul>  <li> <a href="/">Главная</a> </li>  <li> <a href="/articles/">Статьи</a> </li>  <li> <a href="/planet/">Планета</a> </li>  <li> <a href="/forum/">Форум</a> </li>  <li> <a href="/apps/">Сервисы</a> </li>  <li> <a href="/pcl/">Practical Common Lisp</a> </li>  <li> <a href="/wiki/">Wiki</a> </li>  <li> <a href="/files/">Файлы</a> </li>  <li> <a href="/search">Поиск</a> </li>  </ul> </div> <div id="content"> <ul class="wiki-page-menu">  <li> <a href="/wiki/edit/StumpWM">Edit</a> </li>    <li> <a href="/wiki/history/StumpWM">History</a> </li>    </ul><div class="article"><div class="toc"><div class="toc-header">Содержание</div><div class="toc-body"><ul><li><div><a href="#StumpWM">StumpWM</a><ul><li><div><a href="#&#x423;&#x441;&#x442;&#x430;&#x43D;&#x43E;&#x432;&#x43A;&#x430;">Установка</a></div></li><li><div><a href="#&#x41E;&#x434;&#x438;&#x43D; StumpWM">Один StumpWM</a></div></li><li><div><a href="#StumpWM &#x438; Gnome">StumpWM и Gnome</a></div></li><li><div><a href="#&#x41E; &#x447;&#x451;&#x43C; &#x43D;&#x435; &#x431;&#x44B;&#x43B;&#x43E; &#x441;&#x43A;&#x430;&#x437;&#x430;&#x43D;&#x43E;">О чём не было сказано</a></div></li></ul></div></li></ul></div></div>
+<div class="chapter" id="StumpWM"><h3>StumpWM</h3>
+
+<p><em>Есть нечто что делает Emacs особенным текстовым редактором, <br/> так вот - это же нечто делает StumpWM особенным оконным менеджером.
+<br/>
+<br/>
+<a href="http://bc.tech.coop/blog/080429.html">Bill Clementson</a>, примерный перевод, <a href="http://yujianzhang.blogspot.com/2008/07/experiencing-stumpwm.html">отсюда</a>.
+</em>
+<br/>
+<br/>
+<br/>
+</p>
+<p><a href="http://www.nongnu.org/stumpwm/">StumpWM</a> это тайловый оконный менеджер, который отличается следующими особенностями:
+</p><ul><li> Это оконный менеджер полностью написанный на Common Lisp. При его запуске (startx) создаётся полноценный lisp-runtime с доступом к REPL и с возможностью обновить как конфигурацию менеджера так и сам его код в "горячем" режиме.</li><li> Это именно *просто* оконный менеджер, а не рабочее окружение (подобно XFCE, Gnome или KDE). Следовательно, он может использоваться как основа объединяющая разрозненные программы (emacs, например, консоль, и т.п.), а также может работать в качестве менеджера окон какого-либо рабочего окружения, например, Gnome.</li><li> Это keyboard-driven менеджер окон, т.е. предполагается, что большинство операций с окнами проделываются при помощи клавиатурных комбинаций.</li><li> Это тайловый оконный менеджер, как было сказано, - он берет на себя заботу о том как именно будут располагаться окна (если не задать явно другого поведения).</li></ul>
+<p>О том почему и как он возник можно прочитать на <a href="http://en.wikipedia.org/wiki/Stumpwm">Википедии</a>, узнать подробнее о возможностях - в <a href="http://www.nongnu.org/stumpwm/manual/stumpwm.html">документации</a>, также есть небольшое <a href="http://www.archive.org/details/TheStumpWMExperience">видео</a>.
+</p>
+<div class="chapter" id="&#x423;&#x441;&#x442;&#x430;&#x43D;&#x43E;&#x432;&#x43A;&#x430;"><h3>Установка</h3>
+
+<p>Естественней всего использовать StumpWM в связке с SBCL. StumpWM присутствует в репозиториях большинства дистрибутивов, поэтому может быть установлен достаточно просто. Но тут будет рассмотрен ручной способ установки - последней версии из git. Итак, вот небольшой файл, который будет делать всю необходимую работу:
+</p>
+<pre class="code"><span class="comment">;;;<br/></span><span class="comment">;;; Little `script' for install StumpWM in SBCL environment:<br/></span><span class="comment">;;;<br/></span><span class="comment">;;;    sbcl --load stumpwm-install.lisp<br/></span><span class="comment">;;;<br/></span><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_in_pkg.htm" class="symbol">in-package</a> <span class="keyword">#:cl-user</span></span>)</span><br/><br/>;;; Emb. shell<br/><span class="comment">;;;<br/></span><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_set__1.htm" class="symbol">set-dispatch-macro-character</a><br/>  <span class="character">#\#</span><br/>  <span class="character">#\s</span><br/>  #'<span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_lambda.htm" class="symbol"><i><span class="symbol">lambda</span></i></a> <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/t_stream.htm" class="symbol">stream</a> sub-char numarg</span>)</span><br/>      <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_declar.htm" class="symbol">declare</a> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/d_ignore.htm" class="symbol">ignore</a> sub-char numarg</span>)</span></span>)</span><br/>      <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren4">(<span class="">chars</span>)</span><br/>        <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_do_do.htm" class="symbol">do</a> <span class="paren5">(<span class=""><span class="paren6">(<span class="">prev <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_rd_cha.htm" class="symbol">read-char</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_stream.htm" class="symbol">stream</a></span>)</span> curr</span>)</span><br/>             <span class="paren6">(<span class="">curr <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_rd_cha.htm" class="symbol">read-char</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_stream.htm" class="symbol">stream</a></span>)</span> <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_rd_cha.htm" class="symbol">read-char</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_stream.htm" class="symbol">stream</a></span>)</span></span>)</span></span>)</span><br/>          <span class="paren5">(<span class=""><span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_and.htm" class="symbol">and</a> <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_chareq.htm" class="symbol">char=</a> prev <span class="character">#\#</span></span>)</span> <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_chareq.htm" class="symbol">char=</a> curr <span class="character">#\#</span></span>)</span></span>)</span></span>)</span><br/>          <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_push.htm" class="symbol">push</a> prev chars</span>)</span></span>)</span><br/>        <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren5">(<span class=""><span class="paren6">(<span class=""><span class="special">asdf::*verbose-out*</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/v_debug_.htm" class="symbol"><span class="special">*standard-output*</span></a></span>)</span></span>)</span><br/>          <span class="paren5">(<span class="">asdf:run-shell-command<br/>           <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_coerce.htm" class="symbol">coerce</a> <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_revers.htm" class="symbol">nreverse</a> chars</span>)</span> '<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_string.htm" class="symbol">string</a></span>)</span></span>)</span></span>)</span></span>)</span></span>)</span></span>)</span><br/><br/><span class="comment">;;; Little shell script there<br/></span><span class="comment">;;;<br/></span>#s<br/><br/>DIR=`pwd`<br/><br/>if [ -d "stumpwm" ] ; then<br/>
+  cd stumpwm<br/>
+  git pull -f<br/>
+  cd ${DIR}<br/>
+else<br/>
+  git clone git://git.savannah.nongnu.org/stumpwm.git<br/>
+fi<br/><br/>if [ -f "stumpwm/module.lisp.in" ] ; then<br/>
+  mv stumpwm/module.lisp.in stumpwm/module.lisp<br/>
+fi<br/><br/>if [ -f "stumpwm/version.lisp.in" ] ; then<br/>
+  mv stumpwm/version.lisp.in stumpwm/version.lisp<br/>
+fi<br/><br/>##<br/><br/>;;; Make executable stumpwm image<br/><span class="comment">;;;<br/></span><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_load.htm" class="symbol">load</a> <span class="string">"stumpwm/stumpwm.asd"</span></span>)</span><br/><br/><span class="paren1">(<span class="">asdf:oos 'asdf:load-op <span class="keyword">:stumpwm</span></span>)</span><br/><br/><span class="paren1">(<span class="">sb-ext:save-lisp-and-die <span class="string">"stumpwm.bin"</span><br/>                          <span class="keyword">:executable</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a><br/>                          <span class="keyword">:toplevel</span> #'<span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_lambda.htm" class="symbol"><i><span class="symbol">lambda</span></i></a> <span class="paren3">(<span class=""/>)</span> <span class="paren3">(<span class="">stumpwm:stumpwm <span class="string">":0"</span></span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>Тут показан простой способ встроить shell сценарии в лисп-код с помощью макросов чтения, к примеру:
+</p>
+<pre class="code"><p>CL-USER&gt; #s pwd ##<br/><span class="comment">; $  pwd <br/></span>/home/treep/devel/lisp<br/>
+0<br/></p></pre>
+
+<p>После запуска
+</p><pre>sbcl --load stumpwm-install.lisp<br/></pre>
+<p>будет создан git-репозиторий, исходный код будет скомпилирован и сохранён в образ.
+</p>
+<p>При повторном запуске
+</p><pre>sbcl --load stumpwm-install.lisp<br/></pre>
+<p>git-репозиторий будет по необходимости обновлён (pull), а образ - пересобран снова.
+</p>
+<p>После этого нужно положить образ stumpwm.bin в удобное место.
+</p>
+</div><div class="chapter" id="&#x41E;&#x434;&#x438;&#x43D; StumpWM"><h3>Один StumpWM</h3>
+
+<p>Пишем в файл ~/.xinitrc строчку
+</p><pre>exec /path/to/stumpwm<br/></pre>
+<p>Теперь (если вы можете это сделать :) если нет - нужно перезагрузится, или остановить gdm (gdm stop)) :
+</p><pre>killall X<br/>startx<br/></pre>
+<p>И мы оказываемся в "голом" StumpWM.
+</p>
+</div><div class="chapter" id="StumpWM &#x438; Gnome"><h3>StumpWM и Gnome</h3>
+
+<p>Чтобы использовать StumpWM как независимый менеджер окон в среде Gnome нужно совершить следующие действия:
+</p><ul><li> Убедится, что вход в систему осуществляется через GDM и его меню выбора сессий (механизм xsessions). В gentoo нужно поступить согласно <a href="http://www.gentoo.org/doc/ru/gnome-config.xml">http://www.gentoo.org/doc/ru/gnome-config.xml</a></li><li> На всякий случай:</li></ul><pre>gconftool-2 -u /desktop/gnome/session/required_components/windowmanager <br/></pre><ul><li> sudo mkdir /etc/X11/sessions</li><li> Записать в файл /etc/X11/sessions/Xsessions.desktop следующее:</li></ul><pre>[Desktop Entry]<br/>Name=Xsession<br/>Comment=This runs ~/.xsession<br/>Exec=/etc/X11/Xsession<br/></pre><ul><li> В файле ~/.xsession написать</li></ul><pre>export WINDOW_MANAGER="/path/to/stumpwm"<br/>exec gnome-session <br/></pre>
+<p>Вот и всё, однако это хоть и StumpWM в Gnome окружении - это не типичный Gnome - так шрифты будут выставлены по-умолчанию (скверно :), а гномовские панели будут отсутствовать. Панели можно запустить с помощью
+</p><pre>gnome-panel &amp;<br/></pre>
+<p>(но и тут может потребоваться напильник :)
+</p>
+</div><div class="chapter" id="&#x41E; &#x447;&#x451;&#x43C; &#x43D;&#x435; &#x431;&#x44B;&#x43B;&#x43E; &#x441;&#x43A;&#x430;&#x437;&#x430;&#x43D;&#x43E;"><h3>О чём не было сказано</h3>
+
+<p>~/.stumpwmrc - конфигурационный файл (на Common Lisp), позволяющий настроить любое необходимое поведение.
+</p>
+<p>Шрифты - изначально они выглядят (мягко говоря) не очень хорошо, поэтому требуют отдельной настройки.
+</p>
+<p>Использование в качестве естественного WM среды Gnome (XFCE, KDE, etc.).
+</p></div></div></div> </div> <div class="bottom">@2009-2010 lisper.ru</div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-7734690-1");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+ </body> </html>

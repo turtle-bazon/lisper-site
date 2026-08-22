@@ -1,0 +1,383 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru"> <head> <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> <meta name="keywords" content="Common Lisp,lisp,лисп" /> <title>nikodemus-cl-faq</title> <link href="/css/style.css" rel="stylesheet" type="text/css" /><link href="/css/wiki.css" rel="stylesheet" type="text/css" /><link href="/css/colorize.css" rel="stylesheet" type="text/css" />  </head> <body> <div class="top"> <div id="login"> <a href="/register">Регистрация</a> | <a href="/login?done=/articles/nikodemus-cl-faq">Войти</a> </div> </div> <div id="caution"> <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png" /> <a href="http://www.vkusnoserver.ru/" target="_blank" style="float: right;"> <img src="/vkusnoserver.png" /> </a> </div> <div id="mainmenu"> <ul> <li> <a href="/">Главная</a> </li><li> <a href="/articles/">Статьи</a> </li><li> <a href="/planet/">Планета</a> </li><li> <a href="/forum/">Форум</a> </li><li> <a href="/apps/">Сервисы</a> </li><li> <a href="/pcl/">Practical Common Lisp</a> </li><li> <a href="/wiki/">Wiki</a> </li><li> <a href="/files/">Файлы</a> </li><li> <a href="/search">Поиск</a> </li> </ul> </div> <div id="content"> <ul class="wiki-page-menu"> <li> <a href="/articles/edit/nikodemus-cl-faq">Edit</a> </li>  <li> <a href="/articles/history/nikodemus-cl-faq">History</a> </li>   </ul><div class="article"><div class="toc"><div class="toc-header">Содержание</div><div class="toc-body"><ul><li><div><a href="#Nikodemus' Common Lisp FAQ">Nikodemus' Common Lisp FAQ</a><ul><li><div><a href="#&#x421;&#x430;&#x43C;&#x43E;&#x435; &#x43D;&#x430;&#x447;&#x430;&#x43B;&#x43E;">Самое начало</a><ul><li><div><a href="#Common Lisp? CL? Clisp? Lisp?">Common Lisp? CL? Clisp? Lisp?</a></div></li><li><div><a href="#&#x418; &#x447;&#x442;&#x43E;?">И что?</a></div></li><li><div><a href="#&#x41A;&#x430;&#x43A; &#x43D;&#x430;&#x443;&#x447;&#x438;&#x442;&#x44C;&#x441;&#x44F; Common Lisp?">Как научиться Common Lisp?</a></div></li><li><div><a href="#&#x41A;&#x430;&#x43A;&#x438;&#x435; &#x43F;&#x43E;&#x434;&#x432;&#x43E;&#x434;&#x43D;&#x44B;&#x435; &#x43A;&#x430;&#x43C;&#x43D;&#x438; &#x43E;&#x431;&#x445;&#x43E;&#x434;&#x438;&#x442;&#x44C;?">Какие подводные камни обходить?</a></div></li><li><div><a href="#&#x421; &#x43A;&#x430;&#x43A;&#x43E;&#x439; &#x43A;&#x43D;&#x438;&#x433;&#x438; &#x43D;&#x430;&#x447;&#x430;&#x442;&#x44C;?">С какой книги начать?</a></div></li><li><div><a href="#&#x41A;&#x430;&#x43A;&#x443;&#x44E; &#x43C;&#x43D;&#x435; &#x432;&#x437;&#x44F;&#x442;&#x44C; &#x440;&#x435;&#x430;&#x43B;&#x438;&#x437;&#x430;&#x446;&#x438;&#x44E;?">Какую мне взять реализацию?</a></div></li><li><div><a href="#&#x413;&#x434;&#x435; &#x431;&#x438;&#x431;&#x43B;&#x438;&#x43E;&#x442;&#x435;&#x43A;&#x438;? &#x415;&#x441;&#x442;&#x44C; &#x430;&#x43D;&#x430;&#x43B;&#x43E;&#x433; CPAN &#x438;&#x43B;&#x438; RubyGems?">Где библиотеки? Есть аналог CPAN или RubyGems?</a></div></li><li><div><a href="#&#x41A;&#x430;&#x43A;&#x438;&#x43C; IDE &#x43F;&#x43E;&#x43B;&#x44C;&#x437;&#x43E;&#x432;&#x430;&#x442;&#x44C;&#x441;&#x44F;?">Каким IDE пользоваться?</a></div></li><li><div><a href="#&#x41A;&#x430;&#x43A; &#x43D;&#x430;&#x441;&#x442;&#x440;&#x43E;&#x438;&#x442;&#x44C; &#x43E;&#x43A;&#x440;&#x443;&#x436;&#x435;&#x43D;&#x438;&#x435;?">Как настроить окружение?</a></div></li><li><div><a href="#&#x410; GUI &#x435;&#x441;&#x442;&#x44C;?">А GUI есть?</a></div></li><li><div><a href="#&#x41A;&#x430;&#x43A;&#x438;&#x435; &#x435;&#x441;&#x442;&#x44C; &#x444;&#x43E;&#x440;&#x443;&#x43C;&#x44B;?">Какие есть форумы?</a></div></li></ul></div></li><li><div><a href="#&#x421;&#x432;&#x43E;&#x439;&#x441;&#x442;&#x432;&#x430; &#x44F;&#x437;&#x44B;&#x43A;&#x430;">Свойства языка</a><ul><li><div><a href="#&#x41A;&#x430;&#x43A; &#x441;&#x43A;&#x43E;&#x43C;&#x43F;&#x438;&#x43B;&#x438;&#x440;&#x43E;&#x432;&#x430;&#x442;&#x44C; &#x444;&#x430;&#x439;&#x43B;?">Как скомпилировать файл?</a></div></li><li><div><a href="#&#x41A;&#x430;&#x43A; &#x441;&#x434;&#x435;&#x43B;&#x430;&#x442;&#x44C; &#x438;&#x441;&#x43F;&#x43E;&#x43B;&#x43D;&#x44F;&#x435;&#x43C;&#x44B;&#x439; &#x444;&#x430;&#x439;&#x43B;?">Как сделать исполняемый файл?</a></div></li><li><div><a href="#FUNCALL &#x438; APPLY &#x2014; &#x432; &#x447;&#x435;&#x43C; &#x440;&#x430;&#x437;&#x43D;&#x438;&#x446;&#x430;, &#x447;&#x442;&#x43E; &#x438;&#x441;&#x43F;&#x43E;&#x43B;&#x44C;&#x437;&#x43E;&#x432;&#x430;&#x442;&#x44C;?">FUNCALL и APPLY — в чем разница, что использовать?</a></div></li><li><div><a href="#SET, SETQ &#x438; SETF &#x2014; &#x432; &#x447;&#x435;&#x43C; &#x440;&#x430;&#x437;&#x43D;&#x438;&#x446;&#x430;, &#x447;&#x442;&#x43E; &#x438;&#x441;&#x43F;&#x43E;&#x43B;&#x44C;&#x437;&#x43E;&#x432;&#x430;&#x442;&#x44C;?">SET, SETQ и SETF — в чем разница, что использовать?</a></div></li><li><div><a href="#'(1 2 3) &#x438;&#x43B;&#x438; (list 1 2 3)?">'(1 2 3) или (list 1 2 3)?</a></div></li><li><div><a href="#&#x427;&#x442;&#x43E; &#x437;&#x430; *&#x423;&#x428;&#x41A;&#x418;*?">Что за *УШКИ*?</a><ul><li><div><a href="#&#x41E;&#x448;&#x438;&#x431;&#x43A;&#x430; 1: &#x441;&#x43B;&#x443;&#x447;&#x430;&#x439;&#x43D;&#x43E;&#x435; &#x441;&#x432;&#x44F;&#x437;&#x44B;&#x432;&#x430;&#x43D;&#x438;&#x435; &#x441;&#x43F;&#x435;&#x446;&#x438;&#x430;&#x43B;&#x44C;&#x43D;&#x43E;&#x439; &#x43F;&#x435;&#x440;&#x435;&#x43C;&#x435;&#x43D;&#x43D;&#x43E;&#x439;.">Ошибка 1: случайное связывание специальной переменной.</a></div></li><li><div><a href="#&#x41E;&#x448;&#x438;&#x431;&#x43A;&#x430; 2: &#x438;&#x437;-&#x437;&#x430; &#x43E;&#x43F;&#x435;&#x447;&#x430;&#x442;&#x43A;&#x438; &#x43F;&#x440;&#x43E;&#x438;&#x437;&#x432;&#x43E;&#x434;&#x438;&#x442;&#x441;&#x44F; &#x447;&#x442;&#x435;&#x43D;&#x438;&#x435; &#x438;&#x437; &#x441;&#x43F;&#x435;&#x446;&#x438;&#x430;&#x43B;&#x44C;&#x43D;&#x43E;&#x439; &#x432;&#x43C;&#x435;&#x441;&#x442;&#x43E; &#x43B;&#x43E;&#x43A;&#x430;&#x43B;&#x44C;&#x43D;&#x43E;&#x439; &#x43F;&#x435;&#x440;&#x435;&#x43C;&#x435;&#x43D;&#x43D;&#x43E;&#x439;, &#x43F;&#x440;&#x435;&#x434;&#x443;&#x43F;&#x440;&#x435;&#x436;&#x434;&#x435;&#x43D;&#x438;&#x44F; &#x43D;&#x435; &#x432;&#x44B;&#x434;&#x430;&#x435;&#x442;&#x441;&#x44F;.">Ошибка 2: из-за опечатки производится чтение из специальной вместо локальной переменной, предупреждения не выдается.</a></div></li></ul></div></li></ul></div></li></ul></div></li></ul></div></div>
+<p>© 2012 <a href="http://random-state.net/">Nikodemus Siivola</a> Originally published at <a href="http://random-state.net/files/nikodemus-cl-faq.html">http://random-state.net/files/nikodemus-cl-faq.html</a>
+</p>
+<p><strong>Автор перевода:</strong> <a href="http://habrahabr.ru/users/DmitrySolomennikov/">Дмитрий Соломенников</a>
+</p>
+<p><strong>Источник перевода:</strong> <a href="http://habrahabr.ru/post/143618/">http://habrahabr.ru/post/143618/</a>
+</p>
+<div class="chapter" id="Nikodemus' Common Lisp FAQ"><h3>Nikodemus' Common Lisp FAQ</h3>
+
+<p>Это очень неофициальное ЧаВО по языку Common Lisp, отражающее субъективное мнение Nikodemus Siivola. Этот текст частично основан на других ЧаВО, встречавшихся на просторах интернета и comp.lang.lisp.уду рад признаться в этом, поэтому пишите на nikodemus@random-state.net.
+</p>
+<p>Если вы думаете, что я воспользовался вашим текстом, б
+Текущая версия этого ЧаВО доступна по следующим адресам:
+</p>
+<p><a href="http://random-state.net/files/nikodemus-cl-faq.txt">http://random-state.net/files/nikodemus-cl-faq.txt</a>
+</p>
+<p><a href="http://random-state.net/files/nikodemus-cl-faq.html">http://random-state.net/files/nikodemus-cl-faq.html</a>
+</p>
+<p>ЧаВО также периодически публикуется в comp.lang.lisp.
+</p>
+<div class="chapter" id="&#x421;&#x430;&#x43C;&#x43E;&#x435; &#x43D;&#x430;&#x447;&#x430;&#x43B;&#x43E;"><h3>Самое начало</h3>
+
+<div class="chapter" id="Common Lisp? CL? Clisp? Lisp?"><h3>Common Lisp? CL? Clisp? Lisp?</h3>
+
+<p>«Common Lisp» — название языка, стандартизированного ANSI.
+</p>
+<p>«CL» — наиболее предпочтительное сокращение предыдущего названия.
+</p>
+<p>«Clisp» не является правильным сокращением, поскольку это название одной из реализаций Common Lisp.
+</p>
+<p>«Lisp» — это категория языков, к которым относится CL.
+</p>
+<p>«LISP» уже не пишут лет 20, Common Lisp часто сокращают до Lisp, если
+ясно из контекста, о чём именно идёт речь.
+</p>
+</div><div class="chapter" id="&#x418; &#x447;&#x442;&#x43E;?"><h3>И что?</h3>
+
+<p>Про сам язык почитать можно тут:
+</p>
+<p><a href="http://random-state.net/features-of-common-lisp.html">http://random-state.net/features-of-common-lisp.html</a>
+</p>
+</div><div class="chapter" id="&#x41A;&#x430;&#x43A; &#x43D;&#x430;&#x443;&#x447;&#x438;&#x442;&#x44C;&#x441;&#x44F; Common Lisp?"><h3>Как научиться Common Lisp?</h3>
+<ol><li> Прочитать хорошую книгу о Common Lisp.</li><li> Начать его использовать.</li></ol>
+<p>Много людей не раз пытаются пройти по первому пути, но забывают про второй.
+Ну правда, нельзя же научиться программировать на языке, не начав его использовать.
+И потом, без работы над достаточно крупной программой многие вещи вообще невозможно
+понять правильно.
+</p>
+</div><div class="chapter" id="&#x41A;&#x430;&#x43A;&#x438;&#x435; &#x43F;&#x43E;&#x434;&#x432;&#x43E;&#x434;&#x43D;&#x44B;&#x435; &#x43A;&#x430;&#x43C;&#x43D;&#x438; &#x43E;&#x431;&#x445;&#x43E;&#x434;&#x438;&#x442;&#x44C;?"><h3>Какие подводные камни обходить?</h3>
+
+<p>Любая хорошая книга расскажет вам об особенностях и трюках языка, но есть пара
+психологических и социальных моментов, на которых многие спотыкаются:
+</p><ol><li> Изучение макросов Lisp сводит с ума.<br/>  Макросы Lisp — классная штука, но сила, которую они дают, новичков часто сбивает с толку. Часто симптом проблемы — попытка что-то сделать без ясного понимания того, зачем это делается. Запомните, все что можно сделать с помощью макросов, можно сделать и без них. Конечно, может получиться не так практично, но память об этом опускает с небес на землю.  Перед тем, как научиться бегать, научитесь ходить. Оно того стоит, тем более что потом можно и полететь.</li><li> Lisp не идеален, и это не новость.<br/>  Некоторые приходят к Lisp'у с завышенными ожиданиями и разочаровываются. Другие сравнивают Lisp с языком X и обнаруживают, что первый в чем-то проигрывает.  И те, и другие могут рассуждать правильно и иметь обоснованные претензии, но проблемы начинаются тогда, когда эти люди начинаютозвучивать свои претензии где-нибудь, например на #lisp. Если рассуждения правильные, скорее всего вопрос уже обсуждался сотню раз и ни у кого уже не хватает ни сил, ни желания на повторное обсуждение.  Если рассуждения неправильные или они носят скорее теоретический нежели практический характер, то несмотря на то, что год от года недовольные новички постоянно поднимают подобные вопросы, ни у кого уже не хватает ни сил, ни желания на повторное обсуждение.  Это не значит, что говорить в интернете нехорошее про Lisp запрещено, но… Если вы — новичок — приходите и говорите, что все плохо, не ожидайте что к вам люди пойдут с распростертыми объятиями. Даже если вы сто раз правы.  Жалобы от старичков, к тому же сделавших немало для сообщества, имеют гораздо больший вес.</li><li> Опытные публичные лисперы видят много троллей.<br/>  МНОГО ТРОЛЛЕЙ! Растерянный новичок иногда выглядит как тролль, во многом потому, что большинство троллей чаще всего маскируются под новичков Lisp. Поэтому люди могут думать что вы тролль и отвечать соответственно. Самый лучший способ избежать этого — быть вежливыми. Если кто-то вам говорит, что вы заблуждаетесь или ошибаетесь, на минутку предположите, что он или прав, или очень похоже, что вы заблуждаетесь или ошибаетесь.</li></ol>
+</div><div class="chapter" id="&#x421; &#x43A;&#x430;&#x43A;&#x43E;&#x439; &#x43A;&#x43D;&#x438;&#x433;&#x438; &#x43D;&#x430;&#x447;&#x430;&#x442;&#x44C;?"><h3>С какой книги начать?</h3>
+
+<p>Начните с «Practical Common Lisp» (известной также как PCL) Питера Сайбела (Peter Seibel). Это хорошая отправная точка, если вы уже владеете каким-то языком программирования. Книга доступна в электронном и печатном виде:
+</p>
+<p><a href="http://www.gigamonkeys.com/book/">http://www.gigamonkeys.com/book/</a>(<a href="http://lisper.ru/pcl/">Перевод</a>)
+</p>
+<p>Другая хорошая книга — это «Common Lisp: A Gentle Introduction to Symbolic Computation» Девида Турецкого (David Touretzky). Новичокам в программировании или тем, кому PCL показалась слишком сложной, стоит почитать эту книгу. Если вы начнете с неё, потом всё же прочитайте PCL. Хотя если вы уже прочитали PCL и всё поняли, эту можно смело пропустить. Книга доступна в электронном и печатном виде:
+</p>
+<p><a href="http://www.cs.cmu.edu/~dst/LispBook/index.html">http://www.cs.cmu.edu/~dst/LispBook/index.html</a>
+</p>
+<p>Есть еще куча хороших книг, но указанные две — лучшие для новичков. «Land of Lisp» неплоха, но по моему скромному опыту она может сформировать неправильное представление. Если начнете с нее, все равно прочитайте PCL.
+</p>
+<p>Обязательно познакомьтесь с «Hyperspec» или CLHS, электронной версией стандарта языка. Это просто ценнейший справочник:
+</p>
+<p><a href="http://www.lispworks.com/documentation/HyperSpec/index.html">http://www.lispworks.com/documentation/HyperSpec/index.html</a>
+</p>
+<p>Не надо сразу бросаться читать справочник. Просто знайте где он находится, здесь содержатся официальные ответы на все возможные вопросы про CL. Это идеальное место для выяснения, что делает тот или иной оператор. Кроме того, в него стоит заглядывать, чтобы узнать, реализован ли нужный вам функционал в языке.
+</p>
+<p>Не пренебрегайте также документацией, поставляемой вместе с вашей реализацией. В случае SBCL, руководство находится по адресу:
+</p>
+<p><a href="http://www.sbcl.org/manual">http://www.sbcl.org/manual</a>
+</p>
+
+</div><div class="chapter" id="&#x41A;&#x430;&#x43A;&#x443;&#x44E; &#x43C;&#x43D;&#x435; &#x432;&#x437;&#x44F;&#x442;&#x44C; &#x440;&#x435;&#x430;&#x43B;&#x438;&#x437;&#x430;&#x446;&#x438;&#x44E;?"><h3>Какую мне взять реализацию?</h3>
+
+<p>Зависит от того, что вам нужно, хотя если вы только начали, то это не важно. Впрочем, если вы ждете помощи от какой-то группы людей, берите реализацию, которой эта группа пользуется.
+</p>
+<p>По мере обучения вы сами сможете сделать осознанный выбор. Переход между реализациями не представляет большой сложности, так что это не повод для тягостных сомнений.
+</p>
+<p>Я очень неравнодушен к SBCL:
+</p>
+<p><a href="http://www.sbcl.org/">http://www.sbcl.org/</a>
+</p>
+<p>SBCL хорош тем, что он идет с открытым исходным кодом, запускается на множестве платформ (в том числе Windows), включает в себя компилятор, очень серьезно относится к совместимости со стандартом ANSI и вообще несет радость и мир во всем мире… и тут я должен упомянуть, что я один из разработчиков SBCL и моя компания <a href="http://sb-studio.net/">Steel Bank Studio Ltd</a> предоставляет коммерческую поддержку для него.
+</p>
+<p>Если SBCL по каким-то причинам вам не подходит, могу предложить пройтись по следующим спискам:
+</p>
+<p>Открытые:
+</p><ul><li> Clozure CL</li><li> CMUCL</li><li> Clisp</li><li> ABCL</li><li> ECL</li></ul>
+<p>Коммерческие:
+</p><ul><li> Lispworks</li><li> Allegro CL</li><li> Scieneer</li></ul>
+
+</div><div class="chapter" id="&#x413;&#x434;&#x435; &#x431;&#x438;&#x431;&#x43B;&#x438;&#x43E;&#x442;&#x435;&#x43A;&#x438;? &#x415;&#x441;&#x442;&#x44C; &#x430;&#x43D;&#x430;&#x43B;&#x43E;&#x433; CPAN &#x438;&#x43B;&#x438; RubyGems?"><h3>Где библиотеки? Есть аналог CPAN или RubyGems?</h3>
+
+<p>На RubyGems очень похож «QuickLisp»:
+</p>
+<p><a href="http://www.quicklisp.org/">http://www.quicklisp.org/</a>
+</p>
+<p>Он предоставляет массу библиотек и управляет зависимостями между ними. Это очень-очень нужный инструмент.
+</p>
+<p>Наиболее близкими к CPAN являются «Cliki» и «common-lisp.net»:
+</p>
+<p><a href="http://www.cliki.net/">http://www.cliki.net/</a><br/>
+<a href="http://www.common-lisp.net/">http://www.common-lisp.net/</a>
+</p>
+<p>… но лучше ничего и не надо, правда.
+</p>
+</div><div class="chapter" id="&#x41A;&#x430;&#x43A;&#x438;&#x43C; IDE &#x43F;&#x43E;&#x43B;&#x44C;&#x437;&#x43E;&#x432;&#x430;&#x442;&#x44C;&#x441;&#x44F;?"><h3>Каким IDE пользоваться?</h3>
+
+<p>Если вы работаете с SBCL, то пользуйтесь Emacs и Slime:
+</p>
+<p><a href="http://www.common-lisp.net/project/slime/">http://www.common-lisp.net/project/slime/</a>
+</p>
+<p>Даже если вы раньше не пользовались Emacs, совершите усилие над собой и используйте Slime — кривая обучения не очень крутая и все команды доступны через меню.
+</p>
+<p>Можно настроить Slime с помощью Quicklisp, смотри ниже раздел «Как настроить окружение?». Начать изучение можно с M-x slime-cheat-sheet, впрочем, это лишь малая часть возможностей Slime.
+</p>
+<p>При использовании другой реализации пользуйтесь тем IDE, что рекомендует разработчик (хотя Slime работает практически со всеми реализациями).
+</p>
+<p>Для практической работы с Lisp редактор как минимум должен:
+</p><ul><li> правильно расставлять отсупы в коде Lisp;</li><li> понимать парные скобки;</li><li> уметь выполнять команды Edit Definition, Compile Defun, Eval Expression, Describe Symbol, Disassemble Function, Trace Function, Inspect expression и другие команды для взаимодействия с вашим Lisp'ом;</li><li> взаимодействовать с отладчиком;</li><li> взаимодействовать с инспектором.</li></ul>
+<p>Slime умеет все перечисленное и ещё много чего.
+</p>
+<p>Если вам нравится Vi(m), обратите внимание на Slimv, который связывает Vim с частью Slime, написанной на Common Lisp:
+</p>
+<p><a href="http://www.vim.org/scripts/script.php?script_id=2531">http://www.vim.org/scripts/script.php?script_id=2531</a><br/>
+<a href="https://bitbucket.org/kovisoft/slimv/">https://bitbucket.org/kovisoft/slimv/</a><br/>
+<a href="http://kovisoft.bitbucket.org/tutorial.html">http://kovisoft.bitbucket.org/tutorial.html</a>
+</p>
+<p>… но я не могу ручаться за это, поскольку не пользуюсь Vim/Slimv.
+</p>
+
+</div><div class="chapter" id="&#x41A;&#x430;&#x43A; &#x43D;&#x430;&#x441;&#x442;&#x440;&#x43E;&#x438;&#x442;&#x44C; &#x43E;&#x43A;&#x440;&#x443;&#x436;&#x435;&#x43D;&#x438;&#x435;?"><h3>Как настроить окружение?</h3>
+
+<p>Хорошее руководство (на момент написания) по получению SBCL, Slime и настройке Quicklisp расположено здесь:
+</p>
+<p><a href="http://mohiji.nfshost.com/2011/01/modern-common-lisp-on-linux/">http://mohiji.nfshost.com/2011/01/modern-common-lisp-on-linux/</a><br/>
+<a href="http://mohiji.nfshost.com/2011/01/modern-common-lisp-on-osx/">http://mohiji.nfshost.com/2011/01/modern-common-lisp-on-osx/</a>
+</p>
+<p>Указания по настройке Clisp на Windows. Впрочем, нельзя объять необъятное:
+</p>
+<p><a href="http://mohiji.nfshost.com/2011/01/modern-common-lisp-on-windows/">http://mohiji.nfshost.com/2011/01/modern-common-lisp-on-windows/</a>
+</p>
+</div><div class="chapter" id="&#x410; GUI &#x435;&#x441;&#x442;&#x44C;?"><h3>А GUI есть?</h3>
+
+<p>И да, и нет. Одного GUI, которым пользовались бы все, нет.
+</p>
+<p>Коммерческие Lisp'ы в большинстве своём поставляются с библиотеками GUI, и, похоже, что сторонникам этих реализаций нравятся поставляемые библиотеки. Однако, код для таких библиотек не переносится между Lisp'ами. Если вы пользуетесь коммерческой реализацией и переносимость кода вам не интересна, то выбирайте инструменты, предлагаемые разработчиком. В зависимости от того, как сделана библиотека, код может переносится на разные операционные системы, возможно это именно то, что вам нужно.
+</p>
+<p>В лагере отрытого кода тоже есть несколько решений.
+</p>
+<p>CommonQt — это привязка Common Lisp к библиотеке smoke для Qt:
+</p>
+<p><a href="http://common-lisp.net/project/commonqt/">http://common-lisp.net/project/commonqt/</a>
+</p>
+<p>LTK построена поверх Tk:
+</p>
+<p><a href="http://www.peter-herth.de/ltk/">http://www.peter-herth.de/ltk/</a>
+</p>
+<p>CL-GTK2 и CLG — привязки к GTK+, но я не могу ничего сказать про текущее состояние этих разработок. Стоит также посмотреть на GTK Server.
+</p>
+<p><a href="http://common-lisp.net/project/cl-gtk2/">http://common-lisp.net/project/cl-gtk2/</a><br/>
+<a href="http://sourceforge.net/projects/clg/">http://sourceforge.net/projects/clg/</a> <a href="http://www.gtk-server.org/">http://www.gtk-server.org/</a>
+</p>
+<p>CLIM (Common Lisp Interface Manager) — это почти стандартизированная спецификация API для GUI, довольно сильно отличающаяся от GUI, перечисленных выше. Не ожидайте, что все будет знакомо и понятно.
+</p>
+<p><a href="http://random-state.net/files/how-is-clim-different.html">http://random-state.net/files/how-is-clim-different.html</a>
+</p>
+<p>Многие клянутся, что это лучшее, что есть для построения GUI, другие утверждают, что это совсем не так. Как бы то ни было, большинство коммерческих Lisp'ов реализуют CLIM, и еще есть переносимая открытая библиотека, называемая McCLIM, довольно удобная, хотя в последнее время не особо развиваемая.
+</p>
+<p><a href="http://common-lisp.net/project/mcclim/">http://common-lisp.net/project/mcclim/</a>
+</p>
+<p>CLX — это переносимый низкоуровневый Lisp-интерфейс к X11, предоставляющий уровень абстракций, сопоставимый с Xlib.
+</p>
+<p><a href="http://www.cliki.net/CLX">http://www.cliki.net/CLX</a><br/>
+<a href="https://github.com/sharplispers/clx">https://github.com/sharplispers/clx</a>
+</p>
+<p>Если не строго ограничиваться вопросами GUI, буду неправ, если не упомяну CL-OPENGL, переносимую привязку к API OpenGL, GLU и GLUT:
+</p>
+<p><a href="http://common-lisp.net/project/cl-opengl/">http://common-lisp.net/project/cl-opengl/</a>
+</p>
+</div><div class="chapter" id="&#x41A;&#x430;&#x43A;&#x438;&#x435; &#x435;&#x441;&#x442;&#x44C; &#x444;&#x43E;&#x440;&#x443;&#x43C;&#x44B;?"><h3>Какие есть форумы?</h3>
+
+<p>Не форум конечно, но есть Planet Lisp — агрегатор блогов по Common Lisp. Много интересной информации, без избытка.
+</p>
+<p><a href="http://planet.lisp.org/">http://planet.lisp.org/</a>
+</p>
+<p>LispForum — просто хороший форум:
+</p>
+<p><a href="http://www.lispforum.com/">http://www.lispforum.com/</a>
+</p>
+<p>но я не ручаюсь, поскольку бываю там нечасто.
+</p>
+<p>Есть ещё группы comp.lang.lisp на Usenet/Google Groups, но они густо населены троллями. Пишущие там авторы довольно грамотны, при этом спекуляции профанов — рядовое явление. Читать эти группы может быть тяжело, но чтобы пользоваться Lisp'ом, читать их не обязательно.
+</p>
+<p><a href="http://groups.google.com/group/comp.lang.lisp">http://groups.google.com/group/comp.lang.lisp</a>
+</p>
+<p>Специализированные списки рассылки имеют намного лучшее отношение сигнал/шум. Все реализации стараются завести собственные пользовательские и справочные списки рассылки, большинство библиотек также создают собственные списки рассылки. Для SBCL есть, например, это:
+</p>
+<p><a href="https://lists.sourceforge.net/lists/listinfo/sbcl-help">https://lists.sourceforge.net/lists/listinfo/sbcl-help</a>
+</p>
+<p>Среди open-source разработчиков и пользователей популярен канал #lisp на freenode.org. Имейте, впрочем, ввиду, что на #lisp довольно жестко придерживаются темы, и эта тема Common Lisp, а не «Lisp вообще». Для этого есть канал #lispcafe с гораздо более мягкими правилами.
+</p>
+<p>Довольно активно сообщество разработчиков игр, но я не особо с ним знаком. Гугл вам в помощь.
+</p>
+<p>Профессионалы Common Lisp общаются в списке «pro». Обсуждение других диалектов Lisp'а является офтопиком, вопросы новичков НЕ принимаются.
+</p>
+<p><a href="http://lists.common-lisp.net/mailman/listinfo/pro">http://lists.common-lisp.net/mailman/listinfo/pro</a>
+</p>
+
+</div></div><div class="chapter" id="&#x421;&#x432;&#x43E;&#x439;&#x441;&#x442;&#x432;&#x430; &#x44F;&#x437;&#x44B;&#x43A;&#x430;"><h3>Свойства языка</h3>
+
+<div class="chapter" id="&#x41A;&#x430;&#x43A; &#x441;&#x43A;&#x43E;&#x43C;&#x43F;&#x438;&#x43B;&#x438;&#x440;&#x43E;&#x432;&#x430;&#x442;&#x44C; &#x444;&#x430;&#x439;&#x43B;?"><h3>Как скомпилировать файл?</h3>
+
+<p><strong>Короткий ответ</strong>: запускаете Lisp и печатаете:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_cmp_fi.htm" class="symbol">compile-file</a> <span class="string">"/path/to/myfile.lisp"</span></span>)</span><br/></pre>
+
+<p>Затем, скорее всего, вам потребуется загрузить (load ...) компилированный файл.
+</p>
+<p><strong>Развернутый ответ</strong>: большинство компилируемых языков неинтерактивны — вы компилирует файл из командной строки или IDE, затем запускаете компилированный файл. В Lisp'е все не так.
+</p>
+<p>При том, что в общем случае вы можете превратить ваш проект в исполняемый файл, типичная рабочая сессия не похожа на цикл правка-компиляция-выполнение, как можно было бы ожидать.
+</p>
+<p>Обычно взаимодействие происходит с запущенным Lisp-процессом, который содержит рабочую сессию, в которую вы интерактивно добавляете код.
+</p>
+<p>Например:
+</p><ol><li> открываем Emacs, с помощью M-x slime запускаем Slime и Lisp;</li><li> с помощью, к примеру, ASDF, загружаем имеющийся код;</li><li> открываем нужный файл, правим функцию и нажимаем C-c C-c, что приведет её перекомпиляции;</li><li> переходим в Slime REPL и тестируем изменения;</li><li> повторяем с шага 3.</li></ol>
+<p>Упомянутая выше аббревиатура ASDF расшифровывается как «Another System Definition Facility». Этой система позволяет указать способ сбора нескольких файлов в единую систему для их загрузки или компиляции одной командой. Чем-то походит на Make.
+</p>
+</div><div class="chapter" id="&#x41A;&#x430;&#x43A; &#x441;&#x434;&#x435;&#x43B;&#x430;&#x442;&#x44C; &#x438;&#x441;&#x43F;&#x43E;&#x43B;&#x43D;&#x44F;&#x435;&#x43C;&#x44B;&#x439; &#x444;&#x430;&#x439;&#x43B;?"><h3>Как сделать исполняемый файл?</h3>
+
+<p>Ответ зависит от используемой вами реализации. Смотрите в документации. Если говорить про SBCL:
+</p>
+<pre class="code"><span class="comment">;; Загружаете приложение в SBCL, затем выполняете команду save-lisp-and-die.<br/></span><span class="comment">;; Точка входа в приложение - MY-FUNCTION.<br/></span><span class="paren1">(<span class="">save-lisp-and-die <span class="string">"my.exe"</span> <span class="keyword">:executable</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <span class="keyword">:toplevel</span> 'my-function</span>)</span><br/></pre>
+
+</div><div class="chapter" id="FUNCALL &#x438; APPLY &#x2014; &#x432; &#x447;&#x435;&#x43C; &#x440;&#x430;&#x437;&#x43D;&#x438;&#x446;&#x430;, &#x447;&#x442;&#x43E; &#x438;&#x441;&#x43F;&#x43E;&#x43B;&#x44C;&#x437;&#x43E;&#x432;&#x430;&#x442;&#x44C;?"><h3>FUNCALL и APPLY — в чем разница, что использовать?</h3>
+
+<p><strong>Короткий ответ</strong>: везде, где можно используйте FUNCALL, в остальных случаях используйте APPLY.
+</p>
+<p><strong>Развернутый ответ</strong>: при вызове FUNCALL должно быть известно количество аргументов. APPLY (и MULTIPLE-VALUE-CALL) не требует информации о количестве аргументов.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> map-list-with-1 <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_fn.htm" class="symbol"><i><span class="symbol">function</span></i></a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_list.htm" class="symbol">list</a> arg</span>)</span><br/>   <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_mapc_.htm" class="symbol">mapcar</a> <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_lambda.htm" class="symbol"><i><span class="symbol">lambda</span></i></a> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_elt.htm" class="symbol">elt</a></span>)</span><br/>             <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_funcal.htm" class="symbol">funcall</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_fn.htm" class="symbol"><i><span class="symbol">function</span></i></a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_elt.htm" class="symbol">elt</a> arg</span>)</span></span>)</span><br/>           <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_list.htm" class="symbol">list</a></span>)</span></span>)</span><br/><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> map-list-with-n <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_fn.htm" class="symbol"><i><span class="symbol">function</span></i></a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_list.htm" class="symbol">list</a> &amp;rest args</span>)</span><br/>   <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_mapc_.htm" class="symbol">mapcar</a> <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_lambda.htm" class="symbol"><i><span class="symbol">lambda</span></i></a> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_elt.htm" class="symbol">elt</a></span>)</span><br/>             <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_apply.htm" class="symbol">apply</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_fn.htm" class="symbol"><i><span class="symbol">function</span></i></a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_elt.htm" class="symbol">elt</a> args</span>)</span></span>)</span><br/>           <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_list.htm" class="symbol">list</a></span>)</span></span>)</span><br/></pre>
+
+
+<p>Незачем писать MAP-LIST-WITH-1 с помощью APPLY, вызов FUNCALL почти наверняка будет более эффективным.
+</p>
+<p>В противовес MAP-LIST-WITH-N не может быть написан с использованием FUNCALL, поскольку количество аргументов вызывающей стороне неизвестно. Следует использовать APPLY.
+</p>
+</div><div class="chapter" id="SET, SETQ &#x438; SETF &#x2014; &#x432; &#x447;&#x435;&#x43C; &#x440;&#x430;&#x437;&#x43D;&#x438;&#x446;&#x430;, &#x447;&#x442;&#x43E; &#x438;&#x441;&#x43F;&#x43E;&#x43B;&#x44C;&#x437;&#x43E;&#x432;&#x430;&#x442;&#x44C;?"><h3>SET, SETQ и SETF — в чем разница, что использовать?</h3>
+
+<p><strong>Короткий ответ</strong>: всегда используйте SETF.
+</p>
+<p><strong>Развернутый ответ</strong>: Давным давно, когда еще не было Common Lisp, не было лексических переменных, были только динамические. И не было тогда ни SETQ, ни SETF, только SET.
+</p>
+<p>То, что сегодня пишется как
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_symb_5.htm" class="symbol">symbol-value</a> '<span class="special">*foo*</span></span>)</span> 42</span>)</span><br/></pre>
+
+<p>записывалось так
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_set.htm" class="symbol">set</a> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_quote.htm" class="symbol"><i><span class="symbol">quote</span></i></a> <span class="special">*foo*</span></span>)</span> 42</span>)</span><br/></pre>
+
+<p>что со временем сократилось до SETQ (SET Quoted)
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_setq.htm" class="symbol"><i><span class="symbol">setq</span></i></a> <span class="special">*foo*</span> 42</span>)</span><br/></pre>
+
+<p>Потом появились лексические переменные и SETQ стали использовать и для их присваивания, так что SETQ перестал быть просто оберткой вокруг SET.
+</p>
+<p>Позже кто-то изобрел SETF (SET Field) как обобщенный способ присвоения значений в структурах данных, зеркальное отображение L-значений в других языках:
+</p><pre>x.car := 42;<br/></pre>
+<p>записывается как
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_car_c.htm" class="symbol">car</a> x</span>)</span> 42</span>)</span><br/></pre>
+
+<p>Для симметрии и общности, SETF также включает в себя функциональность SETQ. Можно сказать, что SETQ был низкоуровневым примитивом, а SETF — высокоуровневой операцией.
+</p>
+<p>Потом появились символьные макросы. Поскольку символьные макросы прозрачны, было сделано так, что SETQ ведет себя как SETF в случае, когда присваиваемая «переменная» на деле символьный макрос:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defpar.htm" class="symbol"><i><span class="symbol">defvar</span></i></a> <span class="special">*hidden*</span> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_cons.htm" class="symbol">cons</a> 42 42</span>)</span></span>)</span><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defi_1.htm" class="symbol"><i><span class="symbol">define-symbol-macro</span></i></a> foo <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_car_c.htm" class="symbol">car</a> <span class="special">*hidden*</span></span>)</span></span>)</span><br/><br/>foo =&gt; 42<br/><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_setq.htm" class="symbol"><i><span class="symbol">setq</span></i></a> foo 13</span>)</span><br/><br/>foo =&gt; 13<br/><br/>*hidden* =&gt; <span class="paren1">(<span class="">13 . 42</span>)</span><br/></pre>
+
+<p>И вот мы попадаем в наши дни: SET и SETQ по сути атавизм, оставшийся от старых диалектов и, возможно, будет выкинут из того, что будет следующим Common Lisp'ом.
+</p>
+<p>Всегда пользуйтесь SETF.
+</p>
+</div><div class="chapter" id="'(1 2 3) &#x438;&#x43B;&#x438; (list 1 2 3)?"><h3>'(1 2 3) или (list 1 2 3)?</h3>
+
+<p><strong>Короткий ответ</strong>: пишите
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_list.htm" class="symbol">list</a> 1 2 3</span>)</span><br/></pre>
+
+<p>пока не поймете разницу. Если вы пишете
+</p>
+<pre class="code"><p>'<span class="paren1">(<span class="">1 2 3</span>)</span><br/></p></pre>
+
+<p>не модифицируйте это деструктивно (т.е. с помощью SORT или NREVERSE).
+</p>
+<p><strong>Развернутый ответ</strong>: Во-первых, одинарная кавычка — это макрос, преобразующий
+</p>
+<pre class="code"><p>'anything<br/></p></pre>
+
+<p>в
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_quote.htm" class="symbol"><i><span class="symbol">quote</span></i></a> anything</span>)</span><br/></pre>
+
+<p>во время чтения, так что
+</p>
+<pre class="code"><p>'<span class="paren1">(<span class="">1 2 3</span>)</span> === <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_quote.htm" class="symbol"><i><span class="symbol">quote</span></i></a> <span class="paren2">(<span class="">1 2 3</span>)</span></span>)</span><br/></p></pre>
+
+<p>Во-вторых, QUOTE — это специальный оператор, возвращающий свои аргументы невычисленными. Так
+</p>
+<pre class="code"><p>'<span class="paren1">(<span class="">1 2 3</span>)</span><br/></p></pre>
+
+<p>возвращает буквальный (literal) список. Как и в большинстве языков модификация буквальных (literal) данных приводит к неопределенным последствиям. Например, компилятор может соединить константы, содержащие литералы:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren2">(<span class=""><span class="paren3">(<span class="">a '<span class="paren4">(<span class="">1 2 3</span>)</span></span>)</span><br/>      <span class="paren3">(<span class="">b '<span class="paren4">(<span class="">1 2 3</span>)</span></span>)</span></span>)</span><br/> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_eq.htm" class="symbol">eq</a> a b</span>)</span></span>)</span>            ; =&gt; T или NIL<br/></pre>
+
+<p>Следствием является тот факт, что изменяя A, также может измениться и B. Тогда для чего годится QUOTE? Если, например, у вас есть большие неизменяемые списки, которые компилятор может соединить, то пометка их как буквальные (literal) дает компилятору право так поступить.
+</p>
+</div><div class="chapter" id="&#x427;&#x442;&#x43E; &#x437;&#x430; *&#x423;&#x428;&#x41A;&#x418;*?"><h3>Что за *УШКИ*?</h3>
+
+<p>Что бы вы ни использовали для объявления переменных, DEFVAR или DEFPARAMETER, всегда делайте *ТАКОЕ-ИМЯ*. И не делайте так для локальных переменных.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defpar.htm" class="symbol"><i><span class="symbol">defvar</span></i></a> <span class="special">*очень-хорошо*</span> ...</span>)</span><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defpar.htm" class="symbol"><i><span class="symbol">defvar</span></i></a> это-очень-плохо ...</span>)</span><br/></pre>
+
+<p>Зачем? Если вы еще не знаете, что такое специальные переменные, продолжайте читать ту книжку, которую читаете и возвращайтесь как закончите, а пока используйте ушки.
+</p>
+<p>Ушки защищают от двух простых ошибок, которые очень легко сделать.
+</p>
+<div class="chapter" id="&#x41E;&#x448;&#x438;&#x431;&#x43A;&#x430; 1: &#x441;&#x43B;&#x443;&#x447;&#x430;&#x439;&#x43D;&#x43E;&#x435; &#x441;&#x432;&#x44F;&#x437;&#x44B;&#x432;&#x430;&#x43D;&#x438;&#x435; &#x441;&#x43F;&#x435;&#x446;&#x438;&#x430;&#x43B;&#x44C;&#x43D;&#x43E;&#x439; &#x43F;&#x435;&#x440;&#x435;&#x43C;&#x435;&#x43D;&#x43D;&#x43E;&#x439;."><h3>Ошибка 1: случайное связывание специальной переменной.</h3>
+
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defpar.htm" class="symbol"><i><span class="symbol">defparameter</span></i></a> foo <span class="string">"foo!"</span></span>)</span><br/><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> say-it <span class="paren2">(<span class=""/>)</span><br/>   <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_wr_stg.htm" class="symbol">write-line</a> foo</span>)</span></span>)</span><br/><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> say-more <span class="paren2">(<span class="">foo</span>)</span><br/>   <span class="paren2">(<span class="">say-it</span>)</span><br/>   <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <span class="string">"now say ~A~%"</span> foo</span>)</span></span>)</span><br/></pre>
+
+<p>Теперь
+</p>
+<pre class="code"><span class="paren1">(<span class="">say-more <span class="string">"bar!"</span></span>)</span><br/></pre>
+
+<p>напечатает
+</p><pre>say bar!<br/>now say bar!<br/></pre>
+<p>вместо ожидаемого
+</p><pre>say foo!<br/>now say bar!<br/></pre>
+<p>… упс!
+</p>
+</div><div class="chapter" id="&#x41E;&#x448;&#x438;&#x431;&#x43A;&#x430; 2: &#x438;&#x437;-&#x437;&#x430; &#x43E;&#x43F;&#x435;&#x447;&#x430;&#x442;&#x43A;&#x438; &#x43F;&#x440;&#x43E;&#x438;&#x437;&#x432;&#x43E;&#x434;&#x438;&#x442;&#x441;&#x44F; &#x447;&#x442;&#x435;&#x43D;&#x438;&#x435; &#x438;&#x437; &#x441;&#x43F;&#x435;&#x446;&#x438;&#x430;&#x43B;&#x44C;&#x43D;&#x43E;&#x439; &#x432;&#x43C;&#x435;&#x441;&#x442;&#x43E; &#x43B;&#x43E;&#x43A;&#x430;&#x43B;&#x44C;&#x43D;&#x43E;&#x439; &#x43F;&#x435;&#x440;&#x435;&#x43C;&#x435;&#x43D;&#x43D;&#x43E;&#x439;, &#x43F;&#x440;&#x435;&#x434;&#x443;&#x43F;&#x440;&#x435;&#x436;&#x434;&#x435;&#x43D;&#x438;&#x44F; &#x43D;&#x435; &#x432;&#x44B;&#x434;&#x430;&#x435;&#x442;&#x441;&#x44F;."><h3>Ошибка 2: из-за опечатки производится чтение из специальной вместо локальной переменной, предупреждения не выдается.</h3>
+
+<p>Обычно вы получите предупреждение времени компиляции и ошибку времени выполнения в случае
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> foo <span class="paren2">(<span class="">bar</span>)</span><br/>   bat</span>)</span><br/></pre>
+
+<p>но если перед этим написать
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defpar.htm" class="symbol"><i><span class="symbol">defparameter</span></i></a> bat <span class="string">"baseball"</span></span>)</span><br/></pre>
+
+<p>то ошибки не будет и вы потратите уйму времени на отладку, пытаясь понять, что не так.
+</p>
+<p>Если пишете код для себя, все равно, ставите вы ушки или нет, но когда вы публикуете код, отсутствие *ушек* означает трату времени других людей. Не делайте так, пожалуйста!
+</p>
+<p>Отсутствие ушек создает ощущение ошибки: когда я вижу
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defpar.htm" class="symbol"><i><span class="symbol">defparameter</span></i></a> нет-ушек ...</span>)</span><br/></pre>
+
+<p>я понимаю, что нужно читать код особенно осторожно, потому как нет никакой гарантии, что код, который с первого взляда выглядит вполне безобидно, не будет иметь нелокальных побочных эффектов или зависимостей.
+</p>
+<p>Всегда ставьте *ушки*. Говорят, из всех правил бывают исключения, но в данном случае очень трудно отыскать настоящее исключение из этого правила.
+</p></div></div></div></div></div> </div> <div class="bottom">@2009-2013 lisper.ru</div> 
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-7734690-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+ </body> </html>

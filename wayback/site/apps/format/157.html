@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru"> <head> <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> <meta name="keywords" content="Common Lisp,lisp,лисп" />  <title></title>   <link href="/css/style.css" rel="stylesheet" type="text/css" />  <link href="/css/colorize.css" rel="stylesheet" type="text/css" />   </head> <body> <div class="top">  <div id="login"> <a href="/register">Регистрация</a> | <a href="/login?done=/apps/format/157">Войти</a> </div>  </div> <div id="caution"> <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png" /> </div> <div id="mainmenu"> <ul>  <li> <a href="/">Главная</a> </li>  <li> <a href="/articles/">Статьи</a> </li>  <li> <a href="/planet/">Планета</a> </li>  <li> <a href="/forum/">Форум</a> </li>  <li> <a href="/apps/">Сервисы</a> </li>  <li> <a href="/pcl/">Practical Common Lisp</a> </li>  <li> <a href="/wiki/">Wiki</a> </li>  <li> <a href="/files/">Файлы</a> </li>  <li> <a href="/search">Поиск</a> </li>  </ul> </div> <div id="content"> <ul class="colorize-top-menu"> <li> <a href="/apps/format/all">Все записи</a> </li> <li> <a href="/apps/format/create">Создать</a> </li> </ul> <div class="paste-detail"> <strong></strong> <div class="info"> Автор: <strong>dmitry_vk</strong> - 2010-08-13T14:24:34.000000+04:00 </div> <div class="code"> <span class="diff-normal">***** remove-depends-from-slime.patch *****</span><span class="diff-normal"><br>
+</span><span class="diff-normal"></span><span class="diff-normal"><br>
+</span><span class="string">===========================================<br>
+</span><span class="diff-normal"></span><span class="diff-normal"><br>
+</span><span class="diff-normal">PATCH COMMAND: &nbsp;patch -p0 -g0 -E --no-backup-if-mismatch &lt; '/home/dvk/archimag-g-l-o/dev-lisp/restas/files/0.0.9/remove-depends-from-slime.patch'</span><span class="diff-normal"><br>
+</span><span class="diff-normal"></span><span class="diff-normal"><br>
+</span><span class="string">===========================================<br>
+</span><span class="diff-normal">can't find file to patch at input line 5</span><span class="diff-normal"><br>
+</span><span class="diff-normal">Perhaps you used the wrong -p or --strip option?</span><span class="diff-normal"><br>
+</span><span class="diff-normal">The text leading up to this was:</span><span class="diff-normal"><br>
+</span><span class="diff-deleted">--------------------------<br>
+</span><span class="diff-normal">|diff --git a/restas.asd b/restas.asd</span><span class="diff-normal"><br>
+</span><span class="diff-normal">|index 04a6ce3..34570c7 100644</span><span class="diff-normal"><br>
+</span><span class="diff-normal">|--- a/restas.asd</span><span class="diff-normal"><br>
+</span><span class="diff-normal">|+++ b/restas.asd</span><span class="diff-normal"><br>
+</span><span class="diff-deleted">--------------------------<br>
+</span><span class="diff-normal">No file to patch. &nbsp;Skipping patch.</span><span class="diff-normal"><br>
+</span><span class="diff-normal">2 out of 2 hunks ignored</span><span class="diff-normal"><br>
+</span><span class="string">===========================================<br>
+</span><span class="diff-normal"></span><span class="diff-normal"><br>
+</span><span class="diff-normal">PATCH COMMAND: &nbsp;patch -p1 -g0 -E --no-backup-if-mismatch &lt; '/home/dvk/archimag-g-l-o/dev-lisp/restas/files/0.0.9/remove-depends-from-slime.patch'</span><span class="diff-normal"><br>
+</span><span class="diff-normal"></span><span class="diff-normal"><br>
+</span><span class="string">===========================================<br>
+</span><span class="diff-normal">can't find file to patch at input line 5</span><span class="diff-normal"><br>
+</span><span class="diff-normal">Perhaps you used the wrong -p or --strip option?</span><span class="diff-normal"><br>
+</span><span class="diff-normal">The text leading up to this was:</span><span class="diff-normal"><br>
+</span><span class="diff-deleted">--------------------------<br>
+</span><span class="diff-normal">|diff --git a/restas.asd b/restas.asd</span><span class="diff-normal"><br>
+</span><span class="diff-normal">|index 04a6ce3..34570c7 100644</span><span class="diff-normal"><br>
+</span><span class="diff-normal">|--- a/restas.asd</span><span class="diff-normal"><br>
+</span><span class="diff-normal">|+++ b/restas.asd</span><span class="diff-normal"><br>
+</span><span class="diff-deleted">--------------------------<br>
+</span><span class="diff-normal">No file to patch. &nbsp;Skipping patch.</span><span class="diff-normal"><br>
+</span><span class="diff-normal">2 out of 2 hunks ignored</span><span class="diff-normal"><br>
+</span><span class="string">===========================================<br>
+</span><span class="diff-normal"></span><span class="diff-normal"><br>
+</span><span class="diff-normal">PATCH COMMAND: &nbsp;patch -p2 -g0 -E --no-backup-if-mismatch &lt; '/home/dvk/archimag-g-l-o/dev-lisp/restas/files/0.0.9/remove-depends-from-slime.patch'</span><span class="diff-normal"><br>
+</span><span class="diff-normal"></span><span class="diff-normal"><br>
+</span><span class="string">===========================================<br>
+</span><span class="diff-normal">can't find file to patch at input line 5</span><span class="diff-normal"><br>
+</span><span class="diff-normal">Perhaps you used the wrong -p or --strip option?</span><span class="diff-normal"><br>
+</span><span class="diff-normal">The text leading up to this was:</span><span class="diff-normal"><br>
+</span><span class="diff-deleted">--------------------------<br>
+</span><span class="diff-normal">|diff --git a/restas.asd b/restas.asd</span><span class="diff-normal"><br>
+</span><span class="diff-normal">|index 04a6ce3..34570c7 100644</span><span class="diff-normal"><br>
+</span><span class="diff-normal">|--- a/restas.asd</span><span class="diff-normal"><br>
+</span><span class="diff-normal">|+++ b/restas.asd</span><span class="diff-normal"><br>
+</span><span class="diff-deleted">--------------------------<br>
+</span><span class="diff-normal">No file to patch. &nbsp;Skipping patch.</span><span class="diff-normal"><br>
+</span><span class="diff-normal">2 out of 2 hunks ignored</span><span class="diff-normal"><br>
+</span><span class="string">===========================================<br>
+</span><span class="diff-normal"></span><span class="diff-normal"><br>
+</span><span class="diff-normal">PATCH COMMAND: &nbsp;patch -p3 -g0 -E --no-backup-if-mismatch &lt; '/home/dvk/archimag-g-l-o/dev-lisp/restas/files/0.0.9/remove-depends-from-slime.patch'</span><span class="diff-normal"><br>
+</span><span class="diff-normal"></span><span class="diff-normal"><br>
+</span><span class="string">===========================================<br>
+</span><span class="diff-normal">can't find file to patch at input line 5</span><span class="diff-normal"><br>
+</span><span class="diff-normal">Perhaps you used the wrong -p or --strip option?</span><span class="diff-normal"><br>
+</span><span class="diff-normal">The text leading up to this was:</span><span class="diff-normal"><br>
+</span><span class="diff-deleted">--------------------------<br>
+</span><span class="diff-normal">|diff --git a/restas.asd b/restas.asd</span><span class="diff-normal"><br>
+</span><span class="diff-normal">|index 04a6ce3..34570c7 100644</span><span class="diff-normal"><br>
+</span><span class="diff-normal">|--- a/restas.asd</span><span class="diff-normal"><br>
+</span><span class="diff-normal">|+++ b/restas.asd</span><span class="diff-normal"><br>
+</span><span class="diff-deleted">--------------------------<br>
+</span><span class="diff-normal">No file to patch. &nbsp;Skipping patch.</span><span class="diff-normal"><br>
+</span><span class="diff-normal">2 out of 2 hunks ignored</span><span class="diff-normal"><br>
+</span><span class="string">===========================================<br>
+</span><span class="diff-normal"></span><span class="diff-normal"><br>
+</span><span class="diff-normal">PATCH COMMAND: &nbsp;patch -p4 -g0 -E --no-backup-if-mismatch &lt; '/home/dvk/archimag-g-l-o/dev-lisp/restas/files/0.0.9/remove-depends-from-slime.patch'</span><span class="diff-normal"><br>
+</span><span class="diff-normal"></span><span class="diff-normal"><br>
+</span><span class="string">===========================================<br>
+</span><span class="diff-normal">can't find file to patch at input line 5</span><span class="diff-normal"><br>
+</span><span class="diff-normal">Perhaps you used the wrong -p or --strip option?</span><span class="diff-normal"><br>
+</span><span class="diff-normal">The text leading up to this was:</span><span class="diff-normal"><br>
+</span><span class="diff-deleted">--------------------------<br>
+</span><span class="diff-normal">|diff --git a/restas.asd b/restas.asd</span><span class="diff-normal"><br>
+</span><span class="diff-normal">|index 04a6ce3..34570c7 100644</span><span class="diff-normal"><br>
+</span><span class="diff-normal">|--- a/restas.asd</span><span class="diff-normal"><br>
+</span><span class="diff-normal">|+++ b/restas.asd</span><span class="diff-normal"><br>
+</span><span class="diff-deleted">--------------------------<br>
+</span><span class="diff-normal">No file to patch. &nbsp;Skipping patch.</span><span class="diff-normal"><br>
+</span><span class="diff-normal">2 out of 2 hunks ignored</span> </div> </div> </div> <div class="bottom">@2009-2010 lisper.ru</div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-7734690-1");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+ </body> </html>

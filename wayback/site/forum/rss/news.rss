@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Новости</title>
+    <link>http://lisper.ru/forum/</link>
+    <description>Новости - RSS-лента</description>
+    <item>
+      <title>Jax: David Lichteblau рекомендует ORM для Common Lisp: cl-perec</title>
+      <link>http://lisper.ru/forum/thread/46</link>
+      <description>&lt;span style="font-style: italic;"&gt;&amp;gt;&lt;/span&gt;&lt;a style="font-style: italic;" href="http://clsql.b9.com/"&gt;CLSQL&lt;/a&gt;&lt;span style="font-style: italic;"&gt; (проблемы с которой широкоизвестны)&lt;/span&gt;&lt;br&gt;&lt;br&gt;А какие у него проблемы?</description>
+      <pubDate>Tue, 13 Apr 2010 19:47:16 GMT</pubDate>
+    </item>
+    <item>
+      <title>LinkFly: David Lichteblau рекомендует ORM для Common Lisp: cl-perec</title>
+      <link>http://lisper.ru/forum/thread/46</link>
+      <description>Главное чтобы не слишком много костылей надо было. Чтобы не получилось так, что проще макросы к CLSQL написать.</description>
+      <pubDate>Sun, 04 Apr 2010 20:49:38 GMT</pubDate>
+    </item>
+    <item>
+      <title>andy128k: Lispworks 6</title>
+      <link>http://lisper.ru/forum/thread/141</link>
+      <description>Замечательно, но очень дорого. :(</description>
+      <pubDate>Wed, 06 Jan 2010 22:58:12 GMT</pubDate>
+    </item>
+    <item>
+      <title>artem: Lispworks 6</title>
+      <link>http://lisper.ru/forum/thread/141</link>
+      <description>&lt;P&gt;Сегодня, 6 января, вышла новая версия Lispwokrs 6.&lt;/P&gt;&lt;P&gt;См. http://www.lispworks.com/news/news28.html&lt;BR&gt;&lt;/P&gt;</description>
+      <pubDate>Wed, 06 Jan 2010 18:46:09 GMT</pubDate>
+    </item>
+    <item>
+      <title>allchemist: sbcl 10 лет!</title>
+      <link>http://lisper.ru/forum/thread/124</link>
+      <description>Ура, товарищи!&lt;br&gt;событию даже отдельный ресурс завели - &lt;a href="http://sbcl10.sbcl.org/"&gt;http://sbcl10.sbcl.org/&lt;/a&gt;.&lt;br&gt;вообщем, long life sbcl!</description>
+      <pubDate>Mon, 14 Dec 2009 02:21:37 GMT</pubDate>
+    </item>
+    <item>
+      <title>dmitry_vk: Clozure CL 1.4</title>
+      <link>http://lisper.ru/forum/thread/81</link>
+      <description>Хорошая новость. Теперь в требованиях к cl-gtk2 можно будет писать CCL &amp;gt;= 1.4, а не указывать ревизию в SVN.</description>
+      <pubDate>Fri, 30 Oct 2009 19:20:54 GMT</pubDate>
+    </item>
+    <item>
+      <title>archimag: Clozure CL 1.4</title>
+      <link>http://lisper.ru/forum/thread/81</link>
+      <description>Вышла новая версия &lt;a href="http://trac.clozure.com/openmcl"&gt;Clozure CL&lt;/a&gt; - 1.4&lt;br&gt;Подробности: &lt;a href="http://trac.clozure.com/openmcl/wiki/ReleaseNotes/1.4"&gt;http://trac.clozure.com/openmcl/wiki/ReleaseNotes/1.4&lt;/a&gt;</description>
+      <pubDate>Fri, 30 Oct 2009 09:39:34 GMT</pubDate>
+    </item>
+    <item>
+      <title>archimag: Common Lisp и Google App Engine</title>
+      <link>http://lisper.ru/forum/thread/78</link>
+      <description>Оказывается, это возможно, но только при условии использовании &lt;a href="http://common-lisp.net/project/armedbear/"&gt;ABCL&lt;/a&gt;. Подробности можно прочитать здесь: &lt;a href="http://abcl-dev.blogspot.com/2009/10/abcl-on-google-app-engine.html"&gt;http://abcl-dev.blogspot.com/2009/10/abcl-on-google-app-engine.html&lt;/a&gt;</description>
+      <pubDate>Thu, 29 Oct 2009 09:25:30 GMT</pubDate>
+    </item>
+    <item>
+      <title>archimag: sbcl v.1.0.32</title>
+      <link>http://lisper.ru/forum/thread/77</link>
+      <description>Вообще-то, версия 31 не была пропущена: &lt;a href="http://git.boinkor.net/gitweb/sbcl.git?a=commitdiff;h=4afe2bbc7c564c3cb28ddbec2d7be9b20e4007c0"&gt;http://git.boinkor.net/gitweb/sbcl.git?a=commitdiff;h=4afe2bbc7c564c3cb28ddbec2d7be9b20e4007c0&lt;/a&gt; и даже стоит сейчас у меня :) Вообще, разработчики стараются делать релиз каждый месяц, но вот 32 версия вышла только через 2 месяца, после 31. Из-за такого графика выпусков значимые изменения встречаются редко, в основном ведётся работа по мелкому улучшению: там подправили, там чуть оптимизировали и т.д. Что бы быть в курсе всех изменений можно подписаться на ленту &lt;a href="http://planet.sbcl.org/rss20.xml"&gt;http://planet.sbcl.org/rss20.xml&lt;/a&gt;</description>
+      <pubDate>Wed, 28 Oct 2009 09:11:05 GMT</pubDate>
+    </item>
+    <item>
+      <title>treep: sbcl v.1.0.32</title>
+      <link>http://lisper.ru/forum/thread/77</link>
+      <description>На главной странице по прежднему вывешена 30 версия. Но в списке на http://sourceforge.net/projects/sbcl/files/ вчера появилась 32. Осталось только дождатся, когда будет объявлено - что же там нового и почему пропущена 31 версия.</description>
+      <pubDate>Mon, 26 Oct 2009 19:55:41 GMT</pubDate>
+    </item>
+    <item>
+      <title>archimag: David Lichteblau рекомендует ORM для Common Lisp: cl-perec</title>
+      <link>http://lisper.ru/forum/thread/46</link>
+      <description>&lt;span style="font-style: italic;"&gt;&amp;gt; Во-первых, надо брать кучу пакетов из транков, потому как со стабильными релизами он не работает.&lt;/span&gt;&lt;br&gt;&lt;br&gt;Это нормально. Учитывая текущее состояние многих lisp-проектов, по другому сейчас делать трудно. Это не проблема cl-perec.&lt;br&gt;&lt;br&gt;&lt;span style="font-style: italic;"&gt;&amp;gt; отсутствует документация &lt;/span&gt;&lt;br&gt;&lt;br&gt;А где она есть? Это тоже на сегодняшний день нормально :) есть исходники...&lt;br&gt;</description>
+      <pubDate>Tue, 13 Oct 2009 07:27:55 GMT</pubDate>
+    </item>
+    <item>
+      <title>Valera: David Lichteblau рекомендует ORM для Common Lisp: cl-perec</title>
+      <link>http://lisper.ru/forum/thread/46</link>
+      <description>cl-perec - жуть. Во-первых, надо брать кучу пакетов из транков, потому как со стабильными релизами он не работает. Помогает clbuild. Во-вторых, глючноват и отсутствует документация (почти). Но в целом концепция приятная, и если потратить время на освоение и подставление костылей, то использовать можно.&lt;br&gt;</description>
+      <pubDate>Mon, 12 Oct 2009 20:06:40 GMT</pubDate>
+    </item>
+    <item>
+      <title>archimag: Вышел ECL 9.10.1</title>
+      <link>http://lisper.ru/forum/thread/69</link>
+      <description>Из нового:&lt;br&gt;&lt;ul&gt;&lt;li&gt;Поддержка OS X 10.6 и Snow Leopard&lt;/li&gt;&lt;li&gt;Полная поддержка последних версий Solaris&lt;/li&gt;&lt;li&gt;weak pointers&lt;/li&gt;&lt;li&gt;Новая модель обработки сигналов&lt;br&gt;&lt;/li&gt;&lt;/ul&gt;Сайт проекта: &lt;a href="http://ecls.sourceforge.net/"&gt;http://ecls.sourceforge.net/&lt;/a&gt;&lt;br&gt;CHANGELOG: &lt;a href="http://ecls.cvs.sourceforge.net/viewvc/ecls/ecl/src/CHANGELOG?view=markup"&gt;http://ecls.cvs.sourceforge.net/viewvc/ecls/ecl/src/CHANGELOG?view=markup&lt;/a&gt;</description>
+      <pubDate>Thu, 08 Oct 2009 11:41:48 GMT</pubDate>
+    </item>
+    <item>
+      <title>archimag: Новая версия Parenscirpt</title>
+      <link>http://lisper.ru/forum/thread/61</link>
+      <description>Вышла новая версия &lt;a href="Parenscript"&gt;Parenscript&lt;/a&gt;. &lt;br&gt;Оригинальное сообщение можно посмотреть &lt;a href="http://common-lisp.net/pipermail/parenscript-devel/2009-September/000598.html"&gt;здесь&lt;/a&gt;.</description>
+      <pubDate>Tue, 22 Sep 2009 14:34:41 GMT</pubDate>
+    </item>
+    <item>
+      <title>archimag: David Lichteblau рекомендует ORM для Common Lisp: cl-perec</title>
+      <link>http://lisper.ru/forum/thread/46</link>
+      <description>Известный лисп-хакер &lt;a href="http://lichteblau.blogspot.com/"&gt;David Lichteblau&lt;/a&gt; написал в своём блоге интересное &lt;a href="http://lichteblau.blogspot.com/2009/08/cl-perec-blog-series-by-pinterface.html"&gt;сообщение&lt;/a&gt;, в котором рассказал об (очень) успешном переводе своего кода с &lt;a href="http://clsql.b9.com/"&gt;CLSQL&lt;/a&gt; (проблемы с которой широкоизвестны) на новую &lt;a href="http://ru.wikipedia.org/wiki/ORM"&gt;ORM&lt;/a&gt; для Common Lisp: &lt;a href="http://common-lisp.net/project/cl-perec/"&gt;cl-perec&lt;/a&gt;.&amp;nbsp; &lt;a href="http://common-lisp.net/project/cl-perec/"&gt;cl-perec&lt;/a&gt; развивается тихо и без рекламы, это первое сообщение, которое мне попалось про описываемую систему.&lt;br&gt;&lt;br&gt;P.S. Я создал планету, посвящённую ORM для Common Lisp: &lt;a href="http://wishfeeds.com/archimag/common-lisp-orms/"&gt;http://wishfeeds.com/archimag/common-lisp-orms/&lt;/a&gt;, пока там только один блог (про cl-perec), если знаете ещё блоги на&amp;nbsp; эту тематику (фильтрация по тэгу не проблема) - пишите, буду добавлять.</description>
+      <pubDate>Wed, 12 Aug 2009 21:25:12 GMT</pubDate>
+    </item>
+    <item>
+      <title>archimag: Новые статьи</title>
+      <link>http://lisper.ru/forum/thread/45</link>
+      <description>У нас появились новые статьи:&lt;br&gt;&lt;ul&gt;&lt;li&gt;&lt;a href="http://lisper.ru/articles/hello-world-with-cl-gtk2"&gt;Hello World с GUI на Common Lisp&lt;/a&gt;&lt;/li&gt;&lt;li&gt;&lt;a href="http://lisper.ru/articles/icfpc-2009-virtual-mashine"&gt;Как написать виртуальную машину для ICFPC-2009 на Common Lisp&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;</description>
+      <pubDate>Wed, 12 Aug 2009 12:33:58 GMT</pubDate>
+    </item>
+    <item>
+      <title>Love5an: clisp 2.48</title>
+      <link>http://lisper.ru/forum/thread/39</link>
+      <description>собрал под вистой, тестирую&lt;br&gt;&lt;br&gt;с мьютексами что-то криво, кажется</description>
+      <pubDate>Tue, 11 Aug 2009 20:49:12 GMT</pubDate>
+    </item>
+    <item>
+      <title>dmitry_vk: clisp 2.48</title>
+      <link>http://lisper.ru/forum/thread/39</link>
+      <description>&amp;gt;Если есть многопоточность под win32, то под винду это будет самая вменяемая реализация.&lt;br&gt;У clozure есть треды и нативная компиляция.</description>
+      <pubDate>Tue, 11 Aug 2009 11:44:38 GMT</pubDate>
+    </item>
+    <item>
+      <title>turtle: clisp 2.48</title>
+      <link>http://lisper.ru/forum/thread/39</link>
+      <description>Если есть многопоточность под win32, то под винду это будет самая вменяемая реализация.</description>
+      <pubDate>Tue, 11 Aug 2009 05:34:28 GMT</pubDate>
+    </item>
+    <item>
+      <title>lispnik: clisp 2.48</title>
+      <link>http://lisper.ru/forum/thread/39</link>
+      <description>Неужели мы дожили до этого радостного дня?!?!</description>
+      <pubDate>Mon, 10 Aug 2009 04:48:05 GMT</pubDate>
+    </item>
+  </channel>
+</rss>

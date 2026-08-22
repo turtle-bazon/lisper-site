@@ -1,0 +1,201 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru">
+	<head>
+      	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"></meta>
+
+        <meta name="verify-v1" content="o6r5tA9qF5PflmPb3cI7rJrWpFBGTkIE9X4KU25TxiE="></meta>
+
+        <meta name="keywords" content="Common Lisp,lisp,лисп"></meta>
+
+        <link href="/css/fine/style.css" rel="stylesheet" type="text/css">
+        <link href="/css/fine/colorize.css" rel="stylesheet" type="text/css">
+	<title>cookbook:dates-and-times</title>
+<link href="/css/fine/wiki.css" rel="stylesheet" type="text/css"></head>
+
+	<body>
+        <div class="top">
+            <div id="login">
+    <a href="/register">Регистрация</a> |
+    <a href="/login?done=http%3A%2F%2Flisper.ru%2Fwiki%2Fcookbook%3Adates-and-times">Войти</a>
+</div>
+        </div>
+
+        <div id="caution">
+            <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png"></img>
+        </div>
+
+        <div id="mainmenu">
+          <ul>
+<li><a href="/">Главная</a></li>
+<li><a href="/articles/">Статьи</a></li>
+<li><a href="/planet/">Планета</a></li>
+<li><a href="/forum/">Форум</a></li>
+<li><a href="/apps/">Сервисы</a></li>
+<li><a href="/pcl/">Practical Common Lisp</a></li>
+<li><a href="/wiki/">wiki</a></li>
+</ul>
+        </div>
+
+        <div id="content"><div class="article">
+<div class="toc">
+<div class="toc-header">Содержание</div>
+<div class="toc-body"><ul><li><div>
+<a href="#701ceec5c9798f2f4c5f081bae0678af">Даты и время</a><ul>
+<li><div><a href="#72a303bf96dfa7d284cb403a0fa9b11d">Мировое время</a></div></li>
+<li><div>
+<a href="#5fa0829216ee09ed84e9ba38a3a2ee57">Внутреннее время</a><ul><li><div><a href="#7460f26aba4f43220d7dccae24a2924c">Пример : вычисление дня недели</a></div></li></ul>
+</div></li>
+<li><div><a href="#a6e9d0bb2d6449c96508f0521b191dbb">Библиотеки</a></div></li>
+</ul>
+</div></li></ul></div>
+</div>
+<div class="chapter" id="701ceec5c9798f2f4c5f081bae0678af">
+<h3>Даты и время</h3>
+
+<p>Коммон Лисп предоставляет два способа узнать время: мировое(universal) время, и локальное время, используемое компьютером.
+</p>
+<p>Они могут не совпадать, мы хотим иметь возможность получить каждое из них по отдельности.
+</p>
+<div class="chapter" id="72a303bf96dfa7d284cb403a0fa9b11d">
+<h3>Мировое время</h3>
+
+<p>Мировое время <a class="fn_top" id="fnt__1" href="#fn__1">1)</a> определяется как количество секунд, прошедших с первого января 1900 года,
+с 00:00 по Гринвичу (GMT). Функция <a href="http://www.lispworks.com/documentation/HyperSpec/Body/f_get_un.htm">get-universal-time</a> 
+возвращает текущее мировое время:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_get_un.htm" class="symbol">get-universal-time</a></span>)</span><br>
+3460967607<br></pre>
+
+<p>Очевидно, что таким представлением удобно пользоваться далеко не всегда, 
+и Коммон Лисп представляет возможность для его расшифровки. Функция decode-universal-time возвращает девять значений
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_dec_un.htm" class="symbol">decode-universal-time</a> 3460967607</span>)</span><br>
+27       <span class="comment">; секунда<br></span>53       <span class="comment">; минута<br></span>11       <span class="comment">; час<br></span>3        <span class="comment">; день<br></span>9        <span class="comment">; месяц<br></span>2009     <span class="comment">; год<br></span>3        <span class="comment">; день недели (пн = 0, вскр = 6) <br></span><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a>      <span class="comment">; летнее время (daylight saving time flag)      <br></span>0        <span class="comment">; временная зона<br></span></pre>
+<p> 
+<a class="fn_top" id="fnt__2" href="#fn__2">2)</a>
+</p>
+<p>День недели закодирован цифрой от 0 до 6, где 0 - понедельник. Временная зона представлена количеством часов, которое следует <strong>добавить</strong>, чтобы получить GMT.
+</p>
+<p>Для удобства можно писать
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_get_un.htm" class="symbol">get-decoded-time</a></span>)</span><br></pre>
+<p>вместо
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_dec_un.htm" class="symbol">decode-universal-time</a> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_get_un.htm" class="symbol">get-universal-time</a></span>)</span></span>)</span><br></pre>
+
+<p>Следующий пример показывает возможные способ вывода даты и времени в удобочитаемом виде:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><i><span class="symbol">defconstat</span></i> <span class="special">*day-names*</span><br>  '<span class="paren2">(<span class=""><span class="string">"понедельник"</span> <span class="string">"вторник"</span> <span class="string">"среда"</span><br>    <span class="string">"четверг"</span> <span class="string">"пятница"</span> <span class="string">"суббота"</span> <span class="string">"воскресенье"</span></span>)</span></span>)</span><br><span class="special">*DAY-NAMES*</span><br><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_multip.htm" class="symbol">multiple-value-bind</a><br>      <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_firstc.htm" class="symbol">second</a> minute hour date month year day-of-week dst-p tz</span>)</span><br>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_get_un.htm" class="symbol">get-decoded-time</a></span>)</span><br>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <span class="string">"Сейчас ~2,'0d:~2,'od:~2,'od, ~a, ~d/~2,'0d/~d (GMT~@d)"</span><br>          hour<br>          minute<br>          <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_firstc.htm" class="symbol">second</a><br>          <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_nth.htm" class="symbol">nth</a> day-of-week <span class="special">*day-names*</span></span>)</span><br>          date<br>          month<br>          year<br>          <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a__.htm" class="symbol">-</a> tz</span>)</span></span>)</span></span>)</span><br>Сейчас 12:12:12, понедельник, 7/09/2009 <span class="paren1">(<span class="">GMT-3</span>)</span><br></pre>
+<p><a class="fn_top" id="fnt__3" href="#fn__3">3)</a>
+ 
+Функция decode-universal-time тоже может выполнять полезную работу, например, для расшифровки любого (а не только текущего) времени. 
+Обратное преобразование выполняет функция encode-universal-time, которая принимает <strong>шесть</strong> обязательных аргументов (секунда, минута, час, день, месяц, год), а также один опционный - временную зону. Если временная зона не указана явно, флаг летнего времени устанавливается автоматически.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_encode.htm" class="symbol">encode-universal-time</a> 27 53 11 3 9 2009</span>)</span><br>
+3460967607<br></pre>
+
+<p>Так как universal time в лиспе - это обычное число, то работать с ним удобнее и предпочтительнее, чем с календарной датой. Заодно решается проблема вычисления вычисления времени относительно какого-то события:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_setq.htm" class="symbol"><i><span class="symbol">setq</span></i></a> <span class="special">*moon*</span> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_encode.htm" class="symbol">encode-universal-time</a> 0 17 16 20 7 1969 4</span>)</span></span>)</span><br>
+2194805820<br><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_setq.htm" class="symbol"><i><span class="symbol">setq</span></i></a> <span class="special">*takeoff*</span> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_encode.htm" class="symbol">encode-universal-time</a> 0 38 11 28 1 1986 5</span>)</span></span>)</span><br>
+271630308<br><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a__.htm" class="symbol">-</a> <span class="special">*takeoff*</span> <span class="special">*moon*</span></span>)</span><br>
+521497260<br></pre>
+
+</div>
+<div class="chapter" id="5fa0829216ee09ed84e9ba38a3a2ee57">
+<h3>Внутреннее время</h3>
+
+<p>Лисп измеряет внутреннее время, используя системные часы. В отличие от мирового, пользователь сам назначает точку его отсчета. 
+Это может быть момент старта компьютера, лисп-системы или любой другой момент в прошлом. Из этого следует, внутреннее время полезно не столько само по себе, 
+сколько для измерения относительных интервалов.
+</p>
+<p>Еще одно отличие внутреннего времени в том, что оно измеряется не в секундах, а в других единицах (обычно меньших секунды). 
+Количество этих промежутков в секунде определяется переменной 
+<a href="http://www.lispworks.com/documentation/HyperSpec/Body/v_intern.htm">internal-time-units-per-second</a>:
+</p>
+<pre class="code"><a href="http://www.lispworks.com/reference/HyperSpec/Body/v_intern.htm" class="symbol">internal-time-units-per-second</a><br>
+1000<br></pre>
+
+<p>Это значит, что этот условный интервал равен одной миллисекунде.
+</p>
+<p>Всё-таки в Лисп-среде под "внутренним временем" подразумевают две вещи - с одной стороны это то же, что и "реальное время" из предыдущего раздела, но выраженное в более точных единицах, с другой - CPU время, то есть время, в течении которого процессор занимался вычислением задач, связанных с текущим процессом Лисп-среды. так как в современных компьютерах используются системы разделения времени, время процессора всегда будет меньше реального времени, потому что часть его будет отдана под другие задачи (работа других программ, обработка прерываний с клавиатуры). Внутреннее время в первом смысле можно получить с помощью функции <a href="http://www.lispworks.com/documentation/HyperSpec/Body/f_get_in.htm">get-internal-real-time</a>, а время с точки зрения процессора с <a href="%D0%BF%D0%BE%D0%BC%D0%BE%D1%89%D1%8C%D1%8E%20%D1%84%D1%83%D0%BD%D0%BA%D1%86%D0%B8%D0%B8%20http://www.lispworks.com/documentation/HyperSpec/Body/f_get__1.htm">get-internal-run-time</a>. Небольшой пример, чтобы прояснить разницу:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren2">(<span class=""><span class="paren3">(<span class="">real1 <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_get_in.htm" class="symbol">get-internal-real-time</a></span>)</span></span>)</span><br>      <span class="paren3">(<span class="">run1 <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_get__1.htm" class="symbol">get-internal-run-time</a></span>)</span></span>)</span></span>)</span><br><br><span class="comment">;; Рабочий код тут<br></span><br><span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren3">(<span class=""><span class="paren4">(<span class="">run2 <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_get__1.htm" class="symbol">get-internal-run-time</a></span>)</span></span>)</span><br>      <span class="paren4">(<span class="">real2 <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_get_in.htm" class="symbol">get-internal-real-time</a></span>)</span></span>)</span></span>)</span><br>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <span class="string">"Вычисления заняли:~%"</span></span>)</span><br>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <span class="string">"  ~f секунд реального времени~%"</span><br>              <span class="paren4">(<span class="">/ <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a__.htm" class="symbol">-</a> real2 real1</span>)</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/v_intern.htm" class="symbol">internal-time-units-per-second</a></span>)</span></span>)</span><br>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <span class="string">"  ~f секунд процессорного времени~%"</span><br>              <span class="paren4">(<span class="">/ <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a__.htm" class="symbol">-</a> run2 run1</span>)</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/v_intern.htm" class="symbol">internal-time-units-per-second</a></span>)</span></span>)</span></span>)</span></span>)</span><br></pre>
+
+<p>Хороший способ увидеть разницу между реальным временем и временем выполнения - проверить код выше с помощью функции <a href="http://www.lispworks.com/documentation/HyperSpec/Body/f_sleep.htm">sleep</a>, которая прерывает выполнение на указанное количество секунд:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren2">(<span class=""><span class="paren3">(<span class="">real1 <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_get_in.htm" class="symbol">get-internal-real-time</a></span>)</span></span>)</span><br>      <span class="paren3">(<span class="">run1 <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_get__1.htm" class="symbol">get-internal-run-time</a></span>)</span></span>)</span></span>)</span><br><br><span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_sleep.htm" class="symbol">sleep</a> 10</span>)</span><br><br><span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren3">(<span class=""><span class="paren4">(<span class="">run2 <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_get__1.htm" class="symbol">get-internal-run-time</a></span>)</span></span>)</span><br>      <span class="paren4">(<span class="">real2 <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_get_in.htm" class="symbol">get-internal-real-time</a></span>)</span></span>)</span></span>)</span><br>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <span class="string">"Вычисления заняли:~%"</span></span>)</span><br>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <span class="string">"  ~f секунд реального времени~%"</span><br>              <span class="paren4">(<span class="">/ <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a__.htm" class="symbol">-</a> real2 real1</span>)</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/v_intern.htm" class="symbol">internal-time-units-per-second</a></span>)</span></span>)</span><br>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <span class="string">"  ~f секунд процессорного времени~%"</span><br>              <span class="paren4">(<span class="">/ <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a__.htm" class="symbol">-</a> run2 run1</span>)</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/v_intern.htm" class="symbol">internal-time-units-per-second</a></span>)</span></span>)</span></span>)</span></span>)</span><br></pre>
+
+<p>В результате время выполнения должно быть близко к нулю (процесс "спал"), а реальное время - к 10 секундам.
+</p>
+<p>Обобщим этот метод в макрос timing, который принимает формы для выполнения и выводит статистику времени:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defmac.htm" class="symbol"><i><span class="symbol">defmacro</span></i></a> timing <span class="paren2">(<span class="">&amp;body forms</span>)</span><br>    <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren3">(<span class=""><span class="paren4">(<span class="">real1 <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_gensym.htm" class="symbol">gensym</a></span>)</span></span>)</span><br>         <span class="paren4">(<span class="">real2 <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_gensym.htm" class="symbol">gensym</a></span>)</span></span>)</span><br>         <span class="paren4">(<span class="">run1 <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_gensym.htm" class="symbol">gensym</a></span>)</span></span>)</span><br>         <span class="paren4">(<span class="">run2 <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_gensym.htm" class="symbol">gensym</a></span>)</span></span>)</span><br>         <span class="paren4">(<span class="">result <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_gensym.htm" class="symbol">gensym</a></span>)</span></span>)</span></span>)</span><br>    `<span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let*</span></i></a> <span class="paren4">(<span class=""><span class="paren5">(<span class="">,real1 <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_get_in.htm" class="symbol">get-internal-real-time</a></span>)</span></span>)</span><br>            <span class="paren5">(<span class="">,run1 <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_get__1.htm" class="symbol">get-internal-run-time</a></span>)</span></span>)</span><br>            <span class="paren5">(<span class="">,result <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_progn.htm" class="symbol"><i><span class="symbol">progn</span></i></a> ,@forms</span>)</span></span>)</span><br>            <span class="paren5">(<span class="">,run2 <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_get__1.htm" class="symbol">get-internal-run-time</a></span>)</span></span>)</span><br>            <span class="paren5">(<span class="">,real2 <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_get_in.htm" class="symbol">get-internal-real-time</a></span>)</span></span>)</span></span>)</span><br>      <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/v_debug_.htm" class="symbol"><span class="special">*debug-io*</span></a> <span class="string">";;; Вычисления заняли:~%"</span></span>)</span><br>      <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/v_debug_.htm" class="symbol"><span class="special">*debug-io*</span></a> <span class="string">";;;  ~f секунд реального времени, ~%"</span><br>                         <span class="paren5">(<span class="">/ <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a__.htm" class="symbol">-</a> ,real2 ,real1</span>)</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/v_intern.htm" class="symbol">internal-time-units-per-second</a></span>)</span></span>)</span><br>      <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <span class="string">";;;  ~f секунд процессорного времени.~%"</span><br>                         <span class="paren5">(<span class="">/ <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a__.htm" class="symbol">-</a> ,run2 ,run1</span>)</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/v_intern.htm" class="symbol">internal-time-units-per-second</a></span>)</span></span>)</span><br>      ,result</span>)</span></span>)</span></span>)</span><br><br><span class="comment">; проверяем:<br></span><span class="paren1">(<span class="">timing <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_sleep.htm" class="symbol">sleep</a> 1</span>)</span></span>)</span><br><span class="comment">;;; Вычисления заняли: 0.994 секунд реального времени,  0.0 секунд процессорного времени.<br></span><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">NIL</a><br></pre>
+
+<p>Встроенный макрос <a href="http://www.lispworks.com/documentation/HyperSpec/Body/m_time.htm">time</a> делает примерно то же, но он также выводит статистику по использованию памяти, времени, потраченного на сборку мусора, и т.д - вывод может отличатся в разных реализациях. Например, статистика о ресурсах, потраченных на сортировку миллиона действительных чисел на Clisp:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren2">(<span class=""><span class="paren3">(<span class="">numbers <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> for i from 1 to 1000000 collect <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_random.htm" class="symbol">random</a> 1.0</span>)</span></span>)</span></span>)</span></span>)</span>    <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_time.htm" class="symbol">time</a> <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_sort_.htm" class="symbol">sort</a> numbers #'&lt;</span>)</span></span>)</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a></span>)</span><br>  <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_real.htm" class="symbol">Real</a> time: 9.84375 seс<br>  Run time: 9.84375 sec<br>  Space: 4000000 Bytes<br></pre>
+
+<p>И на SBCL:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren2">(<span class=""><span class="paren3">(<span class="">numbers <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> for i from 1 to 1000000 collect <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_random.htm" class="symbol">random</a> 1.0</span>)</span></span>)</span></span>)</span></span>)</span><br>    <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_time.htm" class="symbol">time</a> <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_sort_.htm" class="symbol">sort</a> numbers #'&lt;</span>)</span></span>)</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a></span>)</span><br><br>
+Evaluation took:<br>  6.704 seconds of <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_real.htm" class="symbol">real</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/m_time.htm" class="symbol">time</a><br>  6.703125 seconds of total run <a href="http://www.lispworks.com/reference/HyperSpec/Body/m_time.htm" class="symbol">time</a> <span class="paren1">(<span class="">6.546875 user, 0.156250 system</span>)</span><br>  99.99% CPU<br>  17,005,975,479 processor cycles<br>  0 bytes consed<br><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">NIL</a><br></pre>
+
+<div class="chapter" id="7460f26aba4f43220d7dccae24a2924c">
+<h3>Пример : вычисление дня недели</h3>
+
+<p>В разделе о мировом времени было показано, как вычислить день недели. Однако встроенные функции работают только с датами, позже чем 1 января 1900 года. Чтобы устранить этот недостаток, можно использовать такую функцию:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> day-of-week <span class="paren2">(<span class="">day month year</span>)</span><br>  <span class="string">"Возвращает день недели 0 - воскресенье, 1 -понедельник, и т.д.<br>   Работает для дат &gt; 1752 года."</span><br>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren3">(<span class=""><span class="paren4">(<span class="">offset '<span class="paren5">(<span class="">0 3 2 5 0 3 5 1 4 6 2 4</span>)</span></span>)</span></span>)</span><br>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_when_.htm" class="symbol">when</a> <span class="paren4">(<span class="">&lt; month 3</span>)</span><br>      <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_incf_.htm" class="symbol">decf</a> year 1</span>)</span></span>)</span><br>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_mod.htm" class="symbol">mod</a><br>     <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_floorc.htm" class="symbol">truncate</a> <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> year<br>                  <span class="paren6">(<span class="">/ year 4</span>)</span><br>                  <span class="paren6">(<span class="">/ <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a__.htm" class="symbol">-</a> year</span>)</span><br>                     100</span>)</span><br>                  <span class="paren6">(<span class="">/ year 400</span>)</span><br>                  <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_nth.htm" class="symbol">nth</a> <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_1pl_1_.htm" class="symbol">1-</a> month</span>)</span> offset</span>)</span><br>                  day<br>                  -1</span>)</span></span>)</span><br>     7</span>)</span></span>)</span></span>)</span><br></pre>
+
+<p>(оригинальная версия - Gerald Doussot на comp.lang.c FAQ).
+</p>
+</div>
+</div>
+<div class="chapter" id="a6e9d0bb2d6449c96508f0521b191dbb">
+<h3>Библиотеки</h3>
+
+<p>Для работы с временем также могу оказаться полезными следующие библиотеки:
+</p>
+<ul>
+<li> <a href="http://common-lisp.net/project/local-time/">local-time</a>
+</li>
+<li> <a href="http://www.cliki.net/net-telent-date">net-telent-date</a>
+</li>
+</ul>
+</div>
+</div>
+<div class="footnotes">
+<div>
+<a class="fn_bot" id="fn__1" href="#fnt__1">1)</a>Первоночальный термин "вселенское время" кажется довольно сомнительным :) </div>
+<div>
+<a class="fn_bot" id="fn__2" href="#fnt__2">2)</a>Пояснение про нумерацию сделано в англоязычной версии, так как у них принято вести отсчет с воскресенья, а не понедельника. Счастливые...</div>
+<div>
+<a class="fn_bot" id="fn__3" href="#fnt__3">3)</a>если не против - руссифицировал немного</div>
+</div>
+</div></div>
+
+        <div class="bottom">@2009 lisper.ru</div>
+
+        <script type="text/javascript">
+
+          var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+
+          document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+
+        </script>
+
+        <script type="text/javascript">
+
+          try {
+
+          var pageTracker = _gat._getTracker("UA-7734690-1");
+
+          pageTracker._trackPageview();
+
+          } catch(err) {}
+
+        </script>
+
+    </body>
+</html>

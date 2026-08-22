@@ -26,7 +26,9 @@ rows = json.load(open(os.path.join(ROOT, 'cdx_unique.json')))[1:]
 def safe_name(url):
     u = url.replace('http://lisper.ru:80', '').replace('https://lisper.ru', '')
     p = urlparse(u if '://' in u else 'http://x' + u)
-    path = quote(p.path, safe='/') or '/'
+    path = quote(p.path, safe='/')
+    if path in ('', '/'):
+        path = '/index.html'
     if p.query:
         path += '@' + re.sub(r'[^A-Za-z0-9._-]', '_', p.query)[:60]
     base = os.path.basename(path)

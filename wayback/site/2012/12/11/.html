@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html> <head> <title>archimag: 11 December, 2012</title> <link rel="stylesheet" href="/static/mirev/css/style.css"> <link rel="stylesheet" href="/static/mirev/css/prettify.css"> <link rel="alternate" type="application/atom+xml" title="archimag: blog entries feed" href="/feeds/atom" />   </head> <body> <a href="http://github.com/archimag/"> <img style="position: absolute; top: 0; left: 0; border: 0;" src="/static/archimag/image/forkme.png" alt="Fork me on GitHub"> </a> <div id="header"> <a href="/" id="blogname">archimag</a> </div> <div id="content"> <h1>Archive for 11 December, 2012</h1> <div class="blog-post"> <h2><a href="/2012/12/11/%d0%94%d0%b0%d0%b2%d0%bd%d0%b5%d0%bd%d1%8c%d0%ba%d0%be_%d0%bd%d0%b5_%d0%b1%d1%80%d0%b0%d0%bb_%d1%8f_%d0%b2_%d1%80%d1%83%d0%ba%d0%b8_%d1%88%d0%b0%d1%88%d0%b5%d0%ba">Давненько не брал я в руки шашек</a></h2> <div class="post-metadata"> <div class="post-published"> <a href="/2012/"> 2012 </a>, <a href="/2012/12/"> December </a> <a href="/2012/12/11/"> 11 </a> </div> <div class="post-tags"> <a href="/tags/">Tags</a>:  <a href="/tags/lisp">lisp</a> <a href="/tags/arblog">arblog</a> <a href="/tags/closuretemplates">closuretemplates</a> </div> </div> <div class="document"><p>Уже больше года CL практически не занимался. Страшно сказать, за год ни одного сообщения в блоге. Хватит это терпеть!</p>
+<p>Впрочем, время от времени я за CL таки садился и потихоньку переделывал <a class="reference" href="https://github.com/archimag/cl-closure-template"><span>cl-closure-template</span></a>. Функционал остался тот же самый, но вот реализация поменялась:</p>
+<ul>
+<li><p class="first">Переписан парсер, теперь для представления AST используются не s-выражения, а настоящие объекты.</p>
+</li>
+<li><p class="first">Соответственно, пришлось переписать практически всё (хоть работа и была не очень сложной)</p>
+</li>
+<li><p class="first">Полностью переписан JavaScript-backend без использования parenscript.</p>
+</li>
+</ul>
+<p>В результате, как мне представляется, код стал понятнее и проще для модификации, ибо вникать в прежний код, занимавшийся перемалыванием s-выражений, было занятие не самое приятное.</p>
+<p>Последовавшее за этим <a class="reference" href="http://lisper.ru/forum/thread/860"><span>обсуждение </span></a> привело к появлению нескольких очень полезных новых возможностей:</p>
+<ul>
+<li><p class="first">Добавлена возможность генерации JavaScript в стиле RequireJS (:requirejs-backend)</p>
+</li>
+<li><p class="first">Добавлена поддержка <a class="reference" href="http://common-lisp.net/project/asdf/"><span>ASDF</span></a> и теперь шаблон можно указывать непосредственно в описании системы с помощью компонента :closure-template</p>
+</li>
+<li><p class="first">Добавлена возможность компиляции шаблона (CL-backend) при редактировании шаблона в Emacs с помощью C-c C-l (closure-template-compile). Очень, очень удобно.</p>
+</li>
+</ul>
+<p>За эти изменения большое спасибо <a class="reference" href="https://github.com/alexey-martynov"><span>Alexey Martynov</span></a>, а также <a class="reference" href="http://andy128k.blogspot.ru/"><span>andy128k</span></a>, который терпеливо исправлял появлявшиеся баги (ну куда же без них).</p>
+<p>Эта работа подвигла меня на ещё один шаг. Одна из причин, почему я не вёл блог была в том, что <a class="reference" href="https://github.com/archimag/arblog"><span>arblog</span></a> не имел админки. Когда я на него перешёл это было не существенным, ибо я тогда был плотно в теме и мне было очень просто создавать посты прямой работой с базой. Но имевший место долгий перерыв общения с CL отбил у меня охоту снова этим занимать. Для исправления ситуации сделал админку, что бы можно было создавать и править посты непосредственно из веб-интерфейса.</p>
+<p>Сейчас функционал <a class="reference" href="https://github.com/archimag/arblog"><span>arblog</span></a> меня совершенно устраивает, но в ближайшее время я намерен существенно переработать структуру кода, так что бы этим движком мог пользоваться не только я.</p>
+<p>Для завершения картины обновил софт на сервере, в процессе даже падал <a class="reference" href="http://lisper.ru/"><span>lisper.ru</span></a>, ибо <a class="reference" href="http://www.gentoo.org/"><span>Gentoo</span></a> требуется много ресурсов для компиляции. Развернул MongoDB и перетащил в неё базу блога, которая ранее жила на <a class="reference" href="https://www.mongohq.com/"><span>MongoHQ</span></a>.</p>
+</div> </div> </div> <div id="footer"> <div class="right"> Copyright (c) Moskvitin Andrey <br /> Powered by <a href="http://restas.lisper.ru">RESTAS</a> <div id="buttons"> <a href="http://www.sbcl.org/"> <img src="/static/archimag/image/sbclbutton.png" alt="SBCL" /> </a> <a href="http://weitz.de/hunchentoot/"> <img src="/static/archimag/image/hunchentoot10.png" alt="Hunchentoot" /> </a> <a href="http://www.mongodb.org/"> <img src="/static/archimag/image/logo-mongodb.png" alt="mongoDB" /> </a> </div> </div> <a href="/feeds/atom" class="feed">Posts feed</a>  </div> 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-22971320-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+     </body> </html>

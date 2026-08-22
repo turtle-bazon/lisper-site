@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru"> <head> <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> <meta name="keywords" content="Common Lisp,lisp,лисп" /> <title>libraries:external-program</title> <link href="/css/style.css" rel="stylesheet" type="text/css" /><link href="/css/wiki.css" rel="stylesheet" type="text/css" /><link href="/css/colorize.css" rel="stylesheet" type="text/css" />  </head> <body> <div class="top"> <div id="login"> <a href="/register">Регистрация</a> | <a href="/login?done=/wiki/libraries:external-program">Войти</a> </div> </div> <div id="caution"> <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png" /> <a href="http://www.vkusnoserver.ru/" target="_blank" style="float: right;"> <img src="/vkusnoserver.png" /> </a> </div> <div id="mainmenu"> <ul> <li> <a href="/">Главная</a> </li><li> <a href="/articles/">Статьи</a> </li><li> <a href="/planet/">Планета</a> </li><li> <a href="/forum/">Форум</a> </li><li> <a href="/apps/">Сервисы</a> </li><li> <a href="/pcl/">Practical Common Lisp</a> </li><li> <a href="/wiki/">Wiki</a> </li><li> <a href="/files/">Файлы</a> </li><li> <a href="/search">Поиск</a> </li> </ul> </div> <div id="content"> <ul class="wiki-page-menu"> <li> <a href="/wiki/edit/libraries:external-program">Edit</a> </li>  <li> <a href="/wiki/history/libraries:external-program">History</a> </li>   </ul><div class="article"><div class="toc"><div class="toc-header">Содержание</div><div class="toc-body"><ul><li><div><a href="#&#x421;&#x43A;&#x430;&#x447;&#x438;&#x432;&#x430;&#x43D;&#x438;&#x435; &#x438; &#x443;&#x441;&#x442;&#x430;&#x43D;&#x43E;&#x432;&#x43A;&#x430;">Скачивание и установка</a></div></li><li><div><a href="#API">API</a></div></li><li><div><a href="#&#x41F;&#x440;&#x438;&#x43C;&#x435;&#x440;">Пример</a></div></li></ul></div></div>
+<div class="chapter" id="&#x421;&#x43A;&#x430;&#x447;&#x438;&#x432;&#x430;&#x43D;&#x438;&#x435; &#x438; &#x443;&#x441;&#x442;&#x430;&#x43D;&#x43E;&#x432;&#x43A;&#x430;"><h3>Скачивание и установка</h3>
+
+<p>Автоматически
+</p><pre class="code"><span class="paren1">(<span class="">ql:quickload <span class="string">"external-program"</span></span>)</span><br/></pre>
+
+<p>Вручную 
+</p>
+<pre class="code"><p>git clone --depth 1 https://github.com/sellout/external-program.git<br/></p></pre>
+
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_provid.htm" class="symbol">require</a> <span class="keyword">:asdf</span></span>)</span><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_provid.htm" class="symbol">require</a> <span class="keyword">:external-program</span></span>)</span><br/></pre>
+
+</div><div class="chapter" id="API"><h3>API</h3><pre>(RUN program args &amp;KEY input if-input-does-not-exist output if-output-exists error if-error-exists environment replace-environment-p) =&gt; result-code<br/></pre>
+<p>Запускает заданную программу как внешний процесс, блокирует текущий лисп поток, и возвращает код завершения процесса.
+</p>
+<p>INPUT, OUTPUT и ERROR ведут себя аналогичным образом, принимая одно из следующих значений:
+</p><table><tbody><tr><td>NIL</td><td>указывает для использования нулевой поток (например, /dev/null)</td></tr><tr><td>T</td><td> указывает, что внешний процесс должен использовать текущие для лиспа источники ввода/вывода</td></tr><tr><td colspan="2">поток</td></tr><tr><td colspan="2">обозначение пути для перенаправления из/в файл</td></tr><tr><td>:OUTPUT</td><td>(доступно только для ERROR) перенаправляет вывод ошибок в стандартный вывод</td></tr></tbody></table>
+
+<p>ENVIRONMENT содержит alist с переменными и значениями.
+</p>
+<p>REPLACE-ENVIRONMENT-P отображает, должен ли аргумент переданный как ENVIRONMENT заменить или расширить текущее окружение. По умолчанию NIL (расширить окружение).
+</p><pre>(START program args &amp;KEY input if-input-does-not-exist output if-output-exists error if-error-exists environment replace-environment-p status-hook) =&gt; process<br/></pre>
+<p>START работает почти также, как и RUN, за исключением того, что процесс запускается в фоне, и функция немедленно возвращает объект класса PROCESS, который может использован для получения потоков ввода/вывода и статуса процесса.
+</p>
+<p>Параметры отличаются следующим:
+</p>
+<p>дополнительное значение для input, output и error:</p><table><tbody><tr><td>:STREAM</td><td>создает новый поток для символьного ввода или вывода (доступный через EXTERNAL-PROCESS-*-STREAM)</td></tr></tbody></table>
+
+<p>STATUS-HOOK функция, которая вызывается системой при изменении статуса процесса. Функция получает процесс в качестве аргумента.
+</p><pre>(PROCESS-P object)<br/></pre>
+<p>Возвращает T, если объект является процессом, иначе NIL.
+</p><pre>(SIGNAL-PROCESS process signal)<br/></pre>
+<p>Посылает указанный unix сигнал данному внешнему процессу. Сигнализирует об ошибке в случае неудачи. Сигнал может быть целым или одним из keyword'ов из EXTERNAL-PROGRAM::*SIGNAL-MAPPING*.
+</p>
+<p>alist EXTERNAL-PROGRAM::*SIGNAL-MAPPING*:
+</p><table><tbody><tr><td>:HANGUP</td><td>1</td></tr><tr><td>:INTERRUPT</td><td>2</td></tr><tr><td>:QUIT</td><td>3</td></tr><tr><td>:ILLEGAL-INSTRUCTION</td><td>4</td></tr><tr><td>:BREAKPOINT-TRAP</td><td>5</td></tr><tr><td>:ABORT</td><td>6</td></tr><tr><td>:EMULATION-TRAP</td><td>7</td></tr><tr><td>:ARITHMETIC-EXCEPTION</td><td>8</td></tr><tr><td>:KILLED</td><td>9</td></tr><tr><td>:BUS-ERROR</td><td>10</td></tr><tr><td>:SEGMENTATION-FAULT</td><td>11</td></tr><tr><td>:BAD-SYSTEM-CALL</td><td>12</td></tr><tr><td>:BROKEN-PIPE</td><td>13</td></tr><tr><td>:ALARM-CLOCK</td><td>14</td></tr></tbody></table>
+<pre>(PROCESS-ID process)<br/></pre>
+<p>Возвращает идентификатор процесса назначенные ему операционной системой. Обычно это положительное 16-битное число.
+</p><pre>(PROCESS-INPUT-STREAM process)<br/></pre>
+<p>Возвращает поток, созданный, если аргумент input в START был указан как :STREAM.
+</p><pre>(PROCESS-OUTPUT-STREAM process)<br/></pre>
+<p>Возвращает поток, созданный, если аргумент output в START был указан как :STREAM.
+</p><pre>(PROCESS-ERROR-STREAM process)<br/></pre>
+<p>Возвращает поток, созданный, если аргумент error в START был указан как :STREAM.
+</p><pre>(PROCESS-STATUS process)<br/></pre>
+<p>Возвращает несколько значений, keyword указывающий статус внешнего процесса (один из :RUNNING, :STOPPED, :SIGNALED или :EXITED) и код завершения или сигнал прекращения процесса, если первое значение не :RUNNING
+</p>
+</div><div class="chapter" id="&#x41F;&#x440;&#x438;&#x43C;&#x435;&#x440;"><h3>Пример</h3>
+
+<p>Запуск программы maxima и создание потоков для управления вводом/выводом внешнего процесса:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defpar.htm" class="symbol"><i><span class="symbol">defvar</span></i></a> <span class="special">*p*</span> <span class="paren2">(<span class="">external-program:start <span class="string">"maxima"</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a> <span class="keyword">:input</span> <span class="keyword">:stream</span> <span class="keyword">:output</span> <span class="keyword">:stream</span> <span class="keyword">:error</span> <span class="keyword">:stream</span></span>)</span></span>)</span><br/></pre>
+
+<p>Запись в stdin внешнего процесса:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren2">(<span class=""><span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/v_debug_.htm" class="symbol"><span class="special">*standard-output*</span></a> <span class="paren4">(<span class="">external-program:process-input-stream <span class="special">*p*</span></span>)</span></span>)</span></span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_wr_stg.htm" class="symbol">write-line</a> <span class="string">"2+2</span><span class="string">\n</span><span class="string">"</span></span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_finish.htm" class="symbol">finish-output</a></span>)</span></span>)</span><br/></pre>
+
+<p>Чтение из stdout внешнего процесса:
+</p>
+<pre class="code"><span class="comment">;; Вспомогательная функция<br/></span><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> read-all <span class="paren2">(<span class="">&amp;optional <span class="paren3">(<span class="">input-stream <a href="http://www.lispworks.com/reference/HyperSpec/Body/v_debug_.htm" class="symbol"><span class="special">*standard-input*</span></a></span>)</span></span>)</span><br/>  <span class="string">"Read all data from stream"</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_do_do.htm" class="symbol">do</a> <span class="paren3">(<span class=""><span class="paren4">(<span class="">output <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_mk_ar.htm" class="symbol">make-array</a> 0<br/>                           <span class="keyword">:element-type</span> '<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_ch.htm" class="symbol">character</a><br/>                           <span class="keyword">:fill-pointer</span> 0<br/>                           <span class="keyword">:adjustable</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a></span>)</span></span>)</span></span>)</span><br/>      <span class="paren3">(<span class=""><span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_not.htm" class="symbol">not</a> <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_listen.htm" class="symbol">listen</a> input-stream</span>)</span></span>)</span> output</span>)</span><br/>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_vec_ps.htm" class="symbol">vector-push-extend</a> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_rd_cha.htm" class="symbol">read-char</a> input-stream</span>)</span> output</span>)</span></span>)</span></span>)</span><br/><br/><span class="comment">;; Форма выполняющая чтение<br/></span><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren2">(<span class=""><span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/v_debug_.htm" class="symbol"><span class="special">*standard-input*</span></a> <span class="paren4">(<span class="">external-program:process-output-stream <span class="special">*p*</span></span>)</span></span>)</span></span>)</span><br/>  read-all</span>)</span><br/></pre>
+
+<p>Завершение процесса:
+</p>
+<pre class="code"><span class="paren1">(<span class="">external-program:signal-process <span class="special">*p*</span> <span class="keyword">:QUIT</span></span>)</span><br/></pre>
+</div></div> </div> <div class="bottom">@2009-2013 lisper.ru</div> 
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-7734690-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+ </body> </html>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru">
+	<head>
+      	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <meta name="verify-v1" content="o6r5tA9qF5PflmPb3cI7rJrWpFBGTkIE9X4KU25TxiE=" />
+
+        <meta name="keywords" content="Common Lisp,lisp,лисп" />
+
+        <link href="/css/fine/style.css" rel="stylesheet" type="text/css" />
+        <link href="/css/fine/colorize.css" rel="stylesheet" type="text/css" />
+	<title>(дубль) Не могу разобраться со странной ошибкой</title><link rel="alternate" type="application/rss+xml" title="Тема  '(дубль) Не могу разобраться со странной ошибкой' - RSS-лента" href="/forum/rss/threads/147.rss" /><link href="/css/fine/forum.css" rel="stylesheet" type="text/css" /><link href="/css/fine/jquery.wysiwyg.css" rel="stylesheet" type="text/css" /><script src="/js/jquery.js" type="text/javascript"></script><script src="/js/jquery.wysiwyg.js" type="text/javascript"></script><script src="/js/forum.js" type="text/javascript"></script></head>
+
+	<body>
+        <div class="top">
+          <div id="login">
+    <a href="/register">Регистрация</a> |
+    <a href="/login?done=http%3A%2F%2Flisper.ru%2Fforum%2Fthread%2F147">Войти</a>
+</div>
+        </div>
+
+        <div id="caution">
+            <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png" />
+        </div>
+
+        <div id="mainmenu">
+          <ul><li><a href="/">Главная</a></li><li><a href="/articles/">Статьи</a></li><li><a href="/planet/">Планета</a></li><li><a href="/forum/">Форум</a></li><li><a href="/apps/">Сервисы</a></li><li><a href="/pcl/">Practical Common Lisp</a></li><li><a href="/wiki/">Wiki</a></li><li><a href="/files/">Файлы</a></li></ul>
+        </div>
+
+        <div id="content"><div id="forum-nav-panel"><a class="rss-link" href="/forum/rss/threads/147.rss">RSS</a><ul><li><a href="/forum/">Список форумов</a></li><li><a href="/forum/slime">SLIME</a></li><li><strong>(дубль) Не могу разобраться со странной ошибкой</strong></li></ul></div><div class="thread"><div class="topic"><div><big>(дубль) Не могу разобраться со странной ошибкой</big></div><div class="topic-info"><span class="topic-author">Автор: <strong>LiteTabs</strong> - 13.01.2010 02:08, Сообщений - 12</span></div><div class="topicbody"><p>Имею я вполне рабочий код</p><div><div>http://lisper.ru/apps/format/69<br /></div><div>то есть он был успешна запущен и не вываливал ошибок. но его повторный запуск не удался. Ошибки валятся и в slime и просто из sbcl.</div><div>Ругаются на скобки. Но все скобки расставлены логично и по потребности. Подсветка скобок показывает, что в самом конце есть лишние закрывающие, хотя они ни разу не лишние.</div><div> Может кто встречался с подобной проблемой и успешно ее одолевал?</div></div></div></div><div class="reply"><div class="topic-info"><span class="topic-author">Автор: <strong>archimag</strong> - 13.01.2010 11:33</span></div><div class="replybody"><p>Да система просто в шоке от размера выражения и настоятельно требует разбить его на много маленьких гы :))</p></div></div><div class="reply"><div class="topic-info"><span class="topic-author">Автор: <strong>marsijanin</strong> - 13.01.2010 11:37</span></div><div class="replybody"><p>Боясь показаться капитаном очевидность могу лишь порекомендовать привести код в удобочитаемый вид, разделить на тцать блоков и т.п. Тогда, глядишь, и баги станут более легкоотлавлемаемыми. А так, имхо, если в этой мешанине автор не разбирается, то не автор и подавно не сможет разобраться. </p></div></div><div class="reply"><div class="topic-info"><span class="topic-author">Автор: <strong>LiteTabs</strong> - 13.01.2010 11:48</span></div><div class="replybody"><p>arhimag, только что пришел к такому же выводу ибо ни slime тут не виноват ни sbcl.</p><div>Даже в gedit скобка не подсвечивается ж(</div><div>И как тут разбить, хз. Но что странно - один раз скомпилилось же!</div></div></div><div class="reply"><div class="topic-info"><span class="topic-author">Автор: <strong>archimag</strong> - 13.01.2010 11:52</span></div><div class="replybody"><i>&gt; Но что странно - один раз скомпилилось же!</i><div><br /></div><div>Как это было? Например, часто некоторые вещи можно выполнить через M-C-x в SLIME, но при этом в файле нарушены скобки и загрузить файл не получится.</div><div><br /></div><div>P.S. Я бы такие вещи вообще грузил бы из ресурсов.</div></div></div><div class="reply"><div class="topic-info"><span class="topic-author">Автор: <strong>LiteTabs</strong> - 13.01.2010 13:15</span></div><div class="replybody"><p>Черт! Уже устал бороться. Код урезал на половину, а скобки так и достают. Запустить удалось только код из гита. Но там он староват :(</p></div></div><div class="reply"><div class="topic-info"><span class="topic-author">Автор: <strong>LispUser</strong> - 13.01.2010 14:15</span></div><div class="replybody"><p>Скажите, по какому принципу разбивать такой код?<br />На более мелкие функции?</p></div></div><div class="reply"><div class="topic-info"><span class="topic-author">Автор: <strong>archimag</strong> - 13.01.2010 14:32</span></div><div class="replybody"><i>&gt;  Запустить удалось только код из гита.</i><div><br /></div><div>Что за код?</div><div><br /></div><div><i>&gt; Скажите, по какому принципу разбивать такой код?<br /></i></div><div><i>&gt; На более мелкие функции?<br /></i></div><div><br /></div><div>Можно попробовать и так, для разумного ответа надо понимать задачу.</div></div></div><div class="reply"><div class="topic-info"><span class="topic-author">Автор: <strong>LiteTabs</strong> - 13.01.2010 14:57</span></div><div class="replybody"><p>Это код который я закоммитил на github дня 4 назад. Он немного староват. А как разбивать код графического интерфейса на куски я слабо представляю. Он вроде весь в let-ui должен помещаться.</p></div></div><div class="reply"><div class="topic-info"><span class="topic-author">Автор: <strong>andy128k</strong> - 14.01.2010 00:15</span></div><div class="replybody"><p>let-ui это обычный блок, можно вынести в функции. вместо виджета в let-ui можно подставить вызов функции<br /><br />например, вместо<br /><br />(gtk:button :stock <span class="paren1"><span class=""><span class="paren2"><span class=""><span class="paren3"><span class=""><span class="paren4"><span class=""><span class="paren5"><span class=""><span class="paren6"><span class=""><span class="paren1"><span class=""><span class="string">"gtk-print"</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span>)<br /><br />можно написать <br /><br />(:expr (func))<br /><br />а уж func должна вернуть кнопку.</p></div></div><div class="reply"><div class="topic-info"><span class="topic-author">Автор: <strong>LispUser</strong> - 14.01.2010 14:41</span></div><div class="replybody"><p>Т.е. замена избыточного текста дополнительным вызовом функции?<br />Или я пока еще не понял, это макрос?<br /></p></div></div><div class="reply"><div class="topic-info"><span class="topic-author">Автор: <strong>LiteTabs</strong> - 14.01.2010 23:20</span></div><div class="replybody"><p>Да. Заменить, к примеру пару десятков (g-signal-connect ...) на какую-либо функцию. Только не уверен что заработает. </p></div></div><div class="reply"><div class="topic-info"><span class="topic-author">Автор: <strong>LispUser</strong> - 15.01.2010 14:25</span></div><div class="replybody"><p>Посмотрите, как сделана обработка нажатия клавиш в emacs.<br />Все работает достаточно быстро.<br /></p></div></div></div></div>
+
+        <div class="bottom">@2009 lisper.ru</div>
+
+        <script type="text/javascript">
+
+          var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+
+          document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+
+        </script>
+
+        <script type="text/javascript">
+
+          try {
+
+          var pageTracker = _gat._getTracker("UA-7734690-1");
+
+          pageTracker._trackPageview();
+
+          } catch(err) {}
+
+        </script>
+
+    </body>
+</html>

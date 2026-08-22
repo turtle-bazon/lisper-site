@@ -1,0 +1,382 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru">
+	<head>
+      	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"></meta>
+
+        <meta name="verify-v1" content="o6r5tA9qF5PflmPb3cI7rJrWpFBGTkIE9X4KU25TxiE="></meta>
+
+        <meta name="keywords" content="Common Lisp,lisp,лисп"></meta>
+
+        <link href="/css/fine/style.css" rel="stylesheet" type="text/css">
+        <link href="/css/fine/colorize.css" rel="stylesheet" type="text/css">
+	<title>cookbook:strings</title>
+<link href="/css/fine/wiki.css" rel="stylesheet" type="text/css"></head>
+
+	<body>
+        <div class="top">
+            <div id="login">
+    <a href="/register">Регистрация</a> |
+    <a href="/login?done=http%3A%2F%2Flisper.ru%2Fwiki%2Fcookbook%3Astrings">Войти</a>
+</div>
+        </div>
+
+        <div id="caution">
+            <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png"></img>
+        </div>
+
+        <div id="mainmenu">
+          <ul>
+<li><a href="/">Главная</a></li>
+<li><a href="/articles/">Статьи</a></li>
+<li><a href="/planet/">Планета</a></li>
+<li><a href="/forum/">Форум</a></li>
+<li><a href="/apps/">Сервисы</a></li>
+<li><a href="/pcl/">Practical Common Lisp</a></li>
+<li><a href="/wiki/">wiki</a></li>
+</ul>
+        </div>
+
+        <div id="content"><div class="article">
+<div class="toc">
+<div class="toc-header">Содержание</div>
+<div class="toc-body"><ul><li><div>
+<a href="#4585b6931fb5cf0dc5455ac22313a3f4">Строки и знаки</a><ul>
+<li><div><a href="#021c5f43de61b560d8455f54c0d5da64">Кодировки и знаки</a></div></li>
+<li><div><a href="#7e0837103217ee350c162ffde7dd9e18">Знаки строки</a></div></li>
+<li><div><a href="#ad28800db070924a6fb75f9a24394697">Длинна строки</a></div></li>
+<li><div><a href="#241e76d7ed1b482d108df26c690a98f3">Доступ к частям строки, или срезы</a></div></li>
+<li><div><a href="#b310344d2b3697a5951bb57cb9577ea1">Создание строк</a></div></li>
+<li><div><a href="#ceff16e2a5593cce22a26b2b5a00786d">Конкатенация, или сложение строк</a></div></li>
+<li><div><a href="#f43697691755e171d566efc2841cba6b">Итераторы по строке</a></div></li>
+<li><div><a href="#4f53cee31d39b53d3e6db11dae9a5009">Список знаков строки</a></div></li>
+<li><div><a href="#f4fb3216026a53d9eaa40e35e97c2cd0">Обращение строк</a></div></li>
+<li><div><a href="#cbb673707f3e6e0d6ae2d8dd56406739">Контроль регистра</a></div></li>
+<li><div><a href="#440270447d08a3b91123c72110616abe">Сравнение строк</a></div></li>
+<li><div><a href="#347a459e05ff56de7f091882e195aaf0">Сравнение знаков</a></div></li>
+<li><div><a href="#97d080a835ea924bd73bbf68f73a220d">Перевод чисел в строку</a></div></li>
+<li><div><a href="#12044f0cd2e26e79507c238f41e1626e">Перевод строк в числа</a></div></li>
+<li><div><a href="#ded340f8f97c1d15ed1a2580b1ad355e">Другие модификаторы</a></div></li>
+<li><div><a href="#e58b5563974efadc61a23146e4c2b236">Обрезка строк</a></div></li>
+<li><div><a href="#dd0b51a8a122643fdc080e41f122ed8a">Поиск знаков в строке</a></div></li>
+<li><div><a href="#3108b6f94c1e00a30326f2b35c8495e1">Поиск подстрок</a></div></li>
+<li><div><a href="#97eb3cc33c13b0239e52905ad92accc6">Конвертация знаков и строк</a></div></li>
+<li><div><a href="#69c7d02b1f7ded738d15a304b79ae0b0">Конвертация символов и строк</a></div></li>
+<li><div><a href="#cd7c0b3b7c75e50cb568edeec8ba45f2">Библиотеки для работы со строками</a></div></li>
+</ul>
+</div></li></ul></div>
+</div>
+<div class="chapter" id="4585b6931fb5cf0dc5455ac22313a3f4">
+<h3>Строки и знаки</h3>
+
+<p>Строки в CL являются специальным типом вектора, элементы которого относятся к знаковому (characters) типу (или его подтипу), и, кроме того, строки относятся к перечисляемым типам. Это значит, что все функции для перечисляемых типов можно применить и к строкам. Существуют также и функции, предназначенные для работы только со строками. Наконец, некоторую функциональность, не определенную в стандарте, с лихвой окупают третью библиотеки.
+</p>
+<p>Взгляните на <a href="http://www.lispworks.com/documentation/HyperSpec/Body/c_sequen.htm">словарь</a> функций для перечислимых типов, они довольно мощные. А также на <a href="http://www.lispworks.com/documentation/HyperSpec/Body/c_string.htm">список</a> всех функций, работающих со строками и <a href="http://www.lispworks.com/documentation/HyperSpec/Body/c_char.htm">список</a>функций для работы со знаками.
+</p>
+<div class="chapter" id="021c5f43de61b560d8455f54c0d5da64">
+<h3>Кодировки и знаки</h3>
+
+<p>Каждый знак в строке имеет свой целочисленный номер (код) и название, которое определяется используемой кодировкой. Для спецификации определенной кодировки следует ввести соответствующий ключ - это могут быть как 1-2 байтные кодировки, так и 4-8 байтный юникод, например <a href="http://en.wikipedia.org/wiki/UTF-8">UTF-8</a> (как говорится в PCL - не проблема использовать и 16 байтные кодировки).
+character, то есть знак, записывается в виде <code>#\название-символа</code>.
+Функция <code>code-char</code> переводит код символа в его название, а функция <code>char-code</code> - наоборот. Например:
+</p>
+<pre class="code"><span class="keyword">:UTF-8</span><br><span class="comment">; определяем используемую таблицу символов (кодировку)<br></span><span class="comment">; впрочем, и SBCL, и CLisp, используют юникод по умолчанию.<br></span><span class="comment">; получаем название символа:<br></span><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_code_c.htm" class="symbol">code-char</a> 5555</span>)</span><br><span class="character">#\CANADIAN_SYLLABICS_BLACKFOOT_A</span><br><br><span class="comment">; и переводим обратно в код:<br></span><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_char_c.htm" class="symbol">char-code</a> <span class="character">#\CANADIAN_SYLLABICS_BLACKFOOT_A</span></span>)</span><br>
+5555<br></pre>
+
+</div>
+<div class="chapter" id="7e0837103217ee350c162ffde7dd9e18">
+<h3>Знаки строки</h3>
+
+<p>С помощью функции <a href="http://www.lispworks.com/documentation/HyperSpec/Body/f_char_.htm">''char''</a> можно как читать, так и писать знаки строки. Обычному синтаксису <code>str[n]</code> в CL соответствует:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_char_.htm" class="symbol">char</a> <span class="special">*str*</span> n</span>)</span><br><span class="comment">; n-ый символ строки<br></span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_char_.htm" class="symbol">char</a> <span class="special">*str*</span> n</span>)</span> <span class="character">#\char</span></span>)</span><br><span class="comment">; изменяем n-ый символ строки<br></span></pre>
+
+<p>Существуют также следующие подобные функции - <a href="http://www.lispworks.com/documentation/HyperSpec/Body/f_char_.htm">''schar''</a>, которая действует быстрее, чем <a href="http://www.lispworks.com/documentation/HyperSpec/Body/f_char_.htm">''char''</a>. А также <a href="http://www.lispworks.com/documentation/HyperSpec/Body/f_aref.htm">''aref''</a> и <a href="http://www.lispworks.com/documentation/HyperSpec/Body/f_elt.htm">''elt''</a>, которые, напротив, более общие (относятся к функциям для перечислимых типов, т.е. являются аналогом CHAR для всех перечислимых типов), но и более медленные.
+</p>
+<p>Заметим, что как и в остальных языках, в CL индексы векторов, строк и списков начинаются с нуля. Первый по счету элемент - нулевой по индексу.
+</p>
+</div>
+<div class="chapter" id="ad28800db070924a6fb75f9a24394697">
+<h3>Длинна строки</h3>
+
+<p>Это просто:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_length.htm" class="symbol">length</a> <span class="string">"abc"</span></span>)</span><br>
+3<br></pre>
+
+</div>
+<div class="chapter" id="241e76d7ed1b482d108df26c690a98f3">
+<h3>Доступ к частям строки, или срезы</h3>
+
+<p>Это можно сделать с помощью функции <a href="http://www.lispworks.com/documentation/HyperSpec/Body/f_subseq.htm">''subseq''</a>, которая применима ко всем перечисляемым типам. Например для чтения подстрок без побочного эффекта:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_subseq.htm" class="symbol">subseq</a> <span class="special">*str*</span> n</span>)</span><br><span class="comment">; Получаем подстроку начиная с n-ого символа и до конца строки<br></span><span class="comment">; Выход индекса за границы строки приведёт к ошибке<br></span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_subseq.htm" class="symbol">subseq</a> <span class="special">*str*</span> n1 n2</span>)</span><br><span class="comment">; Получаем подстроку начиная с n1-ого символа и до n2-ого.<br></span><span class="comment">; Опять же, "неправильные" индексы приводят к ошибке<br></span></pre>
+
+<p>Или для записи в подстроку:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_subseq.htm" class="symbol">subseq</a> <span class="special">*str*</span> n1 n2</span>)</span> <span class="special">*some-str*</span></span>)</span><br><span class="comment">; Теперь строка *str* изменена!<br></span></pre>
+
+<p>Если записываемая строка больше отведенного места, то она обрезается.
+В общем функция <a href="http://www.lispworks.com/documentation/HyperSpec/Body/f_subseq.htm">''subseq''</a> позволяет делать срезы строк. В таких языках как Python это обеспечивается синтаксисом вроде <code>str[n1 : n2]</code>. Тем не менее, поведение срезов строк в CL отличается - отрицательные индексы, и индексы "вне строки" функцией <code>subseq</code> не обрабатываются, для этого можно написать небольшое расширение для функции срезов:
+</p>
+<p>Напишем функцию [:], объединяющую функции <code>char</code> и <code>subseq</code>, которая будет следить за валидностью индексов:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> [<span class="keyword">:</span>] <span class="paren2">(<span class="">seq &amp;optional n1 n2</span>)</span><br>    <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> mod-index<span class="paren3">(<span class="">n len</span>)</span><br>        <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_cond.htm" class="symbol"><i><span class="symbol">cond</span></i></a> <span class="paren4">(<span class=""><span class="paren5">(<span class="">&gt; n len</span>)</span>      len</span>)</span><br>              <span class="paren4">(<span class=""><span class="paren5">(<span class="">&lt; n <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a__.htm" class="symbol">-</a> len</span>)</span></span>)</span>  0</span>)</span><br>              <span class="paren4">(<span class=""><span class="paren5">(<span class="">&lt; n 0</span>)</span>        <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> n len</span>)</span></span>)</span><br>              <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a>              n</span>)</span></span>)</span></span>)</span><br>    <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren3">(<span class=""><span class="paren4">(<span class="">len <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_length.htm" class="symbol">length</a> seq</span>)</span></span>)</span></span>)</span><br>         <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_cond.htm" class="symbol"><i><span class="symbol">cond</span></i></a> <span class="paren4">(<span class=""><span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_eql.htm" class="symbol">eql</a> n1 <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">NIL</a></span>)</span>                 seq</span>)</span>                                 <span class="comment">; случай seq[] = seq<br></span>              <span class="paren4">(<span class=""><span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_and.htm" class="symbol">and</a> <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_eql.htm" class="symbol">eql</a> n1 'F</span>)</span> <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_eql.htm" class="symbol">eql</a> n2 'F</span>)</span></span>)</span> seq</span>)</span>                                 <span class="comment">; случай seq[:] = seq<br></span>              <span class="paren4">(<span class=""><span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_eql.htm" class="symbol">eql</a> n1 'F</span>)</span>   <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_subseq.htm" class="symbol">subseq</a> seq 0 <span class="paren6">(<span class="">mod-index n2 len</span>)</span></span>)</span></span>)</span>                   <span class="comment">; случай seq[ : i]<br></span>              <span class="paren4">(<span class=""><span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_eql.htm" class="symbol">eql</a> n2 'F</span>)</span>   <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_subseq.htm" class="symbol">subseq</a> seq <span class="paren6">(<span class="">mod-index n1 len</span>)</span> len</span>)</span></span>)</span>                 <span class="comment">; случай seq[i : ]<br></span>              <span class="paren4">(<span class=""><span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_eql.htm" class="symbol">eql</a> n2 <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">NIL</a></span>)</span>  <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_char_.htm" class="symbol">char</a> seq <span class="paren6">(<span class="">mod-index n1 len</span>)</span></span>)</span></span>)</span>                       <span class="comment">; случай seq[i]<br></span>              <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a>             <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_subseq.htm" class="symbol">subseq</a> seq <span class="paren6">(<span class="">mod-index n1 len</span>)</span> <span class="paren6">(<span class="">mod-index n2 len</span>)</span></span>)</span></span>)</span>  <span class="comment">; случай seq[i : k]<br></span></span>)</span></span>)</span></span>)</span><br></pre>
+
+<p>Ну вот :) Теперь мы получаем "элегантное" поведение срезов, которым так хвастают программисты Python и Ruby:
+</p>
+<pre class="code"><span class="paren1">(<span class="">[<span class="keyword">:</span>] <span class="string">"12345"</span> -100 100</span>)</span><br><span class="comment">; за границами с обеих сторон - строка осталась<br></span><br><span class="paren1">(<span class="">[<span class="keyword">:</span>] <span class="string">"12345"</span> 'f -3</span>)</span><br><span class="comment">; убираем 3 символа в конце<br></span><br><span class="paren1">(<span class="">[<span class="keyword">:</span>] <span class="string">"12345"</span> -3 'f</span>)</span><br><span class="comment">; берём последние 3 символа<br></span><br><span class="paren1">(<span class="">[<span class="keyword">:</span>] <span class="string">"12345"</span> 3 -3</span>)</span><br><span class="comment">; убираем по три символа в начале и в конце<br></span><br><span class="paren1">(<span class="">[<span class="keyword">:</span>] <span class="string">"12345"</span> -1</span>)</span><br><span class="comment">; последний символ<br></span></pre>
+
+<p>И даже лучше - отрицательные индексы тоже контролируются на "out of range". Так как функция возвращает <code>subseq</code> и <code>char</code> - возможна и запись:
+</p>
+<pre class="code"><span class="comment">; пример - функция раскавычивания:<br></span><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> de-quote <span class="paren2">(<span class="">str</span>)</span> <span class="paren2">(<span class="">[<span class="keyword">:</span>] str 1 -1</span>)</span></span>)</span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> str <span class="string">"'12345'"</span></span>)</span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> str <span class="paren2">(<span class="">de-quote str</span>)</span></span>)</span><br><span class="string">"12345"</span><br></pre>
+
+</div>
+<div class="chapter" id="b310344d2b3697a5951bb57cb9577ea1">
+<h3>Создание строк</h3>
+
+<p>Самый простой вариант – само-вычисляющийся объект <code>"знаки"</code>. Вариант с использованием функции <code>string</code>:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defpar.htm" class="symbol"><i><span class="symbol">defparameter</span></i></a> <span class="special">*my-string*</span> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_string.htm" class="symbol">string</a> <span class="string">"йцукен"</span></span>)</span></span>)</span><br></pre>
+<p>Определение как вектора знаков:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defpar.htm" class="symbol"><i><span class="symbol">defparameter</span></i></a> <span class="special">*my-string*</span> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_mk_ar.htm" class="symbol">make-array</a> 0<br>                                        <span class="keyword">:element-type</span> '<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_ch.htm" class="symbol">character</a><br>                                        <span class="keyword">:fill-pointer</span> 0<br>                                        <span class="keyword">:adjustable</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a></span>)</span></span>)</span><br></pre>
+<p>Создание строки из 1000 точек:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_mk_seq.htm" class="symbol">make-sequence</a> '<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_string.htm" class="symbol">string</a> 1000 <span class="keyword">:initial-element</span> <span class="character">#\.</span></span>)</span> <br></pre>
+
+</div>
+<div class="chapter" id="ceff16e2a5593cce22a26b2b5a00786d">
+<h3>Конкатенация, или сложение строк</h3>
+
+<p>Чтобы сложить произвольное количество строк используйте <code>concatenate</code>:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_concat.htm" class="symbol">concatenate</a> '<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_string.htm" class="symbol">string</a> str1 str2 str3</span>)</span><br><span class="comment">; конкатенирует произвольное количество строк.<br></span></pre>
+
+<p>Ещё существует такое понятие как интерполяция переменных в строке - в CL её осуществляет функция <a href="http://www.lispworks.com/documentation/HyperSpec/Body/f_format.htm">''format''</a>. У этой функции есть свой подъязык, о котором можно прочитать в <a href="http://www.lispworks.com/documentation/HyperSpec/Body/22_c.htm/">спецификации</a>. Вот несколько примеров:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a> <span class="string">"Вставит вместо А список: ~A."</span> '<span class="paren2">(<span class="">1 2 3</span>)</span></span>)</span><br><span class="string">"Вставит вместо А список: (1 2 3)."</span><br><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a> <span class="string">"Вставит элементы списка:~{ ~A~}."</span> '<span class="paren2">(<span class="">a b c</span>)</span></span>)</span><br><span class="string">"Вставит элементы списка: a b c."</span><br><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a> <span class="string">"Вставит элементы списка через запятую: ~{ ~A~^,~}."</span> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_map.htm" class="symbol">map</a> '<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_list.htm" class="symbol">list</a> #'<span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_lambda.htm" class="symbol"><i><span class="symbol">lambda</span></i></a><span class="paren4">(<span class="">i</span>)</span><span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> i i</span>)</span></span>)</span> '<span class="paren3">(<span class="">1 2 3 4 5</span>)</span></span>)</span></span>)</span><br><span class="string">"Вставит элементы списка через запятую: 1, 4, 9, 16, 25."</span><br></pre>
+
+<p>Также, для конкатенации можно использовать макрос with-output-to-string:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_w_out_.htm" class="symbol"><i><span class="symbol">with-output-to-string</span></i></a> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/t_stream.htm" class="symbol">stream</a></span>)</span><br>    <span class="comment">;; создает строку stream, в которую можно писать с помощью<br></span>    <span class="comment">;; print, princ, и т.д. в пределах формы<br></span>    <span class="comment">;; форма возвращает строку stream<br></span></span>)</span><br></pre>
+
+</div>
+<div class="chapter" id="f43697691755e171d566efc2841cba6b">
+<h3>Итераторы по строке</h3>
+
+<p>Универсальный итератор по перечислимым типам <code>map</code> можно использовать для строк:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_map.htm" class="symbol">map</a> '<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_string.htm" class="symbol">string</a> #'<span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_lambda.htm" class="symbol"><i><span class="symbol">lambda</span></i></a> <span class="paren3">(<span class="">c</span>)</span> <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_wr_pr.htm" class="symbol">print</a> c</span>)</span></span>)</span> <span class="special">*str*</span></span>)</span><br></pre>
+
+<p>Или с помощью макроса <code>loop</code>:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> for <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_char_.htm" class="symbol">char</a> across <span class="special">*str*</span><br>        collect <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_char_.htm" class="symbol">char</a></span>)</span><br></pre>
+
+</div>
+<div class="chapter" id="4f53cee31d39b53d3e6db11dae9a5009">
+<h3>Список знаков строки</h3>
+
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_concat.htm" class="symbol">concatenate</a> '<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_list.htm" class="symbol">list</a> str</span>)</span><br><span class="comment">; возвращает список знаков строки,<br></span><br><span class="comment">; чтобы собрать обратно, можно написать:<br></span><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defpar.htm" class="symbol"><i><span class="symbol">defparameter</span></i></a> <span class="special">*my-string*</span> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_mk_ar.htm" class="symbol">make-array</a> 0 <span class="keyword">:element-type</span> '<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_ch.htm" class="symbol">character</a><br>                                        <span class="keyword">:fill-pointer</span> 0<br>                                        <span class="keyword">:adjustable</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a></span>)</span></span>)</span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_dolist.htm" class="symbol">dolist</a> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_char_.htm" class="symbol">char</a> '<span class="paren3">(<span class="">...</span>)</span></span>)</span><br>    <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_vec_ps.htm" class="symbol">vector-push-extend</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_char_.htm" class="symbol">char</a> <span class="special">*my-string*</span></span>)</span></span>)</span><br></pre>
+
+</div>
+<div class="chapter" id="f4fb3216026a53d9eaa40e35e97c2cd0">
+<h3>Обращение строк</h3>
+
+<p>Существуют функции <code>reverse</code> и <code>nreverse</code> для обращения знаков в строке. Вторая отличается тем, что обладает побочным эффектом.
+(reverse *my-string*)
+</p>
+<p>Для обращения строк по словам можно сначала разбить строку на слова, а затем обратить список с помощью той же функции <code>reverse</code>:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> split-by-one-space <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_string.htm" class="symbol">string</a></span>)</span><br>    <span class="string">"Возвращает список слов, разделённых одним<br>     пробелом в строке string."</span><br>    <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> for i = 0 then <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_1pl_1_.htm" class="symbol">1+</a> j</span>)</span><br>          as j = <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_pos_p.htm" class="symbol">position</a> <span class="character">#\Space</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_string.htm" class="symbol">string</a> <span class="keyword">:start</span> i</span>)</span><br>          collect <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_subseq.htm" class="symbol">subseq</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_string.htm" class="symbol">string</a> i j</span>)</span><br>          while j</span>)</span></span>)</span><br><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> join-string-list <span class="paren2">(<span class="">string-list</span>)</span><br>    <span class="string">"Конкатенирует список строк<br>     проставляя пробелы."</span><br>    <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a> <span class="string">"~{~A~^ ~}"</span> string-list</span>)</span></span>)</span><br><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> reverse-string<span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_string.htm" class="symbol">string</a></span>)</span><br>    <span class="string">"Обращает строку по словам,<br>     разделённым одним пробелом."</span><br>    <span class="paren2">(<span class="">join-string-list<br>        <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_revers.htm" class="symbol">reverse</a><br>            <span class="paren4">(<span class="">split-by-one-space <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_string.htm" class="symbol">string</a></span>)</span></span>)</span></span>)</span><br></span></span></pre>
+
+</div>
+<div class="chapter" id="cbb673707f3e6e0d6ae2d8dd56406739">
+<h3>Контроль регистра</h3>
+
+<p>string-upcase - переводит все символы в верхний регистр
+string-downcase - переводит все символы в нижний регистр
+string-capitalize - первый символ переводится в верхний регистр, а остальные - в нижний
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_stg_up.htm" class="symbol">string-upcase</a> <span class="string">"To Be"</span></span>)</span> =&gt;  <span class="string">"TO BE"</span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_stg_up.htm" class="symbol">string-downcase</a> <span class="string">"Or not to BE?"</span></span>)</span> =&gt;  <span class="string">"or not to be?"</span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_stg_up.htm" class="symbol">string-capitalize</a> <span class="string">"to beet or not to beet"</span></span>)</span> =&gt;  <span class="string">"To Beet Or Not To Beet"</span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_stg_up.htm" class="symbol">string-capitalize</a> <span class="string">" hello.hello "</span></span>)</span> =&gt;  <span class="string">" Hello.Hello "</span><br></pre>
+
+<p>есть такие же функции с приставкой n - они имеют побочный эффект.
+</p>
+</div>
+<div class="chapter" id="440270447d08a3b91123c72110616abe">
+<h3>Сравнение строк</h3>
+
+<p>Для сравнения строк нужно использовать другие функции, нежели чем для сравнения чисел:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_stgeq_.htm" class="symbol">string=</a> <span class="string">"foo"</span> <span class="string">"foo"</span></span>)</span> =&gt;  true<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_stgeq_.htm" class="symbol">string=</a> <span class="string">"foo"</span> <span class="string">"Foo"</span></span>)</span> =&gt;  false<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_stgeq_.htm" class="symbol">string/=</a> <span class="string">"foo"</span> <span class="string">"bar"</span></span>)</span> =&gt;  true<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_stgeq_.htm" class="symbol">string=</a> <span class="string">"together"</span> <span class="string">"frog"</span> <span class="keyword">:start1</span> 1 <span class="keyword">:end1</span> 3 <span class="keyword">:start2</span> 2</span>)</span> =&gt;  true<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_stgeq_.htm" class="symbol">string-equal</a> <span class="string">"foo"</span> <span class="string">"Foo"</span></span>)</span> =&gt;  true<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_stgeq_.htm" class="symbol">string=</a> <span class="string">"abcd"</span> <span class="string">"01234abcd9012"</span> <span class="keyword">:start2</span> 5 <span class="keyword">:end2</span> 9</span>)</span> =&gt;  true<br><span class="paren1">(<span class="">string&lt; <span class="string">"aaaa"</span> <span class="string">"aaab"</span></span>)</span> =&gt;  3<br><span class="paren1">(<span class="">string&gt;= <span class="string">"aaaaa"</span> <span class="string">"aaaa"</span></span>)</span> =&gt;  4<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_stgeq_.htm" class="symbol">string-not-greaterp</a> <span class="string">"Abcde"</span> <span class="string">"abcdE"</span></span>)</span> =&gt;  5<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_stgeq_.htm" class="symbol">string-lessp</a> <span class="string">"012AAAA789"</span> <span class="string">"01aaab6"</span> <span class="keyword">:start1</span> 3 <span class="keyword">:end1</span> 7<br>                                     <span class="keyword">:start2</span> 2 <span class="keyword">:end2</span> 6</span>)</span> =&gt;  6<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_stgeq_.htm" class="symbol">string-not-equal</a> <span class="string">"AAAA"</span> <span class="string">"aaaA"</span></span>)</span> =&gt;  false<br></pre>
+
+<p>Общие функции <code>equal</code> и <code>equalp</code> также сравнивают строки, но работают медленней.
+</p>
+</div>
+<div class="chapter" id="347a459e05ff56de7f091882e195aaf0">
+<h3>Сравнение знаков</h3>
+
+<p>Как и в случае строк, сравнивать знаки лучше с помощью специальных, а не общих, функций:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_chareq.htm" class="symbol">char=</a> <span class="character">#\a</span> <span class="character">#\a</span></span>)</span><br><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">T</a><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_chareq.htm" class="symbol">char/=</a> <span class="character">#\a</span> <span class="character">#\c</span></span>)</span><br><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">T</a><br><span class="paren1">(<span class="">char&lt; <span class="character">#\z</span> <span class="character">#\a</span></span>)</span><br><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">NIL</a><br><span class="paren1">(<span class="">char&gt; <span class="character">#\x</span> <span class="character">#\a</span></span>)</span><br><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">T</a><br><span class="paren1">(<span class="">char&lt;= <span class="character">#\z</span> <span class="character">#\z</span></span>)</span><br><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">T</a><br><span class="paren1">(<span class="">char&gt; <span class="character">#\x</span> <span class="character">#\a</span></span>)</span><br><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">T</a><br></pre>
+
+</div>
+<div class="chapter" id="97d080a835ea924bd73bbf68f73a220d">
+<h3>Перевод чисел в строку</h3>
+
+<p>Функция <code>write-to-string</code> занимается анализом и переводом чисел в строки:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_wr_to_.htm" class="symbol">write-to-string</a> 10</span>)</span><br><span class="string">"10"</span><br><span class="comment">; для целого<br></span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_wr_to_.htm" class="symbol">write-to-string</a> 3.14159</span>)</span><br><span class="string">"3.14159"</span><br><span class="comment">; для дробного<br></span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_wr_to_.htm" class="symbol">write-to-string</a> <span class="paren2">(<span class="">/ 1 2</span>)</span></span>)</span><br><span class="string">"1/2"</span><br><span class="comment">; для рационального<br></span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_wr_to_.htm" class="symbol">write-to-string</a> F <span class="keyword">:base</span> 16</span>)</span><br><span class="string">"16"</span><br><span class="comment">; даже для числа в произвольной системе счисления<br></span></pre>
+
+</div>
+<div class="chapter" id="12044f0cd2e26e79507c238f41e1626e">
+<h3>Перевод строк в числа</h3>
+
+<p>Для первода целого в строку используется функция <code>parse-integer</code>:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_parse_.htm" class="symbol">parse-integer</a> <span class="string">"10"</span></span>)</span><br>
+10<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_parse_.htm" class="symbol">parse-integer</a> <span class="string">"   10   "</span></span>)</span><br>
+10<br></pre>
+
+<p>эта функция имеет несколько ключей - :start и :end для указания индексов начала и конца парсинга, :radix - для указания системы счисления и :junk-allowed - для поиска числа в строке с текстом:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_parse_.htm" class="symbol">parse-integer</a> <span class="string">"42"</span> <span class="keyword">:start</span> 1</span>)</span><br>
+2<br>
+2<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_parse_.htm" class="symbol">parse-integer</a> <span class="string">"42"</span> <span class="keyword">:end</span> 1</span>)</span><br>
+4<br>
+1<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_parse_.htm" class="symbol">parse-integer</a> <span class="string">"42"</span> <span class="keyword">:radix</span> 8</span>)</span><br>
+34<br>
+2<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_parse_.htm" class="symbol">parse-integer</a> <span class="string">" 42 is forty-two"</span> <span class="keyword">:junk-allowed</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a></span>)</span><br>
+42<br>
+3<br></pre>
+
+<p>Для более гибкого перевода подойдёт <code>read-from-string</code>:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_rd_fro.htm" class="symbol">read-from-string</a> <span class="string">"#X23"</span></span>)</span><br>
+35<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_rd_fro.htm" class="symbol">read-from-string</a> <span class="string">"3.14"</span></span>)</span><br>
+3.14<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_rd_fro.htm" class="symbol">read-from-string</a> <span class="string">"2/4"</span></span>)</span><br>
+1/2<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_rd_fro.htm" class="symbol">read-from-string</a> <span class="string">"#C(6/8 1)"</span></span>)</span><br>#C<span class="paren1">(<span class="">3/4 1</span>)</span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_rd_fro.htm" class="symbol">read-from-string</a> <span class="string">"1.2e2"</span></span>)</span><br>
+120.00001<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_rd_fro.htm" class="symbol">read-from-string</a> <span class="string">"symbol"</span></span>)</span><br><a href="http://www.lispworks.com/reference/HyperSpec/Body/t_symbol.htm" class="symbol">SYMBOL</a><br></pre>
+
+</div>
+<div class="chapter" id="ded340f8f97c1d15ed1a2580b1ad355e">
+<h3>Другие модификаторы</h3>
+
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_fill.htm" class="symbol">fill</a> str chr <span class="keyword">:start</span> 1 <span class="keyword">:end</span> 3</span>)</span><br><span class="comment">; заполнение строки знаками (можно символами)<br></span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_rm_rm.htm" class="symbol">remove</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_char_.htm" class="symbol">char</a> str</span>)</span><br><span class="comment">; удаляет все знаки char из строки str<br></span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_rm_rm.htm" class="symbol">remove</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_char_.htm" class="symbol">char</a> str <span class="keyword">:start</span> n1 <span class="keyword">:endl</span> n2</span>)</span><br><span class="comment">; аналогично, на начиная со :start и до :endl<br></span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_rm_rm.htm" class="symbol">remove-if</a> #'<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_upper_.htm" class="symbol">upper-case-p</a> str</span>)</span><br><span class="comment">; небольшой итератор по строке, принимающий условие удаления<br></span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_sbs_s.htm" class="symbol">substitute</a> char1 char2 str</span>)</span><br><span class="comment">; Меняет в строке str символы char2 на char1<br></span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_sbs_s.htm" class="symbol">substitute-if</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_char_.htm" class="symbol">char</a> #'<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_upper_.htm" class="symbol">upper-case-p</a> str</span>)</span><br><span class="comment">; Заменяет в строке str на char только те символы, которые удовлетворяют предикату<br></span></pre>
+
+<p>А вот пример функции, реализующей замену всех вхождений:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> replace-all <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_string.htm" class="symbol">string</a> part replacement &amp;key <span class="paren3">(<span class="">test #'<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_chareq.htm" class="symbol">char=</a></span>)</span></span>)</span><br><span class="string">"Returns a new string in which all the occurences of the part <br>is replaced with replacement."</span><br>    <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_w_out_.htm" class="symbol"><i><span class="symbol">with-output-to-string</span></i></a> <span class="paren3">(<span class="">out</span>)</span><br>      <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> with part-length = <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_length.htm" class="symbol">length</a> part</span>)</span><br>            for old-pos = 0 then <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> pos part-length</span>)</span><br>            for pos = <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_search.htm" class="symbol">search</a> part <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_string.htm" class="symbol">string</a><br>                              <span class="keyword">:start2</span> old-pos<br>                              <span class="keyword">:test</span> test</span>)</span><br>            <a href="http://www.lispworks.com/reference/HyperSpec/Body/m_do_do.htm" class="symbol">do</a> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_wr_stg.htm" class="symbol">write-string</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_string.htm" class="symbol">string</a> out<br>                             <span class="keyword">:start</span> old-pos<br>                             <span class="keyword">:end</span> <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_or.htm" class="symbol">or</a> pos <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_length.htm" class="symbol">length</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_string.htm" class="symbol">string</a></span>)</span></span>)</span></span>)</span><br>            <a href="http://www.lispworks.com/reference/HyperSpec/Body/m_when_.htm" class="symbol">when</a> pos <a href="http://www.lispworks.com/reference/HyperSpec/Body/m_do_do.htm" class="symbol">do</a> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_wr_stg.htm" class="symbol">write-string</a> replacement out</span>)</span><br>            while pos</span>)</span></span>)</span></span>)</span><br></pre>
+
+<p>Функция replace-all не входит в стандарт. Кроме того, существуют более быстрые методы работы со строками - например, регулярные выражения.
+</p>
+</div>
+<div class="chapter" id="e58b5563974efadc61a23146e4c2b236">
+<h3>Обрезка строк</h3>
+
+<p>Функции <code>string-trim</code>, <code>string-left-trim</code> и <code>string-right-trim</code> занимаются тем, что удаляют определённые символы в начале и в конце строки (left и right - только слева, и только справа, соответственно). Например:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_stg_tr.htm" class="symbol">string-trim</a> <span class="string">"-"</span> <span class="string">"-string-"</span></span>)</span><br><span class="string">"string"</span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_stg_tr.htm" class="symbol">string-trim</a> <span class="string">" et"</span> <span class="string">" trim me "</span></span>)</span><br><span class="string">"rim m"</span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_stg_tr.htm" class="symbol">string-left-trim</a> <span class="string">" et"</span> <span class="string">" trim me "</span></span>)</span><br><span class="string">"rim me "</span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_stg_tr.htm" class="symbol">string-right-trim</a> <span class="string">" et"</span> <span class="string">" trim me "</span></span>)</span><br><span class="string">" trim m"</span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_stg_tr.htm" class="symbol">string-right-trim</a> '<span class="paren2">(<span class=""><span class="character">#\Space</span> <span class="character">#\e</span> <span class="character">#\t</span></span>)</span> <span class="string">" trim me "</span></span>)</span><br><span class="string">" trim m"</span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_stg_tr.htm" class="symbol">string-right-trim</a> '<span class="paren2">(<span class=""><span class="character">#\Space</span> <span class="character">#\e</span> <span class="character">#\t</span> <span class="character">#\m</span></span>)</span> <span class="string">" trim me "</span></span>)</span><br></pre>
+
+</div>
+<div class="chapter" id="dd0b51a8a122643fdc080e41f122ed8a">
+<h3>Поиск знаков в строке</h3>
+
+<p>Поиск знаков и знаков, удовлетворяющих условию осуществляют функции <code>find</code> и <code>find-if</code>:
+</p>
+<pre class="code"><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_find_.htm" class="symbol">find</a> <span class="character">#\t</span> <span class="string">"The Hyperspec contains approximately 110,000 hyperlinks."</span> <span class="keyword">:test</span> #'<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_equal.htm" class="symbol">equal</a></span>)</span><br><span class="character">#\t</span><br><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_find_.htm" class="symbol">find</a> <span class="character">#\t</span> <span class="string">"The Hyperspec contains approximately 110,000 hyperlinks."</span> <span class="keyword">:test</span> #'<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_equalp.htm" class="symbol">equalp</a></span>)</span><br><span class="character">#\T</span><br><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_find_.htm" class="symbol">find</a> <span class="character">#\z</span> <span class="string">"The Hyperspec contains approximately 110,000 hyperlinks."</span> <span class="keyword">:test</span> #'<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_equalp.htm" class="symbol">equalp</a></span>)</span><br><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">NIL</a><br><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_find_.htm" class="symbol">find-if</a> #'<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_digi_1.htm" class="symbol">digit-char-p</a> <span class="string">"The Hyperspec contains approximately 110,000 hyperlinks."</span></span>)</span><br><span class="character">#\1</span><br><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_find_.htm" class="symbol">find-if</a> #'<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_digi_1.htm" class="symbol">digit-char-p</a> <span class="string">"The Hyperspec contains approximately 110,000 hyperlinks."</span> <span class="keyword">:from-end</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a></span>)</span><br><span class="character">#\0</span><br></pre>
+
+<p>аналогично работают функции <code>position</code> и <code>position-if</code>, но возвращают не булевое значение, а индекс первого найденного знака (NIL при 
+отсутствии):
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_pos_p.htm" class="symbol">position</a> <span class="character">#\t</span> <span class="string">"The Hyperspec contains approximately 110,000 hyperlinks."</span> <span class="keyword">:test</span> #'<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_equal.htm" class="symbol">equal</a></span>)</span><br>
+17<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_pos_p.htm" class="symbol">position</a> <span class="character">#\t</span> <span class="string">"The Hyperspec contains approximately 110,000 hyperlinks."</span> <span class="keyword">:test</span> #'<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_equalp.htm" class="symbol">equalp</a></span>)</span><br>
+0<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_pos_p.htm" class="symbol">position-if</a> #'<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_digi_1.htm" class="symbol">digit-char-p</a> <span class="string">"The Hyperspec contains approximately 110,000 hyperlinks."</span></span>)</span><br>
+37<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_pos_p.htm" class="symbol">position-if</a> #'<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_digi_1.htm" class="symbol">digit-char-p</a> <span class="string">"The Hyperspec contains approximately 110,000 hyperlinks."</span> <span class="keyword">:from-end</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a></span>)</span><br>
+43<br></pre>
+
+<p>функции <code>count</code> и <code>count-if</code> считают количество вхождений:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_countc.htm" class="symbol">count</a> <span class="character">#\t</span> <span class="string">"The Hyperspec contains approximately 110,000 hyperlinks."</span> <span class="keyword">:test</span> #'<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_equal.htm" class="symbol">equal</a></span>)</span><br>
+2<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_countc.htm" class="symbol">count</a> <span class="character">#\t</span> <span class="string">"The Hyperspec contains approximately 110,000 hyperlinks."</span> <span class="keyword">:test</span> #'<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_equalp.htm" class="symbol">equalp</a></span>)</span><br>
+3<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_countc.htm" class="symbol">count-if</a> #'<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_digi_1.htm" class="symbol">digit-char-p</a> <span class="string">"The Hyperspec contains approximately 110,000 hyperlinks."</span></span>)</span><br>
+6<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_countc.htm" class="symbol">count-if</a> #'<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_digi_1.htm" class="symbol">digit-char-p</a> <span class="string">"The Hyperspec contains approximately 110,000 hyperlinks."</span> <span class="keyword">:start</span> 38</span>)</span><br>
+5<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_countc.htm" class="symbol">count</a> <span class="character">#\a</span> <span class="string">"how many A's are there in here?"</span></span>)</span><br>
+2<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_countc.htm" class="symbol">count-if-not</a> #'<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_evenpc.htm" class="symbol">oddp</a> '<span class="paren2">(<span class=""><span class="paren3">(<span class="">1</span>)</span> <span class="paren3">(<span class="">2</span>)</span> <span class="paren3">(<span class="">3</span>)</span> <span class="paren3">(<span class="">4</span>)</span></span>)</span> <span class="keyword">:key</span> #'<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_car_c.htm" class="symbol">car</a></span>)</span><br>
+2<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_countc.htm" class="symbol">count-if</a> #'<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_upper_.htm" class="symbol">upper-case-p</a> <span class="string">"The Crying of Lot 49"</span> <span class="keyword">:start</span> 4</span>)</span><br>
+2 <br></pre>
+
+</div>
+<div class="chapter" id="3108b6f94c1e00a30326f2b35c8495e1">
+<h3>Поиск подстрок</h3>
+
+<p>С помощью функции <code>search</code>:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_search.htm" class="symbol">search</a> <span class="string">"we"</span> <span class="string">"If we can't be free we can at least be cheap"</span></span>)</span><br>
+3<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_search.htm" class="symbol">search</a> <span class="string">"we"</span> <span class="string">"If we can't be free we can at least be cheap"</span> <span class="keyword">:from-end</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a></span>)</span><br>
+20<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_search.htm" class="symbol">search</a> <span class="string">"we"</span> <span class="string">"If we can't be free we can at least be cheap"</span> <span class="keyword">:start2</span> 4</span>)</span><br>
+20<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_search.htm" class="symbol">search</a> <span class="string">"we"</span> <span class="string">"If we can't be free we can at least be cheap"</span> <span class="keyword">:end2</span> 5 <span class="keyword">:from-end</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a></span>)</span><br>
+3<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_search.htm" class="symbol">search</a> <span class="string">"FREE"</span> <span class="string">"If we can't be free we can at least be cheap"</span></span>)</span><br><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">NIL</a><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_search.htm" class="symbol">search</a> <span class="string">"FREE"</span> <span class="string">"If we can't be free we can at least be cheap"</span> <span class="keyword">:test</span> #'<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_chareq.htm" class="symbol">char-equal</a></span>)</span><br>
+15<br></pre>
+
+</div>
+<div class="chapter" id="97eb3cc33c13b0239e52905ad92accc6">
+<h3>Конвертация знаков и строк</h3>
+
+<p>Converting between Characters and Strings
+Функция <code>coerce</code> (дословно "принудить") с параметром 'character преобразует строку длинной в один символ в соответствующий знак. <code>coerce</code> с параметром 'list - ещё один способ получить из строки список её знаков. Наконец используя параметр 'string можно сделать обратное преобразование списка знаков к строке:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_coerce.htm" class="symbol">coerce</a> <span class="string">"a"</span> '<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_ch.htm" class="symbol">character</a></span>)</span><br><span class="character">#\a</span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_coerce.htm" class="symbol">coerce</a> <span class="string">"abc"</span> '<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_list.htm" class="symbol">list</a></span>)</span><br><span class="paren1">(<span class=""><span class="character">#\a</span> <span class="character">#\b</span> <span class="character">#\c</span></span>)</span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_coerce.htm" class="symbol">coerce</a> '<span class="paren2">(<span class=""><span class="character">#\a</span> <span class="character">#\b</span> <span class="character">#\c</span></span>)</span> '<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_string.htm" class="symbol">string</a></span>)</span><br><span class="string">"abc"</span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_coerce.htm" class="symbol">coerce</a> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_coerce.htm" class="symbol">coerce</a> <span class="string">"abc"</span> '<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_list.htm" class="symbol">list</a></span>)</span> '<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_string.htm" class="symbol">string</a></span>)</span><br><span class="string">"abc"</span><br></pre>
+
+<p>Универсальная функция образования строк <code>string</code> тоже может тут помочь:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_string.htm" class="symbol">string</a> <span class="character">#\a</span></span>)</span><br><span class="string">"a"</span><br></pre>
+
+</div>
+<div class="chapter" id="69c7d02b1f7ded738d15a304b79ae0b0">
+<h3>Конвертация символов и строк</h3>
+
+<p>Функция <code>intern</code> конвертирует строку в символ. Фактически она проверяет, не содержит ли текущий пакет (смотрите главу о пакетах) символ - если нет, она вводит его и возвращает вновь введённый символ и NIL, иначе возвращает уже существующий символ и название пакета.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_in_pkg.htm" class="symbol">in-package</a> <span class="string">"COMMON-LISP-USER"</span></span>)</span><br>#&lt;<a href="http://www.lispworks.com/reference/HyperSpec/Body/s_the.htm" class="symbol"><i><span class="symbol">The</span></i></a> COMMON-LISP-USER <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_pkg.htm" class="symbol">package</a>, 35/44 internal, 0/9 external&gt;<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_intern.htm" class="symbol">intern</a> <span class="string">"MY-SYMBOL"</span></span>)</span><br>
+MY-SYMBOL<br><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">NIL</a><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_intern.htm" class="symbol">intern</a> <span class="string">"MY-SYMBOL"</span></span>)</span><br>
+MY-SYMBOL<br><span class="keyword">:INTERNAL</span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_export.htm" class="symbol">export</a> 'MY-SYMBOL</span>)</span><br><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">T</a><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_intern.htm" class="symbol">intern</a> <span class="string">"MY-SYMBOL"</span></span>)</span><br>
+MY-SYMBOL<br><span class="keyword">:EXTERNAL</span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_intern.htm" class="symbol">intern</a> <span class="string">"My-Symbol"</span></span>)</span><br>
+|My-Symbol|<br><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">NIL</a><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_intern.htm" class="symbol">intern</a> <span class="string">"MY-SYMBOL"</span> <span class="string">"KEYWORD"</span></span>)</span><br><span class="keyword">:MY-SYMBOL</span><br><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">NIL</a><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_intern.htm" class="symbol">intern</a> <span class="string">"MY-SYMBOL"</span> <span class="string">"KEYWORD"</span></span>)</span><br><span class="keyword">:MY-SYMBOL</span><br><span class="keyword">:EXTERNAL</span><br></pre>
+
+<p>Чтобы осуществить обратную операцию, можно воспользоваться функциями <code>symbol-name</code> или <code>string</code>
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_symb_2.htm" class="symbol">symbol-name</a> 'MY-SYMBOL</span>)</span><br><span class="string">"MY-SYMBOL"</span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_symb_2.htm" class="symbol">symbol-name</a> 'my-symbol</span>)</span><br><span class="string">"MY-SYMBOL"</span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_symb_2.htm" class="symbol">symbol-name</a> '|my-symbol|</span>)</span><br><span class="string">"my-symbol"</span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_string.htm" class="symbol">string</a> 'abc</span>)</span><br><span class="string">"ABC"</span><br></pre>
+
+</div>
+<div class="chapter" id="cd7c0b3b7c75e50cb568edeec8ba45f2">
+<h3>Библиотеки для работы со строками</h3>
+<ul><li> <a href="http://www.cliki.net/SPLIT-SEQUENCE">split-sequence</a>
+</li></ul>
+</div>
+</div>
+</div></div>
+
+        <div class="bottom">@2009 lisper.ru</div>
+
+        <script type="text/javascript">
+
+          var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+
+          document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+
+        </script>
+
+        <script type="text/javascript">
+
+          try {
+
+          var pageTracker = _gat._getTracker("UA-7734690-1");
+
+          pageTracker._trackPageview();
+
+          } catch(err) {}
+
+        </script>
+
+    </body>
+</html>

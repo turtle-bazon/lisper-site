@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru">
+	<head>
+      	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <meta name="verify-v1" content="o6r5tA9qF5PflmPb3cI7rJrWpFBGTkIE9X4KU25TxiE=" />
+
+        <meta name="keywords" content="Common Lisp,lisp,лисп" />
+
+        <link href="/css/fine/style.css" rel="stylesheet" type="text/css" />
+        <link href="/css/fine/colorize.css" rel="stylesheet" type="text/css" />
+	<title>Вызов функций из repl </title><link rel="alternate" type="application/rss+xml" title="Тема  'Вызов функций из repl ' - RSS-лента" href="/forum/rss/threads/47.rss" /><link href="/css/fine/forum.css" rel="stylesheet" type="text/css" /><link href="/css/fine/jquery.wysiwyg.css" rel="stylesheet" type="text/css" /><script src="/js/jquery.js" type="text/javascript"></script><script src="/js/jquery.wysiwyg.js" type="text/javascript"></script><script src="/js/forum.js" type="text/javascript"></script></head>
+
+	<body>
+        <div class="top">
+          <div id="login">
+    <a href="/register">Регистрация</a> |
+    <a href="/login?done=http%3A%2F%2Flisper.ru%2Fforum%2Fthread%2F47">Войти</a>
+</div>
+        </div>
+
+        <div id="caution">
+            <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png" />
+        </div>
+
+        <div id="mainmenu">
+          <ul><li><a href="/">Главная</a></li><li><a href="/articles/">Статьи</a></li><li><a href="/planet/">Планета</a></li><li><a href="/forum/">Форум</a></li><li><a href="/apps/">Сервисы</a></li><li><a href="/pcl/">Practical Common Lisp</a></li><li><a href="/wiki/">Wiki</a></li><li><a href="/files/">Файлы</a></li></ul>
+        </div>
+
+        <div id="content"><div id="forum-nav-panel"><a class="rss-link" href="/forum/rss/threads/47.rss">RSS</a><ul><li><a href="/forum/">Список форумов</a></li><li><a href="/forum/slime">SLIME</a></li><li><strong>Вызов функций из repl </strong></li></ul></div><div class="thread"><div class="topic"><div><big>Вызов функций из repl </big></div><div class="topic-info"><span class="topic-author">Автор: <strong>strobegen</strong> - 14.08.2009 00:20, Сообщений - 7</span></div><div class="topicbody"><p>Подскажите по чему когда я делаю eval какой-нибудь функции по C-x-e или через меню.</p><div>То на попытку вызова в repl slime мне говорит, что она не определена? так и должно быть?</div><div>Просто в Cups eval вроде автоматически помещает функцию в repl я думал, что в slime также - но открыв его после некоторого перерыва не могу с ним совладать.  </div><div><br /></div></div></div><div class="reply"><div class="topic-info"><span class="topic-author">Автор: <strong>strobegen</strong> - 14.08.2009 00:23</span></div><div class="replybody"><p>Похоже я догадался подозреваю, что он не переключает при evalе пакеты - надо в ручную делать (in-package :****)</p></div></div><div class="reply"><div class="topic-info"><span class="topic-author">Автор: <strong>archimag</strong> - 14.08.2009 00:31</span></div><div class="replybody"><p>SLIME ищет в начале файла форму in-package и при вычислении выражения в файле использует в качетсве текущего пакет, указанный в найденном in-package. Поэтому, хотя язык и не запрещает, очень рекомендуется использоваться форму in-package в файле только один раз.<br /><br />В REPL по умолчанию текущий пакет CL-USER. Для лёгкого переключения пакета в REPL есть специальная  команда: нажимаем ",", в появившемся приглашении набираем "in", теперь ввод и указываем нужный пакет.</p></div></div><div class="reply"><div class="topic-info"><span class="topic-author">Автор: <strong>strobegen</strong> - 14.08.2009 00:39</span></div><div class="replybody"><p>Спасибо.</p><div>Я правильно понимаю если я выделю например текст во всем файле в котором только одна in-package в самом начале и сделаю eval region то slime должен автоматически переключится в нужный пакет? -если так у меня он чего то не хочет так делать</div></div></div><div class="reply"><div class="topic-info"><span class="topic-author">Автор: <strong>strobegen</strong> - 14.08.2009 00:51</span></div><div class="replybody"><p>Кстати еще по путное, предложения может кто-нибудь особо умудренный работой со slime выложит свой emacrc на этом сайте? На мой взгляд много кому может пригодится, в сети конечно много всего есть - а тут будет основа для настройки заточенная непосредственно под CL.</p></div></div><div class="reply"><div class="topic-info"><span class="topic-author">Автор: <strong>archimag</strong> - 14.08.2009 01:21</span></div><div class="replybody"><span style="font-style: italic;">&gt;  Я правильно понимаю </span><br style="font-style: italic;" /><span style="font-style: italic;">&gt;  то slime должен автоматически переключится в нужный пакет</span><br style="font-style: italic;" /><br />Нет, не правильно, такое поведение было бы крайне неудобным :)<br />Тут фажно понять, что slime на самом деле в REPL ничего не отправляет, да и нет этого самого REPL ( как  ложки :))<br />Точнее, есть REPL, который предоставляет реализация лисп, если запустить лисп, то мы получим этот REPL, но SLIME не использует его для взаимодействия с lisp-процессом. Вместо этого, он запускает внутри lisp-процесса swank-сервер, который принимает и исполняет команды по сокетному соединению (cups, насколько я слышал, также использует тот же самый swank-сервер), и вообще, предоставляет всякие средства, необходимые для среды разработки. REPL, предоставляемый SLIME-ом, не связан с REPL-ом lisp-процесса, SLIME просто эмулирует свой REPL.<br /><br />Подобная архитектура очень удобна (и по другому фактически сделать нельзя, ибо возможности взаимодействия через потоки ввода/вывода очень ограничены) и помимо прочих преимуществ, позволяет SLIME подключаться к удалённым lisp-процессам. Например, я часто подключаюсь SLIME-ом к этому серверу, который физически находится в Германии (кажется, или в Голландии? ну да не суть), и произвожу частичную перекомпиляцию кода без перезапуска всего сервера, или порой отлаживаю какие-то проблемы, которые проявляются только на этом сервере (бывает у меня работает, а здесь нет, как понять в чём дело? подключился, включил дебагер и всё увидел)<br /><br /><span style="font-style: italic;">&gt; Кстати еще по путное, предложения может кто-нибудь особо умудренный </span><br style="font-style: italic;" /><span style="font-style: italic;">&gt; работой со slime выложит свой emacrc на этом сайте</span><br style="font-style: italic;" /><br />Лично у меня ничего особо специфичного именно для работы с CL в конфиге emacs нет. ИМХО, донастраивать SLIME особо не нужно, вроде всё по уму и хорошо. Разве что вот тут: <a href="http://archimag-dev.blogspot.com/2008/12/sbcl-slime-clisp-slime-and-etc.html">http://archimag-dev.blogspot.com/2008/12/sbcl-slime-clisp-slime-and-etc.html</a> описал пара полезных (как мне кажется) приёмов.</div></div><div class="reply"><div class="topic-info"><span class="topic-author">Автор: <strong>strobegen</strong> - 14.08.2009 02:40</span></div><div class="replybody"><div>Cпасибо за развернутый ответ)<br /></div></div></div><div class="reply"><div class="topic-info"><span class="topic-author">Автор: <strong>strobegen</strong> - 14.08.2009 15:22</span></div><div class="replybody"><div>Вот кстати хорошее расширение к emacs для более "правильной" подсветки скобочек :</div><div><a href="http://nschum.de/src/emacs/highlight-parentheses/">http://nschum.de/src/emacs/highlight-parentheses</a><br /></div><div><br /></div><div>И еще есть еще такое:</div><div><font class="Apple-style-span" face="monospace, 'Palatino Linotype', 'Century Schoolbook', serif"><span class="Apple-style-span" style="line-height: 19px;"><i><span class="Apple-style-span" style="font-style: normal; "><a name="color-box" href="http://www.foldr.org/~michaelw/emacs/mwe-color-box.el" id="color-box">mwe-color-box</a></span><br /></i></span></font></div><div><a href="http://www.foldr.org/~michaelw/emacs/">http://www.foldr.org/~michaelw/emacs/</a><br /></div><div>Но это к сожалению только визуализатор в отдельном буфере.</div><div>Если найду время, попробую из первого сделать нечто похожее на второе но со скобочками и не так навящего)<br /></div></div></div></div></div>
+
+        <div class="bottom">@2009 lisper.ru</div>
+
+        <script type="text/javascript">
+
+          var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+
+          document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+
+        </script>
+
+        <script type="text/javascript">
+
+          try {
+
+          var pageTracker = _gat._getTracker("UA-7734690-1");
+
+          pageTracker._trackPageview();
+
+          } catch(err) {}
+
+        </script>
+
+    </body>
+</html>

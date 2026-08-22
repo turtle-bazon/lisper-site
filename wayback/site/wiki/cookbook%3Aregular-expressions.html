@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru">
+	<head>
+      	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"></meta>
+
+        <meta name="verify-v1" content="o6r5tA9qF5PflmPb3cI7rJrWpFBGTkIE9X4KU25TxiE="></meta>
+
+        <meta name="keywords" content="Common Lisp,lisp,лисп"></meta>
+
+        <link href="/css/fine/style.css" rel="stylesheet" type="text/css">
+        <link href="/css/fine/colorize.css" rel="stylesheet" type="text/css">
+	<title>cookbook:regular-expressions</title>
+<link href="/css/fine/wiki.css" rel="stylesheet" type="text/css"></head>
+
+	<body>
+        <div class="top">
+            <div id="login">
+    <a href="/register">Регистрация</a> |
+    <a href="/login?done=http%3A%2F%2Flisper.ru%2Fwiki%2Fcookbook%3Aregular-expressions">Войти</a>
+</div>
+        </div>
+
+        <div id="caution">
+            <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png"></img>
+        </div>
+
+        <div id="mainmenu">
+          <ul>
+<li><a href="/">Главная</a></li>
+<li><a href="/articles/">Статьи</a></li>
+<li><a href="/planet/">Планета</a></li>
+<li><a href="/forum/">Форум</a></li>
+<li><a href="/apps/">Сервисы</a></li>
+<li><a href="/pcl/">Practical Common Lisp</a></li>
+<li><a href="/wiki/">wiki</a></li>
+</ul>
+        </div>
+
+        <div id="content"><div class="article">
+<div class="toc">
+<div class="toc-header">Содержание</div>
+<div class="toc-body"><ul><li><div>
+<a href="#aa994542694b7b60ca4dfa9a568ccfa7">Регулярные выражения</a><ul>
+<li><div><a href="#11b2f691dd5b02d2f32383fbfb831b64">Как можно использовать регулярные выражения?</a></div></li>
+<li><div><a href="#928a9c8de29ecfcaf0f220c29dce5e15">Перевод объявлений #define из .h файлов</a></div></li>
+<li><div><a href="#a6e9d0bb2d6449c96508f0521b191dbb">Библиотеки</a></div></li>
+</ul>
+</div></li></ul></div>
+</div>
+<div class="chapter" id="aa994542694b7b60ca4dfa9a568ccfa7">
+<h3>Регулярные выражения</h3>
+
+<div class="chapter" id="11b2f691dd5b02d2f32383fbfb831b64">
+<h3>Как можно использовать регулярные выражения?</h3>
+
+<p>Хотя реализации не предоставляют такой возможности, существует хорошая библиотека <a href="http://www.weitz.de/cl-ppcre/">CL-PPCRE</a> оптимизированная по скорости, и позволяющая использовать регулярные выражения, как они используются в Perl.
+</p>
+<p>CL-PPCRE ("Common Lisp Portable Perl Compatible Regular Expression") отличают следующие свойства:</p>
+<ol>
+<li> Сами регулярные выражения совместимы с Перл-овыми.</li>
+<li> Библиотека работает для разных ANSI реализаций CL.</li>
+<li> Есть альтернативная запись регулярных выражений в виде s-выражений.</li>
+<li> Работает быстро, как было сказано.</li>
+<li> Библиотека свободна.</li>
+</ol>
+<p>Про установку написано выше, в часте про ASDF.
+</p>
+<p>Примеры использования:
+</p>
+<pre class="code"><span class="paren1">(<span class="">scan <span class="string">"b.r"</span> <span class="string">"foo bar baz bur"</span> <span class="keyword">:start</span> 2 <span class="keyword">:end</span> 10</span>)</span><br><span class="comment">; вернёт 5 и 7<br></span></pre>
+
+<p>функция scan ищет во второй строке начиная с индекса start и до индекса end совпадения с RE, определённым в первой строке, при отсутствии совпадений возвращает NIL, иначе - индексы начала и конца первого совпадения.
+</p>
+<p>Допустим стоит задача переводить текст между \=\=\=\=, \=\=\= и \=\= в html заголовки h1, h2 и h3 соответственно. Этого можно достичь трёмя строчка - по одной на каждую задачу:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> <span class="special">*str*</span> <span class="paren2">(<span class="">regex-replace-all <span class="string">"</span><span class="string">\=</span><span class="string">\=</span><span class="string">\=</span><span class="string">\=</span><span class="string">(.*)=</span><span class="string">\=</span><span class="string">\=</span><span class="string">\=</span><span class="string">\=</span><span class="string">"</span> <span class="special">*str*</span> <span class="string">"&lt;h1&gt;</span><span class="string">\\</span><span class="string">1&lt;/h1&gt;"</span> <span class="keyword">:preserve-case</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a></span>)</span></span>)</span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> <span class="special">*str*</span> <span class="paren2">(<span class="">regex-replace-all <span class="string">"</span><span class="string">\=</span><span class="string">\=</span><span class="string">\=</span><span class="string">(.*)</span><span class="string">\=</span><span class="string">\=</span><span class="string">\=</span><span class="string">"</span> <span class="special">*str*</span> <span class="string">"&lt;h2&gt;</span><span class="string">\\</span><span class="string">1&lt;/h2&gt;"</span> <span class="keyword">:preserve-case</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a></span>)</span></span>)</span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> <span class="special">*str*</span> <span class="paren2">(<span class="">regex-replace-all <span class="string">"</span><span class="string">\=</span><span class="string">\=</span><span class="string">(.*)</span><span class="string">\=</span><span class="string">\=</span><span class="string">"</span> <span class="special">*str*</span> <span class="string">"&lt;h3&gt;</span><span class="string">\\</span><span class="string">1&lt;/h3&gt;"</span> <span class="keyword">:preserve-case</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a></span>)</span></span>)</span><br><span class="comment">; Как видим, перловые $1, $2, $3, ... для запоминания паттернов в скобках () заменяются переменными \\1, \\2, \\3, ...<br></span></pre>
+<p>Вот тут FIXME , я этот код не проверял.
+</p>
+</div>
+<div class="chapter" id="928a9c8de29ecfcaf0f220c29dce5e15">
+<h3>Перевод объявлений #define из .h файлов</h3>
+
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> h-to-lisp <span class="paren2">(<span class="">f.h f.lisp</span>)</span><br>  <span class="string">"Перевод однострочных объявлений #define из .h файлов"</span><br>    <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren3">(<span class=""><span class="paren4">(<span class="">in <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_open.htm" class="symbol">open</a> f.h <span class="keyword">:if-does-not-exist</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a></span>)</span></span>)</span> <span class="paren4">(<span class="">out <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_open.htm" class="symbol">open</a> f.lisp <span class="keyword">:direction</span> <span class="keyword">:output</span> <span class="keyword">:if-exists</span> <span class="keyword">:supersede</span></span>)</span></span>)</span></span>)</span><br>        <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_when_.htm" class="symbol">when</a> in <br>            <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> for line = <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_rd_lin.htm" class="symbol">read-line</a> in <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a></span>)</span><br>                while line <a href="http://www.lispworks.com/reference/HyperSpec/Body/m_do_do.htm" class="symbol">do</a> <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_if.htm" class="symbol"><i><span class="symbol">if</span></i></a> <span class="paren6">(<span class="">scan <span class="string">"#define</span><span class="string">\\</span><span class="string">s+</span><span class="string">\\</span><span class="string">S+</span><span class="string">\\</span><span class="string">s+</span><span class="string">\\</span><span class="string">S+"</span> line</span>)</span><br>                                  <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> out <span class="string">"~a~%"</span><br>                                              <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_stg_up.htm" class="symbol">string-downcase</a>  <span class="comment">;; уменьшаем регистр.<br></span>                                                <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_sbs_s.htm" class="symbol">substitute</a> <span class="character">#\-</span> <span class="character">#\_</span>  <span class="comment">;; Вместо _ ставим - .<br></span>                                                  <span class="paren3">(<span class="">regex-replace <span class="string">"#</span><span class="string">\\</span><span class="string">s*define</span><span class="string">\\</span><span class="string">s+(</span><span class="string">\\</span><span class="string">S+)</span><span class="string">\\</span><span class="string">s+(</span><span class="string">\\</span><span class="string">S+).*"</span> line <span class="string">"(defconstant +</span><span class="string">\\</span><span class="string">1+ </span><span class="string">\\</span><span class="string">2)"</span></span>)</span></span>)</span></span>)</span></span>)</span></span>)</span></span>)</span><br>            <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_close.htm" class="symbol">close</a> in</span>)</span><br>            <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_close.htm" class="symbol">close</a> out</span>)</span></span>)</span></span>)</span></span>)</span><br></pre>
+<p>Может оказаться, что вторым значением в #define будет 8 или 16-ричное число, которое записывается в Си и в CL по-разному, поэтому можно встроить в h-to-lisp такую функцию:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> parse-c-token <span class="paren2">(<span class="">token</span>)</span><br>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_cond.htm" class="symbol"><i><span class="symbol">cond</span></i></a> <span class="paren3">(<span class=""><span class="paren4">(<span class="">scan <span class="string">"0+[0-9]+"</span>     token</span>)</span> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_rd_fro.htm" class="symbol">read-from-string</a> <span class="paren5">(<span class="">regex-replace <span class="string">"0+([0-9]+)"</span>     token <span class="string">"#o</span><span class="string">\\</span><span class="string">1"</span></span>)</span></span>)</span></span>)</span><br>        <span class="paren3">(<span class=""><span class="paren4">(<span class="">scan <span class="string">"0x[0-9|a-f]+"</span> token</span>)</span> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_rd_fro.htm" class="symbol">read-from-string</a> <span class="paren5">(<span class="">regex-replace <span class="string">"0x([0-9|a-f]+)"</span> token <span class="string">"#x</span><span class="string">\\</span><span class="string">1"</span></span>)</span></span>)</span></span>)</span><br>        <span class="paren3">(<span class=""><span class="paren4">(<span class="">scan <span class="string">"[0-9]+l"</span>      token</span>)</span> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_rd_fro.htm" class="symbol">read-from-string</a> <span class="paren5">(<span class="">regex-replace <span class="string">"([0-9|</span><span class="string">\.</span><span class="string">]+)l"</span>   token <span class="string">"</span><span class="string">\\</span><span class="string">1"</span></span>)</span></span>)</span></span>)</span><br>        <span class="paren3">(<span class=""><span class="paren4">(<span class="">scan <span class="string">"'</span><span class="string">\\</span><span class="string">S+'"</span>       token</span>)</span> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_rd_fro.htm" class="symbol">read-from-string</a> <span class="paren5">(<span class="">regex-replace <span class="string">"'(</span><span class="string">\\</span><span class="string">S+)'"</span>       token <span class="string">"#</span><span class="string">\\</span><span class="string">\1</span><span class="string">"</span></span>)</span></span>)</span></span>)</span><br>        <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a>                           token</span>)</span></span>)</span></span>)</span><br></pre>
+<p><a class="fn_top" id="fnt__1" href="#fn__1">1)</a>
+</p>
+</div>
+<div class="chapter" id="a6e9d0bb2d6449c96508f0521b191dbb">
+<h3>Библиотеки</h3>
+
+<p><a href="http://www.weitz.de/cl-ppcre/">CL-PPCRE</a>
+</p>
+<p>Другие библиотеки, реализующие работу с регулярными выражениями:
+...
+</p>
+
+</div>
+</div>
+<div class="footnotes"><div>
+<a class="fn_bot" id="fn__1" href="#fnt__1">1)</a>ну, примерно так - могут быть баги.</div></div>
+</div></div>
+
+        <div class="bottom">@2009 lisper.ru</div>
+
+        <script type="text/javascript">
+
+          var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+
+          document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+
+        </script>
+
+        <script type="text/javascript">
+
+          try {
+
+          var pageTracker = _gat._getTracker("UA-7734690-1");
+
+          pageTracker._trackPageview();
+
+          } catch(err) {}
+
+        </script>
+
+    </body>
+</html>

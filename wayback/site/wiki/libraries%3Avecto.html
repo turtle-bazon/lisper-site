@@ -1,0 +1,259 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru"> <head> <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> <meta name="keywords" content="Common Lisp,lisp,лисп" /> <title>libraries:vecto</title> <link href="/css/style.css" rel="stylesheet" type="text/css" /><link href="/css/wiki.css" rel="stylesheet" type="text/css" /><link href="/css/colorize.css" rel="stylesheet" type="text/css" />  </head> <body> <div class="top"> <div id="login"> <a href="/register">Регистрация</a> | <a href="/login?done=/wiki/libraries:vecto">Войти</a> </div> </div> <div id="caution"> <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png" /> <a href="http://www.vkusnoserver.ru/" target="_blank" style="float: right;"> <img src="/vkusnoserver.png" /> </a> </div> <div id="mainmenu"> <ul> <li> <a href="/">Главная</a> </li><li> <a href="/articles/">Статьи</a> </li><li> <a href="/planet/">Планета</a> </li><li> <a href="/forum/">Форум</a> </li><li> <a href="/apps/">Сервисы</a> </li><li> <a href="/pcl/">Practical Common Lisp</a> </li><li> <a href="/wiki/">Wiki</a> </li><li> <a href="/files/">Файлы</a> </li><li> <a href="/search">Поиск</a> </li> </ul> </div> <div id="content"> <ul class="wiki-page-menu"> <li> <a href="/wiki/edit/libraries:vecto">Edit</a> </li>  <li> <a href="/wiki/history/libraries:vecto">History</a> </li>   </ul><div class="article"><div class="toc"><div class="toc-header">Содержание</div><div class="toc-body"><ul><li><div><a href="#&#x412;&#x432;&#x435;&#x434;&#x435;&#x43D;&#x438;&#x435;">Введение</a></div></li><li><div><a href="#&#x41E;&#x431;&#x437;&#x43E;&#x440; &#x432;&#x43E;&#x437;&#x43C;&#x43E;&#x436;&#x43D;&#x43E;&#x441;&#x442;&#x435;&#x439;">Обзор возможностей</a></div></li><li><div><a href="#API">API</a><ul><li><div><a href="#&#x425;&#x43E;&#x43B;&#x441;&#x442;&#x44B;">Холсты</a></div></li><li><div><a href="#&#x421;&#x43E;&#x441;&#x442;&#x43E;&#x44F;&#x43D;&#x438;&#x44F;">Состояния</a></div></li><li><div><a href="#&#x41A;&#x43E;&#x43D;&#x442;&#x443;&#x440;&#x44B;">Контуры</a></div></li><li><div><a href="#&#x420;&#x430;&#x441;&#x43A;&#x440;&#x430;&#x441;&#x43A;&#x430;">Раскраска</a></div></li><li><div><a href="#Text">Text</a></div></li><li><div><a href="#&#x414;&#x43E;&#x43F;&#x43E;&#x43B;&#x43D;&#x438;&#x442;&#x435;&#x43B;&#x44C;&#x43D;&#x43E;">Дополнительно</a></div></li></ul></div></li><li><div><a href="#&#x421;&#x441;&#x44B;&#x43B;&#x43A;&#x438;">Ссылки</a></div></li><li><div><a href="#&#x411;&#x43B;&#x430;&#x433;&#x43E;&#x434;&#x430;&#x440;&#x43D;&#x43E;&#x441;&#x442;&#x438;">Благодарности</a></div></li><li><div><a href="#&#x41E;&#x431;&#x440;&#x430;&#x442;&#x43D;&#x430;&#x44F; &#x441;&#x432;&#x44F;&#x437;&#x44C;">Обратная связь</a></div></li></ul></div></div>
+<p>Vecto - Простая векторная графика с Common Lisp'ом
+</p>
+<div class="chapter" id="&#x412;&#x432;&#x435;&#x434;&#x435;&#x43D;&#x438;&#x435;"><h3>Введение</h3>
+
+<p>Vecto это упрощенный интерфейс к мощной библиотеки векторной растеризации CL-VECTORS. Vecto предоставляет функциональный интерфейс похожий на CL-PDF, и результат может быть сохранен в PNG, вместо PDF файла. Библиотека и зависимости написаны на Common Lisp'е, без использования сторонних не-лисп библиотек. Весь стек должен работать в любом Common Lisp окружении. Vecto доступна по BSD-like лицензией. Текущая версия 1.4.3, опубликована 26 августа 2009 года.
+</p>
+<p>Vecto используется такими ресурсами как <a href="http://wigflip.com/easystreet/">Easystreet</a> и <a href="http://www.xach.com/moviecharts/">Movie Charts</a>.
+</p>
+<p>Домашняя страничка проекта: <a href="http://www.xach.com/lisp/vecto/">http://www.xach.com/lisp/vecto/</a>.
+</p>
+<p>Ссылка для загрузки: <a href="http://www.xach.com/lisp/vecto.tgz">http://www.xach.com/lisp/vecto.tgz</a>
+</p>
+</div><div class="chapter" id="&#x41E;&#x431;&#x437;&#x43E;&#x440; &#x432;&#x43E;&#x437;&#x43C;&#x43E;&#x436;&#x43D;&#x43E;&#x441;&#x442;&#x435;&#x439;"><h3>Обзор возможностей</h3>
+
+<p>Vecto - это библиотека, предоставляющая простой интерфейс к библиотеке векторной графики <a href="http://projects.tuxee.net/cl-vectors/">CL-VECTORS</a>. Она подерживает рисование на холсте и сохранение результатов в PNG файл.
+</p>
+<p>Vecto зависит от следующих библиотек:
+</p><ul><li> <a href="http://projects.tuxee.net/cl-vectors/">CL-VECTORS</a></li><li> <a href="http://www.xach.com/lisp/zpb-ttf/">ZPB-TTF</a></li><li> <a href="http://www.xach.com/lisp/salza2/">Salza2</a></li><li> <a href="http://www.xach.com/lisp/zpng/">ZPNG</a></li></ul>
+<p><em> Примечание переводчика: простой путь установки - через quicklisp</em>
+</p><pre class="code"><span class="paren1">(<span class="">ql:quickload <span class="keyword">:vecto</span></span>)</span><br/></pre>
+
+<p><a href="http://www.cliki.net/asdf-install">ASDF-Install</a> - это простой путь для установки Vecto и всех зависимостей.
+</p>
+<p>Функциональный интерфейс Vecto подобен интерфейсам описания векторов и рисования изображений PDF: вы создаете изображения описанием контуров вектора, затем используете stroke или fill операции для рисования на холсте.
+</p>
+<p>Цветовая система использует 4 канала: красный, зеленый, синий и альфа. Результаты сохраняются в PNG файл с альфа каналом.
+</p>
+<p>Координатная система имеет точку отсчета в левом нижнем углу изображения, и вектор (1, 1) направлен вправо вверх.
+</p>
+<p>Все размеры указываются в пикселях.
+</p>
+<p>PDF система очень богата возможностями. Vecto поддерживает стиль лишь небольшого их подмножества. В частности она не поддерживает:
+</p><ul><li> sampled images</li><li> шаблонная или функциональная заливка</li><li> сложное позиционирование текста</li><li> Шрифты PostScript</li><li> не-RGB цвета</li></ul>
+<p>Другие ограничения:
+</p><ul><li> Нет вывода в формате отличном от 8 битного truecolor-alpha PNG.</li><li> Нет доступа к пикселям</li></ul>
+<p>Родственные библиотеки:
+</p><ul><li> <a href="http://common-lisp.net/project/imago/">Imago</a></li><li> <a href="http://cyrusharmon.org/projects?project=ch-image">ch-image</a></li><li> <a href="http://ygingras.net/poly-pen">Poly-pen</a></li></ul>
+<p>Примеры
+</p>
+<p>Все примеры доступны в doc/examples.lisp в дистрибутиве Vecto. Этот файл начинается с:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defpkg.htm" class="symbol"><i><span class="symbol">defpackage</span></i></a> <span class="keyword">#:vecto-examples</span><br/>  <span class="paren2">(<span class=""><span class="keyword">:use</span> <span class="keyword">#:cl</span> <span class="keyword">#:vecto</span></span>)</span></span>)</span><br/><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_in_pkg.htm" class="symbol">in-package</a> <span class="keyword">#:vecto-examples</span></span>)</span><br/></pre>
+
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> radiant-lambda <span class="paren2">(<span class="">file</span>)</span><br/>  <span class="paren2">(<span class=""><i><span class="symbol">with-canvas</span></i> <span class="paren3">(<span class=""><span class="keyword">:width</span> 90 <span class="keyword">:height</span> 90</span>)</span><br/>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren4">(<span class=""><span class="paren5">(<span class="">font <span class="paren6">(<span class="">get-font <span class="string">"times.ttf"</span></span>)</span></span>)</span><br/>          <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_step.htm" class="symbol">step</a> <span class="paren6">(<span class="">/ <a href="http://www.lispworks.com/reference/HyperSpec/Body/v_pi.htm" class="symbol">pi</a> 7</span>)</span></span>)</span></span>)</span><br/>      <span class="paren4">(<span class="">set-font font 40</span>)</span><br/>      <span class="paren4">(<span class="">translate 45 45</span>)</span><br/>      <span class="paren4">(<span class="">draw-centered-string 0 -10 #<span class="paren5">(<span class="">#x3BB</span>)</span></span>)</span><br/>      <span class="paren4">(<span class="">set-rgb-stroke 1 0 0</span>)</span><br/>      <span class="paren4">(<span class="">centered-circle-path 0 0 35</span>)</span><br/>      <span class="paren4">(<span class="">stroke</span>)</span><br/>      <span class="paren4">(<span class="">set-rgba-stroke 0 0 1.0 0.5</span>)</span><br/>      <span class="paren4">(<span class="">set-line-width 4</span>)</span><br/>      <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_dotime.htm" class="symbol">dotimes</a> <span class="paren5">(<span class="">i 14</span>)</span><br/>        <span class="paren5">(<span class=""><i><span class="symbol">with-graphics-state</span></i><br/>          <span class="paren6">(<span class="">rotate <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> i <a href="http://www.lispworks.com/reference/HyperSpec/Body/m_step.htm" class="symbol">step</a></span>)</span></span>)</span><br/>          <span class="paren6">(<span class="">move-to 30 0</span>)</span><br/>          <span class="paren6">(<span class="">line-to 40 0</span>)</span><br/>          <span class="paren6">(<span class="">stroke</span>)</span></span>)</span></span>)</span><br/>      <span class="paren4">(<span class="">save-png file</span>)</span></span>)</span></span>)</span></span>)</span><br/></pre>
+<p><img alt="&#x418;&#x437;&#x43E;&#x431;&#x440;&#x430;&#x436;&#x435;&#x43D;&#x438;&#x435;" src="http://www.xach.com/lisp/vecto/lambda-example.png"/>
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> feedlike-icon <span class="paren2">(<span class="">file</span>)</span><br/>  <span class="paren2">(<span class=""><i><span class="symbol">with-canvas</span></i> <span class="paren3">(<span class=""><span class="keyword">:width</span> 100 <span class="keyword">:height</span> 100</span>)</span><br/>    <span class="paren3">(<span class="">set-rgb-fill 1.0 0.65 0.3</span>)</span><br/>    <span class="paren3">(<span class="">rounded-rectangle 0 0 100 100 10 10</span>)</span><br/>    <span class="paren3">(<span class="">fill-path</span>)</span><br/>    <span class="paren3">(<span class="">set-rgb-fill 1.0 1.0 1.0</span>)</span><br/>    <span class="paren3">(<span class="">centered-circle-path 20 20 10</span>)</span><br/>    <span class="paren3">(<span class="">fill-path</span>)</span><br/>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_flet_.htm" class="symbol"><i><span class="symbol">flet</span></i></a> <span class="paren4">(<span class=""><span class="paren5">(<span class="">quarter-circle <span class="paren6">(<span class="">x y radius</span>)</span><br/>             <span class="paren6">(<span class="">move-to <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> x radius</span>)</span> y</span>)</span><br/>             <span class="paren6">(<span class="">arc x y radius 0 <span class="paren1">(<span class="">/ <a href="http://www.lispworks.com/reference/HyperSpec/Body/v_pi.htm" class="symbol">pi</a> 2</span>)</span></span>)</span></span>)</span></span>)</span><br/>      <span class="paren4">(<span class="">set-rgb-stroke 1.0 1.0 1.0</span>)</span><br/>      <span class="paren4">(<span class="">set-line-width 15</span>)</span><br/>      <span class="paren4">(<span class="">quarter-circle 20 20 30</span>)</span><br/>      <span class="paren4">(<span class="">stroke</span>)</span><br/>      <span class="paren4">(<span class="">quarter-circle 20 20 60</span>)</span><br/>      <span class="paren4">(<span class="">stroke</span>)</span></span>)</span><br/>    <span class="paren3">(<span class="">rounded-rectangle 5 5 90 90 7 7</span>)</span><br/>    <span class="paren3">(<span class="">set-gradient-fill 50 90<br/>                       1.0 1.0 1.0 0.7<br/>                       50 20<br/>                       1.0 1.0 1.0 0.0</span>)</span><br/>    <span class="paren3">(<span class="">set-line-width 2</span>)</span><br/>    <span class="paren3">(<span class="">set-rgba-stroke 1.0 1.0 1.0 0.1</span>)</span><br/>    <span class="paren3">(<span class="">fill-and-stroke</span>)</span><br/>    <span class="paren3">(<span class="">save-png file</span>)</span></span>)</span></span>)</span><br/></pre>
+<p><img alt="&#x418;&#x437;&#x43E;&#x431;&#x440;&#x430;&#x436;&#x435;&#x43D;&#x438;&#x435;" src="http://www.xach.com/lisp/vecto/feedlike-icon.png"/>
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> star-clipping <span class="paren2">(<span class="">file</span>)</span><br/>  <span class="paren2">(<span class=""><i><span class="symbol">with-canvas</span></i> <span class="paren3">(<span class=""><span class="keyword">:width</span> 200 <span class="keyword">:height</span> 200</span>)</span><br/>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren4">(<span class=""><span class="paren5">(<span class="">size 100</span>)</span><br/>          <span class="paren5">(<span class="">angle 0</span>)</span><br/>          <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_step.htm" class="symbol">step</a> <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> 2 <span class="paren1">(<span class="">/ <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/v_pi.htm" class="symbol">pi</a> 2</span>)</span> 5</span>)</span></span>)</span></span>)</span></span>)</span><br/>      <span class="paren4">(<span class="">translate size size</span>)</span><br/>      <span class="paren4">(<span class="">move-to 0 size</span>)</span><br/>      <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_dotime.htm" class="symbol">dotimes</a> <span class="paren5">(<span class="">i 5</span>)</span><br/>        <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> angle <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> angle <a href="http://www.lispworks.com/reference/HyperSpec/Body/m_step.htm" class="symbol">step</a></span>)</span></span>)</span><br/>        <span class="paren5">(<span class="">line-to <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_sin_c.htm" class="symbol">sin</a> angle</span>)</span> size</span>)</span><br/>                 <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_sin_c.htm" class="symbol">cos</a> angle</span>)</span> size</span>)</span></span>)</span></span>)</span><br/>      <span class="paren4">(<span class="">even-odd-clip-path</span>)</span><br/>      <span class="paren4">(<span class="">end-path-no-op</span>)</span><br/>      <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_flet_.htm" class="symbol"><i><span class="symbol">flet</span></i></a> <span class="paren5">(<span class=""><span class="paren6">(<span class="">circle <span class="paren1">(<span class="">distance</span>)</span><br/>               <span class="paren1">(<span class="">set-rgba-fill distance 0 0<br/>                              <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a__.htm" class="symbol">-</a> 1.0 distance</span>)</span></span>)</span><br/>               <span class="paren1">(<span class="">centered-circle-path 0 0 <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> size distance</span>)</span></span>)</span><br/>               <span class="paren1">(<span class="">fill-path</span>)</span></span>)</span></span>)</span><br/>        <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> for i downfrom 1.0 by 0.05<br/>              repeat 20 <a href="http://www.lispworks.com/reference/HyperSpec/Body/m_do_do.htm" class="symbol">do</a><br/>              <span class="paren6">(<span class="">circle i</span>)</span></span>)</span></span>)</span><br/>      <span class="paren4">(<span class="">save-png file</span>)</span></span>)</span></span>)</span></span>)</span><br/></pre>
+<p><img alt="&#x418;&#x437;&#x43E;&#x431;&#x440;&#x430;&#x436;&#x435;&#x43D;&#x438;&#x435;" src="http://www.xach.com/lisp/vecto/star-clipping.png"/>
+</p>
+<p>Dictionary
+</p></div><div class="chapter" id="API"><h3>API</h3>
+
+<p>The following symbols are exported from the VECTO package.
+Из пакета Vecto экспортируются следующие символы:
+</p>
+<p>Canvases
+</p>
+<div class="chapter" id="&#x425;&#x43E;&#x43B;&#x441;&#x442;&#x44B;"><h3>Холсты</h3>
+<pre>[Macro]<br/>with-canvas (&amp;key width height) &amp;body body<br/></pre>
+<p>Исполняет body с холстом с указанными размерам для команд рисования. Холст после создания полностью чист (все пиксели имеют значение альфа канала равное нулю).
+</p><pre>[Function]<br/>clear-canvas =&gt; |<br/></pre>
+<p>Полностью заполняет холст текущим цветом заливки. Любые знаки на холсте будут очищены.
+</p><pre>[Function]<br/>save-png file =&gt; truename<br/></pre>
+<p>Записывает содержимое холста в PNG файл, и возвращает имя файла.
+</p><pre>[Function]<br/>save-png-stream stream =&gt; |<br/></pre>
+<p>Записывает содержимое холста как PNG в поток, который должен принимать (unsigned 8) данные.
+</p>
+</div><div class="chapter" id="&#x421;&#x43E;&#x441;&#x442;&#x43E;&#x44F;&#x43D;&#x438;&#x44F;"><h3>Состояния</h3>
+
+<p>Состояния сохраняют несколько параметров используемых операциями рисования.
+</p><pre>[Macro]<br/>with-graphics-state &amp;body body<br/></pre>
+<p>Выполняет формы body с копией текущего состояния. Любые модификации этого состояния будут отменены в конце данной формы.
+</p><pre>[Functions]<br/>set-rgba-fill r g b alpha =&gt; |<br/>set-rgb-fill r g b =&gt; |<br/></pre>
+<p>Устанавливает цвет заливки. r, g, b и alpha должны быть в интервале от 0.0 до 1.0.
+</p><pre>  set-rgb-fill is the same as set-rgba-fill with an implicit alpha value of 1.0.<br/></pre><p>set-rgb-fill это то же, что и set-rgba-fill с установленным значением альфа канала в 1.0.
+</p>
+<p>Цвет заливки используется командами CLEAR-CANVAS, FILL-PATH, EVEN-ODD-FILL, FILL-AND-STROKE, EVEN-ODD-FILL-AND-STROKE и DRAW-STRING.
+</p><pre>[Function]<br/>set-gradient-fill x0 y0 r0 g0 b0 a0 x1 y1 r1 g1 b1 a1 &amp;key (extend-start t) (extend-end t) (domain-function 'linear-domain)<br/></pre>
+<p>Устанавливает в качестве цвета заливки градиент. Начальная точка - x0, y0 и начальный цвет r0,g0,b0,a0. Конечная точка x1, y1 и конечный цвет r1, g1, b1, a1. 
+</p>
+<p>Доступны две функции для типа градиента:
+</p><ul><li> LINEAR-DOMAIN, по-умолчанию, создает переход от начального цвета в конечный цвет вдоль оси от начальной точки к конечной.</li><li> BILINEAR-DOMAIN создает переход от начального цвета к конечному от начальной точки в серединной, а затем от серединной через начальную к конечной.</li></ul>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> gradient-example <span class="paren2">(<span class="">file</span>)</span><br/>  <span class="paren2">(<span class=""><i><span class="symbol">with-canvas</span></i> <span class="paren3">(<span class=""><span class="keyword">:width</span> 200 <span class="keyword">:height</span> 50</span>)</span><br/>    <span class="paren3">(<span class="">set-gradient-fill 25 0<br/>                       1 0 0 1<br/>                       175 0<br/>                       1 0 0 0</span>)</span><br/>    <span class="paren3">(<span class="">rectangle 0 0 200 50</span>)</span><br/>    <span class="paren3">(<span class="">fill-path</span>)</span><br/>    <span class="paren3">(<span class="">save-png file</span>)</span></span>)</span></span>)</span><br/></pre>
+<p><img alt="&#x418;&#x437;&#x43E;&#x431;&#x440;&#x430;&#x436;&#x435;&#x43D;&#x438;&#x435;" src="http://www.xach.com/lisp/vecto/linear-gradient.png"/>
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> gradient-bilinear-example <span class="paren2">(<span class="">file</span>)</span><br/>  <span class="paren2">(<span class=""><i><span class="symbol">with-canvas</span></i> <span class="paren3">(<span class=""><span class="keyword">:width</span> 200 <span class="keyword">:height</span> 50</span>)</span><br/>    <span class="paren3">(<span class="">set-gradient-fill 25 0<br/>                       1 0 0 1<br/>                       175 0<br/>                       1 0 0 0<br/>                       <span class="keyword">:domain-function</span> 'bilinear-domain</span>)</span><br/>    <span class="paren3">(<span class="">rectangle 0 0 200 50</span>)</span><br/>    <span class="paren3">(<span class="">fill-path</span>)</span><br/>    <span class="paren3">(<span class="">save-png file</span>)</span></span>)</span></span>)</span><br/></pre>
+<p><img alt="&#x418;&#x437;&#x43E;&#x431;&#x440;&#x430;&#x436;&#x435;&#x43D;&#x438;&#x435;" src="http://www.xach.com/lisp/vecto/bilinear-gradient.png"/>
+</p><pre>[Functions]<br/>set-rgba-stroke r g b alpha =&gt; |<br/>set-rgb-stroke r g b =&gt; |<br/></pre>
+<p>Устанавливает цвет контуров. r, g, b и alpha должны быть в интервале от 0.0 по 1.0.
+</p>
+<p>set-rgb-stroke это то же, что и set-rgba-stroke с установленным значением альфа канала в 1.0.
+</p>
+<p>Цвет контуров используется в функциях STROKE, FILL-AND-SROKE и EVEN-ODD-FILL-AND-STROKE.
+</p><pre>[Function]<br/>set-line-cap style =&gt; |<br/></pre>
+<p>Устанавливает стиль концов линий, которым может быть одним из :BUTT, :SQUARE, или :ROUND
+</p><table><tbody><tr><td><img alt="&#x418;&#x437;&#x43E;&#x431;&#x440;&#x430;&#x436;&#x435;&#x43D;&#x438;&#x435;" src="http://www.xach.com/lisp/vecto/cap-style-butt.png"/></td><td><img alt="&#x418;&#x437;&#x43E;&#x431;&#x440;&#x430;&#x436;&#x435;&#x43D;&#x438;&#x435;" src="http://www.xach.com/lisp/vecto/cap-style-square.png"/></td><td><img alt="&#x418;&#x437;&#x43E;&#x431;&#x440;&#x430;&#x436;&#x435;&#x43D;&#x438;&#x435;" src="http://www.xach.com/lisp/vecto/cap-style-round.png"/></td></tr><tr><td>:BUTT</td><td>:SQUARE</td><td>:ROUND</td></tr></tbody></table>
+<pre>[Function]<br/>set-line-join style =&gt; |<br/></pre>
+<p>Устанавливает стиль углов ломанной. Может быть одним из: :MITER, :BEVEL или :ROUND.
+</p><table><tbody><tr><td><img alt="&#x418;&#x437;&#x43E;&#x431;&#x440;&#x430;&#x436;&#x435;&#x43D;&#x438;&#x435;" src="http://www.xach.com/lisp/vecto/join-style-miter.png"/></td><td><img alt="&#x418;&#x437;&#x43E;&#x431;&#x440;&#x430;&#x436;&#x435;&#x43D;&#x438;&#x435;" src="http://www.xach.com/lisp/vecto/join-style-bevel.png"/></td><td><img alt="&#x418;&#x437;&#x43E;&#x431;&#x440;&#x430;&#x436;&#x435;&#x43D;&#x438;&#x435;" src="http://www.xach.com/lisp/vecto/join-style-round.png"/></td></tr><tr><td>:MITER</td><td>:BEVEL</td><td>:ROUND</td></tr></tbody></table>
+<pre>[Function]<br/>set-line-width width =&gt; |<br/></pre>
+<p>Устанавливает толщину линии контура в width.
+</p><pre>[Function]<br/>set-dash-pattern dash-vector phase =&gt; |<br/></pre>
+<p>Устанавливает шаблон штриховки согласно dash-vector и phase.
+</p>
+<p>dash-vector должен быть вектором значений для включения и выключения рисования контура. Пустой вектор эквивалентен отсутствию шаблона.
+</p>
+<p>phase определяет, насколько должен быть смещен шаблон перед тем, как применить его к контуру.
+</p><table><tbody><tr><th>Appearance 	</th><th>Dash Vector and Phase</th></tr><tr><td class="leftalign"><img alt="&#x418;&#x437;&#x43E;&#x431;&#x440;&#x430;&#x436;&#x435;&#x43D;&#x438;&#x435;" src="http://www.xach.com/lisp/vecto/dash-pattern-none.png"/>       </td><td>#() 0</td></tr><tr><td><img alt="&#x418;&#x437;&#x43E;&#x431;&#x440;&#x430;&#x436;&#x435;&#x43D;&#x438;&#x435;" src="http://www.xach.com/lisp/vecto/dash-pattern-a.png"/>    	</td><td>#(30 30) 0</td></tr><tr><td><img alt="&#x418;&#x437;&#x43E;&#x431;&#x440;&#x430;&#x436;&#x435;&#x43D;&#x438;&#x435;" src="http://www.xach.com/lisp/vecto/dash-pattern-b.png"/>    	</td><td>#(30 30) 15</td></tr><tr><td><img alt="&#x418;&#x437;&#x43E;&#x431;&#x440;&#x430;&#x436;&#x435;&#x43D;&#x438;&#x435;" src="http://www.xach.com/lisp/vecto/dash-pattern-c.png"/>    	</td><td>#(10 20 10 40) 0</td></tr><tr><td><img alt="&#x418;&#x437;&#x43E;&#x431;&#x440;&#x430;&#x436;&#x435;&#x43D;&#x438;&#x435;" src="http://www.xach.com/lisp/vecto/dash-pattern-d.png"/>    	</td><td>#(10 20 10 40) 13</td></tr><tr><td><img alt="&#x418;&#x437;&#x43E;&#x431;&#x440;&#x430;&#x436;&#x435;&#x43D;&#x438;&#x435;" src="http://www.xach.com/lisp/vecto/dash-pattern-e.png"/>    	</td><td>#(30 30) 0, :ROUND line caps</td></tr></tbody></table>
+<pre>[Function]<br/>translate x y =&gt; |<br/></pre>
+<p>Перемещает систему координат на x по оси X и на y по оси Y.
+</p><pre>[Function]<br/>rotate radians =&gt; |<br/></pre>
+<p>Поворачитвает систему координат на угол radians (в радианах).
+</p><pre>[Function]<br/>scale sx sy =&gt; |<br/></pre>
+<p>Масштабирует систему координат на sx по оси X и на sy по оси Y.
+</p><pre>[Function]<br/>skew ax ay =&gt; |<br/></pre>
+<p>Наклоняет ось X системы координат на ax радиан и Y ось на ay радиан.
+</p><pre>[Function]<br/>clip-path =&gt; |<br/></pre>
+<p>Определяет область отсечения, которая базируется на текущем векторе. Область применяется не сразу, но она создается после того, как рисование закончено, в следующем вызове одной из функций: FILL-PATH, EVEN-ODD-FILL, FILL-AND-SROKE, EVEN-ODD-FILL-AND-STROKE или END-PATH-NO-OP.
+</p>
+<p>Первоначально область отсечения применяется на всем холсте. Последующие вызовы CLIP-PATH устанавливают область отсечения в контексте предыдущего установленного отсечения.
+</p><pre>  The outline of the clipping path is defined with the nonzero winding rule, as with FILL-PATH FIXME.<br/></pre>
+<p>Не существует возможности увеличить область отсечения. Так как, область отсечения является частью состояния, то изменения могут быть локализованы использованием WITH-GRAPHICS-STATE.
+</p><table><tbody><tr><td><img alt="&#x418;&#x437;&#x43E;&#x431;&#x440;&#x430;&#x436;&#x435;&#x43D;&#x438;&#x435;" src="http://www.xach.com/lisp/vecto/clip-unclipped.png"/></td><td>Заполненный красный прямоугольник</td></tr><tr><td><img alt="&#x418;&#x437;&#x43E;&#x431;&#x440;&#x430;&#x436;&#x435;&#x43D;&#x438;&#x435;" src="http://www.xach.com/lisp/vecto/clip-to-circle.png"/></td><td>Тот же прямоугольник с применным круговым правилом отсечения</td></tr><tr><td><img alt="&#x418;&#x437;&#x43E;&#x431;&#x440;&#x430;&#x436;&#x435;&#x43D;&#x438;&#x435;" src="http://www.xach.com/lisp/vecto/clip-to-rectangle.png"/></td><td>Область отсечения - прямоугольник со скругленными углами</td></tr><tr><td><img alt="&#x418;&#x437;&#x43E;&#x431;&#x440;&#x430;&#x436;&#x435;&#x43D;&#x438;&#x435;" src="http://www.xach.com/lisp/vecto/clip-to-both.png"/></td><td>Пересечение двух областей отсечения: круга и прямоугольника</td></tr></tbody></table>
+<pre>[Function]<br/>even-odd-clip-path =&gt; |<br/></pre>
+<p>Как CLIP-PATH, но использует четные/нечетные правила заливки, чтобы определить контур отсечения FIXME.
+</p>
+</div><div class="chapter" id="&#x41A;&#x43E;&#x43D;&#x442;&#x443;&#x440;&#x44B;"><h3>Контуры</h3>
+
+<p>Контуры используются для создания линий для рисования или контуров заливки. Контуры состоят из прямых и кривых. Контуры состоят из одного или более подконтуров.
+</p><pre>[Function]<br/>move-to x y =&gt; |<br/></pre>
+<p>Начинает новый одконтур в точке (x, y). move-to должна быть первой функцией создания подконтура.
+</p><pre>[Function]<br/>line-to x y =&gt; |<br/></pre>
+<p>Добавляет прямую линию заканчивающуюся в (x, y) к данному подконтуру.
+</p><pre>[Function]<br/>curve-to cx1 cy1 cx2 cy2 x y =&gt; |<br/></pre>
+<p>Добавляет кубическую кривую Безье заканчивающуюся в (х, у) с контрольными точками (cx1, cy1) и (cx2, су2) к текущему подконтуру.
+</p><pre>[Function]<br/>quadratic-to cx cy x y =&gt; |<br/></pre>
+<p>Добавляет квадратичную кривую Безье заканчивающуюся в (х, у) с контрольными точками (cx, cy) к текущему подконтуру.
+</p><pre>[Function]<br/>arc x y radius angle1 angle2 =&gt; |<br/></pre>
+<p>Добавляет дугу окружности к данному контуру. Центер дуги в (x, y). Дуга начинается в точке на расстоянии радиуса от центра под углом (в радианах) angle1 начиная с положительной X оси, и заканчивается в точке с углом (в радианах) angle2. Если angle2 меньше, чем angle1, angle2 будет увеличен на такое количество 2π, пока не станет больше или равен angle1.
+</p>
+<p><img alt="&#x418;&#x437;&#x43E;&#x431;&#x440;&#x430;&#x436;&#x435;&#x43D;&#x438;&#x435;" src="http://www.xach.com/lisp/vecto/arc.png"/>
+radius (green), angle1 (red), angle2 (blue)
+</p>
+<p>Если контур уже создан и существует текущая точка, прямая будет добавлена от текущей точки к начальной точке дуги. Иначе будет начат новый контур.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> pie-wedge <span class="paren2">(<span class="">file</span>)</span><br/>  <span class="paren2">(<span class=""><i><span class="symbol">with-canvas</span></i> <span class="paren3">(<span class=""><span class="keyword">:width</span> 80 <span class="keyword">:height</span> 60</span>)</span><br/>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren4">(<span class=""><span class="paren5">(<span class="">x 0</span>)</span> <span class="paren5">(<span class="">y 0</span>)</span><br/>          <span class="paren5">(<span class="">radius 70</span>)</span><br/>          <span class="paren5">(<span class="">angle1 <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> <span class="paren1">(<span class="">/ <a href="http://www.lispworks.com/reference/HyperSpec/Body/v_pi.htm" class="symbol">pi</a> 180</span>)</span> 15</span>)</span></span>)</span><br/>          <span class="paren5">(<span class="">angle2 <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> <span class="paren1">(<span class="">/ <a href="http://www.lispworks.com/reference/HyperSpec/Body/v_pi.htm" class="symbol">pi</a> 180</span>)</span> 45</span>)</span></span>)</span></span>)</span><br/>      <span class="paren4">(<span class="">translate 5 5</span>)</span><br/>      <span class="paren4">(<span class="">set-rgb-fill 1 1 1</span>)</span><br/>      <span class="paren4">(<span class="">move-to 0 0</span>)</span><br/>      <span class="paren4">(<span class="">arc x y radius angle1 angle2</span>)</span><br/>      <span class="paren4">(<span class="">fill-and-stroke</span>)</span><br/>      <span class="paren4">(<span class="">save-png file</span>)</span></span>)</span></span>)</span></span>)</span><br/></pre>
+<p><img alt="&#x418;&#x437;&#x43E;&#x431;&#x440;&#x430;&#x436;&#x435;&#x43D;&#x438;&#x435;" src="http://www.xach.com/lisp/vecto/pie-wedge.png"/>
+</p><pre>[Function]<br/>arcn x y radius angle1 angle2 =&gt; |<br/></pre>
+<p>То же, что и ARC, но рисует дугу по часовой стрелке. Если angle2 больше, чем angle1, angle2 будет уменьшен на такое количество 2π, пока не станет меньше или равно angle1.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> wiper <span class="paren2">(<span class="">file</span>)</span><br/>  <span class="paren2">(<span class=""><i><span class="symbol">with-canvas</span></i> <span class="paren3">(<span class=""><span class="keyword">:width</span> 70 <span class="keyword">:height</span> 70</span>)</span><br/>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren4">(<span class=""><span class="paren5">(<span class="">x 0</span>)</span> <span class="paren5">(<span class="">y 0</span>)</span><br/>          <span class="paren5">(<span class="">r1 40</span>)</span> <span class="paren5">(<span class="">r2 60</span>)</span><br/>          <span class="paren5">(<span class="">angle1 0</span>)</span><br/>          <span class="paren5">(<span class="">angle2 <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> <span class="paren1">(<span class="">/ <a href="http://www.lispworks.com/reference/HyperSpec/Body/v_pi.htm" class="symbol">pi</a> 180</span>)</span> 90</span>)</span></span>)</span></span>)</span><br/>      <span class="paren4">(<span class="">translate 5 5</span>)</span><br/>      <span class="paren4">(<span class="">set-rgba-fill 1 1 1 0.75</span>)</span><br/>      <span class="paren4">(<span class="">arc x y r1 angle1 angle2</span>)</span><br/>      <span class="paren4">(<span class="">arcn x y r2 angle2 angle1</span>)</span><br/>      <span class="paren4">(<span class="">fill-and-stroke</span>)</span><br/>      <span class="paren4">(<span class="">save-png file</span>)</span></span>)</span></span>)</span></span>)</span><br/></pre>
+<p><img alt="&#x418;&#x437;&#x43E;&#x431;&#x440;&#x430;&#x436;&#x435;&#x43D;&#x438;&#x435;" src="http://www.xach.com/lisp/vecto/wiper.png"/>
+</p><pre>[Function]<br/>close-subpath =&gt; |<br/></pre>
+<p>Закрывает текущий подконтур. Если текущая точка не совпадает с начальной точкой подконтура, добавляет прямую линию соединяющую данные точки.
+</p>
+<p>Подконтуры с совпадающими начальной и конечной точками не то же, что закрытые подконтуры. Различие важно при рисовании:
+</p><table><tbody><tr><td><img alt="&#x418;&#x437;&#x43E;&#x431;&#x440;&#x430;&#x436;&#x435;&#x43D;&#x438;&#x435;" src="http://www.xach.com/lisp/vecto/open-subpath.png"/></td><td><img alt="&#x418;&#x437;&#x43E;&#x431;&#x440;&#x430;&#x436;&#x435;&#x43D;&#x438;&#x435;" src="http://www.xach.com/lisp/vecto/closed-subpath.png"/></td></tr><tr><td>Open subpath </td><td>Closed subpath</td></tr></tbody></table>
+
+<p>Если подконтур не закрыт, начало и точки подконтура будут нарисованы текущим стилем линии. Если контур закрыт, начальная и конечная точки будут нарисованы как одна точка, учитывая стиль линии.
+</p><pre>[Function]<br/>stroke-to-paths =&gt; |<br/></pre>
+<p>Sets the current active paths to the paths that would result from outlining a STROKE operation FIXME.
+</p><pre>[Function]<br/>rectangle x y width height =&gt; |<br/></pre>
+<p>Создает подконтур подпрямоугольника с заданной шириной и высотой и нижним левым углом в точке (x, y). Эквивалентно коду:
+</p>
+<pre class="code"><span class="paren1">(<span class="">move-to x y</span>)</span><br/><span class="paren1">(<span class="">line-to <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> x width</span>)</span> y</span>)</span><br/><span class="paren1">(<span class="">line-to <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> x width</span>)</span> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> y height</span>)</span></span>)</span><br/><span class="paren1">(<span class="">line-to x <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> y height</span>)</span></span>)</span><br/><span class="paren1">(<span class="">close-subpath</span>)</span><br/></pre>
+<pre>[Function]<br/>rounded-rectangle x y width height rx ry =&gt; |<br/></pre>
+<p>То же, что и RECTANGLE, но скругляет углы прямоугольника по оси X на радиус rx, по оси Y на радиус ry.
+</p><pre>[Function]<br/>centered-ellipse-path x y rx ry<br/></pre>
+<p>Добавляет закрытый подконтур, отрисовывающий эллипс с центром в точке (x, y) по оси X с радиусом rc, по оси Y с радиусом ry.
+</p><pre>[Function]<br/>centered-circle-path x y radius =&gt; |<br/></pre>
+<p>Добавляет закрытый подконтур, отрисовывающий круг с центром в точке (x, y) с радиусом radius. Эквивалентно коду:
+</p>
+<pre class="code"><span class="paren1">(<span class="">centered-ellipse-path x y radius radius</span>)</span><br/></pre>
+
+</div><div class="chapter" id="&#x420;&#x430;&#x441;&#x43A;&#x440;&#x430;&#x441;&#x43A;&#x430;"><h3>Раскраска</h3>
+
+<p>После того, как контур определен, fill, stroke или обе эти операции будут использовать его для заполнения холста. После того, как эти операции выполнятся, он более не будет активным.
+</p><pre>[Function]<br/>fill-path =&gt; |<br/></pre>
+<p>Заполняет текущий контур цветом заливки или градиентом. Если контур не закрыт явно с помощью CLOSE-SUBPATH, он будет неявно закрыт перед заливкой. The non-zero winding rule используется для определения, какие пространства должны быть заполнены FIXME.
+</p><pre>[Function]<br/>even-odd-fill =&gt; |<br/></pre>
+<p>То же, что и FILL-PATH, но используется алгоритм определения внутренних областей "even/odd rule" FIXME.
+</p><pre>[Function]<br/>stroke =&gt; |<br/></pre>
+<p>Отрисовывает линии контура. Ширина линии, цвет, стиль изгибов, стиль концов и стиль штриха и фаза определяет алгоритм отрисовки.
+</p><pre>[Function]<br/>fill-and-stroke =&gt; |<br/></pre>
+<p>Заполнить текущий контур и нарисовать его линии.
+</p><pre>[Function]<br/>even-odd-fill-and-stroke =&gt; |<br/></pre>
+<p>То же, что и fill-and-stroke, но используется правило четности/нечетности при определении внутренних областей FIXME.
+</p><pre>[Function]<br/>end-path-no-op =&gt; |<br/></pre>
+<p>Завершает текущий контур без отрисовки. Если были определены области отсечения с помощью CLIP-PATH или EVEN-ODD-CLIP-PATH, они будут созданы данной функцией.
+</p>
+</div><div class="chapter" id="Text"><h3>Text</h3>
+
+<p>Vecto может отрисовывать текст на холсте. Она загружает глифы фигур из TrueType шрифтов с помощью ZPB-TTF.
+</p><pre>[Function]<br/>get-font font-file =&gt; font-loader<br/></pre>
+<p>Создает и возвращает объект ZPB-TTF, являющийся загрузчиком шрифта из файла. Любой загрузчик шрифта, созданный таким образом, будет ватоматически закрыт в конце формы WITH-CANVAS.
+</p><pre>[Function]<br/>set-font font-loader size =&gt; |<br/></pre>
+<p>Устанавливает в текущий шрифт шрифт, свзяанный с загрузчиком шрифтом, с заданным размером.
+</p>
+<p>Первым аргументом должен быть ZPB-TTF загрузчик шрифтов, созданный с помощью GET-FONT. Только загрузчики шрифтов созданные с помощью GET-FONT будут автоматчески закрыты в конце формы WITH-CANVAS.
+</p><pre>[Function]<br/>set-character-spacing spacing =&gt; |<br/></pre>
+<p>Модифицирует размер интервала между символами при отрисовке текста с помощью DRAW-STRING, и связанных функций.
+</p>
+<p>Обычно, интервал между символами для отрисовываемого текста берется прямо из характеристик шрифта: ширины и кернинга. SET-CHARACTER-SPACING может быть использована для выравнивания интервала, например, spacing равный 2.0d0 увеличивает интервал вдвое, тогда как 0.5d0 уменьшает его вдвое.
+</p><pre>[Special variable]<br/></pre><p> *default-character-spacing*
+</p>
+<p>Переменная для хранения значения по-умолчанию для интервала между символами, при отрисовке текста с помощью функциями DRAW-STRING и связанными с ней. Первоначальное значение 1.0d0.
+</p>
+<p>Изменение этой переменной будет применено при следующем вызове формы WITH-CANVAS. Для получения результата в текущей форме WITH-CANVAS используйте SET-CHARACTER-SPACING.
+</p><pre>[Function]<br/>draw-string x y string =&gt; |<br/></pre>
+
+<p>Отрисовки строки на холсте текущим шрифтом. Вершина глифа первого символа строки будет находится в точке x и линия строки будет иметь значение y. Текст будет залит текущим цветом.
+</p>
+<p>Строка может быть вектором символом (в CL строка так называется) или вектор содержащий символы, Юникодные символы или все вместе. Например,  #(#\L #\a #\m #\b #\d #\a #\= #x3BB) является корректным аргументом для DRAW-STRING.
+</p>
+<p>Горизонтальный интервал между символами определяется свойствами шрифта, и умножается на текущий множитель. По-умолчанию множитель равен 1.0d0. SET-CHARACTER-SPACING может использоваться для регулировки этого интервала.
+</p><pre>[Function]<br/>string-paths x y string =&gt; |<br/></pre>
+<p>То же, что и DRAW-STRING, но вместо рисования текста, добавляет подконтур для создания строки глифов в текущем состоянии. Может быть использовано для отрисовки линий, заливки или области отсечения.
+</p><pre>[Function]<br/>draw-centered-string x y string =&gt; |<br/></pre>
+<p>Отрисовывает строку на холсте текущим шрифтом. Горизонтальный центр строки устанавливается в точку x, и базовая линия строки имеет координату y.
+</p><pre>[Function]<br/>centered-string-paths x y string =&gt; |<br/></pre>
+<p>То же, что и DRAW-CENTERED-STRING, но добавляет подконтур, вместо рисования. Смотрите также STRING-PATHS.
+</p><pre>[Function]<br/>string-bounding-box string size loader =&gt; #(xmin ymin xmax ymax)<br/></pre>
+<p>Вычисляет ограничивающую рамку для строки для загрузчика шрифта с указанным размером шрифта.
+</p>
+</div><div class="chapter" id="&#x414;&#x43E;&#x43F;&#x43E;&#x43B;&#x43D;&#x438;&#x442;&#x435;&#x43B;&#x44C;&#x43D;&#x43E;"><h3>Дополнительно</h3>
+<pre>[Constant]<br/>+kappa+ =&gt; 0.5522847498307936d0.<br/></pre>
+<p>Данная константа полезна для рисования частей круга.
+</p>
+</div></div><div class="chapter" id="&#x421;&#x441;&#x44B;&#x43B;&#x43A;&#x438;"><h3>Ссылки</h3>
+<pre>  Adobe Systems Inc., [[http://www.adobe.com/devnet/pdf/pdf_reference.html|PDF Reference, Sixth Edition, Version 1.7]]<br/>  Lawrence Kesteloot, [[http://www.teamten.com/lawrence/graphics/premultiplication/|Alpha Premultiplication]]<br/>  Dr. Thomas Sederberg, [[http://www.tsplines.com/resources/class_notes/Bezier_curves.pdf|Bézier curves]]<br/>  Alvy Ray Smith, [[http://alvyray.com/Memos/MemosMicrosoft.htm#ImageCompositing|Image Compositing Fundamentals]]<br/>  G. Adam Stanislav, [[http://www.whizkidtech.redprince.net/bezier/circle/|Drawing a circle with Bézier curves]]<br/>  Alexander Thomas, [[http://www.dr-lex.be/random/matrix_inv.html|The Inverse and Determinants of 2x2 and 3x3 Matrices]]<br/>  Wikipedia, [[http://en.wikipedia.org/wiki/B%C3%A9zier_curve|Bézier curve ]]<br/></pre>
+</div><div class="chapter" id="&#x411;&#x43B;&#x430;&#x433;&#x43E;&#x434;&#x430;&#x440;&#x43D;&#x43E;&#x441;&#x442;&#x438;"><h3>Благодарности</h3>
+
+<p>Большое спасибо <a href="http://www.elbeno.com/">Бену Дину</a> за разрешение адаптировать его код из библиотеки для рисования дуг.
+</p>
+<p>Раян Дэвис помог исправить мою адаптацию кода рисования дуг.
+</p>
+</div><div class="chapter" id="&#x41E;&#x431;&#x440;&#x430;&#x442;&#x43D;&#x430;&#x44F; &#x441;&#x432;&#x44F;&#x437;&#x44C;"><h3>Обратная связь</h3>
+
+<p>Если у вас есть какие-либо вопросы, комметарии, проблемы касаемые Vecto, пожалуйста, пишите <a href="mailto:xach@xach.com">Zach Beane</a>
+</p></div></div> </div> <div class="bottom">@2009-2013 lisper.ru</div> 
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-7734690-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+ </body> </html>

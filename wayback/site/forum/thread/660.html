@@ -1,0 +1,219 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru"> <head> <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> <meta name="keywords" content="Common Lisp,lisp,лисп" /> <title>опять же о множественной рекурсии</title> <link href="/css/style.css" rel="stylesheet" type="text/css" /><link href="/css/jquery.wysiwyg.css" rel="stylesheet" type="text/css" /><link href="/css/forum.css" rel="stylesheet" type="text/css" /><link href="/css/colorize.css" rel="stylesheet" type="text/css" /> <script src="/forum/js/jquery.js" type="text/javascript"></script><script src="/forum/js/jquery.wysiwyg.js" type="text/javascript"></script><script src="/forum/js/jqModal.js" type="text/javascript"></script><script src="/forum/js/forum.js" type="text/javascript"></script> </head> <body> <div class="top"> <div id="login"> <a href="/register">Регистрация</a> | <a href="/login?done=/forum/thread/660">Войти</a> </div> </div> <div id="caution"> <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png" /> </div> <div id="mainmenu"> <ul> <li> <a href="/">Главная</a> </li><li> <a href="/articles/">Статьи</a> </li><li> <a href="/planet/">Планета</a> </li><li> <a href="/forum/">Форум</a> </li><li> <a href="/apps/">Сервисы</a> </li><li> <a href="/pcl/">Practical Common Lisp</a> </li><li> <a href="/wiki/">Wiki</a> </li><li> <a href="/files/">Файлы</a> </li><li> <a href="/search">Поиск</a> </li> </ul> </div> <div id="content"> <div class="thread"> <div id="forum-nav-panel"> <a class="rss-link" href="/forum/rss/threads/660.rss">RSS</a> <ul> <li> <a href="/forum/">Список форумов</a> </li> <li> <a href="/forum/common-lisp">Common Lisp</a> </li> <li> <strong>опять же о множественной рекурсии</strong> </li> </ul> </div> <div class="topic"> <div> <big>опять же о множественной рекурсии</big> </div> <div class="topic-info"> <span class="topic-author"> <strong>pseudo-cat</strong> - 05.11.2011 15:36, Сообщений - 11 </span> </div> <div class="topicbody"> В общем-то опять задался вопросом - как сделать множественную рекурсию наиболее простым образом. Подтолкнула на это меня монада Async из F#. Я, даже не разбираясь как толком она работает, вполне успешно её применяю, что не могу сказать о продолжениях. Однажды поняв их, написав пару алгоритвом в CPS, реализовав свои продолжения, изучив сторонние библиотеки их реализующие, через некоторое время обычного кодинга мозг опять мучается при привыкании к написанию в стиле продолжений.&nbsp;<div><br></div><div>Отсюда вопросы -&nbsp;</div><div>1) как написать множественную рекурсию в наиболее простом и понятном виде</div><div>2) при большой вложенности итераций полезно было бы очищать локальные окружения внешних итераций&nbsp;&nbsp;и стек вызовов. Другого способа(на том же уровне абстракций) - кроме как прекратить выполнение, вернув продолжение, нет?</div><div><br></div><div>Я попробовал наименее незаметно для пользователя ввести продолжения, но получил огромный оферхед(с учётом сохранения порядка итераций), вот пример -&nbsp;</div><div><br></div><div>Хвостовая рекурсия -&nbsp;</div><div><br><div class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defpar.htm" class="symbol"><i><span class="symbol">defparameter</span></i></a> <span class="special">*steps*</span> 1000000</span>)</span><br><br>
+<span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> rec-fun <span class="paren2">(<span class=""></span>)</span><br>&nbsp;&nbsp;<span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren3">(<span class=""><span class="paren4">(<span class="">counter 0</span>)</span></span>)</span> &nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_flet_.htm" class="symbol"><i><span class="symbol">labels</span></i></a> <span class="paren4">(<span class=""><span class="paren5">(<span class="">iter <span class="paren6">(<span class="">i</span>)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_incf_.htm" class="symbol">incf</a> counter</span>)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_cond.htm" class="symbol"><i><span class="symbol">cond</span></i></a> <span class="paren1">(<span class=""><span class="paren2">(<span class="">&gt; i 0</span>)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="paren2">(<span class="">iter <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_1pl_1_.htm" class="symbol">1-</a> i</span>)</span></span>)</span></span>)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;<span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a></span>)</span></span>)</span></span>)</span></span>)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_values.htm" class="symbol">values</a> <span class="paren5">(<span class="">iter <span class="special">*steps*</span></span>)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;counter</span>)</span></span>)</span></span>)</span></span>)</span></div><br></div><div>Множественная -</div><div><br><div class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> multi-recursive <span class="paren2">(<span class=""></span>)</span><br>&nbsp;&nbsp;<span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren3">(<span class=""><span class="paren4">(<span class="">counter 0</span>)</span></span>)</span> &nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_flet_.htm" class="symbol"><i><span class="symbol">labels</span></i></a> <span class="paren4">(<span class=""><span class="paren5">(<span class="">iter <span class="paren6">(<span class="">i</span>)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_incf_.htm" class="symbol">incf</a> counter</span>)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_cond.htm" class="symbol"><i><span class="symbol">cond</span></i></a> <span class="paren1">(<span class=""><span class="paren2">(<span class="">&gt; i 0</span>)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> <span class="keyword">:repeat</span> 1<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;<span class="keyword">:do</span> <span class="paren3">(<span class="">iter <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_1pl_1_.htm" class="symbol">1-</a> i</span>)</span></span>)</span></span>)</span></span>)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;<span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a></span>)</span></span>)</span></span>)</span></span>)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="paren4">(<span class="">iter <span class="special">*steps*</span></span>)</span></span>)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;counter</span>)</span></span>)</span><br>
+</div><br></div><div>То же с единственным отличием - вместо вызовов возращаются продолжения</div><div><br><div class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> multi-recursive-2 <span class="paren2">(<span class=""></span>)</span><br>&nbsp;&nbsp;<span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren3">(<span class=""><span class="paren4">(<span class="">counter 0</span>)</span></span>)</span> &nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_flet_.htm" class="symbol"><i><span class="symbol">labels</span></i></a> <span class="paren4">(<span class=""><span class="paren5">(<span class="">iter <span class="paren6">(<span class="">i</span>)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_incf_.htm" class="symbol">incf</a> counter</span>)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_cond.htm" class="symbol"><i><span class="symbol">cond</span></i></a> <span class="paren1">(<span class=""><span class="paren2">(<span class="">&gt; i 0</span>)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> <span class="keyword">:repeat</span> 1<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;<span class="keyword">:collect</span> <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_lambda.htm" class="symbol"><i><span class="symbol">lambda</span></i></a> <span class="paren4">(<span class=""></span>)</span> <span class="paren4">(<span class="">iter <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_1pl_1_.htm" class="symbol">1-</a> i</span>)</span></span>)</span></span>)</span></span>)</span></span>)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;<span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a></span>)</span></span>)</span></span>)</span></span>)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_values.htm" class="symbol">values</a> <span class="paren5">(<span class="">iter <span class="special">*steps*</span></span>)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;counter</span>)</span></span>)</span></span>)</span></span>)</span></div><br></div><div>Пример работы -&nbsp;</div><div><br><div class="code">CL-USER&gt; <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_time.htm" class="symbol">time</a> <span class="paren2">(<span class="">rec-fun</span>)</span></span>)</span><br>
+Evaluation took:<br>
+ &nbsp;0.036 seconds of real time<br>
+ &nbsp;0.034995 seconds of total run time <span class="paren1">(<span class="">0.034995 user, 0.000000 system</span>)</span><br>
+ &nbsp;97.22% CPU<br>
+ &nbsp;35,576,084 processor cycles<br>
+ &nbsp;0 bytes consed<br>
+ &nbsp;<br>
+NIL<br>
+1000001</div><div class="code"><br>
+CL-USER&gt; <span class="paren1">(<span class="">multi-recursive</span>)</span><br>
+Control stack guard page temporarily disabled: proceed with caution<br>
+<span class="comment">; Evaluation aborted on #&lt;SB-KERNEL::CONTROL-STACK-EXHAUSTED {BF67F51}&gt;.</span></div><div class="code"><span class="comment"><br>
+</span><br>CL-USER&gt; <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_time.htm" class="symbol">time</a> <span class="paren2">(<span class="">flat-rec <span class="paren3">(<span class="">multi-recursive-2</span>)</span></span>)</span></span>)</span><br>
+Evaluation took:<br>
+ &nbsp;0.140 seconds of real time<br>
+ &nbsp;0.140979 seconds of total run time <span class="paren1">(<span class="">0.139979 user, 0.001000 system</span>)</span><br>
+ &nbsp;[ Run times consist of 0.016 seconds GC time, and 0.125 seconds non-GC time. ]<br>
+ &nbsp;100.71% CPU<br>
+ &nbsp;246,373,031 processor cycles<br>
+ &nbsp;40,000,736 bytes consed<br>
+ &nbsp;<br>
+NIL</div><br></div><div>&nbsp;По сути вводится 2 новых требования к написанию рекурсивных ф-ций -&nbsp;</div><div>1) в случае продолжения итераций - возвращать продолжение/я</div><div>2) при завершении итераций - возвращать какой-то флаг конца(в примере NIL, что не подходит если нужно протащить результат)<br></div><div>&nbsp;&nbsp;</div> </div>  </div> <div class="topic-pages">  </div> <div class="reply" id="comment-6835"> <div class="topic-info">  [<a href="/forum/messages/6835">#</a>]  </div> <div class="replybody"> Краткий ответ: это возможно через CL-CONT.<br><br>Наконец-то я созрел для ответа. Прежде это я помог тебе с F# на другом форуме. Идея здесь точно такая же. Все вычисления идут фактически через продолжения. Отсюда все интересующие нас вызовы хвостовые. Запускаем все вычисление через with-call/cc, а вложенные функции определяем через defun/cc. О последних я узнал только сегодня :)<br><br>Ниже показано, как это работает. Первый пример использует стек. Запускается как (RUN). Он обрывается из-за StackOverflow. Второй пример уходит из стека в память. Запускается как (RUN/CC). Отрабатывает как должно.<br><br><pre class="code">(in-package :cl-cont)
+
+(defun test (x)
+  (cond ((zerop x) 0)
+        (t (+ (test (1- x))
+              1))))
+
+(defun run ()
+  (test 10000000)) ;; Stack Overflow
+
+(defun/cc test/cc (x)
+  (cond ((zerop x) 0)
+	(t (+ (test/cc (1- x))
+	      1))))
+
+(defun run/cc ()
+  (with-call/cc (test/cc 10000000))) ;; Consuming memory!
+</pre><br> </div> <div class="topic-info"> <span class="topic-author"> <strong>dsorokin</strong> - 15.01.2012 17:15 </span>  </div> </div><div class="reply" id="comment-6836"> <div class="topic-info">  [<a href="/forum/messages/6836">#</a>]  </div> <div class="replybody"> Конкретно твой пример перепишется так:<br><br><pre class="code">(defparameter *steps* 1000000)
+
+(defun/cc multi-recursive/cc ()
+  (let ((counter 0))  
+    (labels ((iter (i)
+               (incf counter)
+               (cond ((&gt; i 0)
+                      (loop :repeat 1
+                            :do (iter (1- i))))
+                     (t nil))))
+      (iter *steps*))
+    counter))
+</pre><br>Запускается через WITH-CALL/CC:<br><br><pre class="code">(with-call/cc (multi-recursive/cc))</pre><br>Я несколько обескуражен результатами. Раньше я думал, что F# и Haskell особенные в этом плане :)<br><br> </div> <div class="topic-info"> <span class="topic-author"> <strong>dsorokin</strong> - 15.01.2012 17:43 </span>  </div> </div><div class="reply" id="comment-6837"> <div class="topic-info">  [<a href="/forum/messages/6837">#</a>]  </div> <div class="replybody"> И последнее. DEFUN/CC и WITH-CALL/СС - это очень дорогие штуки. Их нужно использовать только по необходимости. Например, там, где в F# у тебя было бы вычисление Async&lt;'T&gt;. Так, вложенные рекурсивные функции должны определяться через них. </div> <div class="topic-info"> <span class="topic-author"> <strong>dsorokin</strong> - 15.01.2012 20:29 </span>  </div> </div><div class="reply" id="comment-6840"> <div class="topic-info">  [<a href="/forum/messages/6840">#</a>]  </div> <div class="replybody"> <div>Оказалось, что это не конец истории :)</div><div><br></div><div>Все прекрасно работает на могучем SBCL. Там превосходная оптимизация хвостовой рекурсии. Но нас ожидает облом на Clozure CL и LispWorks Personal. К счастью, есть решение и для них - использовать трамплин.&nbsp;</div><div><br></div><div>Нам доступно продолжение, которое мы можем периодически сохранять где-то и тут же свертывать стек вызовов. Тогда где-то на внешнем уровне должен работать цикл, который периодически будет проверять, а не было ли сохранено продолжение для запуска. Фишка в том, что когда запускаем продолжение из внешнего цикла, то стек вызовов пустой, что нам и нужно.</div><div><br></div><div>Код приведен ниже. Мы используем трамплин через каждые 1000 итераций до входа в рекурсивную функцию и после.&nbsp;</div><div><br><pre class="code">(defparameter *cont* nil)
+
+(defun/cc trampoline-push/cc ()
+  (call/cc 
+   (lambda (k)
+     (format t "Trampoline.~%")
+     (setf *cont* k))))
+
+(defmacro with-trampoline/cc (&amp;body body)
+  (let ((result (gensym)))
+    `(let ((,result nil))
+       (with-call/cc
+	 (trampoline-push/cc)
+	 ,@body)
+       (loop while *cont*
+	  do (let ((cont *cont*))
+	       (setf *cont* nil)
+	       (format t "Jump!~%")
+	       (setf ,result (funcall cont))))
+       ,result)))
+
+(defun/cc test-trampoline/cc (x)
+  (cond ((zerop x) 0)
+	((zerop (mod x 1000))
+	 (trampoline-push/cc)    ;; sic!
+	 (let ((y (test-trampoline/cc (1- x))))
+	   (trampoline-push/cc)  ;; sic!
+	   (+ y 1)))
+	(t 
+	 (+ (test-trampoline/cc (1- x))
+	    1))))
+
+(defun run-trampoline/cc ()
+  (with-trampoline/cc (test-trampoline/cc 100000))) ;; No Stack Overflow
+</pre><br></div> </div> <div class="topic-info"> <span class="topic-author"> <strong>dsorokin</strong> - 16.01.2012 16:57 </span>  </div> </div><div class="reply" id="comment-6844"> <div class="topic-info">  [<a href="/forum/messages/6844">#</a>] Ответ на <a href="/forum/messages/6840">комментарий</a> от dsorokin 16.01.2012 16:57 </div> <div class="replybody"> спасибо за такое исследование, я уже читал это в твоём блоге)&nbsp;<div><br><div>на самом деле вопрос был не в том как это теоретически сделать, а в том как внести минимальное кол-во изменений в код, т.е. написать/найти высокоуровневый сахар. В случае SBCL я полностью доволен, а на такой вот трамплин я разве что в крайнем случае бы пошёл, когда SBCL почему-то не устраивает.</div></div> </div> <div class="topic-info"> <span class="topic-author"> <strong>pseudo-cat</strong> - 18.01.2012 00:32 </span>  </div> </div><div class="reply" id="comment-6845"> <div class="topic-info">  [<a href="/forum/messages/6845">#</a>] Ответ на <a href="/forum/messages/6844">комментарий</a> от pseudo-cat 18.01.2012 00:32 </div> <div class="replybody"> Ну, это и есть простые практические рекомендации :) Где у тебя функция возвращала Async&lt;'a&gt;, там используешь DEFUN/CC. Где был запуск вычисления Async&lt;'a&gt;, например, через те же RunSynchronously или StartImmediate, там запускаешь через WITH-CALL/CC. Кстати, DEFUN/CC - это просто сахар WITH-CALL/CC (DEFUN ...).<br><br>Мне не совсем ясно, почему с SBCL работает хорошо, а с той же Clozure CL (CCL) - нет. Может быть, последний не умеет превращать MULTIPLE-VALUE-CALL в хвостовой вызов? Такая фукнция используется в CL-CONT. Простые тесты показывают, что вроде бы CCL поддерживает оптимизацию хвостовых вызовов, а тут возникает облом. В общем, исследовать надо.<br><br>И я не могу ручаться на 100% даже за SBCL. Все же, CL-CONT - это немного темный ящик для меня, хотя представляю что и зачем он делает. Его код немного смотрел, но не настолько глубоко.<br><br>Так что, может быть, трамплин имеет смысл использовать даже для SBCL. В любом случае, он там будет работать быстро, поскольку переход из вычислений во внешний цикл будет моментальным, поскольку стек вызовов не должен расти, когда все вызовы хвостовые. </div> <div class="topic-info"> <span class="topic-author"> <strong>dsorokin</strong> - 18.01.2012 07:31 </span>  </div> </div><div class="reply" id="comment-6846"> <div class="topic-info">  [<a href="/forum/messages/6846">#</a>] Ответ на <a href="/forum/messages/6845">комментарий</a> от dsorokin 18.01.2012 07:31 </div> <div class="replybody"> <p>а ты не измерял производетельность по отношению к моему примеру? под рукой компа нет, к сожалению</p><p><br><div class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> multi-recursive-2 <span class="paren2">(<span class=""></span>)</span><br>&nbsp;&nbsp;<span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren3">(<span class=""><span class="paren4">(<span class="">counter 0</span>)</span></span>)</span> &nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_flet_.htm" class="symbol"><i><span class="symbol">labels</span></i></a> <span class="paren4">(<span class=""><span class="paren5">(<span class="">iter <span class="paren6">(<span class="">i</span>)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_incf_.htm" class="symbol">incf</a> counter</span>)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_cond.htm" class="symbol"><i><span class="symbol">cond</span></i></a> <span class="paren1">(<span class=""><span class="paren2">(<span class="">&gt; i 0</span>)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> <span class="keyword">:repeat</span> 1<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">:collect</span> <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_lambda.htm" class="symbol"><i><span class="symbol">lambda</span></i></a> <span class="paren4">(<span class=""></span>)</span> <span class="paren4">(<span class="">iter <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_1pl_1_.htm" class="symbol">1-</a> i</span>)</span></span>)</span></span>)</span></span>)</span></span>)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a></span>)</span></span>)</span></span>)</span></span>)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_values.htm" class="symbol">values</a> <span class="paren5">(<span class="">iter <span class="special">*steps*</span></span>)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;counter</span>)</span></span>)</span></span>)</span></span>)</span></div><br></p> </div> <div class="topic-info"> <span class="topic-author"> <strong>pseudo-cat</strong> - 18.01.2012 14:06 </span>  </div> </div><div class="reply" id="comment-6847"> <div class="topic-info">  [<a href="/forum/messages/6847">#</a>] Ответ на <a href="/forum/messages/6846">комментарий</a> от pseudo-cat 18.01.2012 14:06 </div> <div class="replybody"> Есть только один хороший результат. Это то, что оно, вообще, вычисляется :)<div><br></div><div>Исходный код:</div><div><br><pre class="code">(defpackage :deep-nested-recursion
+  (:use :cl :cl-cont))
+
+(in-package :deep-nested-recursion)
+
+;;;
+;;; Trampoline Implementation
+;;;
+
+(defparameter *cont* nil)
+
+(defun/cc trampoline-push/cc ()
+  (call/cc 
+   (lambda (k)
+     (push k *cont*))))
+
+(defmacro trampoline/cc (expr)
+  (let ((result (gensym)))
+    `(progn
+       (trampoline-push/cc)
+       (let ((,result ,expr))
+         (trampoline-push/cc)
+         ,result))))
+
+(defmacro with-trampoline/cc (&amp;body body)
+  (let ((result (gensym)))
+    `(let ((,result nil))
+       (with-call/cc
+         (trampoline-push/cc)
+         ,@body)
+       (loop while *cont*
+          do (let ((cont (pop *cont*)))
+               (setf ,result (funcall cont))))
+       ,result)))
+            
+;;;
+;;; User Code
+;;;
+
+(defparameter *steps* 1000000)
+
+(defun rec-fun ()
+  (let ((counter 0))  
+    (labels ((iter (i)
+               (incf counter)
+               (cond ((&gt; i 0)
+                      (iter (1- i)))
+                     (t nil))))
+      (values (iter *steps*)
+              counter))))
+
+(defun multi-recursive-2 ()
+  (let ((counter 0))  
+    (labels ((iter (i)
+               (incf counter)
+               (cond ((&gt; i 0)
+                      (loop :repeat 1
+                            :collect (lambda () (iter (1- i)))))
+                     (t nil))))
+      (values (iter *steps*)
+              counter))))
+
+(defun flat-rec (cont-list)
+  (let ((k cont-list))
+    (loop for i from 1
+       while k
+       do (setf k (funcall (pop k)))
+       finally (return i))))
+
+(defun/cc multi-recursive/cc ()
+  (let ((counter 0))  
+    (labels ((iter (i)
+               (incf counter)
+               (cond ((&gt; i 0)
+                      (loop :repeat 1
+                            :do (iter (1- i))))
+                     (t nil))))
+      (iter *steps*))
+    counter))
+
+(defun/cc multi-recursive-trampoline/cc ()
+  (let ((counter 0))  
+    (labels ((iter (i)
+               (incf counter)
+               (cond ((&gt; i 0)
+                      (loop :repeat 1
+                            :do (trampoline/cc (iter (1- i)))))
+                     (t nil))))
+      (iter *steps*))
+    counter))</pre><br></div><div>Результаты:</div><div><br><pre class="code">CL-USER&gt; (in-package :deep-nested-recursion)
+#<package "deep-nested-recursion"="">
+DEEP-NESTED-RECURSION&gt; (time (rec-fun))
+Evaluation took:
+  0.037 seconds of real time
+  0.031200 seconds of total run time (0.015600 user, 0.015600 system)
+  83.78% CPU
+  85,883,592 processor cycles
+  0 bytes consed
+  
+NIL
+1000001
+DEEP-NESTED-RECURSION&gt; (time (flat-rec (multi-recursive-2)))
+Evaluation took:
+  0.573 seconds of real time
+  0.514803 seconds of total run time (0.405602 user, 0.109201 system)
+  [ Run times consist of 0.250 seconds GC time, and 0.265 seconds non-GC time. ]
+  89.88% CPU
+  1,371,242,400 processor cycles
+  32,001,728 bytes consed
+  
+1000001
+DEEP-NESTED-RECURSION&gt; (time (with-call/cc (multi-recursive/cc)))
+Evaluation took:
+  33.401 seconds of real time
+  31.293801 seconds of total run time (24.039755 user, 7.254046 system)
+  [ Run times consist of 21.811 seconds GC time, and 9.483 seconds non-GC time. ]
+  93.69% CPU
+  79,964,846,604 processor cycles
+  518,006,304 bytes consed
+  
+1000001
+DEEP-NESTED-RECURSION&gt; (time (with-trampoline/cc (multi-recursive-trampoline/cc)))
+Evaluation took:
+  61.301 seconds of real time
+  56.378762 seconds of total run time (36.675836 user, 19.702926 system)
+  [ Run times consist of 43.521 seconds GC time, and 12.858 seconds non-GC time. ]
+  91.97% CPU
+  146,761,980,588 processor cycles
+  696,993,864 bytes consed
+  
+1000001</package></pre><br></div> </div> <div class="topic-info"> <span class="topic-author"> <strong>dsorokin</strong> - 18.01.2012 15:36 </span>  </div> </div><div class="reply" id="comment-6849"> <div class="topic-info">  [<a href="/forum/messages/6849">#</a>] Ответ на <a href="/forum/messages/6847">комментарий</a> от dsorokin 18.01.2012 15:36 </div> <div class="replybody"> Можно взять версию трамплина, которая не создает ячейки CONS. Результаты должны быть лучше.<div><br></div><div>Еще похоже, что на последний тест сильно повлиял предыдущий. Память уже была загажена. Поэтому GC работал намного дольше. Если бы последний тест был с чистого образа, то, думаю, что время было бы гораздо меньше. Надо проверить, быть может, трамплин не так сильно и тормозит.</div> </div> <div class="topic-info"> <span class="topic-author"> <strong>dsorokin</strong> - 18.01.2012 15:53 </span>  </div> </div><div class="reply" id="comment-6851"> <div class="topic-info">  [<a href="/forum/messages/6851">#</a>] Ответ на <a href="/forum/messages/6849">комментарий</a> от dsorokin 18.01.2012 15:53 </div> <div class="replybody"> Увы, трамплин - тот еще тормоз, но он - чуть ли не единственная возможность на других лисп-машинах. Как альтернатива, можно еще вручную все необходимые продолжения расписать. Похоже, что cl-cont перелопачивает все на своем пути, а это часто избыточно. Особенно достается циклам. Можно было бы поступить умнее, но надо быть очень аккуратным. В общем, выбор для таких задач не так и велик :) </div> <div class="topic-info"> <span class="topic-author"> <strong>dsorokin</strong> - 18.01.2012 16:39 </span>  </div> </div><div class="reply" id="comment-6852"> <div class="topic-info">  [<a href="/forum/messages/6852">#</a>] Ответ на <a href="/forum/messages/6851">комментарий</a> от dsorokin 18.01.2012 16:39 </div> <div class="replybody"> т.е. вариант(А) с flat-rec и сбором продолжений почти в 100 раз эффективнее чем через&nbsp;with-call/cc? что-то не верится) Его ещё оптимизировать пожалуй можно.<div><br></div><div>По сути тогда А куда лучше...&nbsp;</div> </div> <div class="topic-info"> <span class="topic-author"> <strong>pseudo-cat</strong> - 18.01.2012 21:43 </span>  </div> </div> <div class="topic-pages">  </div> </div>  </div> <div class="bottom">@2009-2013 lisper.ru</div> </body> </html>

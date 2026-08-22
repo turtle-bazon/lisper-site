@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html> <head> <title>archimag: 11 August, 2010</title> <link rel="stylesheet" href="/static/mirev/css/style.css"> <link rel="stylesheet" href="/static/mirev/css/prettify.css"> <link rel="alternate" type="application/atom+xml" title="archimag: blog entries feed" href="/feeds/atom" />   </head> <body> <a href="http://github.com/archimag/"> <img style="position: absolute; top: 0; left: 0; border: 0;" src="/static/archimag/image/forkme.png" alt="Fork me on GitHub"> </a> <div id="header"> <a href="/" id="blogname">archimag</a> </div> <div id="content"> <h1>Archive for 11 August, 2010</h1> <div class="blog-post"> <h2><a href="/2010/08/11/%d0%97%d0%b0%d0%bf%d1%80%d0%b5%d1%82%d0%b8%d1%82%d1%8c_drag-and-drop_%d0%b8%d0%b7%d0%be%d0%b1%d1%80%d0%b0%d0%b6%d0%b5%d0%bd%d0%b8%d0%b9_%d0%b2_Firefox">Запретить drag-and-drop изображений в Firefox</a></h2> <div class="post-metadata"> <div class="post-published"> <a href="/2010/"> 2010 </a>, <a href="/2010/08/"> August </a> <a href="/2010/08/11/"> 11 </a> </div> <div class="post-tags"> <a href="/tags/">Tags</a>:  <a href="/tags/javascript">javascript</a> <a href="/tags/firefox">firefox</a> </div> </div> В Firefox есть очень противная вещь - если нажать на мышкой на изображение, то инициируется совершенно бессмысленный drag-and-drop. Мне это просто не нравится, но тут ещё и мешает моему приложению, ибо у меня своя реализация drag-and-drop и она должна срабатывать на div, который в том числе содерижт img, но если пользователь щёлкает на img, то начинается совершенно левый перенос картинки. В webkit есть css-свойство -webkit-user-drag, которое можно выставить в none, но для Firefox его аналога нет. Немного потыкал гугл, но нужного мне рецепта не нашёл. Пришлось найти самому, впрочем, он тривиален: <pre>$(document).bind("dragstart", function (evt) { evt.preventDefault(); } );</pre> Всё, никакого левого drag-and-drop. </div> </div> <div id="footer"> <div class="right"> Copyright (c) Moskvitin Andrey <br /> Powered by <a href="http://restas.lisper.ru">RESTAS</a> <div id="buttons"> <a href="http://www.sbcl.org/"> <img src="/static/archimag/image/sbclbutton.png" alt="SBCL" /> </a> <a href="http://weitz.de/hunchentoot/"> <img src="/static/archimag/image/hunchentoot10.png" alt="Hunchentoot" /> </a> <a href="http://www.mongodb.org/"> <img src="/static/archimag/image/logo-mongodb.png" alt="mongoDB" /> </a> </div> </div> <a href="/feeds/atom" class="feed">Posts feed</a>  </div> 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-22971320-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+     </body> </html>

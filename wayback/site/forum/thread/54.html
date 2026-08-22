@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru">
+	<head>
+      	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"></meta>
+
+        <meta name="verify-v1" content="o6r5tA9qF5PflmPb3cI7rJrWpFBGTkIE9X4KU25TxiE="></meta>
+
+        <meta name="keywords" content="Common Lisp,lisp,лисп"></meta>
+
+        <link href="/css/fine/style.css" rel="stylesheet" type="text/css">
+        <link href="/css/fine/colorize.css" rel="stylesheet" type="text/css">
+	<title>XLisp под Linux</title>
+<link rel="alternate" type="application/rss+xml" title="Тема  'XLisp под Linux' - RSS-лента" href="/forum/rss/threads/54.rss">
+<link href="/css/fine/forum.css" rel="stylesheet" type="text/css">
+<link href="/css/fine/jquery.wysiwyg.css" rel="stylesheet" type="text/css">
+<script src="/js/jquery.js" type="text/javascript"></script><script src="/js/jquery.wysiwyg.js" type="text/javascript"></script><script src="/js/forum.js" type="text/javascript"></script></head>
+
+	<body>
+        <div class="top">
+            <div id="login">
+    <a href="/register">Регистрация</a> |
+    <a href="/login?done=http%3A%2F%2Flisper.ru%2Fforum%2Fthread%2F54">Войти</a>
+</div>
+        </div>
+
+        <div id="caution">
+            <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png"></img>
+        </div>
+
+        <div id="mainmenu">
+          <ul>
+<li><a href="/">Главная</a></li>
+<li><a href="/articles/">Статьи</a></li>
+<li><a href="/planet/">Планета</a></li>
+<li><a href="/forum/">Форум</a></li>
+<li><a href="/apps/">Сервисы</a></li>
+<li><a href="/pcl/">Practical Common Lisp</a></li>
+<li><a href="/wiki/">wiki</a></li>
+</ul>
+        </div>
+
+        <div id="content"><div id="forum-nav-panel">
+<a class="rss-link" href="/forum/rss/threads/54.rss">RSS</a><ul>
+<li><a href="/forum/">Список форумов</a></li>
+<li><a href="/forum/common-lisp">Common Lisp</a></li>
+<li><strong>XLisp под Linux</strong></li>
+</ul>
+</div>
+<div class="thread">
+<div class="topic">
+<div><big>XLisp под Linux</big></div>
+<div class="topic-info"><span class="topic-author">Автор: <strong>AYKO</strong> - 01.09.2009 23:23, Сообщений - 14</span></div>
+<div class="topicbody"><p>Дублирую собственную тему с lisp.ru, ибо там что-то совсем кисло стало.<br><br>Я вот как-то написал немного кода на CL. В качестве интерпретатора использовал Xlisp. А точнее:<br>
+XLISP-PLUS version 3.04<br>
+Portions Copyright (c) 1988, by David Betz.<br>
+Modified by Thomas Almy and others.<br><br>
+Продвинутые товарищи сейчас скривят губы и скажут, что надо
+пользоваться другими средствами по-круче. Но я не программист и
+дилетант -- мне можно. <br><br>
+Возможностей Xlisp для меня более чем достаточно, и меня не сильно
+беспокоит, что там нет всей полноты стандарта. При этом его
+исключительная компактность один exe-файл 280кб и портабелность очень
+подкупают своим удобством.<br><br>
+Все бы хорошо, но появилась вероятность того, свой код мне надо будет
+разместить на сервере под Линуксом. Возник вопрос, как быть? На
+домашней странице хлиспа <a href="http://almy.us/xlisp.html">http://almy.us/xlisp.html</a> есть кажется исходники которые можно скомпилировать под Линукс, но я в этих делах полный ноль. <br><br>
+Может ли мне кто-нибудь прояснить ситуацию касательно того будет ли это
+чудо работать под Линуксом? Или может посоветует, что нибудь по
+возможности компактное для использования вместо xlisp с наименьшими
+проблемами при переходе с xlisp?</p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>treep</strong> - 02.09.2009 08:48</span></div>
+<div class="replybody">
+<strong>AYKO</strong> &gt;&gt;<em> Я вот как-то написал немного кода на CL.</em><br><br>Какие функции использовались, библиотеки? Какие-то специальные возможности Windows? Если только стандартное, то нужно попробывать запустить код на других системах. Под Windows на Clisp например, SBCL для Linux.<br><br><em>&gt;&gt; свой код мне надо будет разместить на сервере под Линуксом<br>&gt;&gt; На домашней странице хлиспа </em><a href="http://almy.us/xlisp.html"><em>http://almy.us/xlisp.html</em></a><em> есть кажется исходники которые можно скомпилировать под Линукс<br><br></em>Очень странные исходники... Дата 92 год не смущает? Скомпилировать можно, но этот проект не менялся больше 10 лет!. Если хотите, я напишу makefile и подредактирую там кое-чего.<br><br>Однако советую поставить SBCL и портировать свой код - будет проще и лучше.</div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>treep</strong> - 02.09.2009 10:47</span></div>
+<div class="replybody">
+<p jquery1250318176656="18">C <a href="http://en.wikipedia.org/wiki/XLISP">XLisp</a> такая история - сначала, до версии 2, это была неполная реализация CL, именно на неё вы дали ссылку. Как я сказал, чтобы собрать её под Linux, нужно немного адаптировать файл unixstuf и дописать makefile. Потом, точнее в 2002 году, автор, David Betz, выпустил <a href="http://www.xlisp.org/">XLisp 3.0</a>, причем уже в виде диалекта Sheme... Эта третья версия открыта для свободного и учебного использования, и легко собирается в unix системах.<br><br>Ещё, кстати, нашел у себя в лине rpm пакет <a href="http://en.wikipedia.org/wiki/XLISP-STAT">XLisp-Stat</a>:<br><font face="Courier New" size="2">===================================<br>xlispstat - An implementation of the Lisp language with statistics extensions.<br>The xlispstat package contains XLISP-PLUS, an implementation of the Lisp programming<br>language for the X Window System.  XLISP-PLUS also includes extensions for<br>performing advanced statistical computations.</font></p>
+<p jquery1250318176656="19"><font face="Courier New" size="2">Install the xlispstat package if you need a version of the Lisp programming<br>language for X with statistics extensions.</font></p>
+<p><font face="Courier New" size="2">XLISP-STAT is a statistical environment based on a dialect of the Lisp<br>language called XLISP. Originally developed for the Apple Macintosh,<br>XLISP-STAT is now also available for UNIX workstations using the X11<br>window system and for Microsoft Windows.<br><br> XLISP-PLUS version 3.04<br> Portions Copyright (c) 1988, by David Betz.<br> Modified by Thomas Almy and others.<br> XLISP-STAT Release 3.52.20 (Beta).<br> Copyright (c) 1989-1999, by Luke Tierney.<br>===================================<br><br></font></p>
+<p><font face="Courier New" size="2"> </font></p>
+</div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>AYKO</strong> - 02.09.2009 15:50</span></div>
+<div class="replybody"><p>На сколько я понял ХLisp 3.0 это немного не то, что использовал я. А использовал я XLISP-PLUS version 3.04 -- это доработанный XLisp 2 но уже не автором, а неким Thomas Almy. <br><br>XLisp 2 на сколько я понимаю кириллические символы на дух не переносил.<br><br>Что касается функций которые я использовал -- запись в текстовый файл, думаю вполне переносима, а так вроде все стандартное и свое, никаких библиотек. <br>Кое-какие подпорки типа:<br><br>; если не определен макрос multiple-value-bind определяем его<br>(if (fboundp 'multiple-value-bind)<br>    nil<br>    (defmacro multiple-value-bind (vars form &amp;rest body)<br>      `(multiple-value-call #'(lambda (&amp;optional ,@vars &amp;rest ,(gensym)) ,@body)<br>                ,form))); end if <br><br>Хотя одна специфичная функция используется, точнее не функция, а глобальная переменная *command-line* в которой первым аргументом идет путь по которому находится испольняемый файл интерпретатора, относительно которого я определяю прочие файлы для загрузки, записи и т.п.<br><br>ps Не соображу как сделать кусок кода моноширинным шрифтом.</p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>AYKO</strong> - 02.09.2009 16:07</span></div>
+<div class="replybody"><p>CLisp, я использовал, некоторое время на начальном этапе, но он вроде бы требует какой-никакой установки, по крайней мере последние релизы, а мне была необходима работа на разных компьютерах. Таким образом перешел на XLisp+ -- он, как я уже писал, идет одним файлом в 280кб, в отличии от вороха файлов и директорий CLisp'а, что меня очень подкупает как человека "не в теме".<br><br>Я конечно читал, что под Линукс все пользуются SBCL, но сам с Линуксом дела не имел вовсе, поэтому для меня это темный лес. SBCL тербует какой-то специальной установки? Его можно использовать на виртуальном сервере (кажется это так называется :)?</p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>AYKO</strong> - 02.09.2009 16:24</span></div>
+<div class="replybody"><p>&gt;&gt; Очень странные исходники... Дата 92 год не смущает?<br><br>Я имел ввиду эти исходники:<br>http://almy.us/files/xl304src.zip<br><br>В них файлы 1999года, и один 04,07,2000 9:11<br>exe -- моего интерпретатора имеет дату 04,07,2000 10:09</p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>treep</strong> - 02.09.2009 21:42</span></div>
+<div class="replybody">
+<p><em>&gt;&gt; Я имел ввиду эти исходники: http://almy.us/files/xl304src.zip<br></em>Да, я о них. Там часть для unix 92 года, если я правильно понял.<br><br>Ваш код пойдёт под любым CL - нужно просто выбрать на свой вкус :))<br><br><em>&gt;&gt; SBCL тербует какой-то специальной установки?<br>&gt;&gt; Его можно использовать на виртуальном сервере (кажется это так называется :)?<br><br></em>На <em>хостинге</em> обычно запрещается выполнение бинарных файлов.<br>На <em>VPS</em>, т.е. виртуальном выделенном сервере такое можно. Я SBCL удаленно никогда не ставил, но полагаю, что это такая же процедура, как и обычная установка. Нужно узнать ОС, допустим Linux, платформу, допустим X86, и <a href="http://sbcl.sourceforge.net/platform-table.html">отсюда </a>скачать архив с бинарнарной версией и закачать на сервер.<br><br>Для SBCL нужно только два файла - бинарник весит 500kb, а весь функционал зарыт в sbcl.core на 25 mb. Но как видите - всего 2 файла, остальное - библиотеки, документы и файлы для установки.<br><br>Например из шелл-аккаунта:<br><br></p>
+<p>$ wget ссылка_на_sbcl-1.0.30-x86-linux-binary.tar.bz2<br><br>$ tar -xvjf sbcl-1.0.30-x86-linux-binary.tar.bz2<br><br>$ cd sbcl-1.0.30-x86-linux<br><span class="comment"><font color="#007777">; чтобы просто запустить:<br></font></span>$ sh run-sbcl.sh<br><span class="comment"><font color="#007777">; чтобы установить в системе:<br></font></span># INSTALL_ROOT=/usr/local sh install.sh<br><span class="comment"><font color="#007777">; эта команда также попробует собрать доки и маны,<br></font></span><span class="comment"><font color="#007777">; что может быть не нужно - тогда папку doc нужно просто удалить.<br></font></span><span class="comment"><font color="#007777">; потом:<br></font></span>$ sbcl<br></p>
+<p><br><br>З.Ы. форматировать лисп-код <a href="http://lisper.ru/apps/format/">тут</a>.</p>
+</div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>archimag</strong> - 03.09.2009 01:31</span></div>
+<div class="replybody">
+<span style="font-style: italic;">&gt; SBCL тербует какой-то специальной установки? </span><br><br>
+
+Обычно легко ставиться штатными средствами управления пакетами дистрибутива. <br>Например, для Debian (а также Ubuntu и т.п.) это делается так:<br><pre class="code">sudo apt-get install sbcl<br></pre>
+<br><span style="font-style: italic;"></span><span style="font-style: italic;">&gt; Его можно использовать на виртуальном сервере (кажется это так называется :)?</span><br><br>Это сайта работает на sbcl, запущенном на VPS.<span style="font-style: italic;"></span>
+</div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>AYKO</strong> - 03.09.2009 09:48</span></div>
+<div class="replybody"><p>А может все таки попробовать скомпилировать XLisp? Ну, в качестве эксперимента... </p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>treep</strong> - 03.09.2009 12:59</span></div>
+<div class="replybody"><p jquery1250413013593="17"><em>&gt;&gt; А может все таки попробовать скомпилировать XLisp? Ну, в качестве эксперимента...</em> <br><br>Причём именно версию Xlisp-plus 3.0 ? К чему создавать сложности?<br>Какой на серваке дистрибутив?<br>комада which gcc , надо понимать, ничего не находит?</p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>treep</strong> - 03.09.2009 17:40</span></div>
+<div class="replybody">
+<strong>AYKO</strong>, я скомпилировал - должно работать на debianax, mandrakax, на платформе X86. Большего не обещаю.<br><br><a href="http://www.jalisp.h18.ru/tmp/xlisp">http://www.jalisp.h18.ru/tmp/xlisp</a>
+</div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>AYKO</strong> - 03.09.2009 17:54</span></div>
+<div class="replybody"><p>Спасибо огромное. Глупость наверное спрошу, а расширение у файла какое должно быть? Попросту, я с линуксом никогда не сталкивался, но теперь, видимо, придется ликвидировать свою безграмотность.</p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>treep</strong> - 04.09.2009 08:54</span></div>
+<div class="replybody"><p jquery1250484075234="18">Расширение особую роль не играет - главное, что в файле находится. Вам нужно сделать файл исполнимым:<br>  $ chmod 755 xlisp<br>и можно запускать:<br>  $ ./xlisp<br>Кстати, ваши лисп-коды тоже можно сделать исполнимыми - сделать такой же chmod, а первой строчкой в коде записать:<br>  #! путь_к_xlisp<br>тогда при запросе url, например www.site.ru/my.lisp лисп код передастся xlisp и будет выполнен. Он может даже напечатать какую-нибудь страничку.<br><br><em>&gt;&gt; Попросту, я с линуксом никогда не сталкивался, но теперь, видимо, придется ликвидировать свою безграмотность.</em><br><br>Тогда могу посоветывать хорошую <a href="http://www.proklondike.com/books/unix/kernigan_pike_unix_programming.html">книгу</a> про unix вцелом.</p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>treep</strong> - 07.09.2009 23:12</span></div>
+<div class="replybody"><p>Насчет почитать по Linux. Может лучше сначала взять какой-нибудь "карманный справочник" по Linux (например Граннемана, или Баррета). Там про shell в основном, а вам ведь это и нужно - при удаленной работе. И потом бумажная книга - оно всяко удобнее.</p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>AYKO</strong> - 08.09.2009 20:39</span></div>
+<div class="replybody"><p>Спасибо за советы. Кстати, на счет бумажной книги согласен на 200%.</p></div>
+</div>
+</div></div>
+
+        <div class="bottom">@2009 lisper.ru</div>
+
+        <script type="text/javascript">
+
+          var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+
+          document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+
+        </script>
+
+        <script type="text/javascript">
+
+          try {
+
+          var pageTracker = _gat._getTracker("UA-7734690-1");
+
+          pageTracker._trackPageview();
+
+          } catch(err) {}
+
+        </script>
+
+    </body>
+</html>

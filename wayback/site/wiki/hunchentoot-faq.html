@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru"> <head> <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> <meta name="keywords" content="Common Lisp,lisp,лисп" /> <title>hunchentoot-faq</title> <link href="/css/style.css" rel="stylesheet" type="text/css" /><link href="/css/wiki.css" rel="stylesheet" type="text/css" /><link href="/css/colorize.css" rel="stylesheet" type="text/css" />  </head> <body> <div class="top"> <div id="login"> <a href="/register">Регистрация</a> | <a href="/login?done=/wiki/hunchentoot-faq">Войти</a> </div> </div> <div id="caution"> <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png" /> <a href="http://www.vkusnoserver.ru/" target="_blank" style="float: right;"> <img src="/vkusnoserver.png" /> </a> </div> <div id="mainmenu"> <ul> <li> <a href="/">Главная</a> </li><li> <a href="/articles/">Статьи</a> </li><li> <a href="/planet/">Планета</a> </li><li> <a href="/forum/">Форум</a> </li><li> <a href="/apps/">Сервисы</a> </li><li> <a href="/pcl/">Practical Common Lisp</a> </li><li> <a href="/wiki/">Wiki</a> </li><li> <a href="/files/">Файлы</a> </li><li> <a href="/search">Поиск</a> </li> </ul> </div> <div id="content"> <ul class="wiki-page-menu"> <li> <a href="/wiki/edit/hunchentoot-faq">Edit</a> </li>  <li> <a href="/wiki/history/hunchentoot-faq">History</a> </li>   </ul><div class="article"><div class="toc"><div class="toc-header">Содержание</div><div class="toc-body"><ul><li><div><a href="#Hunchentoot. FAQ.">Hunchentoot. FAQ.</a><ul><li><div><a href="#&#x418;&#x43D;&#x444;&#x43E;&#x440;&#x43C;&#x430;&#x446;&#x438;&#x44F; &#x43E; &#x437;&#x430;&#x43F;&#x440;&#x43E;&#x441;&#x435;">Информация о запросе</a><ul><li><div><a href="#&#x41A;&#x430;&#x43A; &#x43F;&#x43E;&#x43B;&#x443;&#x447;&#x438;&#x442;&#x44C; GET-&#x43F;&#x430;&#x440;&#x430;&#x43C;&#x435;&#x442;&#x440;&#x44B; &#x437;&#x430;&#x43F;&#x440;&#x43E;&#x441;&#x430;?">Как получить GET-параметры запроса?</a></div></li><li><div><a href="#&#x41A;&#x430;&#x43A; &#x43F;&#x43E;&#x43B;&#x443;&#x447;&#x438;&#x442;&#x44C; POST-&#x43F;&#x430;&#x440;&#x430;&#x43C;&#x435;&#x442;&#x440;&#x44B; &#x437;&#x430;&#x43F;&#x440;&#x43E;&#x441;&#x430;?">Как получить POST-параметры запроса?</a></div></li></ul></div></li><li><div><a href="#&#x424;&#x43E;&#x440;&#x43C;&#x438;&#x440;&#x43E;&#x432;&#x430;&#x43D;&#x438;&#x435; &#x43E;&#x442;&#x432;&#x435;&#x442;&#x430;">Формирование ответа</a><ul><li><div><a href="#&#x41A;&#x430;&#x43A; &#x443;&#x441;&#x442;&#x430;&#x43D;&#x43E;&#x432;&#x438;&#x442;&#x44C; content-type &#x43E;&#x442;&#x432;&#x435;&#x442;&#x430;, &#x43D;&#x430;&#x43F;&#x440;&#x438;&#x43C;&#x435;&#x440; &#x432; image/jpeg">Как установить content-type ответа, например в image/jpeg</a></div></li><li><div><a href="#&#x41A;&#x430;&#x43A; &#x434;&#x43E;&#x431;&#x430;&#x432;&#x438;&#x442;&#x44C; &#x43A; &#x43E;&#x442;&#x432;&#x435;&#x442;&#x443; &#x43F;&#x440;&#x43E;&#x438;&#x437;&#x432;&#x43E;&#x43B;&#x44C;&#x43D;&#x44B;&#x439; &#x437;&#x430;&#x433;&#x43E;&#x43B;&#x43E;&#x432;&#x43E;&#x43A;?">Как добавить к ответу произвольный заголовок?</a></div></li><li><div><a href="#&#x41A;&#x430;&#x43A; &#x432;&#x435;&#x440;&#x43D;&#x443;&#x442;&#x44C; &#x441;&#x442;&#x440;&#x430;&#x43D;&#x438;&#x446;&#x443; &#x432; &#x43A;&#x43E;&#x434;&#x438;&#x440;&#x43E;&#x432;&#x43A;&#x435; utf-8/windows-1251/etc">Как вернуть страницу в кодировке utf-8/windows-1251/etc</a></div></li></ul></div></li></ul></div></li></ul></div></div>
+<div class="chapter" id="Hunchentoot. FAQ."><h3>Hunchentoot. FAQ.</h3>
+
+<div class="chapter" id="&#x418;&#x43D;&#x444;&#x43E;&#x440;&#x43C;&#x430;&#x446;&#x438;&#x44F; &#x43E; &#x437;&#x430;&#x43F;&#x440;&#x43E;&#x441;&#x435;"><h3>Информация о запросе</h3>
+
+<div class="chapter" id="&#x41A;&#x430;&#x43A; &#x43F;&#x43E;&#x43B;&#x443;&#x447;&#x438;&#x442;&#x44C; GET-&#x43F;&#x430;&#x440;&#x430;&#x43C;&#x435;&#x442;&#x440;&#x44B; &#x437;&#x430;&#x43F;&#x440;&#x43E;&#x441;&#x430;?"><h3>Как получить GET-параметры запроса?</h3>
+<pre class="code"><span class="paren1">(<span class="">hunchentoot:get-parameter <span class="string">"myparam"</span></span>)</span><br/></pre>
+
+<p>Либо, для получения сразу всех GET-параметров
+</p>
+<pre class="code"><span class="paren1">(<span class="">hunchentoot:get-parametrs*</span>)</span><br/></pre>
+
+</div><div class="chapter" id="&#x41A;&#x430;&#x43A; &#x43F;&#x43E;&#x43B;&#x443;&#x447;&#x438;&#x442;&#x44C; POST-&#x43F;&#x430;&#x440;&#x430;&#x43C;&#x435;&#x442;&#x440;&#x44B; &#x437;&#x430;&#x43F;&#x440;&#x43E;&#x441;&#x430;?"><h3>Как получить POST-параметры запроса?</h3>
+<pre class="code"><span class="paren1">(<span class="">hunchentoot:post-parameter <span class="string">"myparam"</span></span>)</span><br/></pre>
+
+<p>Либо, для получения сразу всех POST-параметров
+</p>
+<pre class="code"><span class="paren1">(<span class="">hunchentoot:post-parametrs*</span>)</span><br/></pre>
+
+</div></div><div class="chapter" id="&#x424;&#x43E;&#x440;&#x43C;&#x438;&#x440;&#x43E;&#x432;&#x430;&#x43D;&#x438;&#x435; &#x43E;&#x442;&#x432;&#x435;&#x442;&#x430;"><h3>Формирование ответа</h3>
+
+<div class="chapter" id="&#x41A;&#x430;&#x43A; &#x443;&#x441;&#x442;&#x430;&#x43D;&#x43E;&#x432;&#x438;&#x442;&#x44C; content-type &#x43E;&#x442;&#x432;&#x435;&#x442;&#x430;, &#x43D;&#x430;&#x43F;&#x440;&#x438;&#x43C;&#x435;&#x440; &#x432; image/jpeg"><h3>Как установить content-type ответа, например в image/jpeg</h3>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> <span class="paren2">(<span class="">hunchentoot:content-type*</span>)</span><br/>      <span class="string">"image/jpeg"</span></span>)</span><br/></pre>
+
+</div><div class="chapter" id="&#x41A;&#x430;&#x43A; &#x434;&#x43E;&#x431;&#x430;&#x432;&#x438;&#x442;&#x44C; &#x43A; &#x43E;&#x442;&#x432;&#x435;&#x442;&#x443; &#x43F;&#x440;&#x43E;&#x438;&#x437;&#x432;&#x43E;&#x43B;&#x44C;&#x43D;&#x44B;&#x439; &#x437;&#x430;&#x433;&#x43E;&#x43B;&#x43E;&#x432;&#x43E;&#x43A;?"><h3>Как добавить к ответу произвольный заголовок?</h3>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> <span class="paren2">(<span class="">hunchentoot:header-out <span class="string">"MyHeader"</span></span>)</span><br/>      <span class="string">"MyValue"</span></span>)</span><br/></pre>
+
+</div><div class="chapter" id="&#x41A;&#x430;&#x43A; &#x432;&#x435;&#x440;&#x43D;&#x443;&#x442;&#x44C; &#x441;&#x442;&#x440;&#x430;&#x43D;&#x438;&#x446;&#x443; &#x432; &#x43A;&#x43E;&#x434;&#x438;&#x440;&#x43E;&#x432;&#x43A;&#x435; utf-8/windows-1251/etc"><h3>Как вернуть страницу в кодировке utf-8/windows-1251/etc</h3>
+
+<p>По-умолчанию, hunchentoot использует кодировку latin-1. Для вывода результата в кодировке UTF-8 обычно достаточно изменить значение переменной hunchentoot:*hunchentoot-default-external-format* :
+</p><pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> <span class="special">hunchentoot:*hunchentoot-default-external-format*</span> <br/>      hunchentoot::+utf-8+</span>)</span> <br/></pre>
+
+<p>Однако, при необходимости работать с windows-1251 дело усложнятся тем, что используемая для перекодировки библиотека <a href="http://weitz.de/flexi-streams/">flexi-streams</a> не поддерживает данную кодировку, как, впрочем, и многие другие. К счастью, проблема может быть достаточно просто решена если возвращать из обработчика запроса не строку, а массив octets в нужной кодировке. Вот пример простейшего приложения, выводящего "Привет мир!" в кодировке windows-1251 (данный пример может быть легко адаптирован для любой другой кодировки).
+</p>
+<pre class="code"><span class="paren1">(<span class="">asdf:operate 'asdf:load-op 'hunchentoot</span>)</span><br/><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> request-handler <span class="paren2">(<span class="">req</span>)</span><br/>  <span class="paren2">(<span class="">sb-ext:string-to-octets <span class="string">"Привет мир!"</span> <span class="keyword">:external-format</span> <span class="keyword">:windows-1251</span></span>)</span></span>)</span><br/><br/><span class="paren1">(<span class="">hunchentoot:start <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_mk_ins.htm" class="symbol">make-instance</a> 'hunchentoot:acceptor<br/>                                  <span class="keyword">:request-dispatcher</span> 'request-handler<br/>                                  <span class="keyword">:port</span> 8080</span>)</span></span>)</span><br/></pre>
+
+<p>В данном примере используется функция sb-ext:string-to-octets, которая доступна только для SBCL. Для большей переносимости можно использовать аналогичную функцию из библиотеки <a href="http://common-lisp.net/project/babel/">babel</a>. Правда, на момент написания данного текста, последний релиз данной библиотеки (который был достаточно давно) не включал в себя поддержку cp1251, но она (поддержка) уже была в darcs-версии и автор библиотеки обещал выпустить новый релиз в самое ближайшее время.
+</p></div></div></div></div> </div> <div class="bottom">@2009-2013 lisper.ru</div> 
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-7734690-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+ </body> </html>

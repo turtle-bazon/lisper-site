@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru">
+	<head>
+      	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"></meta>
+
+        <meta name="verify-v1" content="o6r5tA9qF5PflmPb3cI7rJrWpFBGTkIE9X4KU25TxiE="></meta>
+
+        <meta name="keywords" content="Common Lisp,lisp,лисп"></meta>
+
+        <link href="/css/fine/style.css" rel="stylesheet" type="text/css">
+        <link href="/css/fine/colorize.css" rel="stylesheet" type="text/css">
+	<title>описалово стандартного набора функций</title>
+<link rel="alternate" type="application/rss+xml" title="Тема  'описалово стандартного набора функций' - RSS-лента" href="/forum/rss/threads/58.rss">
+<link href="/css/fine/forum.css" rel="stylesheet" type="text/css">
+<link href="/css/fine/jquery.wysiwyg.css" rel="stylesheet" type="text/css">
+<script src="/js/jquery.js" type="text/javascript"></script><script src="/js/jquery.wysiwyg.js" type="text/javascript"></script><script src="/js/forum.js" type="text/javascript"></script></head>
+
+	<body>
+        <div class="top">
+            <div id="login">
+    <a href="/register">Регистрация</a> |
+    <a href="/login?done=http%3A%2F%2Flisper.ru%2Fforum%2Fthread%2F58">Войти</a>
+</div>
+        </div>
+
+        <div id="caution">
+            <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png"></img>
+        </div>
+
+        <div id="mainmenu">
+          <ul>
+<li><a href="/">Главная</a></li>
+<li><a href="/articles/">Статьи</a></li>
+<li><a href="/planet/">Планета</a></li>
+<li><a href="/forum/">Форум</a></li>
+<li><a href="/apps/">Сервисы</a></li>
+<li><a href="/pcl/">Practical Common Lisp</a></li>
+<li><a href="/wiki/">wiki</a></li>
+</ul>
+        </div>
+
+        <div id="content"><div id="forum-nav-panel">
+<a class="rss-link" href="/forum/rss/threads/58.rss">RSS</a><ul>
+<li><a href="/forum/">Список форумов</a></li>
+<li><a href="/forum/common-lisp">Common Lisp</a></li>
+<li><strong>описалово стандартного набора функций</strong></li>
+</ul>
+</div>
+<div class="thread">
+<div class="topic">
+<div><big>описалово стандартного набора функций</big></div>
+<div class="topic-info"><span class="topic-author">Автор: <strong>dr.jekyll</strong> - 19.09.2009 23:11, Сообщений - 8</span></div>
+<div class="topicbody"><p>Господа, доброго дня. Не хотелось задавать этот вопрос, но к сожалению не нашел ничего подобного. Изучаю этот язык через sicp, а там функции приведены для схемы, хочется все переписать и покрутить разные варианты на КЛ. Вот встрял с поиском аналога схемовского runtime для лисп, если кто знает, помогите в поисках.</p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>tymmym</strong> - 20.09.2009 13:40</span></div>
+<div class="replybody"><p>решения упражнений на CL - http://eli.thegreenplace.net/category/programming/lisp/sicp/</p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>dr.jekyll</strong> - 20.09.2009 14:41</span></div>
+<div class="replybody"><p>я нашел эту страничку, и сравниваю, как я сделала то или иной упражнение с тем как сделала его Ели, но заглядывать туда до того, как дописал свой вариант, крайне не желательно, а то подсмотренный путь решения перебивает желание думать. вот и хотелось найти если не описание уж всех стандартных функций CL то хотя бы список, а там уже поиск в зубы. У меня clisp реализация, но в документации с интерпритатором которая идет, такой информации нет, может быть я плохо искал, или ее действительно там нет?</p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>archimag</strong> - 20.09.2009 19:26</span></div>
+<div class="replybody">
+<span style="font-style: italic;">&gt; Вот встрял с поиском аналога схемовского runtime для лисп, если кто знает, помогите в поисках.</span><br><br>Насчёт аналога не скажу, но может быть <a href="http://www.lispworks.com/documentation/common-lisp.html">HyperSpec</a> поможет?</div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>treep</strong> - 20.09.2009 22:38</span></div>
+<div class="replybody"><p>А с CLisp там разве нет impnotes.html, который на 3 mb? Как "краткий" (ну, более краткий) вариант спецификации можно посоветовать <a href="http://clqr.berlios.de/">Quick Reference</a> . Ну и читать PCL, паралельно с SICP.</p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>dr.jekyll</strong> - 21.09.2009 10:53</span></div>
+<div class="replybody"><p>to <span class="topic-author"><strong>archimag</strong></span><br>Спасибо за HyperSpec помогло, но еще не полностью. Нашел макрос time, но это не совсем то, что я хотел. Буду искать дальше.(=<br>to <span class="topic-author"><strong></strong></span><span class="topic-author"><strong>treep</strong></span><br>impnotes.html ооочень большой, я если честно даже немного растерялся там. С ним самим еще разобраться надо, что где лежит, а вот с <a href="http://clqr.berlios.de/">Quick Reference</a> покопаюсь еще. PCL успешно читается параллельно с sicp. Спасибо за ответ.(=</p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>archimag</strong> - 21.09.2009 11:00</span></div>
+<div class="replybody">
+<span style="font-style: italic;">&gt; Спасибо за HyperSpec помогло, но еще не полностью</span><br><br>Также, при работе в <a href="http://common-lisp.net/project/slime/">SLIME</a> очень полезной бывает фукнция slime-apropos.</div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>metaprogrammer</strong> - 21.09.2009 23:29</span></div>
+<div class="replybody"><a href="http://mumble.net/%7Ejar/pseudoscheme">http://mumble.net/~jar/pseudoscheme</a></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>allchemist</strong> - 23.09.2009 00:01</span></div>
+<div class="replybody"><p>&gt;  Нашел макрос time, но это не совсем то, что я хотел. Буду искать дальше<br>Время и даты <span style="text-decoration: underline;">(http://lisper.ru/wiki/cookbook:dates-and-times)</span><br>+ `man lisper.ru`<br></p></div>
+</div>
+</div></div>
+
+        <div class="bottom">@2009 lisper.ru</div>
+
+        <script type="text/javascript">
+
+          var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+
+          document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+
+        </script>
+
+        <script type="text/javascript">
+
+          try {
+
+          var pageTracker = _gat._getTracker("UA-7734690-1");
+
+          pageTracker._trackPageview();
+
+          } catch(err) {}
+
+        </script>
+
+    </body>
+</html>

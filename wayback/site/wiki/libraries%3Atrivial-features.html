@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru"> <head> <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> <meta name="keywords" content="Common Lisp,lisp,лисп" /> <title>libraries:trivial-features</title> <link href="/css/style.css" rel="stylesheet" type="text/css" /><link href="/css/wiki.css" rel="stylesheet" type="text/css" /><link href="/css/colorize.css" rel="stylesheet" type="text/css" />  </head> <body> <div class="top"> <div id="login"> <a href="/register">Регистрация</a> | <a href="/login?done=/wiki/libraries:trivial-features">Войти</a> </div> </div> <div id="caution"> <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png" /> <a href="http://www.vkusnoserver.ru/" target="_blank" style="float: right;"> <img src="/vkusnoserver.png" /> </a> </div> <div id="mainmenu"> <ul> <li> <a href="/">Главная</a> </li><li> <a href="/articles/">Статьи</a> </li><li> <a href="/planet/">Планета</a> </li><li> <a href="/forum/">Форум</a> </li><li> <a href="/apps/">Сервисы</a> </li><li> <a href="/pcl/">Practical Common Lisp</a> </li><li> <a href="/wiki/">Wiki</a> </li><li> <a href="/files/">Файлы</a> </li><li> <a href="/search">Поиск</a> </li> </ul> </div> <div id="content"> <ul class="wiki-page-menu"> <li> <a href="/wiki/edit/libraries:trivial-features">Edit</a> </li>  <li> <a href="/wiki/history/libraries:trivial-features">History</a> </li>   </ul><div class="article">
+<div class="chapter" id="trivial-features &#x438; &#x43F;&#x435;&#x440;&#x435;&#x43C;&#x435;&#x43D;&#x43D;&#x430;&#x44F; *FEATURES*"><h3>trivial-features и переменная *FEATURES*</h3>
+
+<p>В CL принято помещать в переменную *FEATURES* некоторые данные касающиеся текущей платформы, ОС, реализации, её сборки и т.д. Например для SBCL на платформе x86 под управлением Windows, значение переменной *FEATURES* будет выглядеть примерно так:
+</p>
+<pre class="code"><p>* *FEATURES*<br/><br/><span class="paren1">(<span class=""><span class="keyword">:ANSI-CL</span> <span class="keyword">:COMMON-LISP</span> <span class="keyword">:SBCL</span> <span class="keyword">:SB-DOC</span> <span class="keyword">:SB-TEST</span> <span class="keyword">:SB-LDB</span> <span class="keyword">:SB-PACKAGE-LOCKS</span><br/> <span class="keyword">:SB-UNICODE</span> <span class="keyword">:SB-EVAL</span> <span class="keyword">:SB-SOURCE-LOCATIONS</span> <span class="keyword">:IEEE-FLOATING-POINT</span> <span class="keyword">:X86</span> <span class="keyword">:WIN32</span><br/> <span class="keyword">:GENCGC</span> <span class="keyword">:STACK-GROWS-DOWNWARD-NOT-UPWARD</span> <span class="keyword">:C-STACK-IS-CONTROL-STACK</span><br/> <span class="keyword">:COMPARE-AND-SWAP-VOPS</span> <span class="keyword">:UNWIND-TO-FRAME-AND-CALL-VOP</span> <span class="keyword">:RAW-INSTANCE-INIT-VOPS</span><br/> <span class="keyword">:STACK-ALLOCATABLE-CLOSURES</span> <span class="keyword">:ALIEN-CALLBACKS</span> <span class="keyword">:CYCLE-COUNTER</span> <span class="keyword">:LINKAGE-TABLE</span><br/> <span class="keyword">:OS-PROVIDES-DLOPEN</span> <span class="keyword">:OS-PROVIDES-PUTWC</span></span>)</span><br/></p></pre>
+
+<p>Также есть встроенный синтаксис, который активно используется для изоляции кода для разных условий выполнения, он играет роль директив условной компиляции #ifdef в Си.
+</p>
+<pre class="code"><p>#+clisp<br/>
+  <span class="paren1">(<span class=""><span class="comment">; эта форма будет выполнена только для Clisp)<br/></span>#-clisp<br/>  <span class="paren2">(<span class=""><span class="comment">; а это при его отсутствии)<br/></span>#<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a><span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_or.htm" class="symbol">or</a> openmcl cmu scl sbcl</span>)</span><br/>  <span class="paren3">(<span class=""><span class="comment">; соответсвенно для любой указанной платформы)<br/></span><span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defpar.htm" class="symbol"><i><span class="symbol">defvar</span></i></a> <span class="special">*os-message*</span> #+win32 <span class="string">"У нас Windows"</span> #-win32 <span class="string">"У нас не Windows"</span></span>)</span><br/></span></span></span></span></span></span></p></pre>
+
+<p>Библиотека trivial-features служит для устранения несогласованностей в определении имён платформ в разных реализациях CL. Например на MacOS X для разных реализаций в переменной *FEATURES* может быть :DARWIN, :MACOS или :MACOSX, поэтому нужно писать:
+</p>
+<pre class="code"><p>#+<span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_or.htm" class="symbol">or</a> darwin macos macosx</span>)</span> foo<br/>
+#-<span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_or.htm" class="symbol">or</a> darwin macos macosx</span>)</span> bar<br/></p></pre>
+
+<p>Библиотека trivial-features решает все подобные проблемы. Поэтому, например, предыдущий пример можно написать так:
+</p>
+<pre class="code"><p>#+darwin foo #-darwin bar<br/></p></pre>
+
+<p>Спецификацию значений можно посмотреть в файле SPEC пакета.
+</p><ul><li> <a href="http://common-lisp.net/~loliveira/tarballs/trivial-features/trivial-features_latest.tar.gz">http://common-lisp.net/~loliveira/tarballs/trivial-features/trivial-features_latest.tar.gz</a></li></ul>
+</div></div> </div> <div class="bottom">@2009-2013 lisper.ru</div> 
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-7734690-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+ </body> </html>

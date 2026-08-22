@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru">
+	<head>
+      	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"></meta>
+
+        <meta name="verify-v1" content="o6r5tA9qF5PflmPb3cI7rJrWpFBGTkIE9X4KU25TxiE="></meta>
+
+        <meta name="keywords" content="Common Lisp,lisp,лисп"></meta>
+
+        <link href="/css/fine/style.css" rel="stylesheet" type="text/css">
+        <link href="/css/fine/colorize.css" rel="stylesheet" type="text/css">
+	<title>Сравнение GNU CLISP и SBCL</title></head>
+
+	<body>
+        <div class="top">
+            <div id="login">
+    <a href="/register">Регистрация</a> |
+    <a href="/login?done=http%3A%2F%2Flisper.ru%2Farticles%2Fclisp-vs-sbcl">Войти</a>
+</div>
+        </div>
+
+        <div id="caution">
+            <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png"></img>
+        </div>
+
+        <div id="mainmenu">
+          <ul>
+<li><a href="/">Главная</a></li>
+<li><a href="/articles/">Статьи</a></li>
+<li><a href="/planet/">Планета</a></li>
+<li><a href="/forum/">Форум</a></li>
+<li><a href="/apps/">Сервисы</a></li>
+<li><a href="/pcl/">Practical Common Lisp</a></li>
+<li><a href="/wiki/">wiki</a></li>
+</ul>
+        </div>
+
+        <div id="content"><h2>Сравнение GNU CLISP и SBCL</h2>
+<table><tbody>
+<tr>
+<td><b>Автор:</b></td>
+<td><a href="http://lispnik.livejournal.com/">lispnik</a></td>
+</tr>
+<tr>
+<td><b>Источник:</b></td>
+<td><a href="http://lispnik.livejournal.com/156229.html">http://lispnik.livejournal.com/156229.html</a></td>
+</tr>
+</tbody></table>
+<div class="article">
+
+    
+
+
+    <p>Самое главное различие состоит в том, что CLISP — интерпретатор байткода, а SBCL — настоящий компилятор (даже то, что вводится пользоватем с консоли, сначала компилируется; в CMU CL, от которого произошёл SBCL, такой код интепретируется).</p>
+
+    <p>В CLISP рантайм написан в основном на C, а компилятор — на Common Lisp. В SBCL на C написана лишь часть рантайма (сборщик мусора и другой низкоуровневый код), незначительная часть — на ассемблере, но подавляющая часть кода — на Common Lisp.</p>
+
+    <p>Однако в некоторых областях CLISP быстрее многих лисп-систем: вычисления с bignum и ввод-вывод (в часности, поэтому Пол Грэхэм выбрал CLISP для ViaWeb).</p>
+
+    <p>Кроме того, в CLISP есть большое количество расширений и биндингов к таким библиотекам, как zlib, libprce, FastCGI, gettext. В SBCL расширения тоже есть, но поскромнее. Зато SBCL поддерживается библиотекой UFFI, что автоматически делает доступным немалое количество биндингов, сделаных с помощью этой библиотеки (UFFI не поддерживает CLISP, поскольку Foreign Function Interface у этой реализации сильно отличается от остальных; однако CFFI поддерживает в том числе и CLISP). Обе реализации поддерживают сокеты, POSIX, FFI, но API несовместимы (для совместимости можно использовать дополнительные библиотеки, что заодно даст совместимость с CMUCL/LispWorks/Allegro CL).</p>
+
+    <p>GNU CLISP лицензируется по GNU GPL с исключениями, а SBCL — частично Public Domain, частично BSD.</p>
+
+    <p>Что касается многопоточности, в SBCL/x86 и SBCL/x86-64 на Linux-2.6.x (или более старым ядром, но с бэкпортом NPTL) поддерживается многопоточность, основанная на нитях POSIX и futex. На *BSD и другие платформы многопоточность ещё не портирована.</p>
+
+    <p>В CLISP многопоточности нет.</p>
+</div></div>
+
+        <div class="bottom">@2009 lisper.ru</div>
+
+        <script type="text/javascript">
+
+          var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+
+          document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+
+        </script>
+
+        <script type="text/javascript">
+
+          try {
+
+          var pageTracker = _gat._getTracker("UA-7734690-1");
+
+          pageTracker._trackPageview();
+
+          } catch(err) {}
+
+        </script>
+
+    </body>
+</html>

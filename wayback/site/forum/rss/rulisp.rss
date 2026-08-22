@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Обсуждение проекта</title>
+    <link>http://lisper.ru/forum/</link>
+    <description>Обсуждение проекта - RSS-лента</description>
+    <item>
+      <title>archimag: Разметка в сообщении</title>
+      <link>http://lisper.ru/forum/thread/220</link>
+      <description>&lt;div&gt;&lt;span class="Apple-style-span" style="font-family: Arial, sans-serif; font-size: 12px; "&gt;&lt;i&gt;&amp;gt; Это взято из какой-то библиотеки?&lt;/i&gt;&lt;/span&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;a href="http://code.google.com/p/jwysiwyg/"&gt;http://code.google.com/p/jwysiwyg/&lt;/a&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;i&gt;&amp;gt; Жаль. Мне наоборот нравится.&lt;/i&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;Сейчаc &lt;a href="http://lispnik.livejournal.com/"&gt;lispnik&lt;/a&gt; &lt;a href="http://github.com/monoid/CodeMirror"&gt;добавил&lt;/a&gt;&amp;nbsp;к &lt;a href="http://marijn.haverbeke.nl/codemirror/"&gt;CodeMirror&lt;/a&gt; поддержку Common Lisp - буду ориентироваться на это решение, возможно буду пытаться как-то совместить с текущим решением, ну как время выделю :)&lt;/div&gt;</description>
+      <pubDate>Thu, 22 Apr 2010 08:21:02 GMT</pubDate>
+    </item>
+    <item>
+      <title>Jax: Разметка в сообщении</title>
+      <link>http://lisper.ru/forum/thread/220</link>
+      <description>&amp;gt;Я вообще не очень в курсе как это работает :)&lt;br&gt;&lt;br&gt;Это взято из какой-то библиотеки?</description>
+      <pubDate>Thu, 22 Apr 2010 08:10:15 GMT</pubDate>
+    </item>
+    <item>
+      <title>Jax: Разметка в сообщении</title>
+      <link>http://lisper.ru/forum/thread/220</link>
+      <description>&amp;gt;Я пока планирую отказаться от WYSIWYG редактора.&lt;br&gt;&lt;br&gt;Жаль. Мне наоборот нравится. К слову, в Google Docs тоже есть похожие проблемы (или я просто не умею им пользоваться) с "заражением" форматированием соседних фрагментов текста.&lt;br&gt;&lt;br&gt;&amp;gt;&lt;br&gt;Еще бы разобраться, как вместо просто подсвеченного кода (как в &lt;span class="topic-author"&gt;&lt;strong&gt;Ballbreaker&lt;/strong&gt; - 14.04.2010 13:39) получить код в рамке. Форматирую и копирую, как и требуется. Результат - разный.&lt;br&gt;&lt;/span&gt;</description>
+      <pubDate>Thu, 22 Apr 2010 07:40:15 GMT</pubDate>
+    </item>
+    <item>
+      <title>LinkFly: lisp.ru RIP :(</title>
+      <link>http://lisper.ru/forum/thread/244</link>
+      <description>Кстати lisp.ru опять накрылся :(</description>
+      <pubDate>Fri, 16 Apr 2010 18:04:13 GMT</pubDate>
+    </item>
+    <item>
+      <title>Ander Skirnir: А почему бы не...</title>
+      <link>http://lisper.ru/forum/thread/196</link>
+      <description>&amp;gt; Потому что пишется дата последнего изменения&lt;br&gt;&lt;br&gt;Кстати, а ведь если поменять на 2010, то это таки будет справедливой датой последнего изменения :)</description>
+      <pubDate>Fri, 16 Apr 2010 17:34:28 GMT</pubDate>
+    </item>
+    <item>
+      <title>Paul.Alkhimov: Провокационный вопрос.</title>
+      <link>http://lisper.ru/forum/thread/251</link>
+      <description>Я не знаю, что такое друпал (может, и видел, но не в курсе, что это был он).&lt;br&gt;Я видел, что такое StackOverflow.</description>
+      <pubDate>Fri, 16 Apr 2010 08:15:32 GMT</pubDate>
+    </item>
+    <item>
+      <title>archimag: Провокационный вопрос.</title>
+      <link>http://lisper.ru/forum/thread/251</link>
+      <description>&lt;i&gt;&amp;gt; Это был, на мой взгляд, самый простой способ усовершенствования.&lt;/i&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;Самым простым было изначально делать ресурс на базе Drupal &amp;nbsp;;)&amp;nbsp;&lt;/div&gt;</description>
+      <pubDate>Fri, 16 Apr 2010 07:55:40 GMT</pubDate>
+    </item>
+    <item>
+      <title>Paul.Alkhimov: Провокационный вопрос.</title>
+      <link>http://lisper.ru/forum/thread/251</link>
+      <description>Не ну я чё? Я ничё... :)&lt;br&gt;Это был, на мой взгляд, самый простой способ усовершенствования.&lt;br&gt;</description>
+      <pubDate>Fri, 16 Apr 2010 07:06:50 GMT</pubDate>
+    </item>
+    <item>
+      <title>Ander Skirnir: А почему бы не...</title>
+      <link>http://lisper.ru/forum/thread/196</link>
+      <description>&amp;gt; Потому что пишется дата последнего изменения&lt;br&gt;&lt;br&gt;Не знал, правда :) Считал, что пишется либо текущий как пруф жизни ресурса, либо года функционирования.</description>
+      <pubDate>Thu, 15 Apr 2010 15:21:06 GMT</pubDate>
+    </item>
+    <item>
+      <title>Ander Skirnir: Провокационный вопрос.</title>
+      <link>http://lisper.ru/forum/thread/251</link>
+      <description>Люди толсто намекают, что местный форум настолько актуален, что очень хочется усовершенствования его юзабельности :)</description>
+      <pubDate>Thu, 15 Apr 2010 15:12:12 GMT</pubDate>
+    </item>
+    <item>
+      <title>Paul.Alkhimov: Провокационный вопрос.</title>
+      <link>http://lisper.ru/forum/thread/251</link>
+      <description>В качестве и опыте StackExchange.</description>
+      <pubDate>Thu, 15 Apr 2010 12:26:34 GMT</pubDate>
+    </item>
+    <item>
+      <title>archimag: Провокационный вопрос.</title>
+      <link>http://lisper.ru/forum/thread/251</link>
+      <description>&lt;i&gt;&amp;gt; А если вынести на StackExchange только форум?&lt;/i&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;В чём смысл то?&lt;/div&gt;</description>
+      <pubDate>Thu, 15 Apr 2010 11:29:41 GMT</pubDate>
+    </item>
+    <item>
+      <title>Paul.Alkhimov: Провокационный вопрос.</title>
+      <link>http://lisper.ru/forum/thread/251</link>
+      <description>Понятно.&lt;br&gt;А если вынести на StackExchange только форум?</description>
+      <pubDate>Thu, 15 Apr 2010 10:53:49 GMT</pubDate>
+    </item>
+    <item>
+      <title>archimag: Провокационный вопрос.</title>
+      <link>http://lisper.ru/forum/thread/251</link>
+      <description>Ну только если переписать его на CL :)&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;В пользу существующего решения (при всех его недостатоках):&lt;/div&gt;&lt;div&gt;&lt;ul&gt;&lt;li&gt;Ресурс наглядно демонстрирует возможность разработки веб-приложений на CL. И на него можно ссылаться, например на ЛОРе ;)&lt;/li&gt;&lt;li&gt;Является испытательным полигоном. Т.е. данный ресурс содержит несколько достаточно разных компонент, что даёт достаточно богатую пищу для размышлений об оптимальной структуре кода, что важно для меня при разработке RESTAS.&lt;/li&gt;&lt;/ul&gt;&lt;div&gt;Создание ресурса на любой не-CL платформе принципиально противоречит целям данного проекта.&lt;/div&gt;&lt;/div&gt;</description>
+      <pubDate>Thu, 15 Apr 2010 09:38:42 GMT</pubDate>
+    </item>
+    <item>
+      <title>Paul.Alkhimov: Провокационный вопрос.</title>
+      <link>http://lisper.ru/forum/thread/251</link>
+      <description>Автор не рассматривал варианта использования для проекта StackExchange вместо своего движка?&lt;div&gt;Я понимаю, что это будет не лисп и это большой минус (для автора).&lt;/div&gt;&lt;div&gt;Однако в таком решении есть большой плюс: это положительные стороны StackExchange, которые будут доступны для общества.&lt;/div&gt;&lt;div&gt;Что вы об этом думаете?&lt;/div&gt;&lt;div&gt;P.S. Цели задевать автора - не было.&lt;/div&gt;</description>
+      <pubDate>Thu, 15 Apr 2010 08:38:11 GMT</pubDate>
+    </item>
+    <item>
+      <title>archimag: Разметка в сообщении</title>
+      <link>http://lisper.ru/forum/thread/220</link>
+      <description>&lt;i&gt;&amp;gt; Чтобы копируя отформатированный код в сообщение в рамку с кодом не попадали фрагменты текста сообщения&lt;/i&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;А, понял о чём ты. Я вообще не очень в курсе как это работает :) Оно, кстати, ещё по разному работает в разных браузерах. Я пока планирую отказаться от WYSIWYG редактора. Текущая схема с копированием это, скажем так, временное решение, ну и небольшой эксперимент :)&lt;/div&gt;</description>
+      <pubDate>Wed, 14 Apr 2010 09:58:49 GMT</pubDate>
+    </item>
+    <item>
+      <title>Ballbreaker: Разметка в сообщении</title>
+      <link>http://lisper.ru/forum/thread/220</link>
+      <description>&lt;SPAN class="paren1"&gt;(&lt;SPAN class=""&gt;&lt;A href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"&gt;&lt;I&gt;&lt;SPAN class="symbol"&gt;defun&lt;/SPAN&gt;&lt;/I&gt;&lt;/A&gt; generate-power-set&lt;SPAN class="paren2"&gt;(&lt;SPAN class=""&gt;source-set&lt;/SPAN&gt;)&lt;/SPAN&gt;&lt;BR&gt;  &lt;SPAN class="paren2"&gt;(&lt;SPAN class=""&gt;&lt;A href="http://www.lispworks.com/reference/HyperSpec/Body/s_declar.htm" class="symbol"&gt;declare&lt;/A&gt; &lt;SPAN class="paren3"&gt;(&lt;SPAN class=""&gt;&lt;A href="http://www.lispworks.com/reference/HyperSpec/Body/d_optimi.htm" class="symbol"&gt;optimize&lt;/A&gt; &lt;SPAN class="paren4"&gt;(&lt;SPAN class=""&gt;&lt;A href="http://www.lispworks.com/reference/HyperSpec/Body/d_optimi.htm" class="symbol"&gt;debug&lt;/A&gt; 3&lt;/SPAN&gt;)&lt;/SPAN&gt;&lt;/SPAN&gt;)&lt;/SPAN&gt;&lt;/SPAN&gt;)&lt;/SPAN&gt;&lt;BR&gt;  &lt;SPAN class="paren2"&gt;(&lt;SPAN class=""&gt;&lt;A href="http://www.lispworks.com/reference/HyperSpec/Body/s_flet_.htm" class="symbol"&gt;&lt;I&gt;&lt;SPAN class="symbol"&gt;labels&lt;/SPAN&gt;&lt;/I&gt;&lt;/A&gt; &lt;SPAN class="paren3"&gt;(&lt;SPAN class=""&gt;&lt;SPAN class="paren4"&gt;(&lt;SPAN class=""&gt;gen-power-set &lt;SPAN class="paren5"&gt;(&lt;SPAN class=""&gt;&lt;A href="http://www.lispworks.com/reference/HyperSpec/Body/f_set.htm" class="symbol"&gt;set&lt;/A&gt; &lt;A href="http://www.lispworks.com/reference/HyperSpec/Body/f_rest.htm" class="symbol"&gt;rest&lt;/A&gt;&lt;/SPAN&gt;)&lt;/SPAN&gt;&lt;BR&gt;             &lt;SPAN class="paren5"&gt;(&lt;SPAN class=""&gt;&lt;A href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"&gt;&lt;I&gt;&lt;SPAN class="symbol"&gt;let&lt;/SPAN&gt;&lt;/I&gt;&lt;/A&gt; &lt;SPAN class="paren6"&gt;(&lt;SPAN class=""&gt;&lt;SPAN class="paren1"&gt;(&lt;SPAN class=""&gt;results &lt;A href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol"&gt;nil&lt;/A&gt;&lt;/SPAN&gt;)&lt;/SPAN&gt;&lt;BR&gt;                   &lt;SPAN class="paren1"&gt;(&lt;SPAN class=""&gt;next-el &lt;SPAN class="paren2"&gt;(&lt;SPAN class=""&gt;&lt;A href="http://www.lispworks.com/reference/HyperSpec/Body/f_car_c.htm" class="symbol"&gt;car&lt;/A&gt; &lt;A href="http://www.lispworks.com/reference/HyperSpec/Body/f_rest.htm" class="symbol"&gt;rest&lt;/A&gt;&lt;/SPAN&gt;)&lt;/SPAN&gt;&lt;/SPAN&gt;)&lt;/SPAN&gt;&lt;/SPAN&gt;)&lt;/SPAN&gt;&lt;BR&gt;               &lt;SPAN class="paren6"&gt;(&lt;SPAN class=""&gt;&lt;A href="http://www.lispworks.com/reference/HyperSpec/Body/f_break.htm" class="symbol"&gt;break&lt;/A&gt;&lt;/SPAN&gt;)&lt;/SPAN&gt;&lt;BR&gt;               &lt;SPAN class="paren6"&gt;(&lt;SPAN class=""&gt;&lt;A href="http://www.lispworks.com/reference/HyperSpec/Body/s_if.htm" class="symbol"&gt;&lt;I&gt;&lt;SPAN class="symbol"&gt;if&lt;/SPAN&gt;&lt;/I&gt;&lt;/A&gt; &lt;SPAN class="paren1"&gt;(&lt;SPAN class=""&gt;&lt;A href="http://www.lispworks.com/reference/HyperSpec/Body/a_not.htm" class="symbol"&gt;not&lt;/A&gt; next-el&lt;/SPAN&gt;)&lt;/SPAN&gt; &lt;BR&gt;                   &lt;A href="http://www.lispworks.com/reference/HyperSpec/Body/f_set.htm" class="symbol"&gt;set&lt;/A&gt;&lt;BR&gt;                   &lt;SPAN class="paren1"&gt;(&lt;SPAN class=""&gt;&lt;A href="http://www.lispworks.com/reference/HyperSpec/Body/s_progn.htm" class="symbol"&gt;&lt;I&gt;&lt;SPAN class="symbol"&gt;progn&lt;/SPAN&gt;&lt;/I&gt;&lt;/A&gt;&lt;BR&gt;                     &lt;SPAN class="paren2"&gt;(&lt;SPAN class=""&gt;&lt;A href="http://www.lispworks.com/reference/HyperSpec/Body/m_dolist.htm" class="symbol"&gt;dolist&lt;/A&gt; &lt;SPAN class="paren3"&gt;(&lt;SPAN class=""&gt;elem &lt;A href="http://www.lispworks.com/reference/HyperSpec/Body/f_set.htm" class="symbol"&gt;set&lt;/A&gt;&lt;/SPAN&gt;)&lt;/SPAN&gt;&lt;BR&gt;                       &lt;SPAN class="paren3"&gt;(&lt;SPAN class=""&gt;&lt;A href="http://www.lispworks.com/reference/HyperSpec/Body/m_push.htm" class="symbol"&gt;push&lt;/A&gt; elem results&lt;/SPAN&gt;)&lt;/SPAN&gt;&lt;BR&gt;                       &lt;SPAN class="paren3"&gt;(&lt;SPAN class=""&gt;&lt;A href="http://www.lispworks.com/reference/HyperSpec/Body/m_push.htm" class="symbol"&gt;push&lt;/A&gt; &lt;SPAN class="paren4"&gt;(&lt;SPAN class=""&gt;&lt;A href="http://www.lispworks.com/reference/HyperSpec/Body/f_append.htm" class="symbol"&gt;append&lt;/A&gt; elem &lt;SPAN class="paren5"&gt;(&lt;SPAN class=""&gt;&lt;A href="http://www.lispworks.com/reference/HyperSpec/Body/a_list.htm" class="symbol"&gt;list&lt;/A&gt; next-el&lt;/SPAN&gt;)&lt;/SPAN&gt;&lt;/SPAN&gt;)&lt;/SPAN&gt; results&lt;/SPAN&gt;)&lt;/SPAN&gt;&lt;/SPAN&gt;)&lt;/SPAN&gt;&lt;BR&gt;                     &lt;SPAN class="paren2"&gt;(&lt;SPAN class=""&gt;&lt;A href="http://www.lispworks.com/reference/HyperSpec/Body/m_push.htm" class="symbol"&gt;push&lt;/A&gt; &lt;SPAN class="paren3"&gt;(&lt;SPAN class=""&gt;&lt;A href="http://www.lispworks.com/reference/HyperSpec/Body/a_list.htm" class="symbol"&gt;list&lt;/A&gt; next-el&lt;/SPAN&gt;)&lt;/SPAN&gt; results&lt;/SPAN&gt;)&lt;/SPAN&gt;&lt;BR&gt;                     &lt;SPAN class="paren2"&gt;(&lt;SPAN class=""&gt;gen-power-set results &lt;SPAN class="paren3"&gt;(&lt;SPAN class=""&gt;&lt;A href="http://www.lispworks.com/reference/HyperSpec/Body/f_car_c.htm" class="symbol"&gt;cdr&lt;/A&gt; &lt;A href="http://www.lispworks.com/reference/HyperSpec/Body/f_rest.htm" class="symbol"&gt;rest&lt;/A&gt;&lt;/SPAN&gt;)&lt;/SPAN&gt;&lt;/SPAN&gt;)&lt;/SPAN&gt;&lt;/SPAN&gt;)&lt;/SPAN&gt;&lt;/SPAN&gt;)&lt;/SPAN&gt;&lt;/SPAN&gt;)&lt;/SPAN&gt;&lt;/SPAN&gt;)&lt;/SPAN&gt;&lt;/SPAN&gt;)&lt;/SPAN&gt;&lt;BR&gt;    &lt;SPAN class="paren3"&gt;(&lt;SPAN class=""&gt;gen-power-set '&lt;SPAN class="paren4"&gt;()&lt;/SPAN&gt; source-set&lt;/SPAN&gt;)&lt;/SPAN&gt;&lt;/SPAN&gt;)&lt;/SPAN&gt;&lt;/SPAN&gt;)&lt;/SPAN&gt;&lt;BR&gt;</description>
+      <pubDate>Wed, 14 Apr 2010 09:39:43 GMT</pubDate>
+    </item>
+    <item>
+      <title>andy128k: А почему бы не...</title>
+      <link>http://lisper.ru/forum/thread/196</link>
+      <description>Потому что пишется дата последнего изменения. Если их небыло в 2010, то и писать 2010 не надо.</description>
+      <pubDate>Wed, 14 Apr 2010 09:22:24 GMT</pubDate>
+    </item>
+    <item>
+      <title>Ander Skirnir: А почему бы не...</title>
+      <link>http://lisper.ru/forum/thread/196</link>
+      <description>Или даже 2009-2010.</description>
+      <pubDate>Wed, 14 Apr 2010 03:24:38 GMT</pubDate>
+    </item>
+    <item>
+      <title>Ander Skirnir: А почему бы не...</title>
+      <link>http://lisper.ru/forum/thread/196</link>
+      <description>&lt;strong style="font-weight: bold;"&gt;&lt;span style="font-weight: normal;"&gt;А почему бы не сменить&lt;/span&gt; &lt;/strong&gt;&lt;strong style="font-weight: normal;"&gt;внизу год на 2010? :)&lt;/strong&gt;&lt;strong style="font-weight: bold;"&gt;&lt;br&gt;&lt;/strong&gt;</description>
+      <pubDate>Wed, 14 Apr 2010 03:23:45 GMT</pubDate>
+    </item>
+  </channel>
+</rss>

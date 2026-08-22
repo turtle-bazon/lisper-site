@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html> <head> <title>archimag: 3 October, 2010 </title> <link rel="stylesheet" href="/css/style.css"> <link rel="alternate" type="application/atom+xml" title="archimag: blog entries feed" href="/feeds/atom" /> <link rel="alternate" type="application/rss+xml" title="archimag: comments feed" href="http://archimagblog.disqus.com/latest.rss" />  </head> <body> <a href="http://github.com/archimag/"> <img style="position: absolute; top: 0; left: 0; border: 0;" src="https://d3nwyuy0nl342s.cloudfront.net/img/5d21241b64dc708fcbb701f68f72f41e9f1fadd6/687474703a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f7265645f6161303030302e706e67" alt="Fork me on GitHub"> </a> <div id="header"> <a href="/" id="archimag">archimag</a> </div> <div id="content">  <h1>Archive for 3 October, 2010</h1>  <div class="blog-post"> <h2><a href="/2010/10/03/parse-route-url">parse-route-url</a></h2> <div class="post-metadata"> <div class="post-published"> <a href="/2010/"> 2010 </a>, <a href="/2010/10/"> October </a> <a href="/2010/10/03/"> 3 </a> </div> <div class="post-tags"> <a href="/tags/">Tags</a>:  <a href="/tags/lisp">lisp</a>  <a href="/tags/restas">restas</a>  </div> </div> Добавил в <a href="http://restas.lisper.ru">RESTAS</a>, новую функцию: <pre>(defun parse-route-url (url route-symbol &optional submodule-symbol)<br />  ...)</pre> Поскольку польза от неё, как мне кажется, не вполне очевидна, то должен немного пояснить для чего я её использую.<br /><br />Я широко использую REST-стиль, в том числе, для взаимодействия между JavaScript-клиентом и веб-сервером. При этом, все данные представляются как ресурсы и идентифицируются с помощью URL, а в качестве обменного формата используется JSON (можно и  XML). Сейчас я столкнулся с тем, что часто необходимо с клиента (JavaScript) отправлять данные на сервер для какой-либо обработки, а в отсылаемых на сервер данных содержатся url-идентификаторы объектов. На сервере во время обработки необходимо разбирать эти url-индикаторы на составляющие их параметры (например, для составления запросов к базе). Делать это вручную (с помощью регулярных выражений) очень непродуктивно и совершенно не масштабируемо, поскольку формат этих url зависит от конфигурации среды и для их генерации используется функция <a href="http://restas.lisper.ru/ref/index.html#restas-genurl">restas:genurl</a>. Таким образом, функция <strong>restas:parse-route-url</strong> является обратной к семейству функций <strong>genurl</strong>.<br /><br />Данный функционал оказался очень востребованным для моего текущего приложения и, скорей всего, будет полезен во многих AJAX-приложениях на базе <a href="http://restas.lisper.ru">RESTAS</a>. </div>   </div> <div id="footer"> <div class="right"> Copyright (c) Moskvitin Andrey <br /> Powered by <a href="http://restas.lisper.ru">RESTAS</a> <div id="buttons"> <a href="http://www.sbcl.org/"> <img src="/image/sbclbutton.png" alt="SBCL" /> </a> <a href="http://weitz.de/hunchentoot/"> <img src="/image/hunchentoot10.png" alt="Hunchentoot" /> </a> <a href="http://www.mongodb.org/"> <img src="/image/logo-mongodb.png" alt="mongoDB" /> </a> </div> </div> <a href="http://feeds.feedburner.com/archimag/blog" class="feed">Posts feed</a> <br /> <a href="http://archimagblog.disqus.com/latest.rss" class="feed">Comments feed</a> </div> 
+<script type="text/javascript" charset="utf-8">
+var proto = (document.location.protocol=='https:')?'https:':'http:';
+var host = proto+'//widget.copiny.com';
+document.write(unescape("%3Cscript src='" + host + "/static/js/widget.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript" charset="utf-8">
+        var copinyWidgetOptions = {
+        position: 'right',
+        hostcommunity:'http://archimag.copiny.com',
+        newwindow: '0',
+        type: 'idea',
+        color:    '#ff8400',
+        border:   '#ffffff',
+        round:    '1',
+        title:      'Обратная связь',
+        cache:   '9ca936d041c7637244c3fb8ef4a8ea6c/9ca936d041c7637244c3fb8ef4a8ea6c/ejOwVXUxULV0BZFOhqouhqoWBmC2AZhtBGa7IIm4aYMpQ7CQEUQIzDYHs50B',
+        community:1456
+};
+initCopinyWidget(copinyWidgetOptions);
+CopinyWidget.showTab();
+</script>
+ 
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-22971320-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+ </body> </html>

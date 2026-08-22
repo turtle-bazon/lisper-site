@@ -1,0 +1,52 @@
+<html> <head> <meta http-equiv="Content-Type" content="text/html; charset='utf-8'" /> <title>Установка</title> <link rel="stylesheet" type="text/css" href="_static/style.css" /> <link rel="stylesheet" type="text/css" href="_static/colorize.css" /> </head> <body> <div id="frame"> <div id="page-title"> <h1>RESTAS</h1> <b>Фрэймворк для разработки web-приложений на Common Lisp</b> </div> <div id="menu"> <ul>  <li>  <a href="index.html">Начало</a>   </li>  <li>  <a href="overview.html">Обзор</a>   </li>  <li>  <strong>Установка</strong>   </li>  <li>  <a href="tutorial/contents.html">Введение</a>   <ul>  <li>  <a href="tutorial/hello-world.html">Hello World</a>  </li>  <li>  <a href="tutorial/pastebin.html">Pastebin</a>  </li>  </ul>  </li>  <li>  <a href="manual/contents.html">Руководство</a>   <ul>  <li>  <a href="manual/routes.html">Маршруты</a>  </li>  <li>  <a href="manual/modules.html">Модули</a>  </li>  <li>  <a href="manual/view.html">Представление</a>  </li>  <li>  <a href="manual/daemon.html">Демонизация</a>  </li>  <li>  <a href="manual/slime.html">SLIME</a>  </li>  </ul>  </li>  <li>  <a href="ref/index.html">API Reference</a>   </li>  </ul> </div> <div id="content"> <div id="установка" class="document"><h1 class="title">Установка</h1>
+<h2 id="ручная-установка" class="subtitle">Ручная установка</h2><a id="installation" class="target" name="installation"></a><p><a class="reference" href="http://restas.lisper.ru/"><span>RESTAS</span></a> это обычная, <a class="reference" href="http://common-lisp.net/projects/asdf/"><span>ASDF</span></a>-система, и его установка ничем не отличается от установки большинства других пакетов:</p>
+<p>Перед установкой <a class="reference" href="http://restas.lisper.ru/"><span>RESTAS</span></a> необходимо установить следующие зависимости:</p>
+<ul>
+<li><p class="first"><a class="reference" href="http://www.weitz.de/hunchentoot/"><span>Hunchentoot</span></a></p>
+</li>
+<li><p class="first"><a class="reference" href="http://common-lisp.net/project/alexandria/"><span>alexandria</span></a></p>
+</li>
+<li><p class="first"><a class="reference" href="http://code.google.com/p/cl-routes/"><span>cl-routes</span></a></p>
+</li>
+<li><p class="first"><a class="reference" href="http://code.google.com/p/garbage-pools/"><span>garbage-pools</span></a></p>
+</li>
+</ul>
+<p>Далее необходимо получить исходный код. Последнюю версию <a class="reference" href="http://restas.lisper.ru/"><span>RESTAS</span></a> можно скачать на странице <a class="reference" href="http://code.google.com/p/restas/downloads/list"><span>http://code.google.com/p/restas/downloads/list</span></a>.</p>
+<p>Любители нестабильных версий могут также воспользоваться имеющимся <a class="reference" href="http://git-scm.com/"><span>git</span></a>-репозиторием: :</p>
+<pre class="literal-block">
+git clone git://github.com/archimag/restas.git
+</pre><p>Теперь необходимо распаковать исходный код и добавить его в <span class="common-lisp-entity">asdf:*central-registry*</span>:</p>
+<p><div class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_push.htm" class="symbol">push</a> #P<span class="string">"/path/to/restas/"</span> <span class="special">asdf:*central-registry*</span></span>)</span></div></p>
+<p>Или создать символическую ссылку: :</p>
+<pre class="literal-block">
+cd &nbsp;/sbcl/.systems   # Или любая другая директория, указанная в asdf:*central-registry*
+ln -s /path/to/restas/restas.asd .
+</pre><div id="использование-clbuild" class="section"><h2><a name="использование-clbuild">Использование clbuild</a></h2>
+<p>Другой вариант установки - использовать форк <a class="reference" href="http://common-lisp.net/project/clbuild/"><span>clbuild</span></a>, репозиторий которого находится на странице <a class="reference" href="http://github.com/archimag/clbuild-archimag"><span>http://github.com/archimag/clbuild-archimag</span></a>. Использование этого инструмента ничем не отличается от использования оригинального <a class="reference" href="http://common-lisp.net/project/clbuild/"><span>clbuild</span></a>.</p>
+</div>
+<div id="gentoo-linux" class="section"><h2><a name="gentoo-linux">Gentoo Linux</a></h2>
+<p>Пользователи Gentoo Linux могут воспользоваться <a class="reference" href="http://github.com/archimag/archimag-lisp-overlay"><span>archimag-lisp-overlay</span></a>, который является форком <a class="reference" href="http://repo.or.cz/w/gentoo-lisp-overlay.git"><span>gentoo-lisp-overlay</span></a>.</p>
+<p>Установить этот оверлей при помощи <a class="reference" href="http://layman.sourceforge.net/"><span>layman</span></a> можно следующим образом: :</p>
+<pre class="literal-block">
+emerge layman
+</pre><p>Теперь необходимо добавить <a class="reference" href="http://github.com/archimag/archimag-lisp-overlay/raw/master/layman-list.xml"><span>http://github.com/archimag/archimag-lisp-overlay/raw/master/layman-list.xml</span></a> в параметр overlays в конфигурационном файле /etc/layman/layman.cfg: :</p>
+<pre class="literal-block">
+overlays  : http://www.gentoo.org/proj/en/overlays/repositories.xml
+            http://github.com/archimag/archimag-lisp-overlay/raw/master/layman-list.xml
+</pre><p>И наконец: :</p>
+<pre class="literal-block">
+layman -f -a archimag-lisp
+emerge restas
+</pre></div>
+<div id="опциональные-пакеты" class="section"><h2><a name="опциональные-пакеты">Опциональные пакеты</a></h2>
+<div id="id1" class="section"><h3><a name="id1">PURI-UNICODE</a></h3>
+<p><a class="reference" href="http://restas.lisper.ru/"><span>RESTAS</span></a> зависит от <a class="reference" href="http://puri.b9.com/"><span>puri</span></a>, которая является очень хорошей библиотекой, но имеет тот существенный недостаток, что не обеспечивает корректного разбора URL содержащих не-ASСII символы (для кодирования которых используется UTF-8). Для решения этой проблемы вместо <a class="reference" href="http://puri.b9.com/"><span>puri</span></a> можно использовать <a class="reference" href="http://github.com/archimag/puri-unicode"><span>puri-unicode</span></a>, которая является форком <a class="reference" href="http://puri.b9.com/"><span>puri</span></a> и обеспечивает корректную обработку подобных символов с помощью библиотеки <a class="reference" href="http://common-lisp.net/project/babel/"><span>babel</span></a>. Скачать стабильную версию этой библиотеки можно по адресу: <a class="reference" href="http://github.com/archimag/puri-unicode/downloads"><span>http://github.com/archimag/puri-unicode/downloads</span></a>.</p>
+</div>
+<div id="id2" class="section"><h3><a name="id2">SLIME-ARCHIMAG</a></h3>
+<p><a class="reference" href="http://common-lisp.net/project/slime/"><span>SLIME</span></a> является, безусловно, выдающимся инструментом для разработки приложений на Common Lisp, но, к сожалению, он замкнут на себя и не предусматривает простых механизмов расширения функционала. Между тем, он содержит замечательную инфраструктуру, которая могла бы быть использована для предоставления различных инструментальных средств. <a class="reference" href="http://restas.lisper.ru/"><span>RESTAS</span></a> поддерживает <a href="manual/slime.html#slime">интеграцию</a> со <a class="reference" href="http://common-lisp.net/project/slime/"><span>SLIME</span></a>, предоставляя ряд инструментов, упрощающих разработку веб-приложений, но для их использования необходимо использовать форк <a class="reference" href="http://github.com/archimag/slime-archimag"><span>SLIME-ARCHIMAG</span></a>, вместо оригинального <a class="reference" href="http://common-lisp.net/project/slime/"><span>SLIME</span></a>, и  дополнительная инициализация Emacs: :</p>
+<pre class="literal-block">
+(add-to-list 'load-path "/path/to/restas/slime/")
+(require 'restas)
+</pre></div>
+</div>
+</div> </div> </div> <div class="bottom">@2009-2010 Moskvitin Andrey</div> <script type="text/javascript"> var _gaq = _gaq || []; _gaq.push(['_setAccount', 'UA-5970365-12']); _gaq.push(['_trackPageview']); (function() { var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true; ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s); })(); </script> </body></html>

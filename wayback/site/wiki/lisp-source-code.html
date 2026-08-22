@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru"> <head> <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> <meta name="keywords" content="Common Lisp,lisp,лисп" /> <meta name="google-site-verification" content="28QkbFqLuUHaFym8hWK_O_grW1_wSyBF5m_uaVOBf00" />  <title>lisp-source-code</title>   <link href="/css/style.css" rel="stylesheet" type="text/css" />  <link href="/css/wiki.css" rel="stylesheet" type="text/css" />  <link href="/css/colorize.css" rel="stylesheet" type="text/css" />   </head> <body> <div class="top">  <div id="login"> <a href="/register">Регистрация</a> | <a href="/login?done=/wiki/lisp-source-code">Войти</a> </div>  </div> <div id="caution"> <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png" /> </div> <div id="mainmenu"> <ul>  <li> <a href="/">Главная</a> </li>  <li> <a href="/articles/">Статьи</a> </li>  <li> <a href="/planet/">Планета</a> </li>  <li> <a href="/forum/">Форум</a> </li>  <li> <a href="/apps/">Сервисы</a> </li>  <li> <a href="/pcl/">Practical Common Lisp</a> </li>  <li> <a href="/wiki/">Wiki</a> </li>  <li> <a href="/files/">Файлы</a> </li>  <li> <a href="/search">Поиск</a> </li>  </ul> </div> <div id="content"> <ul class="wiki-page-menu">  <li> <a href="/wiki/edit/lisp-source-code">Edit</a> </li>    <li> <a href="/wiki/history/lisp-source-code">History</a> </li>    </ul><div class="article"><div class="toc"><div class="toc-header">Содержание</div><div class="toc-body"><ul><li><div><a href="#&#x413;&#x434;&#x435; &#x43A;&#x43E;&#x414; &#x436;&#x438;&#x432;&#x451;&#x422;">Где коД живёТ</a><ul><li><div><a href="#1 / &#x41E;&#x43F;&#x438;&#x441;&#x430;&#x442;&#x435;&#x43B;&#x44C;&#x43D;&#x44B;&#x435; &#x440;&#x435;&#x441;&#x443;&#x440;&#x441;&#x44B;">1 / Описательные ресурсы</a><ul><li><div><a href="#Cl-User">Cl-User</a></div></li><li><div><a href="#CLiki">CLiki</a></div></li><li><div><a href="#clisp.cons.org">clisp.cons.org</a></div></li></ul></div></li><li><div><a href="#2 / &#x421;&#x430;&#x439;&#x442;&#x44B; &#x43F;&#x440;&#x43E;&#x435;&#x43A;&#x442;&#x43E;&#x432;">2 / Сайты проектов</a><ul><li><div><a href="#Common-Lisp.net">Common-Lisp.net</a></div></li><li><div><a href="#Github">Github</a></div></li><li><div><a href="#ftp.linux.org">ftp.linux.org</a></div></li><li><div><a href="#Sourceforge">Sourceforge</a></div></li><li><div><a href="#Franz.inc">Franz.inc</a></div></li></ul></div></li><li><div><a href="#3 / &#x41F;&#x435;&#x440;&#x441;&#x43E;&#x43D;&#x430;&#x43B;&#x44C;&#x43D;&#x44B;&#x435; &#x441;&#x430;&#x439;&#x442;&#x44B;">3 / Персональные сайты</a><ul><li><div><a href="#Weitz.de">Weitz.de</a></div></li><li><div><a href="#Cyrusharmon">Cyrusharmon</a></div></li><li><div><a href="#Metabang.com">Metabang.com</a></div></li><li><div><a href="#Zach Beane">Zach Beane</a></div></li><li><div><a href="#tenkan.org">tenkan.org</a></div></li></ul></div></li><li><div><a href="#4 / &#x410;&#x43A;&#x430;&#x434;&#x435;&#x43C;&#x438;&#x447;&#x435;&#x441;&#x43A;&#x438;&#x439; &#x438; &#x443;&#x447;&#x435;&#x431;&#x43D;&#x44B;&#x439; &#x43A;&#x43E;&#x434;">4 / Академический и учебный код</a><ul><li><div><a href="#Norvig.com">Norvig.com</a></div></li><li><div><a href="#paulgraham.com">paulgraham.com</a></div></li><li><div><a href="#SICP">SICP</a></div></li><li><div><a href="#cs.cmu.edu">cs.cmu.edu</a></div></li><li><div><a href="#PowerLoom">PowerLoom</a></div></li></ul></div></li></ul></div></li></ul></div></div>
+<div class="chapter" id="&#x413;&#x434;&#x435; &#x43A;&#x43E;&#x414; &#x436;&#x438;&#x432;&#x451;&#x422;"><h3>Где коД живёТ</h3>
+
+<p>Или немного про библиотеки к Common Lisp.
+</p>
+<p>Лисп - язык с почтительной историей. Лисп активно используется университетами в обучении. И, наконец, Лисп - практический язык, на котором можно (и нужно :) писать по-разному и в различных областях. Это я к чему – раз всё так, то, наверно, должно быть много полезного кода, много библиотек и прочих ресурсов, которые могли бы помочь в решение насущных задач и спасли от “делания велосипедов” (хм, хотя это иногда и полезно). Эта небольшая статья должна помочь разобраться, где и что брать. <a class="fn_top" id="fnt__1" href="#fn__1">1)</a>
+</p>
+<p>Если говорить условно, то можно сделать такой вывод - есть четыре основных источника кода:
+</p><ul><li> Описательные ресурсы, посвященные только Лиспу. </li><li> Ресурсы, на которых непосредственно находится Лисп-код (имплементации, библиотеки и т.д.). Это могут быть не только Лисп направленные ресурсы. Существуют также сайты, посвященные целиком одному проекту.</li><li> Персональные сайты на которых авторы представляют свои проекты. </li><li> Учебный код, также сайты университетов. Часто код "спрятан" где-нибудь в ftp директориях и не анонсируется на главной странице. </li></ul>
+<p>Теперь немного подробнее и со ссылками.
+</p>
+<div class="chapter" id="1 / &#x41E;&#x43F;&#x438;&#x441;&#x430;&#x442;&#x435;&#x43B;&#x44C;&#x43D;&#x44B;&#x435; &#x440;&#x435;&#x441;&#x443;&#x440;&#x441;&#x44B;"><h3>1 / Описательные ресурсы</h3>
+
+<p>Итак, во-первых - общие сайты, посвященные именно Лиспу, и собирающие о нём всевозможную информацию. Среди них основные следующие.
+</p>
+<div class="chapter" id="Cl-User"><h3>Cl-User</h3>
+
+<p><a href="http://www.cl-user.net/">cl-user</a> - что-то вроде базы данных по библиотекам, реализациям Лиспа, документации и книгам. Сейчас больше 1000 записей (из которых 600 - библиотеки), каждая в таком духе: "родной" веб-сайт проекта, авторы, дата релиза, ссылка на релиз, поддерживаемые платформы, зависимости, могут быть примеры использования, ссылки на мануалы и т.д. Есть поиск, система тэгов для ориентировки и ссылки на другие сайты. К сожалению, все ссылки представлены одним большим списком, и разобраться в них не просто, поэтому этот ресурс полезен, когда знаешь, что именно хочешь найти.
+</p>
+</div><div class="chapter" id="CLiki"><h3>CLiki</h3>
+
+<p><a href="http://www.cliki.net/">CLiki</a> - Вики энциклопедия о Лиспе (и сама написана на Лиспе), отличается от предыдущего ресурса, большей наглядностью, но содержит меньше ссылок на ресурсы, зато те, что есть: лучше рассмотрены. Отдельные темы раскрыты в виде статей, что позволяет иногда использовать Cliki как мини-мануал. (Cуществует ресурс <a href="http://wiki.alu.org/">wiki.alu</a> которому почему-то "противопоставляет" себя cliki, так и пишут “Non-Free, non-Unix and non-Common Lisp resources can be found at the ALU wiki”. А вот о cl-user сказано “All the Common Lisp resources can be found at ...”, что подчеркивает - полная информация именно там)
+</p>
+</div><div class="chapter" id="clisp.cons.org"><h3>clisp.cons.org</h3>
+
+<p><a href="http://clisp.cons.org/resources.html"/>Здесь можно увидеть выборку основных ресурсов, как она видится создателям CLisp.
+</p>
+</div></div><div class="chapter" id="2 / &#x421;&#x430;&#x439;&#x442;&#x44B; &#x43F;&#x440;&#x43E;&#x435;&#x43A;&#x442;&#x43E;&#x432;"><h3>2 / Сайты проектов</h3>
+
+<p>Второе – сайты проектов, именно на такие ресурсы ведут ссылки с cliki или cl-user.
+</p>
+<div class="chapter" id="Common-Lisp.net"><h3>Common-Lisp.net</h3>
+
+<p><a href="http://common-lisp.net/">common-lisp.net</a> - хостинг для размещения CL проектов с CVS репозиторием. Много Лисп-кода физически тут и находится. Если кто-то захочет разместить тут свой проект ;)) , то это возможно – после личной переписки с администрацией.
+</p>
+</div><div class="chapter" id="Github"><h3>Github</h3>
+
+<p>В системе контроля открытых проектов github есть <a href="http://github.com/languages/Common%20Lisp">раздел Common Lisp</a>.
+</p>
+</div><div class="chapter" id="ftp.linux.org"><h3>ftp.linux.org</h3>
+
+<p>На <a href="http://ftp.linux.org.uk/pub/lisp/">ftp.linux.org.uk</a> лежат исходники (и бинарники) некоторых популярных cl проектов – cmucl, sbcl, slime. Здесь же находится <a href="http://ftp.linux.org.uk/pub/lisp/cclan/">код cliki</a> вместе с другими необходимыми пакетами.
+</p>
+</div><div class="chapter" id="Sourceforge"><h3>Sourceforge</h3>
+
+<p>Некоторые проекты живут и на <a href="http://sourceforge.net/">sourceforge</a>, если количественно - то несколько сот. Обычно о них можно прочитать и на CLiki.
+</p>
+</div><div class="chapter" id="Franz.inc"><h3>Franz.inc</h3>
+
+<p>Компания <a href="http://www.franz.com/">franz.inc</a> имеет некоторое количество открытого кода (по большей части для реализации Allegro) смотрите : <a href="http://opensource.franz.com/">opensource.franz.com</a> и на <a href="http://github.com/franzinc">github</a>.
+</p>
+</div></div><div class="chapter" id="3 / &#x41F;&#x435;&#x440;&#x441;&#x43E;&#x43D;&#x430;&#x43B;&#x44C;&#x43D;&#x44B;&#x435; &#x441;&#x430;&#x439;&#x442;&#x44B;"><h3>3 / Персональные сайты</h3>
+
+<p>Третий источник кода – персональные сайты разработчиков, т.е. сайты людей, которые занимаются программирование на Лиспе. Там может быть и не все о Лиспе.
+</p>
+<div class="chapter" id="Weitz.de"><h3>Weitz.de</h3>
+
+<p><a href="http://weitz.de/">weitz.de</a> - вот сайт где много практического кода. (Вообще можно сделать и такой вывод – код делится на два типа. Первый тип кода добавляет возможности, меняет синтаксис, вводит какие-то абстракции, но за рамки Лисп-мира так и не выходит. И второй тип кода - код связывающий Лисп (который упрекают, что он "вещь в себе") с реальным миром – с юникодом, с разными форматами файлов, с которыми нужно работать, с веб программированием и т.д.)
+</p><ul><li> <a href="http://weitz.de/cl-ppcre/">cl-ppcre</a> - библиотека, позволяющая использовать регулярные выражения (Perl-типа). </li><li> <a href="http://weitz.de/hunchentoot/">hunchentoot</a> - веб-сервер, также содержит средства для создания динамических веб-страниц. </li><li> <a href="http://weitz.de/drakma/">drakma</a> - веб-клиент, поддерживающий различные протоколы. </li><li> <a href="http://weitz.de/cl-unicode/">cl-unicode</a> - библиотека для работы с юникодом. </li><li> <a href="http://weitz.de/cl-interpol/">cl-interpol</a> - библиотека, позволяющая использовать интерполяцию переменных в строках, т.е. замену переменных на их значения, подобно тому, как это делается в Perl.</li><li> Также тут можно найти библиотеки для работы с HTML, <a href="http://weitz.de/cl-wbxml/">парсинга XML</a>, графические библиотеки , переносимую <a href="http://weitz.de/cl-fad/">библиотека файловых путей</a> (описана в PCL).</li></ul>
+</div><div class="chapter" id="Cyrusharmon"><h3>Cyrusharmon</h3>
+
+<p><a href="http://www.cyrusharmon.org/blog">cyrusharmon</a> этот блог чем-то перекликается с предыдущим ресурсом - тут можно найти биндинги к hunchentoot и утилиты для FFI.
+</p>
+</div><div class="chapter" id="Metabang.com"><h3>Metabang.com</h3>
+
+<p><a href="http://metabang.com/open-source-software.html">metabang.com</a> - ресурс содержит открытый код под лицензией MIT, все проекты есть также и на common-lisp.net.
+</p><ul><li> <a href="http://common-lisp.net/project/cl-graph/">cl-graph</a> - библиотека графических алгоритмов. </li><li> <a href="http://common-lisp.net/project/cl-variates/">cl-variates</a> - генератор случайных чисел. </li><li> <a href="http://common-lisp.net/project/cl-mathstats/">cl-mathstats</a> - математическая библиотека. </li><li> <a href="http://common-lisp.net/project/trivial-shell/">Лисп-shell</a>, командная лисп-оболочка. </li><li> А также утилиты для системы ASDF.</li></ul>
+</div><div class="chapter" id="Zach Beane"><h3>Zach Beane</h3>
+
+<p><a href="http://www.xach.com/lisp/">Ресурс Zach Beane</a> содержит в основном графические библиотеки, позволяющие в CL работать с такими форматами как jpeg, gif, png, TTF и векторной графикой. Также есть <a href="http://www.xach.com/lisp/salza2/">библиотека</a> для работы с форматами gzip и zlib.
+</p>
+</div><div class="chapter" id="tenkan.org"><h3>tenkan.org</h3>
+
+<p><a href="http://tenkan.org/~tim/trivial-captcha/">trivial-captcha</a> - генератор каптчи на Лиспе. Плюсы - всего пара страниц кода, а изображения получаются загкрученные, чем-то на гугловские похожи. Минус - невысокая скорость генерации. За основы берутся буквы из pgm файла (gray map) и работа с этими файлами включена в этот код. Если пожертвовать нулевой зависимостью библиотеки и использовать png, то можно добится большего эффекта.
+</p>
+</div></div><div class="chapter" id="4 / &#x410;&#x43A;&#x430;&#x434;&#x435;&#x43C;&#x438;&#x447;&#x435;&#x441;&#x43A;&#x438;&#x439; &#x438; &#x443;&#x447;&#x435;&#x431;&#x43D;&#x44B;&#x439; &#x43A;&#x43E;&#x434;"><h3>4 / Академический и учебный код</h3>
+
+<p>И четыре – Сайты университетов, и другой академический и учебный код.
+</p>
+<div class="chapter" id="Norvig.com"><h3>Norvig.com</h3>
+
+<p><a href="http://norvig.com/">norvig.com</a>, сайт Питера Норвига - ученого, автора книг по ИИ (AIMA, PAIP, у нас, между прочим, тоже по ним преподают кое-где) и директора Google. Что там есть:
+</p><ul><li> <a href="http://aima.cs.berkeley.edu/lisp/">Код</a> относящийся к книге Artificial Intelligence: A Modern Approach, а его описание <a href="http://aima.cs.berkeley.edu/lisp/doc/overview.html">здесь</a>. Надо сказать, что это книга не о Лисп, а о ИИ, Лисп используется наряду с другими языками (Java и Python) для демонстрации некоторых идей. </li><li> <a href="http://norvig.com/paip/">Код</a> к книге Paradigms of AI Programming. Тут уже всё средствами Лисп: примеры AI ("говорилки" проще говоря), экспертные системы, интерпретатор пролога, примеры из теории Лиспа – интерпретация, компиляция, хвостовая рекурсия.</li><li> Схема, написанная на Java-Script - <a href="http://norvig.com/jscheme.html">jscheme</a></li></ul>
+</div><div class="chapter" id="paulgraham.com"><h3>paulgraham.com</h3>
+
+<p><a href="http://www.paulgraham.com/lispcode.html">Код</a> учебного и утилитного характера на <a href="http://www.paulgraham.com/">сайте</a> Пола Грэхема. Также можно взглянуть на <a href="http://www.paulgraham.com/apps.html">список</a> приложений, написанных на Лиспе.
+</p>
+</div><div class="chapter" id="SICP"><h3>SICP</h3>
+
+<p><a href="http://mitpress.mit.edu/sicp/code/index.html">Код</a> к книге SICP.
+</p>
+</div><div class="chapter" id="cs.cmu.edu"><h3>cs.cmu.edu</h3>
+
+<p><a href="http://www-2.cs.cmu.edu/afs/cs/project/ai-repository/ai/lang/lisp/0.html">Лисп-код</a> на сайте университета CMU (Carnegie Mellon University). В репозитории много информации - книги, статьи, новости, даже видео. Но главное - код, отмечу:
+</p><ul><li> <a href="http://www-2.cs.cmu.edu/afs/cs/project/ai-repository/ai/lang/lisp/code/math/clmath/0.html">clmath</a> - математическая библиотека, т.е. функции из разных разделов высшей математики. </li><li> <a href="http://www-2.cs.cmu.edu/afs/cs/project/ai-repository/ai/lang/lisp/code/syntax/infix/0.html">infix</a> - инфиксные макросы, например читающие такой код : <code>(if x &lt; y &lt;= z then f(x) = x^^2 + y^^2 else f(x) = x^^2 - y^^2)</code></li><li> <a href="http://www-2.cs.cmu.edu/afs/cs/project/ai-repository/ai/lang/lisp/code/syntax/parcil/0.html">parcil</a> - парсер C кода : разбор <code>(parcil "x = y * sin (pi / 2.7)")</code> в итоге выполняет <code>(setf x (* y (sin (/ pi 2.7))))</code></li><li> <a href="http://www-2.cs.cmu.edu/afs/cs/project/ai-repository/ai/lang/lisp/code/syntax/haskell/0.html">haskell</a> - сурьёзная релизация Haskell на Lisp :)) </li><li> <a href="http://www-2.cs.cmu.edu/afs/cs/project/ai-repository/ai/lang/lisp/code/codewalk/0.html">Codewalk-еры</a> </li><li> <a href="http://www-2.cs.cmu.edu/afs/cs/project/ai-repository/ai/lang/lisp/code/iter/0.html">Итераторы</a></li></ul>
+<p>(На самом деле код к SICP есть и тут... Западные университеты почему-то определяют Лисп в направление AI, пусть так, это НЕ значит что там только ИИ и нет никакого практического кода)
+</p>
+</div><div class="chapter" id="PowerLoom"><h3>PowerLoom</h3>
+
+<p>PowerLoom
+</p></div></div></div><div class="footnotes"><div><a class="fn_bot" id="fn__1" href="#fnt__1">1)</a>Далее я говорю “Лисп”, хотя иногда это означает “Common Lisp”</div></div></div> </div> <div class="bottom">@2009-2010 lisper.ru</div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-7734690-1");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+ </body> </html>

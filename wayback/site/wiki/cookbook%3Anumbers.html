@@ -1,0 +1,337 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru">
+	<head>
+      	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"></meta>
+
+        <meta name="verify-v1" content="o6r5tA9qF5PflmPb3cI7rJrWpFBGTkIE9X4KU25TxiE="></meta>
+
+        <meta name="keywords" content="Common Lisp,lisp,лисп"></meta>
+
+        <link href="/css/fine/style.css" rel="stylesheet" type="text/css">
+        <link href="/css/fine/colorize.css" rel="stylesheet" type="text/css">
+	<title>cookbook:numbers</title>
+<link href="/css/fine/wiki.css" rel="stylesheet" type="text/css"></head>
+
+	<body>
+        <div class="top">
+            <div id="login">
+    <a href="/register">Регистрация</a> |
+    <a href="/login?done=http%3A%2F%2Flisper.ru%2Fwiki%2Fcookbook%3Anumbers">Войти</a>
+</div>
+        </div>
+
+        <div id="caution">
+            <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png"></img>
+        </div>
+
+        <div id="mainmenu">
+          <ul>
+<li><a href="/">Главная</a></li>
+<li><a href="/articles/">Статьи</a></li>
+<li><a href="/planet/">Планета</a></li>
+<li><a href="/forum/">Форум</a></li>
+<li><a href="/apps/">Сервисы</a></li>
+<li><a href="/pcl/">Practical Common Lisp</a></li>
+<li><a href="/wiki/">wiki</a></li>
+</ul>
+        </div>
+
+        <div id="content"><div class="article">
+<div class="toc">
+<div class="toc-header">Содержание</div>
+<div class="toc-body"><ul><li><div>
+<a href="#47fc4de601774c3f4cf6b3a6c050d1a3">Числа</a><ul>
+<li><div><a href="#b6876d069eca987cc61acec5a05112f2">Типы чисел</a></div></li>
+<li><div><a href="#a045ae31c26fbf5f17502cc61e12a133">Сравнение чисел</a></div></li>
+<li><div><a href="#347e1cf496cc6883e72280cd0c925c9f">Приведение типов</a></div></li>
+<li><div><a href="#93e08cc9ac92ef75752bbbc85daf15e9">Встроенные математические функции</a></div></li>
+<li><div><a href="#7f27d9697338223bd7d1b49363f0808d">Случайные числа</a></div></li>
+<li><div><a href="#486ba5c1084712eec5efa05aa10a8147">Булевые функции</a></div></li>
+<li><div><a href="#ce206a9c4f838a66dd43d1b126fd65d9">Логические функции для работы с битами чисел</a></div></li>
+<li><div><a href="#5f744b452b71fb72ba4005c7c698cee3">Работа с битами чисел</a></div></li>
+<li><div><a href="#53e3a4d44b96e1de0e9e7b9e16f82b44">Границы точности для чисел</a></div></li>
+<li><div><a href="#32e949eb4b6285e87c5484ef28b17481">Пример : корень функции на комплексной плоскости</a></div></li>
+<li><div><a href="#a6e9d0bb2d6449c96508f0521b191dbb">Библиотеки</a></div></li>
+</ul>
+</div></li></ul></div>
+</div>
+<div class="chapter" id="47fc4de601774c3f4cf6b3a6c050d1a3">
+<h3>Числа</h3>
+
+<p>Common Lisp поддерживает на базовом уровне целые числа, практически не ограничинные по величине, дробные числа, рациональные дроби и комплексные числа. Кроме того, в стандарт входят различные математические функции для работы с числами.
+</p>
+<div class="chapter" id="b6876d069eca987cc61acec5a05112f2">
+<h3>Типы чисел</h3>
+
+<p>Числа имеют свою иерархию:
+</p>
+<pre class="code"><a href="http://www.lispworks.com/reference/HyperSpec/Body/t_number.htm" class="symbol">number</a> <br>    <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_real.htm" class="symbol">real</a> <br>        <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_ration.htm" class="symbol">rational</a> <br>            <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_intege.htm" class="symbol">integer</a> <br>                <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_fixnum.htm" class="symbol">fixnum</a><br>                <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_fixnum.htm" class="symbol">fixnum</a><br>            <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_ratio.htm" class="symbol">ratio</a><br>        <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_float.htm" class="symbol">float</a><br>            <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_short_.htm" class="symbol">short-float</a><br>            <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_short_.htm" class="symbol">single-float</a><br>            <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_short_.htm" class="symbol">double-float</a><br>            <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_short_.htm" class="symbol">long-float</a><br>    <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_comple.htm" class="symbol">complex</a><br></pre>
+
+<p>как видим, эта система древовидна - число принадлежит какому-либо типу, его супер-типу, и так вплоть до <strong>number</strong>, которому принадлежат все числа.
+</p>
+<p><strong>fixnum</strong> представляют из себя числа фиксированной точности - например 32-битные, при превышении по модулю некоторого предела (зависящего от платформы) они переходят в <strong>bignum</strong>, то есть числа в длинной арифметике. Вне зависимости от платформы CL гарантирует, что числа в диапазоне [-2^15, 2^15 - 1] являются fixnum числами. Размер bignum зависит только от количества памяти, выделяемой ОС лисп-среде.
+</p>
+<p><strong>ratio</strong> - это рациональные числа с положительным целым знаменателем и целым числителем (типов <strong>integer</strong>). для их записи можно использовать инфиксную форму: <code>1/2</code>, <code>3/4</code>. С точки зрения Лиспа 2/4 равно 1/2, и такое сокращение производится немедленно. Рациональные числа также получаются при делении целых:
+</p>
+<pre class="code"><p>1/2<br><span class="comment">;-&gt; 1/2<br></span><span class="paren1">(<span class="">/ 1 2</span>)</span><br><span class="comment">;-&gt; 1/2<br></span><span class="paren1">(<span class="">/ 4 8</span>)</span><br><span class="comment">;-&gt; 1/2<br></span><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> <span class="paren2">(<span class="">/ 4 8</span>)</span> 2</span>)</span><br><span class="comment">;-&gt; 1<br></span></p></pre>
+
+<p>Дробные числа бывают 4 видов точности - <strong>short-float</strong>, <strong>single-float</strong>, <strong>double-float</strong> и <strong>long-float</strong>. По умолчанию используются double-float числа. Эти числа возникают при использовании констант дробного типа, например таких как встроенная константа pi, и как результат некоторых функций.
+</p>
+<pre class="code"><span class="paren1">(<span class="">/ 1 2.0</span>)</span><br><span class="comment">;-&gt; 0.5<br></span><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> 2 <a href="http://www.lispworks.com/reference/HyperSpec/Body/v_pi.htm" class="symbol">pi</a></span>)</span><br><span class="comment">;-&gt; 6.283185307179586477L0<br></span>1e+1<br><span class="comment">;-&gt; 10.0<br></span></pre>
+
+<p>кроме записи в десятичной записи, дробные числа поддерживают запись в научной форме, например - <code>2e+5</code> это не целое число 2^5, а дробное.
+</p>
+<p>Наконец комплексные числа, <strong>complex</strong>, ведут себя как пары чисел типа <strong>real</strong>. Для их записи используется нотация <code>#C(real-part imag-part)</code>.
+</p>
+<p>Так как в CL типизация динамическая, в разное время переменная может иметь разный тип. Есть несколько функций, позволяющих проверить типы и их отношения:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_typep.htm" class="symbol">typep</a> 5 '<a href="http://www.lispworks.com/reference/HyperSpec/Body/t_number.htm" class="symbol">number</a></span>)</span><br><span class="comment">;-&gt; T<br></span><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_typep.htm" class="symbol">typep</a> 5 '<a href="http://www.lispworks.com/reference/HyperSpec/Body/t_fixnum.htm" class="symbol">fixnum</a></span>)</span><br><span class="comment">;-&gt; T<br></span><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_typep.htm" class="symbol">typep</a> 5 '<a href="http://www.lispworks.com/reference/HyperSpec/Body/t_bignum.htm" class="symbol">bignum</a></span>)</span><br><span class="comment">;-&gt; NIL<br></span><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_typep.htm" class="symbol">typep</a> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_exp_e.htm" class="symbol">expt</a> 1000 1000</span>)</span> '<a href="http://www.lispworks.com/reference/HyperSpec/Body/t_bignum.htm" class="symbol">bignum</a></span>)</span><br><span class="comment">;-&gt; T<br></span><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_tp_of.htm" class="symbol">type-of</a> 3.14159</span>)</span><br><span class="comment">;-&gt; DOUBLE-FLOAT<br></span><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_subtpp.htm" class="symbol">subtypep</a> '<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_ration.htm" class="symbol">rational</a> '<a href="http://www.lispworks.com/reference/HyperSpec/Body/t_real.htm" class="symbol">real</a></span>)</span><br><span class="comment">;-&gt; T<br></span></pre>
+
+</div>
+<div class="chapter" id="a045ae31c26fbf5f17502cc61e12a133">
+<h3>Сравнение чисел</h3>
+
+<p>Существует достаточно предикатов для сравнения чисел.
+</p>
+<ul>
+<li> <code>=</code> возвращает истину, если все его аргументы (от 1 и более, для 1 аргумента возвращает T) равны, иначе дает ложь.</li>
+<li> <code>/=</code> возвращает истину, если все его аргументы (от 1 и более, для 1 аргумента возвращает T) не равны, иначе дает ложь. Выражение <code>(/= a b c)</code> эквивалентно <code>(not (= a b c))</code>
+</li>
+<li> Четыре предиката <code>&lt;, &lt;=, &gt;, &gt;=</code> для сравнения чисел на меньше, меньше-или-равно, больше, больше-или-равно соответственно. Аналогично - аргументов может быть от 1 и более. Например: <code>(&lt; a b c d)</code> эквивалентно неравенству <code>a &lt; b &lt; c &lt; d</code> (которые позволены, например, в Python).</li>
+<li> Для сравнения чисел с нулём можно использовать специальные предикаты - <code>minusp, zerop, plusp</code> - они определены только для одно аргумента, и их назначение очевидно.</li>
+<li> Для определения чётности/нечётности чисела предназначены предикаты <code>evenp</code> и <code>oddp</code> соответственно.</li>
+<li> Наконец есть ряд предикатов для определения типа числа. Т.к. типизация динамическая, переменная может менять свой тип и проконтролировать его можно с помощью таких предикатов. <code>numberp, realp, rationalp, floatp, integerp, complexp, random-state-p</code> - по одной функции на каждый тип. О проверке с помощью typep и type-of уже писалось выше.</li>
+</ul>
+</div>
+<div class="chapter" id="347e1cf496cc6883e72280cd0c925c9f">
+<h3>Приведение типов</h3>
+
+<p>Эти функции используются для приведения чисел разных типов, а также для округления и получения частей.
+</p>
+<ul><li> <code>floor, ceiling, truncate, round</code> - принимают один или два аргумента - число и делитель (при отсутствии считается единицей). возвращает целую часть по делителю и остаток по делителю, остаток = число - целая-часть * делитель. Соответственно при единичном делителе получается просто целая и дробная части. Несколько примеров должны прояснить разницу между этими функциями:</li></ul>
+<pre class="code"><span class="comment">; floor возвращает ближайшее целое "снизу"<br></span><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_floorc.htm" class="symbol">floor</a> 5.1</span>)</span> =&gt; 5<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_floorc.htm" class="symbol">floor</a> 5.9</span>)</span> =&gt; 5<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_floorc.htm" class="symbol">floor</a> -5.1</span>)</span> =&gt; -6<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_floorc.htm" class="symbol">floor</a> -5.9</span>)</span> =&gt; -6<br><span class="comment">; ceiling возвращает ближайшее целое "сверху"<br></span><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_floorc.htm" class="symbol">ceiling</a> 5.1</span>)</span> =&gt; 6<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_floorc.htm" class="symbol">ceiling</a> 5.9</span>)</span> =&gt; 6<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_floorc.htm" class="symbol">ceiling</a> -5.1</span>)</span> =&gt; -5<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_floorc.htm" class="symbol">ceiling</a> -5.9</span>)</span> =&gt; -5<br><span class="comment">; truncate возвращает ближайшее целое "в сторону нуля"<br></span><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_floorc.htm" class="symbol">truncate</a> 5.1</span>)</span> =&gt; 5<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_floorc.htm" class="symbol">truncate</a> 5.9</span>)</span> =&gt; 5<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_floorc.htm" class="symbol">truncate</a> -5.1</span>)</span> =&gt; -5<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_floorc.htm" class="symbol">truncate</a> -5.9</span>)</span> =&gt; -5<br><span class="comment">; round возвращает ближайшее целое<br></span><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_floorc.htm" class="symbol">round</a> 5.1</span>)</span> =&gt; 5<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_floorc.htm" class="symbol">round</a> 5.9</span>)</span> =&gt; 6<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_floorc.htm" class="symbol">round</a> -5.1</span>)</span> =&gt; -5<br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_floorc.htm" class="symbol">round</a> -5.9</span>)</span> =&gt; -6<br></pre>
+<ul>
+<li> <code>ffloor, fceiling, ftruncate, fround</code> - то же самое, но остаток возвращается такой же точности, как и число.</li>
+<li> <code>(mod a b)</code> = второе значение  <code>(floor a b)</code>.</li>
+<li> <code>(rem a b)</code> = второе значение  <code>(truncate a b)</code>.</li>
+<li> <code>float</code> - для образования дробного числа. Например для того, чтобы не тратить время на операции с рациональными, которые более медленны.</li>
+<li> <code>rational</code> и <code>rationalize</code> - для приведения дробного к рациональному.</li>
+<li> <code>numerator</code> - возвращает числитель рационального числа.</li>
+<li> <code>denominator</code> - возвращает знаменатель рационального числа.</li>
+<li> <code>complex</code> - для образования комплексного числа их действительной и мнимой частей.</li>
+<li> <code>realpart</code> - возвращает действительную часть комплексного числа.</li>
+<li> <code>imagpart</code> - возвращает мнимую часть комплексного числа.</li>
+</ul>
+</div>
+<div class="chapter" id="93e08cc9ac92ef75752bbbc85daf15e9">
+<h3>Встроенные математические функции</h3>
+
+<p>Есть достаточно много встроенных функций для работы с числами. Также плюс в том, что они оптимизированы для работы с большими числами. Кроме того они расширены и на область комплексных чисел, поэтому ведут себя правильно и в этом смысле.
+</p>
+<p>Итак, функции, работающие со всеми числовыми типами:
+</p>
+<ul>
+<li> <code>+</code> и <code>*</code> используют от нуля (в этом случае (+) дает 0, а (*) дает 1) и более аргументов.</li>
+<li> <code>-</code> и <code>/</code> определены либо для 1, либо для двух аргументов. - c одним аргументом возвращает противоположное по знаку значение, а / - обратное для числа. Для функции / - если оба аргумента были целыми, то результат рациональный, а если хоть один дробный - результат тоже дробный.</li>
+<li> <code>(exp x)</code> - экспонента числа x = e^x.</li>
+<li> <code>(expt x a)</code> - число x в степени a = x^a.</li>
+<li> <code>sin, cos, tan, acos, asin, atan</code> - ряд тригонометрических функций. Аргумент задаётся в радианах.</li>
+<li> <code>sinh, cosh, tanh, acosh, asinh, atanh</code> - гиперболические функции.</li>
+<li> <code>(sqrt x)</code> - квадратный корень из числа x.</li>
+<li> <code>(isqrt x)</code> - возвращает целую часть квадратного корня.</li>
+<li> <code>(log x)</code> - натуральный логарифм числа x = ln(x)</li>
+<li> <code>(log x a)</code> - логарифм числа x по основанию a.</li>
+<li> <code>(conjugate x)</code> - возвращает сопряженное комплексное число (a-ib для a+ib). Для действительных чисел сопряженные совпадают.</li>
+<li> <code>(abs x)</code> - модуль числа.</li>
+<li> <code>(phase x)</code> - фаза комплексного числа.</li>
+<li> <code>(signum x)</code> - число, имеющее ту же фазу, что и x, но единичный модуль.</li>
+<li> <code>(cis phi)</code> - вычисляет выражение exp(i * phi), значение phi задаётся в радианах.</li>
+</ul>
+<p>Следующие функции определены только для некоторых типов:
+</p>
+<ul>
+<li> <code>max</code> и <code>min</code> принимают от 1 и более аргументов, первая возвращает максимальное, а вторая - минимальное значение. Не определены для комплексных чисел.</li>
+<li> <code>gcd</code> - наибольший общий делитель (НОД) чисел, принимает от 0 и более аргументов.</li>
+<li> <code>lcm</code> - наименьшее общее кратное (НОК) чисел, принимает от 0 и более аргументов.</li>
+<li> <code>1+</code> и <code>1-</code> это инкрементор и декриментор - соответственно увеличивают и уменьшают целое значение на единицу. <code>incf</code> и <code>decf</code> ведут себя также, но имеют побочный эффект, и они более общие.</li>
+<li> <code>pi</code> - константа "пи".</li>
+</ul>
+</div>
+<div class="chapter" id="7f27d9697338223bd7d1b49363f0808d">
+<h3>Случайные числа</h3>
+<ul>
+<li> <code>(random n)</code> - возвратит случайное число от 0 до n.</li>
+<li> <code>*random-state*</code> - текущее состояние генератора случайных чисел.</li>
+<li> <code>make-random-state</code> - функция для изменения состояния генератора.</li>
+<li> <code>(random n random-state)</code> - возвратит случайное число от 0 до n, используя состояние генератора, определённое в random-state.</li>
+</ul>
+</div>
+<div class="chapter" id="486ba5c1084712eec5efa05aa10a8147">
+<h3>Булевые функции</h3>
+<ul>
+<li> <code>and</code> - выполняет логическое умножение аргументов (для целых чисел возвращает максимум).</li>
+<li> <code>xor</code> - выполняет логическое сложение аргументов.</li>
+<li> <code>or</code> - <code>(or x y) === (xor (and x y) (xor x y))</code> (для целых чисел возвращает минимум).</li>
+<li> <code>not</code> - обратное логическое значение : T =&gt; NIL, NIL =&gt; T.</li>
+</ul>
+</div>
+<div class="chapter" id="ce206a9c4f838a66dd43d1b126fd65d9">
+<h3>Логические функции для работы с битами чисел</h3>
+<ul>
+<li> <code>boole</code>
+</li>
+<li> <code>lognot</code>
+</li>
+<li> <code>logeqv</code>
+</li>
+<li> <code>logand</code>
+</li>
+<li> <code>logandc1</code>
+</li>
+<li> <code>logandc2</code>
+</li>
+<li> <code>lognand</code>
+</li>
+<li> <code>logxor</code>
+</li>
+<li> <code>logior</code>
+</li>
+<li> <code>logorc1</code>
+</li>
+<li> <code>logorc2</code>
+</li>
+<li> <code>lognor</code>
+</li>
+<li> <code>logbitp</code>
+</li>
+<li> <code>logtest</code>
+</li>
+<li> <code>logcount</code>
+</li>
+<li> <code>ash</code>
+</li>
+<li> <code>mask-field</code>
+</li>
+</ul>
+</div>
+<div class="chapter" id="5f744b452b71fb72ba4005c7c698cee3">
+<h3>Работа с битами чисел</h3>
+
+<p>Для доступа к битам можно использовать функции:
+</p>
+<ul>
+<li> <code>integer-length</code>
+</li>
+<li> <code>ldb-test</code>
+</li>
+<li> <code>ldb</code>
+</li>
+<li> <code>dpb</code>
+</li>
+<li> <code>byte</code>
+</li>
+<li> <code>byte-size</code>
+</li>
+<li> <code>byte-spec</code>
+</li>
+<li> <code>byte-position</code>
+</li>
+<li> <code>short-floatsingle-float</code>
+</li>
+<li> <code>double-float</code>
+</li>
+<li> <code>long-float</code>
+</li>
+</ul>
+</div>
+<div class="chapter" id="53e3a4d44b96e1de0e9e7b9e16f82b44">
+<h3>Границы точности для чисел</h3>
+
+<p>На разных платформах они будут разные. Этой цели служит ряд платформо-определяющих фунций
+</p>
+<ul>
+<li> <code>decode-float</code>
+</li>
+<li> <code>scale-float</code>
+</li>
+<li> <code>float-radix</code>
+</li>
+<li> <code>float-digits</code>
+</li>
+<li> <code>float-precision</code>
+</li>
+<li> <code>upgraded-complex-part-type</code>
+</li>
+</ul>
+</div>
+<div class="chapter" id="32e949eb4b6285e87c5484ef28b17481">
+<h3>Пример : корень функции на комплексной плоскости</h3>
+
+<p>Задача - определена функция f на комплексной плоскости. Известно, что на квадрате S имеется только один корень. Найти его.
+</p>
+<p>Решение - воспользуемся теоремой вычетов для функции 1 / F (X). Сначала нужно написать функцию для интеграла по соронам квадрата. 
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> integrate-square-path <span class="paren2">(<span class="">f start <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_length.htm" class="symbol">length</a> precision</span>)</span><br>  <span class="string">"f - функция для интегрирования.<br>   Start - комплексное число, определяющее нижний левый угол квадрата.<br>   Length - сторона квадрата.<br>   Precision - точность."</span><br>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let*</span></i></a> <span class="paren3">(<span class=""><span class="paren4">(<span class="">sum 0</span>)</span><br>         <span class="paren4">(<span class="">n <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_floorc.htm" class="symbol">ceiling</a> <span class="paren6">(<span class="">/ <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_length.htm" class="symbol">length</a> precision</span>)</span></span>)</span></span>)</span><br>         <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_step.htm" class="symbol">step</a> <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_float.htm" class="symbol">float</a> <span class="paren6">(<span class="">/ <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_length.htm" class="symbol">length</a> n</span>)</span></span>)</span></span>)</span><br>         <span class="paren4">(<span class="">j 0</span>)</span><br>         <span class="paren4">(<span class="">side 0</span>)</span><br>         <span class="paren4">(<span class="">d <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_comple.htm" class="symbol">complex</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/m_step.htm" class="symbol">step</a> 0</span>)</span></span>)</span><br>         <span class="paren4">(<span class="">cur start</span>)</span></span>)</span><br>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_incf_.htm" class="symbol">incf</a> sum <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_funcal.htm" class="symbol">funcall</a> f cur</span>)</span> d</span>)</span></span>)</span><br>          <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_incf_.htm" class="symbol">incf</a> cur d</span>)</span><br>          <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_incf_.htm" class="symbol">incf</a> j</span>)</span><br>          <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_when_.htm" class="symbol">when</a> <span class="paren5">(<span class="">= j n</span>)</span><br>            <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> j 0</span>)</span>  <br>            <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_incf_.htm" class="symbol">incf</a> side</span>)</span><br>            <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> d <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_case_.htm" class="symbol">case</a> side<br>                      <span class="paren1">(<span class="">1 <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_comple.htm" class="symbol">complex</a> 0 <a href="http://www.lispworks.com/reference/HyperSpec/Body/m_step.htm" class="symbol">step</a></span>)</span></span>)</span><br>                      <span class="paren1">(<span class="">2 <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_comple.htm" class="symbol">complex</a> <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a__.htm" class="symbol">-</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/m_step.htm" class="symbol">step</a></span>)</span> 0</span>)</span></span>)</span><br>                      <span class="paren1">(<span class="">3 <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_comple.htm" class="symbol">complex</a> 0 <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a__.htm" class="symbol">-</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/m_step.htm" class="symbol">step</a></span>)</span></span>)</span></span>)</span><br>                      <span class="paren1">(<span class="">4 <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_return.htm" class="symbol">return</a> sum</span>)</span></span>)</span></span>)</span></span>)</span></span>)</span></span>)</span></span>)</span></span>)</span><br></pre>
+
+<p>Обратите внимание на функцию Float, без нее действия будут производится с рациональными числами, что не совсем оптимально.
+</p>
+<p>Теперь можно проверить:
+</p>
+<pre class="code"><span class="paren1">(<span class="">integrate-square-path <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_lambda.htm" class="symbol"><i><span class="symbol">lambda</span></i></a> <span class="paren3">(<span class="">x</span>)</span> <span class="paren3">(<span class="">/ 1 x</span>)</span></span>)</span> #C<span class="paren2">(<span class="">-1 -1</span>)</span> 2 0.001</span>)</span><br><span class="comment">;-&gt; #C(-0.0019999794 6.2832413)<br></span></pre>
+
+<p>Вроде верно, т.е. 2*pi*i.
+</p>
+<p>Согласно теореме вычетов, если интеграл по области не будет равен нулю - в области существует полюс. Поэтому мы можем написать предикат, проверяющий наличие полюса у функции на квадратной области, путем сравнения значения интеграла с нулём:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> pole-p <span class="paren2">(<span class="">f start <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_length.htm" class="symbol">length</a> precision</span>)</span><br>  <span class="string">"Проверка наличия полюса у функции f в квадрате S."</span><br>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_when_.htm" class="symbol">when</a> <span class="paren3">(<span class="">&gt; <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_abs.htm" class="symbol">abs</a> <span class="paren5">(<span class="">integrate-square-path f start <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_length.htm" class="symbol">length</a> precision</span>)</span></span>)</span> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_sqrt_.htm" class="symbol">sqrt</a> precision</span>)</span></span>)</span><br>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> start <span class="paren4">(<span class="">/ <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_comple.htm" class="symbol">complex</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_length.htm" class="symbol">length</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_length.htm" class="symbol">length</a></span>)</span> 2</span>)</span></span>)</span></span>)</span></span>)</span><br></pre>
+
+<p>Этот предикат может установить наличие полюса, но ничего не говорит о его местонахождении. Чтобы найти координаты полюса, воспользуемся следующим способом - разделим исходный квадрат на 4 части и применим предикат к каждому. Т.к. полюс один - только один квадрат удовлетворит предикату, далее повторим процедуру рекурсивно, пока искомая точка не будет найдена с нужной точностью.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> find-pole <span class="paren2">(<span class="">f start <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_length.htm" class="symbol">length</a> precision</span>)</span><br>  <span class="string">"нахождение полюса функции f на квадрате S."</span><br>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_when_.htm" class="symbol">when</a> <span class="paren3">(<span class="">&gt; <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> precision 10</span>)</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_length.htm" class="symbol">length</a></span>)</span> <br>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_ret_fr.htm" class="symbol"><i><span class="symbol">return-from</span></i></a> find-pole <span class="paren4">(<span class="">pole-p f start <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_length.htm" class="symbol">length</a> precision</span>)</span></span>)</span></span>)</span><br>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren3">(<span class=""><span class="paren4">(<span class="">h <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_float.htm" class="symbol">float</a> <span class="paren6">(<span class="">/ <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_length.htm" class="symbol">length</a> 2</span>)</span></span>)</span></span>)</span></span>)</span><br>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_flet_.htm" class="symbol"><i><span class="symbol">flet</span></i></a> <span class="paren4">(<span class=""><span class="paren5">(<span class="">check-pole <span class="paren6">(<span class="">start</span>)</span><br>             <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_when_.htm" class="symbol">when</a> <span class="paren1">(<span class="">pole-p f start h precision</span>)</span><br>               <span class="paren1">(<span class="">find-pole f start h precision</span>)</span></span>)</span></span>)</span></span>)</span><br>      <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_or.htm" class="symbol">or</a> <span class="paren5">(<span class="">check-pole start</span>)</span><br>          <span class="paren5">(<span class="">check-pole <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> start <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_comple.htm" class="symbol">complex</a> 0 h</span>)</span></span>)</span></span>)</span><br>          <span class="paren5">(<span class="">check-pole <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> start <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_comple.htm" class="symbol">complex</a> h 0</span>)</span></span>)</span></span>)</span><br>          <span class="paren5">(<span class="">check-pole <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> start <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_comple.htm" class="symbol">complex</a> h h</span>)</span></span>)</span></span>)</span></span>)</span></span>)</span></span>)</span></span>)</span><br></pre>
+
+<p>Наконец, остался последний шаг - чтобы найти корень функции f, нужно нацти полюс функции 1/f (это, опять же, следствие теоремы вычетов):
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> find-root <span class="paren2">(<span class="">f start <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_length.htm" class="symbol">length</a> precision</span>)</span><br>  <span class="string">"Находит корень функции f на квадрате S."</span><br>  <span class="paren2">(<span class="">find-pole <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_lambda.htm" class="symbol"><i><span class="symbol">lambda</span></i></a> <span class="paren4">(<span class="">x</span>)</span> <span class="paren4">(<span class="">/ 1 <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_funcal.htm" class="symbol">funcall</a> f x</span>)</span></span>)</span></span>)</span> start <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_length.htm" class="symbol">length</a> precision</span>)</span></span>)</span><br></pre>
+
+<p>Теперь посмотрим - например, f(X) = X^2+2 имеет два корня : ±sqrt(2)*i. 
+</p>
+<pre class="code"><span class="paren1">(<span class="">find-root <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_lambda.htm" class="symbol"><i><span class="symbol">lambda</span></i></a> <span class="paren3">(<span class="">x</span>)</span> <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> x x</span>)</span> 2</span>)</span></span>)</span> #C<span class="paren2">(<span class="">-1 0</span>)</span> 5 0.0001</span>)</span> <br><span class="comment">;-&gt; #C(-5.493164E-4 1.4138794)<br></span></pre>
+
+<p>Похоже, правильный ответ!
+</p>
+</div>
+<div class="chapter" id="a6e9d0bb2d6449c96508f0521b191dbb">
+<h3>Библиотеки</h3>
+<ul>
+<li> <a href="http://maxima.sourceforge.net/ru/">Maxima</a> - свободная система компьютерной алгебры, написанная на Common Lisp.</li>
+<li> <a href="http://www.cliki.net/Mathematics">Mathematics</a> @ www.cliki.net - список математических библиотек.</li>
+<li> <a href="http://www.cs.cmu.edu/Groups/AI/lang/lisp/code/math/">math</a> @ www.cs.cmu.edu - библиотеки clmath, matrix и др.</li>
+</ul>
+</div>
+</div>
+</div></div>
+
+        <div class="bottom">@2009 lisper.ru</div>
+
+        <script type="text/javascript">
+
+          var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+
+          document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+
+        </script>
+
+        <script type="text/javascript">
+
+          try {
+
+          var pageTracker = _gat._getTracker("UA-7734690-1");
+
+          pageTracker._trackPageview();
+
+          } catch(err) {}
+
+        </script>
+
+    </body>
+</html>

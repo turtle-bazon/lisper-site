@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru">
+	<head>
+      	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <meta name="verify-v1" content="o6r5tA9qF5PflmPb3cI7rJrWpFBGTkIE9X4KU25TxiE=" />
+
+        <meta name="keywords" content="Common Lisp,lisp,лисп" />
+
+        <link href="/css/fine/style.css" rel="stylesheet" type="text/css" />
+        <link href="/css/fine/colorize.css" rel="stylesheet" type="text/css" />
+	<title>David Lichteblau рекомендует ORM для Common Lisp: cl-perec</title><link rel="alternate" type="application/rss+xml" title="Тема  'David Lichteblau рекомендует ORM для Common Lisp: cl-perec' - RSS-лента" href="/forum/rss/threads/46.rss" /><link href="/css/fine/forum.css" rel="stylesheet" type="text/css" /><link href="/css/fine/jquery.wysiwyg.css" rel="stylesheet" type="text/css" /><script src="/js/jquery.js" type="text/javascript"></script><script src="/js/jquery.wysiwyg.js" type="text/javascript"></script><script src="/js/forum.js" type="text/javascript"></script></head>
+
+	<body>
+        <div class="top">
+          <div id="login">
+    <a href="/register">Регистрация</a> |
+    <a href="/login?done=http%3A%2F%2Flisper.ru%2Fforum%2Fthread%2F46">Войти</a>
+</div>
+        </div>
+
+        <div id="caution">
+            <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png" />
+        </div>
+
+        <div id="mainmenu">
+          <ul><li><a href="/">Главная</a></li><li><a href="/articles/">Статьи</a></li><li><a href="/planet/">Планета</a></li><li><a href="/forum/">Форум</a></li><li><a href="/apps/">Сервисы</a></li><li><a href="/pcl/">Practical Common Lisp</a></li><li><a href="/wiki/">Wiki</a></li><li><a href="/files/">Файлы</a></li></ul>
+        </div>
+
+        <div id="content"><div id="forum-nav-panel"><a class="rss-link" href="/forum/rss/threads/46.rss">RSS</a><ul><li><a href="/forum/">Список форумов</a></li><li><a href="/forum/news">Новости</a></li><li><strong>David Lichteblau рекомендует ORM для Common Lisp: cl-perec</strong></li></ul></div><div class="thread"><div class="topic"><div><big>David Lichteblau рекомендует ORM для Common Lisp: cl-perec</big></div><div class="topic-info"><span class="topic-author">Автор: <strong>archimag</strong> - 13.08.2009 01:25, Сообщений - 4</span></div><div class="topicbody"><p>Известный лисп-хакер <a href="http://lichteblau.blogspot.com/">David Lichteblau</a> написал в своём блоге интересное <a href="http://lichteblau.blogspot.com/2009/08/cl-perec-blog-series-by-pinterface.html">сообщение</a>, в котором рассказал об (очень) успешном переводе своего кода с <a href="http://clsql.b9.com/">CLSQL</a> (проблемы с которой широкоизвестны) на новую <a href="http://ru.wikipedia.org/wiki/ORM">ORM</a> для Common Lisp: <a href="http://common-lisp.net/project/cl-perec/">cl-perec</a>.  <a href="http://common-lisp.net/project/cl-perec/">cl-perec</a> развивается тихо и без рекламы, это первое сообщение, которое мне попалось про описываемую систему.<br /><br />P.S. Я создал планету, посвящённую ORM для Common Lisp: <a href="http://wishfeeds.com/archimag/common-lisp-orms/">http://wishfeeds.com/archimag/common-lisp-orms/</a>, пока там только один блог (про cl-perec), если знаете ещё блоги на  эту тематику (фильтрация по тэгу не проблема) - пишите, буду добавлять.</p></div></div><div class="reply"><div class="topic-info"><span class="topic-author">Автор: <strong>Valera</strong> - 13.10.2009 00:06</span></div><div class="replybody"><p>cl-perec - жуть. Во-первых, надо брать кучу пакетов из транков, потому как со стабильными релизами он не работает. Помогает clbuild. Во-вторых, глючноват и отсутствует документация (почти). Но в целом концепция приятная, и если потратить время на освоение и подставление костылей, то использовать можно.<br /></p></div></div><div class="reply"><div class="topic-info"><span class="topic-author">Автор: <strong>archimag</strong> - 13.10.2009 11:27</span></div><div class="replybody"><span style="font-style: italic;">&gt; Во-первых, надо брать кучу пакетов из транков, потому как со стабильными релизами он не работает.</span><br /><br />Это нормально. Учитывая текущее состояние многих lisp-проектов, по другому сейчас делать трудно. Это не проблема cl-perec.<br /><br /><span style="font-style: italic;">&gt; отсутствует документация </span><br /><br />А где она есть? Это тоже на сегодняшний день нормально :) есть исходники...<br /></div></div><div class="reply"><div class="topic-info"><span class="topic-author">Автор: <strong>LinkFly</strong> - 05.04.2010 00:49</span></div><div class="replybody"><p>Главное чтобы не слишком много костылей надо было. Чтобы не получилось так, что проще макросы к CLSQL написать.</p></div></div><div class="reply"><div class="topic-info"><span class="topic-author">Автор: <strong>Jax</strong> - 13.04.2010 23:47</span></div><div class="replybody"><span style="font-style: italic;">&gt;</span><a style="font-style: italic;" href="http://clsql.b9.com/">CLSQL</a><span style="font-style: italic;"> (проблемы с которой широкоизвестны)</span><br /><br />А какие у него проблемы?</div></div></div></div>
+
+        <div class="bottom">@2009 lisper.ru</div>
+
+        <script type="text/javascript">
+
+          var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+
+          document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+
+        </script>
+
+        <script type="text/javascript">
+
+          try {
+
+          var pageTracker = _gat._getTracker("UA-7734690-1");
+
+          pageTracker._trackPageview();
+
+          } catch(err) {}
+
+        </script>
+
+    </body>
+</html>

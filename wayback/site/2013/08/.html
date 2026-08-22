@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html> <head> <title>archimag: August, 2013</title> <link rel="stylesheet" href="/static/mirev/css/style.css"> <link rel="stylesheet" href="/static/mirev/css/prettify.css"> <link rel="alternate" type="application/atom+xml" title="archimag: blog entries feed" href="/feeds/atom" />   </head> <body> <a href="http://github.com/archimag/"> <img style="position: absolute; top: 0; left: 0; border: 0;" src="/static/archimag/image/forkme.png" alt="Fork me on GitHub"> </a> <div id="header"> <a href="/" id="blogname">archimag</a> </div> <div id="content"> <h1>Archive for August, 2013</h1> <div class="blog-post"> <h2><a href="/2013/08/02/%d0%9f%d0%be%d0%b4%d1%81%d1%82%d0%b2%d0%b5%d1%82%d0%ba%d0%b0_%d0%ba%d0%be%d0%b4%d0%b0_%d1%81_%d0%bf%d0%be%d0%bc%d0%be%d1%89%d1%8c%d1%8e_colorize">Подстветка кода с помощью colorize</a></h2> <div class="post-metadata"> <div class="post-published"> <a href="/2013/"> 2013 </a>, <a href="/2013/08/"> August </a> <a href="/2013/08/02/"> 2 </a> </div> <div class="post-tags"> <a href="/tags/">Tags</a>:  <a href="/tags/lisp">lisp</a> <a href="/tags/colorize">colorize</a> <a href="/tags/arblog">arblog</a> </div> </div> <div class="document"><p>Для подсветки кода на Common Lisp я люблю использовать <a href="http://www.cliki.net/colorize">colorize</a>, потому что она добавляет в разметку ссылки на <a class="reference" href="http://www.lispworks.com/documentation/common-lisp.html"><span>Hyperspec</span></a>. А вот структура разметки получается та ещё, я хочу другую, более современную. Но исходники <a href="http://www.cliki.net/colorize">colorize</a> ужасны и копаться в них я не хочу. Поэтому я написал функцию, которую берёт оригинальную разметку, генерируемую <a href="http://www.cliki.net/colorize">colorize</a> и превращает её в нечто более интересное (для меня):</p>
+<p><div class="prettyprint linenums"><ol class="linenums">
+<li class="L0">(<a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defpar.htm" class="symbol"><i><span class="symbol">defparameter</span></i></a> <span class="special">*span-classes*</span>
+</li>
+<li class="L1">  '(<span class="string">"symbol"</span> <span class="string">"special"</span> <span class="string">"keyword"</span> <span class="string">"comment"</span> <span class="string">"string"</span> <span class="string">"character"</span>))</li>
+<li class="L2">
+<li class="L3">(<a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> update-code-markup (markup)</li>
+<li class="L4">  (<a href="http://www.lispworks.com/reference/HyperSpec/Body/s_flet_.htm" class="symbol"><i><span class="symbol">labels</span></i></a>
+</li>
+<li class="L5">      ((bad-span-p (node)</li>
+<li class="L6">         (<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_and.htm" class="symbol">and</a> (<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_stgeq_.htm" class="symbol">string-equal</a> (xtree:local-name node) <span class="string">"span"</span>)</li>
+<li class="L7">              (<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_not.htm" class="symbol">not</a> (<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_member.htm" class="symbol">member</a> (xtree:attribute-value node <span class="string">"class"</span>) <span class="special">*span-classes*</span>
+</li>
+<li class="L8">                           <span class="keyword">:test</span> #'<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_stgeq_.htm" class="symbol">string-equal</a>))))</li>
+<li class="L9">      <span class="comment">;;---------------------------------------</span>
+</li>
+<li class="L10">       (comment-p (node)</li>
+<li class="L11">         (<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_and.htm" class="symbol">and</a> (<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_stgeq_.htm" class="symbol">string-equal</a> (xtree:local-name node) <span class="string">"span"</span>)</li>
+<li class="L12">              (<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_stgeq_.htm" class="symbol">string-equal</a> (xtree:attribute-value node <span class="string">"class"</span>) <span class="string">"comment"</span>)))</li>
+<li class="L13">      <span class="comment">;;---------------------------------------</span>
+</li>
+<li class="L14">       (br-p (node)</li>
+<li class="L15">         (<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_stgeq_.htm" class="symbol">string-equal</a> (xtree:local-name node) <span class="string">"br"</span>))</li>
+<li class="L16">      <span class="comment">;;---------------------------------------</span>
+</li>
+<li class="L17">       (flatten-spans (node)</li>
+<li class="L18">         (iter (for el in (xtree:all-childs node))</li>
+<li class="L19">               (flatten-spans el))</li>
+<li class="L20">        <span class="comment">;;---------------------------------------</span>
+</li>
+<li class="L21">         (<a href="http://www.lispworks.com/reference/HyperSpec/Body/m_when_.htm" class="symbol">when</a> (comment-p node)</li>
+<li class="L22">           (<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> (xtree:text-content node)</li>
+<li class="L23">                 (xtree:text-content node))</li>
+<li class="L24">           (xtree:insert-child-after (xtree:make-element <span class="string">"br"</span>) node))</li>
+<li class="L25">        <span class="comment">;;---------------------------------------</span>
+</li>
+<li class="L26">         (<a href="http://www.lispworks.com/reference/HyperSpec/Body/m_when_.htm" class="symbol">when</a> (bad-span-p node)</li>
+<li class="L27">           (iter (for el in (xtree:all-childs node))</li>
+<li class="L28">                 (xtree:insert-child-before (xtree:detach el) node))</li>
+<li class="L29">           (xtree:remove-child node))))</li>
+<li class="L30">   <span class="comment">;;~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+</li>
+<li class="L31">    (<i><span class="symbol">html:with-parse-html</span></i> (doc (<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a> <span class="string">"&lt;div&gt;~A&lt;/div&gt;"</span> markup))</li>
+<li class="L32">      (<a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> ((div (xtree:first-child (xtree:first-child (xtree:root doc)))))</li>
+<li class="L33">        (flatten-spans div)</li>
+<li class="L34">        (<i><span class="symbol">xtree:with-object</span></i> (fragment (xtree:make-document-fragment doc))</li>
+<li class="L35">         <span class="comment">;;---------------------------------------</span>
+</li>
+<li class="L36">          (<a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let*</span></i></a> ((pre (xtree:make-child-element fragment <span class="string">"div"</span>))</li>
+<li class="L37">                 (ol (xtree:make-child-element pre <span class="string">"ol"</span>)))</li>
+<li class="L38">            (<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> (xtree:attribute-value pre <span class="string">"class"</span>)</li>
+<li class="L39">                  <span class="string">"prettyprint linenums"</span>)</li>
+<li class="L40">            (<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> (xtree:attribute-value ol <span class="string">"class"</span>)</li>
+<li class="L41">                  <span class="string">"linenums"</span>)</li>
+<li class="L42">           <span class="comment">;;---------------------------------------</span>
+</li>
+<li class="L43">            (iter (for line in (split-sequence:split-sequence-if #'br-p (xtree:all-childs div)))</li>
+<li class="L44">                  (for i from 0)</li>
+<li class="L45">                  (<a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> ((li (xtree:make-child-element ol <span class="string">"li"</span>)))</li>
+<li class="L46">                    (<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> (xtree:attribute-value li <span class="string">"class"</span>)</li>
+<li class="L47">                          (<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a> <span class="string">"L~s"</span> i))</li>
+<li class="L48">                   <span class="comment">;;---------------------------------------</span>
+</li>
+<li class="L49">                    (iter (for el in line)</li>
+<li class="L50">                          (xtree:append-child li (xtree:detach el))))))</li>
+<li class="L51">         <span class="comment">;;---------------------------------------</span>
+</li>
+<li class="L52">          (html:serialize-html fragment <span class="keyword">:to-string</span>))))))</li>
+</ol></div></p>
+<p>Здесь можно видеть не только код, но и непосредственный результат.</p>
+<p>Кстати, функция довольно большая. Читать "сплошное месиво кода" на CL бывает не очень приятно. В других языках код обычно "разряжают" с помощью пустых строк. Но в CL это эстетически смотрится как-то не очень. Так что я решил попробовать использовать линии в качестве разделителей. Пока мне кажется, что получается неплохо.</p>
+</div> </div> </div> <div id="footer"> <div class="right"> Copyright (c) Moskvitin Andrey <br /> Powered by <a href="http://restas.lisper.ru">RESTAS</a> <div id="buttons"> <a href="http://www.sbcl.org/"> <img src="/static/archimag/image/sbclbutton.png" alt="SBCL" /> </a> <a href="http://weitz.de/hunchentoot/"> <img src="/static/archimag/image/hunchentoot10.png" alt="Hunchentoot" /> </a> <a href="http://www.mongodb.org/"> <img src="/static/archimag/image/logo-mongodb.png" alt="mongoDB" /> </a> </div> </div> <a href="/feeds/atom" class="feed">Posts feed</a>  </div> 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-22971320-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+     </body> </html>

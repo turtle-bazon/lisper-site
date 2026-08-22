@@ -1,0 +1,253 @@
+<html> <head> <meta http-equiv="Content-Type" content="text/html; charset='utf-8'" /> <link rel="stylesheet" type="text/css" href="../_static/style.css" /> <title>Команды</title> </head> <body> <div id="header"> <h1>cl-closure-template</h1> <span>Use Closure Templates from Common Lisp</span> </div> <div id="menu"> <ul> <li> <a href="../index.html">Начало</a>  </li><li> <a href="contents.html">Руководство</a> <ul> <li> <a href="hello-world-js.html">Hello World с JavaScript</a> </li><li> <a href="hello-world-cl.html">Hello World с Common Lisp</a> </li><li> <a href="concepts.html">Основы</a> </li><li> <span>Команды</span> </li><li> <a href="functions-and-directives.html">Функции и директивы печати</a> </li><li> <a href="common-lisp-usage.html">Использование с Common Lisp</a> </li> </ul> </li><li> <a href="../ref/index.html">API reference</a>  </li><li> <a href="../differences.html">Отличия от оригинальной реализации</a>  </li> </ul> </div> <div id="content"> <div id="команды" class="document"><h1>Команды<a href="#команды" class="headerlink" title="Permalink to this headline">¶</a></h1><!-- -*- RST -*- -->
+<a id="commands" class="target" name="commands"></a><div id="table-of-contents" class="topic contents"><ul class="simple">
+<li><a name="id1" class="reference" id="id1" href="#namespace"><span id="id1">namespace</span></a></li>
+<li><a name="id2" class="reference" id="id2" href="#template-template"><span id="id2">template, /template</span></a></li>
+<li><a name="id3" class="reference" id="id3" href="#специальные-символы"><span id="id3">Специальные символы</span></a></li>
+<li><a name="id4" class="reference" id="id4" href="#literal-literal"><span id="id4">literal, /literal</span></a></li>
+<li><a name="id5" class="reference" id="id5" href="#print"><span id="id5">print</span></a></li>
+<li><a name="id6" class="reference" id="id6" href="#let"><span id="id6">let</span></a></li>
+<li><a name="id7" class="reference" id="id7" href="#if-elseif-else-if"><span id="id7">if, elseif, else, /if</span></a></li>
+<li><a name="id8" class="reference" id="id8" href="#switch-case-default-switch"><span id="id8">switch, case, default, /switch</span></a></li>
+<li><a name="id9" class="reference" id="id9" href="#foreach-ifempty-foreach"><span id="id9">foreach, ifempty, /foreach</span></a></li>
+<li><a name="id10" class="reference" id="id10" href="#for-for"><span id="id10">for, /for</span></a></li>
+<li><a name="id11" class="reference" id="id11" href="#call-call-param-param"><span id="id11">call, /call, param, /param</span></a></li>
+</ul>
+</div>
+<div id="namespace" class="section"><h2>namespace<a href="#namespace" class="headerlink" title="Permalink to this headline">¶</a></h2><p>Синтаксис:</p>
+<p><div class="code">{namespace &lt;namesapce&gt;}</div></p>
+<p>Это команда должна быть в начале каждого файла с шаблонами.</p>
+<p>Одна и та же декларация пространства имён может использоваться в разных файлах.</p>
+</div>
+<div id="template-template" class="section"><h2>template, /template<a href="#template-template" class="headerlink" title="Permalink to this headline">¶</a></h2><p>Синтаксис (простейшая форма):</p>
+<p><div class="code">{template &lt;template_name&gt;}<br>
+ &nbsp;...<br>
+{/template}</div></p>
+<p>Со всеми опциональными атрибутами:</p>
+<p><div class="code">{template &lt;tempalte_name&gt; autoescape="&lt;true/false&gt;"}<br>
+ &nbsp;...<br>
+{/template}</div></p>
+</div>
+<div id="специальные-символы" class="section"><h2>Специальные символы<a href="#специальные-символы" class="headerlink" title="Permalink to this headline">¶</a></h2><p>Следующие команды можно использовать для добавления "сырого" текста:</p>
+<table class="docutils"><colgroup><col width="45%" /><col width="55%" /></colgroup>
+<thead valign="bottom"><tr><th>Special Character</th>
+<th>Equivalent Raw Text</th>
+</tr>
+</thead>
+<tbody valign="top"><tr><td><tt class="docutils literal">
+<span class="pre">{sp}</span></tt></td>
+<td>пробел</td>
+</tr>
+<tr><td><tt class="docutils literal">
+<span class="pre">{nil}</span></tt></td>
+<td>пустая строка</td>
+</tr>
+<tr><td><tt class="docutils literal">
+<span class="pre">{\r}</span></tt></td>
+<td>возвращение каретки</td>
+</tr>
+<tr><td><tt class="docutils literal">
+<span class="pre">{\n}</span></tt></td>
+<td>перевод строки</td>
+</tr>
+<tr><td><tt class="docutils literal">
+<span class="pre">{\t}</span></tt></td>
+<td>табуляция</td>
+</tr>
+<tr><td><tt class="docutils literal">
+<span class="pre">{lb}</span></tt></td>
+<td>{</td>
+</tr>
+<tr><td><tt class="docutils literal">
+<span class="pre">{rb}</span></tt></td>
+<td>}</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="literal-literal" class="section"><h2>literal, /literal<a href="#literal-literal" class="headerlink" title="Permalink to this headline">¶</a></h2><p>Синтаксис:</p>
+<p><div class="code">{literal} ... {/literal}</div></p>
+<p>Данная команда позволяет включать блоки "сырого" текста, возможно содержащие специальные символы наподобие фигурных скобок. Никакой обработки текста внутри блока <tt class="docutils literal">
+<span class="pre">literal</span></tt> не производится, он вставляется в вывод шаблона как есть.</p>
+</div>
+<div id="print" class="section"><h2>print<a href="#print" class="headerlink" title="Permalink to this headline">¶</a></h2><p>Синтаксис (без директив):</p>
+<p><div class="code">{&lt;expression&gt;}<br>
+{print &lt;expression&gt;}</div></p>
+<p>С директивами:</p>
+<p><div class="code">{&lt;expression&gt; |&lt;directive1&gt; |&lt;directive2&gt; |...}<br>{print &lt;expression&gt; |&lt;directive1&gt; |&lt;directive2&gt; |...}</div></p>
+<p>Команда print является наиболее используемой в Closure Templates, поэтому для неё используется короткий синтаксис и имя команды можно опустить. Когда <a class="reference" href="https://github.com/archimag/cl-closure-template/"><span>cl-closure-template</span></a> встречает команду print, то просто вставляет результат выражения в свой вывод.</p>
+<p>Директивы команды print используются для пост-обработки результата вычисления выражения. Полный список директив см. в разделе <a href="functions-and-directives.html#функции-и-директивы-печати">Функции и директивы печати</a>.</p>
+</div>
+<div id="let" class="section"><h2>let<a href="#let" class="headerlink" title="Permalink to this headline">¶</a></h2><p>Синтаксис:</p>
+<p><div class="code">{let $&lt;indentifier1&gt;="&lt;expression1&gt;" $&lt;indentifier2&gt;="&lt;expression2&gt;" $...}<br>
+ &nbsp;...<br>
+{/let}</div></p>
+<p>Команда <tt class="docutils literal">
+<span class="pre">let</span></tt> создаёт локальные переменные, которые вычисляются на основе указанных выражений. Эти переменные являются не модифицируемыми.  Вы можете использовать команду <tt class="docutils literal">
+<span class="pre">let</span></tt> в тех случаях, когда необходимо несколько раз использовать промежуточное значение. Другой возможной причиной использования команды <tt class="docutils literal">
+<span class="pre">let</span></tt> является улучшение читабельности код шаблона.</p>
+<p>Пример:</p>
+<p><div class="code">{let $isEnabled="$isAaa and not $isBbb and $ccc == $ddd + $eee"}<br>
+ &nbsp;&nbsp;&nbsp;{if $isEnabled and $isXxx}<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...<br>
+ &nbsp;&nbsp;&nbsp;{elseif not $isEnabled and $isYyy}<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...<br>
+ &nbsp;&nbsp;&nbsp;{/if}<br>
+{/let}</div></p>
+</div>
+<div id="if-elseif-else-if" class="section"><h2>if, elseif, else, /if<a href="#if-elseif-else-if" class="headerlink" title="Permalink to this headline">¶</a></h2><p>Синтаксис:</p>
+<p><div class="code">{if &lt;expression&gt;}<br>
+ &nbsp;...<br>
+{elseif &lt;expression&gt;}<br>
+ &nbsp;...<br>
+{else}<br>
+ &nbsp;...<br>
+{/if}</div></p>
+<p>Команда <tt class="docutils literal">
+<span class="pre">if</span></tt> используется для обработки условий. Команда начинается с <tt class="docutils literal">
+<span class="pre">if</span></tt> и заканчивается с <tt class="docutils literal">
+<span class="pre">/if</span></tt>. <a class="reference" href="https://github.com/archimag/cl-closure-template/"><span>cl-closure-template</span></a> производит вычисление выражений для <tt class="docutils literal">
+<span class="pre">if</span></tt> и опциональных <tt class="docutils literal">
+<span class="pre">ifelse</span></tt> и как только одно из них оказывается "истинным" выполняет соответствующий вложенный блок, а оставшиеся части команды <tt class="docutils literal">
+<span class="pre">if</span></tt> пропускаются. В случае, если ни одно из выражений в <tt class="docutils literal">
+<span class="pre">if</span></tt> или <tt class="docutils literal">
+<span class="pre">ifelse</span></tt> не оказалось истинным, выполняется опциональный блок <tt class="docutils literal">
+<span class="pre">else</span></tt>.</p>
+<p>Пример:</p>
+<p><div class="code">{if round<span class="paren1">(<span class="">$pi, 2</span>)</span> == 3.14}<br>
+ &nbsp;&nbsp;&nbsp;{$pi} is a good approximation of pi.<br>
+{elseif round<span class="paren1">(<span class="">$pi</span>)</span> == 3}<br>
+ &nbsp;&nbsp;&nbsp;{$pi} is a bad approximation of pi.<br>
+{else}<br>
+ &nbsp;&nbsp;&nbsp;{$pi} is nowhere near the value of pi.<br>
+{/if}</div></p>
+<p>вывод при pi=2.71828:</p>
+<p><div class="code">2.71828 is a bad approximation of pi.</div></p>
+</div>
+<div id="switch-case-default-switch" class="section"><h2>switch, case, default, /switch<a href="#switch-case-default-switch" class="headerlink" title="Permalink to this headline">¶</a></h2><p>Синтаксис:</p>
+<p><div class="code">{switch &lt;expression&gt;}<br>
+ &nbsp;{case &lt;expression_list&gt;}<br>
+ &nbsp;&nbsp;&nbsp;...<br>
+ &nbsp;{case &lt;expression_list&gt;}<br>
+ &nbsp;&nbsp;&nbsp;...<br>
+ &nbsp;{default}<br>
+ &nbsp;&nbsp;&nbsp;...<br>
+{/switch}</div></p>
+<p>Команда <tt class="docutils literal">
+<span class="pre">switch</span></tt> используется для управления выводом на основе значения выражения.</p>
+<p>Пример:</p>
+<p><div class="code">{switch $numMarbles}<br>
+ &nbsp;{case 0}<br>
+ &nbsp;&nbsp;&nbsp;You have no marbles.<br>
+ &nbsp;{case 1, 2, 3}<br>
+ &nbsp;&nbsp;&nbsp;You have a normal number of marbles.<br>
+ &nbsp;{default} &nbsp;// 4 or more<br>
+ &nbsp;&nbsp;&nbsp;You have more marbles than you know what to do with.<br>
+{/switch}</div></p>
+<p>Пример вывода при <tt class="docutils literal">
+<span class="pre">numMarbles</span></tt> = 2</p>
+<p><div class="code">You have a normal number of marbles.</div></p>
+<a id="foreach" class="target" name="foreach"></a></div>
+<div id="foreach-ifempty-foreach" class="section"><h2>foreach, ifempty, /foreach<a href="#foreach-ifempty-foreach" class="headerlink" title="Permalink to this headline">¶</a></h2><p>Синтаксис:</p>
+<p><div class="code">{foreach &lt;local_var&gt; in &lt;data_ref&gt;}<br>
+ &nbsp;...<br>
+{ifempty}<br>
+ &nbsp;...<br>
+{/foreach}</div></p>
+<p>Команда <tt class="docutils literal">
+<span class="pre">foreach</span></tt> предназначена для итерации значений из списка. Локальная переменная <tt class="docutils literal">
+<span class="pre">local_var</span></tt>, содержит текущий элемент списка и доступна для использования во вложенном блоке. Внутри данного блока также доступны для использования специальные функции:</p>
+<ul>
+<li><p class="first last"><tt class="docutils literal">
+<span class="pre">isFirst($var)</span></tt> возвращает <tt class="docutils literal">
+<span class="pre">true</span></tt> на первом шаге итерации</p>
+</li>
+<li><p class="first last"><tt class="docutils literal">
+<span class="pre">isLast($var)</span></tt> возвращает <tt class="docutils literal">
+<span class="pre">true</span></tt> только на последней итерации</p>
+</li>
+<li><p class="first last"><tt class="docutils literal">
+<span class="pre">index($var)</span></tt> возвращает индекс текущего элемента списка (начинается с 0).</p>
+</li>
+</ul>
+<p>Опциональный блок <tt class="docutils literal">
+<span class="pre">ifempty</span></tt> выполняется в случае попытки итерации на пустом писке.</p>
+<p>Пример:</p>
+<p><div class="code">{foreach $operand in $operands}<br>
+ &nbsp;{if not isFirst<span class="paren1">(<span class="">$operand</span>)</span>} + {/if}<br>
+ &nbsp;{$operand}<br>
+{ifempty}<br>
+ &nbsp;0<br>
+{/foreach}</div></p>
+</div>
+<div id="for-for" class="section"><h2>for, /for<a href="#for-for" class="headerlink" title="Permalink to this headline">¶</a></h2><p>Синтаксис:</p>
+<p><div class="code">{for &lt;local_var&gt; in range<span class="paren1">(<span class="">&lt;expression1&gt;, &lt;expression2&gt;, &lt;expression3&gt;</span>)</span>}<br>
+ &nbsp;...<br>
+{/for}</div></p>
+<p>Используется для создания просто цикла через ряд числовых значений. Локальная переменная <tt class="docutils literal">
+<span class="pre">local_var</span></tt> содержит текущее значение ряда и доступа для использования во вложенном блоке. Функция <tt class="docutils literal">
+<span class="pre">range</span></tt> может принимать один, два или три аргумента. В случае трёх аргументов, первый является начальным значением, второй аргумент верхним пределом (цикл выполняется до тех пор, пока значение <tt class="docutils literal">
+<span class="pre">local_var</span></tt> меньше этого предела), а третий аргумент определяет шаг итерации. В случае двух аргументов шаг итерации равен 1. Когда передан только один аргумента, начальное значение считается равным 0. Пример:</p>
+<p><div class="code">range<span class="paren1">(<span class="">10</span>)</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ &nbsp;0 1 2 3 4 5 6 7 8 9<br>
+range<span class="paren1">(<span class="">4, 10</span>)</span> &nbsp;&nbsp;&nbsp;&nbsp;→ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4 5 6 7 8 9<br>
+range<span class="paren1">(<span class="">4, 10, 2</span>)</span> &nbsp;→ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4 &nbsp;&nbsp;6 &nbsp;&nbsp;8</div></p>
+<p>Пример:</p>
+<p><div class="code">{for $i in range<span class="paren1">(<span class="">$numLines</span>)</span>}<br>
+ &nbsp;&nbsp;&nbsp;Line {$i + 1} of {$numLines}.&lt;br&gt;<br>
+{/for}<br>
+</div></p>
+</div>
+<div id="call-call-param-param" class="section"><h2>call, /call, param, /param<a href="#call-call-param-param" class="headerlink" title="Permalink to this headline">¶</a></h2><p>Синтаксис (простейшая форма):</p>
+<p><div class="code">{call &lt;template_name&gt; data="&lt;data_to_pass&gt;" /}</div></p>
+<p>С параметрами:</p>
+<p><div class="code">{call &lt;template_name&gt; data="&lt;data_to_pass&gt;"}<br>
+ &nbsp;&nbsp;&nbsp;{param &lt;key1&gt;: &lt;expression&gt; /}<br>
+ &nbsp;&nbsp;&nbsp;{param &lt;key2&gt;}<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...<br>
+ &nbsp;&nbsp;&nbsp;{/param}<br>
+{/call}</div></p>
+<p>Команда <tt class="docutils literal">
+<span class="pre">call</span></tt> позволяет вызвать другой шаблон и вставить его вывод. Можно передавать в вызываемый шаблон все или часть параметров вызывающего шаблона, либо можно создать новое значения для передачи в виде параметра. В следующих примерах будет использоваться такой шаблон:</p>
+<p><div class="code">{template exampleCallee}<br>
+ &nbsp;&nbsp;&nbsp;{$largerNum} is greater than {$smallerNum}.<br>
+{/template}</div></p>
+<div id="передача-всех-или-части-параметров-вызывающего-шаблона" class="section"><h3>Передача всех или части параметров вызывающего шаблона<a href="#передача-всех-или-части-параметров-вызывающего-шаблона" class="headerlink" title="Permalink to this headline">¶</a></h3><p><div class="code">{foreach $pair in $pairs}<br>
+ &nbsp;&nbsp;&nbsp;{call exampleCallee data="$pair" /}<br>
+{/foreach}</div></p>
+<p><div class="code">{call exampleCallee}<br>
+ &nbsp;&nbsp;&nbsp;{param smallerNum: $smallerNum /}<br>
+ &nbsp;&nbsp;&nbsp;{param largerNum: $largerNum /}<br>
+{/call}</div></p>
+<p><div class="code">{call exampleCallee data="all" /}</div></p>
+</div>
+<div id="создание-значений-для-передачи-в-шаблон" class="section"><h3>Создание значений для передачи в шаблон<a href="#создание-значений-для-передачи-в-шаблон" class="headerlink" title="Permalink to this headline">¶</a></h3><p>В случае необходимости вычисления значения для передачи его в шаблон, используются секции <tt class="docutils literal">
+<span class="pre">param</span></tt>. Есть две формы этой команды:</p>
+<p>Синтаксис для произвольных значений:</p>
+<p><div class="code">{param &lt;key&gt;: &lt;expression&gt; /}</div></p>
+<p>Синтаксис для создания сложных строковых значений:</p>
+<p><div class="code">{param &lt;key&gt;}...{/param}</div></p>
+<p>Комплексный пример:</p>
+<p><div class="code">{foreach $pair in $pairs}<br>
+ &nbsp;&nbsp;&nbsp;{call exampleCallee}<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{param largerNum: $pair.largerInt /}<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{param smallerNum}<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{if $pair.smallerInt}<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{$pair.smallerInt} &nbsp;// if defined, pass it<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{else}<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{$pair.largerInt - 100}<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{/if}<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{/param}<br>
+ &nbsp;&nbsp;&nbsp;{/call}<br>
+{/foreach}</div></p>
+</div>
+<div id="вызов-шаблона-из-другого-пространства-имён" class="section"><h3>Вызов шаблона из другого пространства имён<a href="#вызов-шаблона-из-другого-пространства-имён" class="headerlink" title="Permalink to this headline">¶</a></h3><p>Для вызова шаблона из другого пространства имён необходимо указать полное имя шаблона. Пример:</p>
+<p><div class="code">{call myproject.mymodule.myfeature.exampleCallee data="$pair" /}<br>
+</div></p>
+</div>
+</div>
+</div> </div> <div id="foother"> Copyright @2010-2013 <a href="mailto:archimag@gmail.com">Moskvitin Andrey</a> </div> <div id="comments"> <div id="disqus_thread"></div> <script type="text/javascript"> var disqus_shortname = "archimagblog"; 
+     (function() {
+     var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+     dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+     })();
+      </script> <noscript> Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a> </noscript> <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a> </div> </body> </html>

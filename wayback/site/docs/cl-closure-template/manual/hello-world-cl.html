@@ -1,0 +1,82 @@
+<html> <head> <meta http-equiv="Content-Type" content="text/html; charset='utf-8'" /> <link rel="stylesheet" type="text/css" href="../_static/style.css" /> <title>Hello World с Common Lisp</title> </head> <body> <div id="header"> <h1>cl-closure-template</h1> <span>Use Closure Templates from Common Lisp</span> </div> <div id="menu"> <ul> <li> <a href="../index.html">Начало</a>  </li><li> <a href="contents.html">Руководство</a> <ul> <li> <a href="hello-world-js.html">Hello World с JavaScript</a> </li><li> <span>Hello World с Common Lisp</span> </li><li> <a href="concepts.html">Основы</a> </li><li> <a href="commands.html">Команды</a> </li><li> <a href="functions-and-directives.html">Функции и директивы печати</a> </li><li> <a href="common-lisp-usage.html">Использование с Common Lisp</a> </li> </ul> </li><li> <a href="../ref/index.html">API reference</a>  </li><li> <a href="../differences.html">Отличия от оригинальной реализации</a>  </li> </ul> </div> <div id="content"> <div id="hello-world-с-common-lisp" class="document"><h1>Hello World с Common Lisp<a href="#hello-world-с-common-lisp" class="headerlink" title="Permalink to this headline">¶</a></h1><!-- -*- RST -*- -->
+<a id="hello-world-cl" class="target" name="hello-world-cl"></a><div id="table-of-contents" class="topic contents"><ul class="simple">
+<li><a name="id1" class="reference" id="id1" href="#hello-world"><span id="id1">Hello World</span></a></li>
+<li><a name="id2" class="reference" id="id2" href="#hello-name-and-hello-names"><span id="id2">Hello Name and Hello Names</span></a></li>
+</ul>
+</div>
+<div id="hello-world" class="section"><h2>Hello World<a href="#hello-world" class="headerlink" title="Permalink to this headline">¶</a></h2><p>Выполните следующие действия, чтобы создать простой шаблон Hello World и использовать его в JavaScript:</p>
+<ol class="arabic" start="1"><li><p class="first">Создайте рабочий каталог, например:</p>
+<p class="last"><div class="code">mkdir ~/helloworld_js/</div></p>
+</li>
+<li><p class="first">Создайте в этом каталоге файл simple.tmpl и скопируйте туда следующую строку:</p>
+<p><div class="code">{namespace examples.simple}</div></p>
+<p class="last">Эта строка объявляет пространство имён для всех шаблонов, которые будут размещены в данном файле.</p>
+</li>
+<li><p class="first">Скопируйте следующий простой шаблон и поместите его в после объявления пространства имён:</p>
+<p><div class="code">{template helloWorld}<br>
+ &nbsp;&nbsp;&nbsp;Hello world!<br>
+{/template}</div></p>
+<p class="last">Этот шаблон просто создаёт строку "Hello world!".</p>
+</li>
+<li><p class="first">Запустите вашу реализацию Common Lisp (<a class="reference" href="https://github.com/archimag/cl-closure-template/"><span>cl-closure-template</span></a> разрабатывается в основном с использование <a class="reference" href="http://www.sbcl.org/"><span>SBCL</span></a>, но должна работать и с другими реализациями) и выполните следующий код (не забудьте поправить путь к файлу):</p>
+<p><div class="code"><span class="paren1">(<span class="">ql:quickload <span class="string">"closure-template"</span></span>)</span><br><br>
+<span class="paren1">(<span class="">closure-template:compile-cl-templates #P<span class="string">"/home/youname/helloworld_js/simple.tmpl"</span></span>)</span></div></p>
+<p class="last">ВАЖНО: путь к шаблону должен быть указан как <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pn.htm" class="common-lisp-entity">pathname</a>.</p>
+</li>
+<li><p class="first">В результате будет создан <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_pkg.htm" class="common-lisp-entity">package</a> с именем '#:examples.simple, а в нём создана функция #'examples.simple:hello-world. Выполните эту функцию:</p>
+<p><div class="code"><span class="paren1">(<span class="">examples.simple:hello-world</span>)</span></div></p>
+<p>В результате вы должны получить строку:</p>
+<p><div class="code">"Hello world!"</div></p>
+<p class="last">Вот и всё! Вы только что создали с помощью <a class="reference" href="https://github.com/archimag/cl-closure-template/"><span>cl-closure-template</span></a> самый простой шаблон и использовали его в Common Lisp. В следующем разделе мы рассмотрим ещё пару примеров.</p>
+</li>
+</ol>
+</div>
+<div id="hello-name-and-hello-names" class="section"><h2>Hello Name and Hello Names<a href="#hello-name-and-hello-names" class="headerlink" title="Permalink to this headline">¶</a></h2><ol class="arabic" start="6"><li><p class="first">Добавьте в simple.tmpl второй шаблон, называемый helloName. Данный шаблон требует параметр name, а также имеет опциональный параметр greetingWord. Этот шаблон также демонстрирует использование команды if-else. Вы можете расположить этот шаблон до или после helloName, но в любом случае после определения пространства имён.</p>
+<p class="last"><div class="code">{template helloName}<br>
+ &nbsp;&nbsp;&nbsp;{if not $greetingWord}<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Hello {$name}!<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{else}<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{$greetingWord} {$name}!<br>
+ &nbsp;&nbsp;&nbsp;{/if}<br>
+{/template}</div></p>
+</li>
+<li><p class="first">Добавьте в simple.tmpl третий шаблон helloNames, который демонстрирует использование цикла foreach с командой ifempty. Он также демонстрирует как вызывать другие шаблоны и вставлять их вывод с помощью команды call. Примечание: атрибут data="all" в команде call указывает передать в вызываемый шаблон все параметры, которые были переданы вызывающему шаблону.</p>
+<p class="last"><div class="code">{template helloNames}<br>
+ &nbsp;&nbsp;&nbsp;// Greet the person.<br>
+ &nbsp;&nbsp;&nbsp;{call helloName data="all" /}&lt;br&gt;<br>
+ &nbsp;&nbsp;&nbsp;// Greet the additional people.<br>
+ &nbsp;&nbsp;&nbsp;{foreach $additionalName in $additionalNames}<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{call helloName}<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{param name: $additionalName /}<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{/call}<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{if not isLast<span class="paren1">(<span class="">$additionalName</span>)</span>}<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;br&gt; &nbsp;// break after every line except the last<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{/if}<br>
+ &nbsp;&nbsp;&nbsp;{ifempty}<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;No additional people to greet.<br>
+ &nbsp;&nbsp;&nbsp;{/foreach}<br>
+{/template}</div></p>
+</li>
+<li><p class="first">Перекомилируйте файл с шаблонами:</p>
+<p class="last"><div class="code"><span class="paren1">(<span class="">closure-template:compile-cl-templates #P<span class="string">"/home/youname/helloworld_js/simple.tmpl"</span></span>)</span></div></p>
+</li>
+<li><p class="first">Выполните в REPL следующий код:</p>
+<p class="last"><div class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_progn.htm" class="symbol"><i><span class="symbol">progn</span></i></a><br>&nbsp;&nbsp;<span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_wr_stg.htm" class="symbol">write-line</a> <span class="paren3">(<span class="">examples.simple:hello-world</span>)</span></span>)</span><br>&nbsp;&nbsp;<span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_wr_stg.htm" class="symbol">write-line</a> <span class="string">"-----------------"</span></span>)</span><br>&nbsp;&nbsp;<span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_wr_stg.htm" class="symbol">write-line</a> <span class="paren3">(<span class="">examples.simple:hello-name '<span class="paren4">(<span class=""><span class="keyword">:name</span> <span class="string">"Ana"</span></span>)</span></span>)</span></span>)</span><br>&nbsp;&nbsp;<span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_wr_stg.htm" class="symbol">write-line</a> <span class="string">"-----------------"</span></span>)</span><br>&nbsp;&nbsp;<span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_wr_stg.htm" class="symbol">write-line</a> <span class="paren3">(<span class="">examples.simple:hello-name '<span class="paren4">(<span class=""><span class="keyword">:name</span> <span class="string">"Ana"</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">:additional-names</span> <span class="paren5">(<span class=""><span class="string">"Bob"</span> <span class="string">"Cid"</span> <span class="string">"Dee"</span></span>)</span></span>)</span></span>)</span></span>)</span><br>&nbsp;&nbsp;<span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_values.htm" class="symbol">values</a></span>)</span></span>)</span></div></p>
+</li>
+<li><p class="first">Вы должны увидеть следующее сообщение:</p>
+<p class="last"><div class="code">Hello world!<br>
+-----------------<br>
+Hello Ana!<br>
+-----------------<br>
+Hello Ana!&lt;br&gt; Hello Bob! &lt;br&gt; Hello Cid! &lt;br&gt; Hello Dee!<br>
+</div></p>
+</li>
+</ol>
+</div>
+</div> </div> <div id="foother"> Copyright @2010-2013 <a href="mailto:archimag@gmail.com">Moskvitin Andrey</a> </div> <div id="comments"> <div id="disqus_thread"></div> <script type="text/javascript"> var disqus_shortname = "archimagblog"; 
+     (function() {
+     var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+     dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+     })();
+      </script> <noscript> Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a> </noscript> <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a> </div> </body> </html>

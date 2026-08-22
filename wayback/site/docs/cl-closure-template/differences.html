@@ -1,0 +1,40 @@
+<html> <head> <meta http-equiv="Content-Type" content="text/html; charset='utf-8'" /> <link rel="stylesheet" type="text/css" href="_static/style.css" /> <title>Отличия от оригинальной реализации</title> </head> <body> <div id="header"> <h1>cl-closure-template</h1> <span>Use Closure Templates from Common Lisp</span> </div> <div id="menu"> <ul> <li> <a href="index.html">Начало</a>  </li><li> <a href="manual/contents.html">Руководство</a> <ul> <li> <a href="manual/hello-world-js.html">Hello World с JavaScript</a> </li><li> <a href="manual/hello-world-cl.html">Hello World с Common Lisp</a> </li><li> <a href="manual/concepts.html">Основы</a> </li><li> <a href="manual/commands.html">Команды</a> </li><li> <a href="manual/functions-and-directives.html">Функции и директивы печати</a> </li><li> <a href="manual/common-lisp-usage.html">Использование с Common Lisp</a> </li> </ul> </li><li> <a href="ref/index.html">API reference</a>  </li><li> <span>Отличия от оригинальной реализации</span>  </li> </ul> </div> <div id="content"> <div id="отличия-от-оригинальной-реализации" class="document"><h1>Отличия от оригинальной реализации<a href="#отличия-от-оригинальной-реализации" class="headerlink" title="Permalink to this headline">¶</a></h1><h2 id="не-реализовано">Не реализовано<a href="#не-реализовано" class="headerlink" title="Permalink to this headline">¶</a></h2><!-- -*- RST -*- -->
+<a id="differences-from-the-original-implementation" class="target" name="differences-from-the-original-implementation"></a><ul>
+<li><p class="first last">Команда <a class="reference" href="https://developers.google.com/closure/templates/docs/commands#msg"><span>msg</span></a>. Возможно это наиболее ценная возможность <a class="reference" href="https://developers.google.com/closure/templates/"><span>Google Closure Templates</span></a> из тех, которые ещё не реализованы в <a class="reference" href="https://github.com/archimag/cl-closure-template/"><span>cl-closure-template</span></a>.</p>
+</li>
+<li><p class="first last">Набор команд связанных с "делегированием". "Делегирование" не поддерживается и не будет поддерживаться. Автор считает эту возможность <a class="reference" href="https://developers.google.com/closure/templates/"><span>Google Closure Templates</span></a> слишком сложной. Вместо это предлагается использовать более простой механизм наследования пространств имён на основе прототипов.</p>
+</li>
+<li><p class="first last">Команда <a class="reference" href="https://developers.google.com/closure/templates/docs/commands#css"><span>css</span></a>.</p>
+</li>
+<li><p class="first last">Команда <a class="reference" href="https://developers.google.com/closure/templates/docs/commands#alias"><span>alias</span></a>.</p>
+</li>
+<li><p class="first last">Функция <tt class="docutils literal">
+<span class="pre">quoteKeysIfJs</span></tt></p>
+</li>
+<li><p class="first last">Директива печати <tt class="docutils literal">
+<span class="pre">truncate</span></tt></p>
+</li>
+<li><p class="first last">Директива печати <tt class="docutils literal">
+<span class="pre">insertWordBreaks</span></tt></p>
+</li>
+<li><p class="first last">Директива печати <tt class="docutils literal">
+<span class="pre">changeNewlineToBr</span></tt></p>
+</li>
+</ul>
+<div id="реализовано-иначе" class="section"><h2>Реализовано иначе<a href="#реализовано-иначе" class="headerlink" title="Permalink to this headline">¶</a></h2><ul>
+<li><p class="first last">Команда <a class="reference" href="https://developers.google.com/closure/templates/docs/commands#let"><span>let</span></a>. Синтаксис данной команды в <a class="reference" href="https://github.com/archimag/cl-closure-template/"><span>cl-closure-template</span></a> представляется более ясным и естественным, но не обладает возможностью создания переменной путём "rendering to string".</p>
+</li>
+<li><p class="first last">В <a class="reference" href="https://developers.google.com/closure/templates/"><span>Google Closure Templates</span></a> для записи литералов словарей используются квадрантные скобки ([]). В <a class="reference" href="https://github.com/archimag/cl-closure-template/"><span>cl-closure-template</span></a> используется более естественный синтаксис с использованием фигурных скобок ({}).</p>
+</li>
+<li><p class="first last">При использовании шаблонов в JavaScript <a class="reference" href="https://developers.google.com/closure/templates/"><span>Google Closure Templates</span></a> требует подключения к странице дополнительного файла <tt class="docutils literal">
+<span class="pre">soyutils.js</span></tt>. <a class="reference" href="https://github.com/archimag/cl-closure-template/"><span>cl-closure-template</span></a> обходиться без этого, а необходимые вспомогательные функции помещает в создаваемый объект пространства имён, что несколько раздувает код.</p>
+</li>
+</ul>
+</div>
+</div> </div> <div id="foother"> Copyright @2010-2013 <a href="mailto:archimag@gmail.com">Moskvitin Andrey</a> </div> <div id="comments"> <div id="disqus_thread"></div> <script type="text/javascript"> var disqus_shortname = "archimagblog"; 
+     (function() {
+     var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+     dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+     })();
+      </script> <noscript> Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a> </noscript> <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a> </div> </body> </html>

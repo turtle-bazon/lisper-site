@@ -1,0 +1,207 @@
+
+
+/* ---------------------------------------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------------------------------------- */
+
+.forum {
+    margin-top: 10px;
+    padding: 10px;
+}
+
+.forum a {
+    font-size: 130%;
+    font-family: Arial;
+    color: #0066cc;
+}
+
+
+.info {
+    font-size: 80%;
+    color: gray;
+}
+
+.newmessage * {
+    padding: 5px;
+
+}
+
+/* ---------------------------------------------------------------------------------------------------- */
+/* forum-nav-panel */
+/* ---------------------------------------------------------------------------------------------------- */
+
+#forum-nav-panel {
+    font-size: 80%;
+    padding: 3px;
+    border-bottom: 1px solid #b9b2ca;
+    margin-bottom: 5px;
+    font-family: Arial;
+}
+
+#forum-nav-panel ul {
+    margin: 0;
+    padding: 0;
+}
+
+#forum-nav-panel li {
+    display: inline;
+    list-style-type: none;
+}
+
+#forum-nav-panel a {
+    color: #6A5EAB;
+}
+
+#forum-nav-panel li:before {
+    font-weight: bold;
+    content: "»";
+    margin-right: 0.3em;
+} 
+
+#forum-nav-panel li:first-child:before {
+    content: "";
+}
+
+.rss-link { background: transparent url("/image/feed-icon-14x14.png") no-repeat left center; padding-left: 16px; float: right; }
+
+#forum-nav-panel .rss-link { float: right; }
+
+/* ---------------------------------------------------------------------------------------------------- */
+/* topics */
+/* ---------------------------------------------------------------------------------------------------- */
+
+
+.topic-list {
+    margin-top: 5px;
+    border-top: 1px solid #b9b2ca;
+
+    margin-bottom: 5px;
+}
+
+.topic {
+    margin-top: 10px;
+    /*padding-bottom: 5px;*/
+    margin-bottom: 5px;
+    border-bottom: 1px solid #b9b2ca;
+}
+
+.topic > a {
+    font-size: 110%;
+    font-family: Arial;
+    color: #6A5EAB;
+}
+
+
+.topic-info {
+    font-size: 80%;
+    color: gray;
+}
+
+/**/
+.thread .topic {
+    margin: 10px;
+    /*padding: 5px;*/
+    padding-left: 5px;
+    padding-right: 5px;
+
+    /*background-color: #ebe9d9;*/
+    background-color: #DDDDDD;
+    border: 1px solid #d0d0d0;
+}
+
+.thread .topicbody {
+    font-size: 90%;
+    padding: 10px;
+
+    border-top: 1px solid #b9b2ca;
+    background-color: white;
+
+    margin-left: -5px;
+    margin-right: -5px;
+    
+}
+
+.thread .topic-info {
+    font-size: 80%;
+    color: gray;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+.topic-pages {
+    text-align: center;
+    color: gray;
+}
+
+
+.reply {
+    margin: 1.3em 10px;
+    padding: 0 5px 0 5px ;
+
+    background-color: #DDDDDD;
+    border: 1px solid #d0d0d0;
+}
+
+.reply:target { border: 1px solid red; }
+
+.replybody {
+    font-size: 90%;
+    padding: 10px;
+
+    border-top: 1px solid #b9b2ca;
+    background-color: white;
+
+
+    margin-left: -5px;
+    margin-right: -5px;
+}
+
+div.wysiwyg ul.panel li a.insertCode { background: transparent url(code.gif) no-repeat; }
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * *
+ * delete-this
+ * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+a.delete-this {
+    float: right;
+    right: 10px;
+    top: 5px;
+    font-size: 100%;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * *
+ * Modal dialogs
+ * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+.jqmWindow {
+    display: none;
+    
+    position: fixed;
+    top: 17%;
+    left: 50%;
+    
+    margin-left: -300px;
+    width: 600px;
+    
+    background-color: #EEE;
+    color: #333;
+    border: 1px solid black;
+    padding: 12px;
+}
+
+.jqmOverlay { background-color: #000; }
+
+/* Background iframe styling for IE6. Prevents ActiveX bleed-through (<select> form elements, etc.) */
+* iframe.jqm {position:absolute;top:0;left:0;z-index:-1;
+	width: expression(this.parentNode.offsetWidth+'px');
+	height: expression(this.parentNode.offsetHeight+'px');
+}
+
+/* Fixed posistioning emulation for IE6
+     Star selector used to hide definition from browsers other than IE6
+     For valid CSS, use a conditional include instead */
+* html .jqmWindow {
+     position: absolute;
+     top: expression((document.documentElement.scrollTop || document.body.scrollTop) + Math.round(17 * (document.documentElement.offsetHeight || document.body.clientHeight) / 100) + 'px');
+}
+

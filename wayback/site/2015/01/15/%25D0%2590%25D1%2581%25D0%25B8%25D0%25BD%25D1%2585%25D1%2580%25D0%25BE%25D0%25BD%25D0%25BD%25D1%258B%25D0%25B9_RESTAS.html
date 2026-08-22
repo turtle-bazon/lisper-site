@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html> <head> <title>Асинхронный RESTAS</title> <link rel="stylesheet" href="/static/mirev/css/style.css"> <link rel="stylesheet" href="/static/mirev/css/prettify.css"> <link rel="alternate" type="application/atom+xml" title="archimag: blog entries feed" href="/feeds/atom" /> <link rel="alternate" type="application/rss+xml" title="archimag: comments feed" href="http://archimagblog.disqus.com/latest.rss" />  </head> <body> <a href="http://github.com/archimag/"> <img style="position: absolute; top: 0; left: 0; border: 0;" src="/static/archimag/image/forkme.png" alt="Fork me on GitHub"> </a> <div id="header"> <a href="/" id="blogname">archimag</a> </div> <div id="content"> <div class="blog-post"> <h2><a href="/2015/01/15/%d0%90%d1%81%d0%b8%d0%bd%d1%85%d1%80%d0%be%d0%bd%d0%bd%d1%8b%d0%b9_RESTAS">Асинхронный RESTAS</a></h2> <div class="post-metadata"> <div class="post-published"> <a href="/2015/"> 2015 </a>, <a href="/2015/01/"> January </a> <a href="/2015/01/15/"> 15 </a> </div> <div class="post-tags"> <a href="/tags/">Tags</a>:  <a href="/tags/lisp">lisp</a> <a href="/tags/restas">restas</a> <a href="/tags/async">async</a> </div> </div> <div class="document"><p>Уже некоторое время на github доступна <a class="reference" href="https://github.com/archimag/restas/tree/async"><span>асинхронная версия RESTAS </span></a>. Изменения довольно большие, рассказывать сейчас подробности не буду, но кому интересно, тот уже может посмотреть. Есть две небольших демки:</p>
+<ul>
+<li><p class="first"><a class="reference" href="https://gist.github.com/archimag/cc2d2fe8cf26cbae0095"><span>https://gist.github.com/archimag/cc2d2fe8cf26cbae0095</span></a> - просто посмотреть базовые возможности.</p>
+</li>
+<li><p class="first"><a class="reference" href="https://gist.github.com/archimag/69470846e9d2650366e8"><span>https://gist.github.com/archimag/69470846e9d2650366e8</span></a> - пример "реальной" асинхронности совместно с асинхронным драйвером для mongodb (по мотивам <a class="reference" href="http://docs.mongodb.org/manual/applications/crud/"><span>MongoDB CRUD Tutorials</span></a>).</p>
+</li>
+</ul>
+<p>Там есть целый ряд разных косметический изменений, но главное теперь из обработчика маршрута можно возвращать <em><span>promise</span></em> (см. <a class="reference" href="http://orthecreedence.github.io/blackbird/"><span>blackbird</span></a>).</p>
+<p>Вместо <em><span>restas.asd</span></em> теперь <em><span>restas.hunchentoot.asd</span></em> и <em><span>restas.wookie.asd</span></em>. Все "асинхронности" доступны только при использовании <em><span>restas.wookie</span></em>.</p>
+</div> </div> <div id="disqus_thread"></div> <script type="text/javascript"> var disqus_shortname = "archimagblog"; var disqus_identifier = "0ac5affd310bc23fc9db6f3acc868aecfebf62e0"; var disqus_url = "http://archimag.lisper.ru/permalink/posts/0ac5affd310bc23fc9db6f3acc868aecfebf62e0";  
+     (function() {
+     var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+     dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+     })();
+      </script> <noscript> Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a> </noscript> <a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a> </div> <div id="footer"> <div class="right"> Copyright (c) Moskvitin Andrey <br /> Powered by <a href="http://restas.lisper.ru">RESTAS</a> <div id="buttons"> <a href="http://www.sbcl.org/"> <img src="/static/archimag/image/sbclbutton.png" alt="SBCL" /> </a> <a href="http://weitz.de/hunchentoot/"> <img src="/static/archimag/image/hunchentoot10.png" alt="Hunchentoot" /> </a> <a href="http://www.mongodb.org/"> <img src="/static/archimag/image/logo-mongodb.png" alt="mongoDB" /> </a> </div> </div> <a href="/feeds/atom" class="feed">Posts feed</a> <br /> <a href="http://archimagblog.disqus.com/latest.rss" class="feed">Comments feed</a> </div> 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-22971320-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+     </body> </html>

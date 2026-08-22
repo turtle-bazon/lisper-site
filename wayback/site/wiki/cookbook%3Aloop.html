@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru">
+	<head>
+      	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"></meta>
+
+        <meta name="verify-v1" content="o6r5tA9qF5PflmPb3cI7rJrWpFBGTkIE9X4KU25TxiE="></meta>
+
+        <meta name="keywords" content="Common Lisp,lisp,лисп"></meta>
+
+        <link href="/css/fine/style.css" rel="stylesheet" type="text/css">
+        <link href="/css/fine/colorize.css" rel="stylesheet" type="text/css">
+	<title>cookbook:loop</title>
+<link href="/css/fine/wiki.css" rel="stylesheet" type="text/css"></head>
+
+	<body>
+        <div class="top">
+            <div id="login">
+    <a href="/register">Регистрация</a> |
+    <a href="/login?done=http%3A%2F%2Flisper.ru%2Fwiki%2Fcookbook%3Aloop">Войти</a>
+</div>
+        </div>
+
+        <div id="caution">
+            <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png"></img>
+        </div>
+
+        <div id="mainmenu">
+          <ul>
+<li><a href="/">Главная</a></li>
+<li><a href="/articles/">Статьи</a></li>
+<li><a href="/planet/">Планета</a></li>
+<li><a href="/forum/">Форум</a></li>
+<li><a href="/apps/">Сервисы</a></li>
+<li><a href="/pcl/">Practical Common Lisp</a></li>
+<li><a href="/wiki/">wiki</a></li>
+</ul>
+        </div>
+
+        <div id="content"><div class="article">
+<div class="toc">
+<div class="toc-header">Содержание</div>
+<div class="toc-body"><ul><li><div>
+<a href="#b6f32c99c9965d82e9257539c40c0831">Циклы</a><ul>
+<li><div><a href="#970eec97eb964970c9e36718553d31dc">Введение</a></div></li>
+<li><div><a href="#d7bcab4c308d2403743a8b5af29c27bb">Примеры</a></div></li>
+<li><div><a href="#74fee5cdf9b39fe6238c20e64833f61a">Хотите еще?</a></div></li>
+<li><div><a href="#a6e9d0bb2d6449c96508f0521b191dbb">Библиотеки</a></div></li>
+</ul>
+</div></li></ul></div>
+</div>
+<div class="chapter" id="b6f32c99c9965d82e9257539c40c0831">
+<h3>Циклы</h3>
+<div class="chapter" id="970eec97eb964970c9e36718553d31dc">
+<h3>Введение</h3>
+<p>Один из самых ценных и одновременно наименее документированных операторов в стандарте Коммон Лисп.
+Ценен он тем, что позволяет короче и яснее использовать функции высшего порядка (mapping) и рекурсивные операции.
+Также он позволяет использовать в Лиспе конструкции, более удобные для тех, кто привык работать с более традиционными языками.
+</p>
+<p>Макрос Loop отличается от других операторов Лиспа, и больше напоминает конструкции Си или Паскаля. То есть, для чтения loop-выражений вам потребуется мыслить не только на языке Лиспа, но и на Паскале.
+</p>
+<p>Loop-выражение может содержать выражения, определяющие итерируемые переменные; выражения, завершающие цикл (условно или безусловно); выражения, определяющие последовательность действий на каждой итерации; действия после завершения последней итерации. Кроме того, loop-выражения, как и полагается функциональной парадигме, возвращает какое-то значение. Редко когда приходится использовать все эти возможности, но оных позволяет их эффективно комбинировать.
+</p>
+<p>Код, представленный в оригинале этого руководства, взят из <a href="http://www.ai.sri.com/~pkarp/loop.html">Tutorial for the Common Lisp Loop Macro</a> и использовался там по разрешению <a href="pkarp@ai.sri.com">Peter Karp</a>. <a class="fn_top" id="fnt__1" href="#fn__1">1)</a>
+</p>
+</div>
+<div class="chapter" id="d7bcab4c308d2403743a8b5af29c27bb">
+<h3>Примеры</h3>
+<p>Итерация по списку, печатаем каждый элемент:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> for x in '<span class="paren2">(<span class="">a b c d e</span>)</span><br>    <a href="http://www.lispworks.com/reference/HyperSpec/Body/m_do_do.htm" class="symbol">do</a> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_wr_pr.htm" class="symbol">print</a> x</span>)</span></span>)</span><br>
+A<br>
+B<br>
+C<br>
+D<br>
+E<br><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">NIL</a><br></pre>
+
+<p>Итерация параллельно по двум спискам, собираем результат в ассоциированный список:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> for x in '<span class="paren2">(<span class="">a b c d e</span>)</span><br>    for y in '<span class="paren2">(<span class="">1 2 3 4 5</span>)</span><br>    collect <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_cons.htm" class="symbol">cons</a> x y</span>)</span></span>)</span><br><br><span class="paren1">(<span class=""><span class="paren2">(<span class="">A . 1</span>)</span> <span class="paren2">(<span class="">B . 2</span>)</span> <span class="paren2">(<span class="">C . 3</span>)</span> <span class="paren2">(<span class="">D . 4</span>)</span> <span class="paren2">(<span class="">E . 5</span>)</span></span>)</span><br></pre>
+
+<p>Итерация с использованием счетчика. Возвращает список из элементов, полученных в результате каждой итерации. <a class="fn_top" id="fnt__2" href="#fn__2">2)</a>
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> for x from1 to 5<br>    for y = <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> x 2</span>)</span><br>    collect y</span>)</span><br><br><span class="paren1">(<span class="">2 4 6 8 10</span>)</span><br></pre>
+
+<p>Итерация с проходом по списку, параллельно с итерацией по счетчику. Окончание итерации по счетчику не определяется длиной списка. В теле loop-выражения используется условный оператор:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> for x in '<span class="paren2">(<span class="">a b c d e</span>)</span><br>    for y from 1<br><br>    <a href="http://www.lispworks.com/reference/HyperSpec/Body/m_when_.htm" class="symbol">when</a> <span class="paren2">(<span class="">&gt; y 1</span>)</span><br>    <a href="http://www.lispworks.com/reference/HyperSpec/Body/m_do_do.htm" class="symbol">do</a> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <span class="string">", "</span></span>)</span><br><br>    <a href="http://www.lispworks.com/reference/HyperSpec/Body/m_do_do.htm" class="symbol">do</a> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <span class="string">"~A"</span> x</span>)</span></span>)</span><br><br>
+A, B, C, D, E<br><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">NIL</a><br></pre>
+
+<p>То же самое, но через if:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> for x in '<span class="paren2">(<span class="">a b c d e</span>)</span><br>    for y from 1<br><br>    <a href="http://www.lispworks.com/reference/HyperSpec/Body/s_if.htm" class="symbol"><i><span class="symbol">if</span></i></a> <span class="paren2">(<span class="">&gt; y 1</span>)</span><br>    <a href="http://www.lispworks.com/reference/HyperSpec/Body/m_do_do.htm" class="symbol">do</a> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <span class="string">", ~A"</span> x</span>)</span><br>    else <a href="http://www.lispworks.com/reference/HyperSpec/Body/m_do_do.htm" class="symbol">do</a> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <span class="string">"~A"</span> x</span>)</span></span>)</span><br><br>
+A, B, C, D, E<br><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">NIL</a><br></pre>
+
+<p>Пример условно-досрочного завершения цикла:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> for x in '<span class="paren2">(<span class="">a b c d e 1 2 3 4</span>)</span><br>    until <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_nump.htm" class="symbol">numberp</a> x</span>)</span><br>    collect <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_list.htm" class="symbol">list</a> x 'foo</span>)</span></span>)</span><br><br><span class="paren1">(<span class=""><span class="paren2">(<span class="">A FOO</span>)</span> <span class="paren2">(<span class="">B FOO</span>)</span> <span class="paren2">(<span class="">C FOO</span>)</span> <span class="paren2">(<span class="">D FOO</span>)</span> <span class="paren2">(<span class="">E FOO</span>)</span></span>)</span><br></pre>
+
+<p>Также для организации условного завершения может использоваться "while":
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> for x from 1<br>    for y = <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> x 10</span>)</span><br>    while <span class="paren2">(<span class="">&lt; y 100</span>)</span><br><br>    <a href="http://www.lispworks.com/reference/HyperSpec/Body/m_do_do.htm" class="symbol">do</a> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_wr_pr.htm" class="symbol">print</a> <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> x 5</span>)</span></span>)</span><br><br>    collect y</span>)</span><br><br>
+5<br>
+10<br>
+15<br>
+20<br>
+25<br>
+30<br>
+35<br>
+40<br>
+45<br><span class="paren1">(<span class="">10 20 30 40 50 60 70 80 90</span>)</span><br></pre>
+
+<p>Loop-выражения могут быть вложены друг в друга:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> for x from 1 to 10<br>    collect <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> for y from 1 to x<br>                collect y</span>)</span></span>)</span><br><br><span class="paren1">(<span class=""><span class="paren2">(<span class="">1</span>)</span> <span class="paren2">(<span class="">1 2</span>)</span> <span class="paren2">(<span class="">1 2 3</span>)</span> <span class="paren2">(<span class="">1 2 3 4</span>)</span> <span class="paren2">(<span class="">1 2 3 4 5</span>)</span> <span class="paren2">(<span class="">1 2 3 4 5 6</span>)</span> <span class="paren2">(<span class="">1 2 3 4 5 6 7</span>)</span><br> <span class="paren2">(<span class="">1 2 3 4 5 6 7 8</span>)</span> <span class="paren2">(<span class="">1 2 3 4 5 6 7 8 9</span>)</span> <span class="paren2">(<span class="">1 2 3 4 5 6 7 8 9 10</span>)</span></span>)</span><br></pre>
+
+<p>На месте итерируемой переменной может стоять несколько переменных в виде списка.
+<a class="fn_top" id="fnt__3" href="#fn__3">3)</a>
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> for <span class="paren2">(<span class="">a b</span>)</span> in '<span class="paren2">(<span class=""><span class="paren3">(<span class="">x 1</span>)</span> <span class="paren3">(<span class="">y 2</span>)</span> <span class="paren3">(<span class="">z 3</span>)</span></span>)</span><br>    collect <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_list.htm" class="symbol">list</a> b a</span>)</span></span>)</span><br><br><span class="paren1">(<span class=""><span class="paren2">(<span class="">1 X</span>)</span> <span class="paren2">(<span class="">2 Y</span>)</span> <span class="paren2">(<span class="">3 Z</span>)</span></span>)</span><br></pre>
+
+<p>Ключевое слово "return" (возврат) обеспечивает немедленный выход из цикла и (по желанию) возвращает значение, даваемое ему в виде первого аргумента:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren2">(<span class=""><span class="paren3">(<span class="">s <span class="string">"alpha45"</span></span>)</span></span>)</span><br>   <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> for i from 0 below <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_length.htm" class="symbol">length</a> s</span>)</span><br>         for ch = <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_char_.htm" class="symbol">char</a> s i</span>)</span><br>         <a href="http://www.lispworks.com/reference/HyperSpec/Body/m_when_.htm" class="symbol">when</a> <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_find_.htm" class="symbol">find</a> ch <span class="string">"0123456789"</span> <span class="keyword">:test</span> #'<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_eql.htm" class="symbol">eql</a></span>)</span><br>         <a href="http://www.lispworks.com/reference/HyperSpec/Body/m_return.htm" class="symbol">return</a> ch</span>)</span></span>)</span><br><br><span class="character">#\4</span><br></pre>
+
+<p>Также есть рад ключевых слов, позволяющих сократить запись loop-выражения с использованием when/return:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> for x in '<span class="paren2">(<span class="">foo 2</span>)</span><br>   thereis <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_nump.htm" class="symbol">numberp</a> x</span>)</span></span>)</span><br><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">T</a><br><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> for x in '<span class="paren2">(<span class="">foo 2</span>)</span><br>    never <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_nump.htm" class="symbol">numberp</a> x</span>)</span></span>)</span><br><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">NIL</a><br><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_loop.htm" class="symbol"><i><span class="symbol">loop</span></i></a> for x in '<span class="paren2">(<span class="">foo 2</span>)</span><br>    always <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_nump.htm" class="symbol">numberp</a> x</span>)</span></span>)</span><br><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">NIL</a><br></pre>
+
+</div>
+<div class="chapter" id="74fee5cdf9b39fe6238c20e64833f61a">
+<h3>Хотите еще?</h3>
+<p><a href="http://www.unixuser.org/~euske/doc/cl/loop.html">Тут</a> есть еще некоторое количество примеров, посвященных различным применениям loop.
+Если вы захотите ознакомится с первоисточником, то загляните в <a href="http://www.lispworks.com/documentation/HyperSpec/Body/m_loop.htm">HyperSpec</a> и
+<a href="http://www.cs.cmu.edu/Groups/AI/html/cltl/clm/node235.html">CLTL</a>.
+</p>
+</div>
+<div class="chapter" id="a6e9d0bb2d6449c96508f0521b191dbb">
+<h3>Библиотеки</h3>
+<p><a href="http://common-lisp.net/project/iterate/">Iterate</a> - еще одна возможность организовывать циклы, если вас не устраивает loop 
+и другие стандартные возможности Common Lisp.
+</p>
+</div>
+</div>
+<div class="footnotes">
+<div>
+<a class="fn_bot" id="fn__1" href="#fnt__1">1)</a>Надеемся, что он будет не против его размещения в настоящем переводе.</div>
+<div>
+<a class="fn_bot" id="fn__2" href="#fnt__2">2)</a>Одна из самых приятных возможностей loop</div>
+<div>
+<a class="fn_bot" id="fn__3" href="#fnt__3">3)</a>В данном примере эта возможность используется исключительно для демонстрации возможностей loop, т.к. проще это сделать, например, через mapcar и reverse</div>
+</div>
+</div></div>
+
+        <div class="bottom">@2009 lisper.ru</div>
+
+        <script type="text/javascript">
+
+          var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+
+          document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+
+        </script>
+
+        <script type="text/javascript">
+
+          try {
+
+          var pageTracker = _gat._getTracker("UA-7734690-1");
+
+          pageTracker._trackPageview();
+
+          } catch(err) {}
+
+        </script>
+
+    </body>
+</html>

@@ -1,0 +1,107 @@
+<html> <head> <meta http-equiv="Content-Type" content="text/html; charset='utf-8'" /> <link rel="stylesheet" type="text/css" href="../_static/style.css" /> <title>Hello World с JavaScript</title> </head> <body> <div id="header"> <h1>cl-closure-template</h1> <span>Use Closure Templates from Common Lisp</span> </div> <div id="menu"> <ul> <li> <a href="../index.html">Начало</a>  </li><li> <a href="contents.html">Руководство</a> <ul> <li> <span>Hello World с JavaScript</span> </li><li> <a href="hello-world-cl.html">Hello World с Common Lisp</a> </li><li> <a href="concepts.html">Основы</a> </li><li> <a href="commands.html">Команды</a> </li><li> <a href="functions-and-directives.html">Функции и директивы печати</a> </li><li> <a href="common-lisp-usage.html">Использование с Common Lisp</a> </li> </ul> </li><li> <a href="../ref/index.html">API reference</a>  </li><li> <a href="../differences.html">Отличия от оригинальной реализации</a>  </li> </ul> </div> <div id="content"> <div id="hello-world-с-javascript" class="document"><h1>Hello World с JavaScript<a href="#hello-world-с-javascript" class="headerlink" title="Permalink to this headline">¶</a></h1><!-- -*- RST -*- -->
+<a id="hello-world-js" class="target" name="hello-world-js"></a><div id="table-of-contents" class="topic contents"><ul class="simple">
+<li><a name="id1" class="reference" id="id1" href="#hello-world"><span id="id1">Hello World</span></a></li>
+<li><a name="id2" class="reference" id="id2" href="#hello-name-and-hello-names"><span id="id2">Hello Name and Hello Names</span></a></li>
+</ul>
+</div>
+<div id="hello-world" class="section"><h2>Hello World<a href="#hello-world" class="headerlink" title="Permalink to this headline">¶</a></h2><p>Выполните следующие действия, чтобы создать простой шаблон Hello World и использовать его в JavaScript:</p>
+<ol class="arabic" start="1"><li><p class="first">Создайте рабочий каталог, например:</p>
+<p class="last"><div class="code">mkdir ~/helloworld_js/</div></p>
+</li>
+<li><p class="first">Создайте в этом каталоге файл simple.tmpl и скопируйте туда следующую строку:</p>
+<p><div class="code">{namespace examples.simple}</div></p>
+<p class="last">Эта строка объявляет пространство имён для всех шаблонов, которые будут размещены в данном файле.</p>
+</li>
+<li><p class="first">Скопируйте следующий простой шаблон и поместите его в после объявления пространства имён:</p>
+<p><div class="code">{template helloWorld}<br>
+ &nbsp;&nbsp;&nbsp;Hello world!<br>
+{/template}</div></p>
+<p class="last">Этот шаблон просто создаёт строку "Hello world!".</p>
+</li>
+<li><p class="first">Запустите вашу реализацию Common Lisp (<a class="reference" href="https://github.com/archimag/cl-closure-template/"><span>cl-closure-template</span></a> разрабатывается в основном с использование <a class="reference" href="http://www.sbcl.org/"><span>SBCL</span></a>, но должна работать и с другими реализациями) и выполните следующий код (не забудьте поправить указанные пути):</p>
+<p class="last"><div class="code"><span class="paren1">(<span class="">ql:quickload <span class="string">"closure-template"</span></span>)</span><br><br>
+<span class="paren1">(<span class="">alexandria:write-string-into-file<br>&nbsp;&nbsp;<span class="paren2">(<span class="">closure-template:compile-js-templates #P<span class="string">"/home/youname/helloworld_js/simple.tmpl"</span></span>)</span><br>&nbsp;&nbsp;#P<span class="string">"/home/youname/helloworld_js/simple.js"</span></span>)</span></div></p>
+</li>
+<li><p class="first">В этом же каталоге создайте файл helloworld.html и скопируйте в него следующий HTML-код:</p>
+<p class="last"><div class="code">&lt;html&gt;<br>
+ &nbsp;&nbsp;&nbsp;&lt;head&gt;<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;title&gt;The Hello World of Closure Templates&lt;/title&gt;<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;script type="text/javascript" src="simple.js"&gt;&lt;/script&gt;<br>
+ &nbsp;&nbsp;&nbsp;&lt;/head&gt;<br>
+ &nbsp;&nbsp;&nbsp;&lt;body&gt;<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;script type="text/javascript"&gt;<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// Exercise the helloWorld template<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;document.write<span class="paren1">(<span class="">examples.simple.helloWorld<span class="paren2">(<span class=""></span>)</span></span>)</span>;<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>
+ &nbsp;&nbsp;&nbsp;&lt;/body&gt;<br>
+&lt;/html&gt;</div></p>
+</li>
+<li><p class="first">Откройте файл helloworld.html в вашем браузере, например:</p>
+<p><div class="code">firefox ~/helloworld_js/helloworld.html</div></p>
+<p>посмотрите результат. Страница должна выглядеть как показано на скриншоте:</p>
+<div class="image"><img src="../_static/helloworld_js.png" alt="Hello World using JavaScript" /></div>
+<p class="last">Вот и всё! Вы только что создали с помощью <a class="reference" href="https://github.com/archimag/cl-closure-template/"><span>cl-closure-template</span></a> самый простой шаблон и использовали его в JavaScript. В следующем разделе мы немного усложним данный пример, добавив два новых простых шаблона в simple.tmpl.</p>
+</li>
+</ol>
+</div>
+<div id="hello-name-and-hello-names" class="section"><h2>Hello Name and Hello Names<a href="#hello-name-and-hello-names" class="headerlink" title="Permalink to this headline">¶</a></h2><ol class="arabic" start="7"><li><p class="first">Добавьте в simple.tmpl второй шаблон, называемый helloName. Данный шаблон требует параметр name, а также имеет опциональный параметр greetingWord. Этот шаблон также демонстрирует использование команды if-else. Вы можете расположить этот шаблон до или после helloName, но в любом случае после определения пространства имён.</p>
+<p class="last"><div class="code">{template helloName}<br>
+ &nbsp;&nbsp;&nbsp;{if not $greetingWord}<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Hello {$name}!<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{else}<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{$greetingWord} {$name}!<br>
+ &nbsp;&nbsp;&nbsp;{/if}<br>
+{/template}</div></p>
+</li>
+<li><p class="first">Добавьте в simple.tmpl третий шаблон helloNames, который демонстрирует использование цикла foreach с командой ifempty. Он также демонстрирует как вызывать другие шаблоны и вставлять их вывод с помощью команды call. Примечание: атрибут data="all" в команде call указывает передать в вызываемый шаблон все параметры, которые были переданы вызывающему шаблону.</p>
+<p class="last"><div class="code">{template helloNames}<br>
+ &nbsp;&nbsp;&nbsp;// Greet the person.<br>
+ &nbsp;&nbsp;&nbsp;{call helloName data="all" /}&lt;br&gt;<br>
+ &nbsp;&nbsp;&nbsp;// Greet the additional people.<br>
+ &nbsp;&nbsp;&nbsp;{foreach $additionalName in $additionalNames}<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{call helloName}<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{param name: $additionalName /}<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{/call}<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{if not isLast<span class="paren1">(<span class="">$additionalName</span>)</span>}<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;br&gt; &nbsp;// break after every line except the last<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{/if}<br>
+ &nbsp;&nbsp;&nbsp;{ifempty}<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;No additional people to greet.<br>
+ &nbsp;&nbsp;&nbsp;{/foreach}<br>
+{/template}</div></p>
+</li>
+</ol>
+<ol class="arabic" start="8"><li><p class="first">Перекомилируйте файл с шаблонами:</p>
+<p class="last"><div class="code"><span class="paren1">(<span class="">alexandria:write-string-into-file<br>&nbsp;&nbsp;<span class="paren2">(<span class="">closure-template:compile-js-templates #P<span class="string">"/home/andrey/helloworld_js/simple.tmpl"</span></span>)</span><br>&nbsp;&nbsp;#P<span class="string">"/home/andrey/helloworld_js/simple.js"</span><br>&nbsp;&nbsp;<span class="keyword">:if-exists</span> <span class="keyword">:supersede</span></span>)</span></div></p>
+</li>
+<li><p class="first">Измените файл helloworld.html, добавив вызовы шаблонов helloName и helloNames:</p>
+<p class="last"><div class="code">&lt;html&gt;<br>
+ &nbsp;&nbsp;&nbsp;&lt;head&gt;<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;title&gt;The Hello World of Closure Templates&lt;/title&gt;<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;script type="text/javascript" src="simple.js"&gt;&lt;/script&gt;<br>
+ &nbsp;&nbsp;&nbsp;&lt;/head&gt;<br>
+ &nbsp;&nbsp;&nbsp;&lt;body&gt;<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;script type="text/javascript"&gt;<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// Exercise the helloWorld template<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;document.write<span class="paren1">(<span class="">examples.simple.helloWorld<span class="paren2">(<span class=""></span>)</span></span>)</span>;<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// Exercise the helloName template<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;document.write<span class="paren1">(<span class="">'&lt;hr&gt;' <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> examples.simple.helloName<span class="paren2">(<span class="">{name: 'Ana'}</span>)</span></span>)</span>;<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// Exercise the helloNames template<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;document.write<span class="paren1">(<span class="">'&lt;hr&gt;' <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> examples.simple.helloNames<span class="paren2">(<span class=""><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{name: 'Ana', additionalNames: ['Bob', 'Cid', 'Dee']}</span>)</span></span>)</span>;<br>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/script&gt;<br>
+ &nbsp;&nbsp;&nbsp;&lt;/body&gt;<br>
+&lt;/html&gt;</div></p>
+</li>
+<li><p class="first last">Перезагрузите страницу helloworld.html в браузере и посмотрите результата. Страница должны выглядеть как на скриншоте:</p>
+</li>
+</ol>
+<blockquote> <div class="image"><img src="../_static/helloworld_js_advanced.png" alt="Screenshot of more advanced Hello World example" /></div>
+<p>Вы только что завершили создание трёх простых шаблонов и использовали их в JavaScript.</p>
+</blockquote> </div>
+</div> </div> <div id="foother"> Copyright @2010-2013 <a href="mailto:archimag@gmail.com">Moskvitin Andrey</a> </div> <div id="comments"> <div id="disqus_thread"></div> <script type="text/javascript"> var disqus_shortname = "archimagblog"; 
+     (function() {
+     var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+     dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+     })();
+      </script> <noscript> Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a> </noscript> <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a> </div> </body> </html>

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+  <channel>
+    <title>SLIME</title>
+    <link>http://lisper.ru/forum/</link>
+    <description>SLIME - RSS-лента</description>
+    <item>
+      <title>LinkFly: Slime inspector Не устанавливаются слоты для объекта</title>
+      <link>http://lisper.ru/forum/thread/238</link>
+      <description>Разобрался сам:&lt;br&gt;в файле .emacs изменил это&lt;br&gt;&lt;br&gt;на это&lt;br&gt;(slime-setup '(slime-repl slime-fancy))&lt;br&gt;И всё заработало как надо. Про slime-fancy в документации написано: "Почти всё":&lt;br&gt;&lt;pre class="example"&gt;(slime-setup '(slime-fancy)) ; almost everything&lt;br&gt;http://common-lisp.net/project/slime/doc/html/Loading-Contribs.html#Loading-Contribs&lt;br&gt;&lt;/pre&gt;</description>
+      <pubDate>Sat, 17 Apr 2010 07:29:48 GMT</pubDate>
+    </item>
+    <item>
+      <title>LinkFly: Отладка в SLIME и SBCL</title>
+      <link>http://lisper.ru/forum/thread/216</link>
+      <description>Debug в Slime, кстати, обсуждается здесь: http://lisper.ru/forum/thread/246</description>
+      <pubDate>Tue, 13 Apr 2010 17:36:52 GMT</pubDate>
+    </item>
+    <item>
+      <title>LinkFly: Slime inspector Не устанавливаются слоты для объекта</title>
+      <link>http://lisper.ru/forum/thread/238</link>
+      <description>Бьюсь об заклад, что мог менять слоты объекта в инспекторе slime. Сейчас почему-то нет такой возможности .. :(&lt;br&gt;Есть идеи?</description>
+      <pubDate>Thu, 08 Apr 2010 16:57:59 GMT</pubDate>
+    </item>
+    <item>
+      <title>treep: Перекомпиляция изменённых систем?</title>
+      <link>http://lisper.ru/forum/thread/213</link>
+      <description>Теперь тоже всё ок, я просто чистил файлы в ~/.fasls, под предлогом того что так удастся достичь полной перекомпиляции, поэтому и проблемы были.</description>
+      <pubDate>Tue, 06 Apr 2010 18:13:16 GMT</pubDate>
+    </item>
+    <item>
+      <title>LinkFly: Перекомпиляция изменённых систем?</title>
+      <link>http://lisper.ru/forum/thread/213</link>
+      <description>Опиши ситуацию как можно подробней. Например, что значит "неважно успешно или нет" ? В смысле - не важно загрузилась или была загружена?&lt;br&gt;&lt;br&gt;У меня например всё отлично перегружается, делаю:&lt;br&gt;&amp;nbsp;(asdf:oos 'asdf:load-op :some-system)&lt;br&gt;меняю какой-то файл, и опять:&lt;br&gt;(asdf:oos 'asdf:load-op :some-system)&lt;br&gt;&lt;br&gt;и всё ок.&lt;br&gt;</description>
+      <pubDate>Mon, 05 Apr 2010 18:04:53 GMT</pubDate>
+    </item>
+    <item>
+      <title>LinkFly: Отладка в SLIME и SBCL</title>
+      <link>http://lisper.ru/forum/thread/216</link>
+      <description>Всем привет. Посоветуйте пожалуйста какие-нибудь материалы по отладке в SLIME и в sbcl кроме родной документации? Очень нужно. </description>
+      <pubDate>Thu, 01 Apr 2010 09:53:04 GMT</pubDate>
+    </item>
+    <item>
+      <title>treep: Перекомпиляция изменённых систем?</title>
+      <link>http://lisper.ru/forum/thread/213</link>
+      <description>Кто-нибудь сталкивается с таким поведение - загружаем систему с помощью&#13;
+require или asdf:oss, неважно успешно или нет, потом меняем что-то в&#13;
+файлах и пытаемся снова, выпадает что-то вроде&lt;br&gt;&#13;
+&lt;br&gt;&#13;
+erred while invoking #&amp;lt;complie-op&amp;gt; on #&amp;lt;cl-source file какой-то файл&amp;gt;&lt;br&gt;&#13;
+&lt;br&gt;&#13;
+После перезапуска Slime всё загружается нормально. Вобщем как можно меняя что-то в системе постоянно её перезагружать?&lt;br&gt;&#13;
+</description>
+      <pubDate>Tue, 30 Mar 2010 18:42:11 GMT</pubDate>
+    </item>
+    <item>
+      <title>GeoVit: Русская кодировка в SLIME</title>
+      <link>http://lisper.ru/forum/thread/114</link>
+      <description>&lt;P&gt;Странно, вроде и конфиг выложил в этом треде, и скриншот в подтверждение, и всё равно народ не читает и снова спрашивает про кодировки.&lt;/P&gt;&lt;P&gt;Кстати, конфиг &lt;STRONG&gt;artem&lt;/STRONG&gt;'а вреден для новичков под виндой, тк запутывает только. Новичку нафиг не нужно указывать образ(достаточно запустить clisp.exe, он сам всё знает), увеличивать ansi cl compliance и подавлять сообщения компиляции.&lt;/P&gt;</description>
+      <pubDate>Thu, 18 Feb 2010 08:49:38 GMT</pubDate>
+    </item>
+    <item>
+      <title>archimag: Русская кодировка в SLIME</title>
+      <link>http://lisper.ru/forum/thread/114</link>
+      <description>&lt;i&gt;&amp;gt; Можно ли будет задавать вопросы по emacs в этот форум?&lt;/i&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;Ну, предмодерации здесь нет :) Можно. Только в отдельном топике :)&lt;/div&gt;</description>
+      <pubDate>Wed, 03 Feb 2010 23:34:11 GMT</pubDate>
+    </item>
+    <item>
+      <title>optimistic: Русская кодировка в SLIME</title>
+      <link>http://lisper.ru/forum/thread/114</link>
+      <description>проблема вроде решилась добавлением в .emacs &lt;br&gt;&lt;pre class="example"&gt;(setq slime-net-coding-system 'utf-8-unix)&lt;br&gt;&lt;br&gt;Вычитал в мануале к slime.&lt;br&gt;&amp;nbsp;&lt;br&gt;Можно ли будет задавать вопросы по emacs в этот форум?&lt;br&gt;&lt;/pre&gt;</description>
+      <pubDate>Wed, 03 Feb 2010 23:31:30 GMT</pubDate>
+    </item>
+    <item>
+      <title>artem: Русская кодировка в SLIME</title>
+      <link>http://lisper.ru/forum/thread/114</link>
+      <description>&lt;P&gt;2optimistic:&lt;/P&gt;&lt;P&gt;С кодировками проблема при конвертации из unicode в iso-8859-1. Я в emacs'е русским языком не пользуюсь вообще (никогда не было необходимости еще), поэтому подсказать ничего не могу. У меня тоже "вылетает" так же как и у вас, если я попробую русские буквы ввести в приглашение REPL'а. &lt;/P&gt;&lt;P&gt;Поэтому на мои инструкции выше нужно сделать замечание -- русский язык в такой конфигурации не работает, нужны для этого дополнительные действия. :)&lt;/P&gt;</description>
+      <pubDate>Tue, 02 Feb 2010 09:39:25 GMT</pubDate>
+    </item>
+    <item>
+      <title>optimistic: Русская кодировка в SLIME</title>
+      <link>http://lisper.ru/forum/thread/114</link>
+      <description>Нет, оказалось что ни брэндмауэр ни антивирус не влияют на этот swank. Лисп работает и при них и без них, просто я этого не понял сразу, так как приглашение после ошибки появляется не "CL-USER&amp;gt;" а "[2]&amp;gt;", но работает, наверное, неправильно. Вот что выводится в буфер "*messages*":&lt;br&gt;&lt;br&gt;&lt;span style="font-weight: bold; font-style: italic;"&gt;Polling "c:/Users/A4F7~1/AppData/Local/Temp/slime.3940".. (Abort with `M-x slime-abort-connection'.) [5 times]&lt;/span&gt;&lt;br style="font-weight: bold; font-style: italic;"&gt;&lt;span style="font-weight: bold; font-style: italic;"&gt;Connecting to Swank on port 49160.. [2 times]&lt;/span&gt;&lt;br style="font-weight: bold; font-style: italic;"&gt;&lt;span style="font-weight: bold; font-style: italic;"&gt;Lisp connection closed unexpectedly: connection broken by remote peer&lt;/span&gt;&lt;br&gt;&lt;br style="font-style: italic;"&gt;В буфер "*inferior-lisp*" среди всего прочего выводятся несколько WARNING:..., все завершается примерно так:&lt;br&gt;&lt;br&gt;&lt;span style="font-weight: bold; font-style: italic;"&gt;WARNING: These Swank interfaces are unimplemented: ..тут всякое.....&lt;/span&gt;&lt;br style="font-weight: bold; font-style: italic;"&gt;&lt;span style="font-weight: bold; font-style: italic;"&gt;;; Swank started at port: 54776.&lt;/span&gt;&lt;br style="font-weight: bold; font-style: italic;"&gt;&lt;span style="font-weight: bold; font-style: italic;"&gt;CL-USER&amp;gt; &lt;/span&gt;&lt;br style="font-weight: bold; font-style: italic;"&gt;&lt;span style="font-weight: bold; font-style: italic;"&gt;;; swank:close-connection: &lt;/span&gt;&lt;br style="font-weight: bold; font-style: italic;"&gt;&lt;span style="font-weight: bold; font-style: italic;"&gt;WRITE-STRING: Character #\u0410 cannot be represented in the character set CHARSET:ISO-8859-1&lt;/span&gt;&lt;br style="font-weight: bold; font-style: italic;"&gt;&lt;br&gt;потом начинается блок &lt;br&gt;&lt;br&gt;&lt;span style="font-style: italic; font-weight: bold;"&gt;;; Event history start: ....тут всякое....&amp;nbsp; ;; Event history end:&lt;/span&gt;&lt;br&gt;&lt;br&gt;потом идет блок &lt;span style="font-style: italic; font-weight: bold;"&gt;::backtrace&lt;/span&gt;, который завершается этим:&lt;br&gt;&lt;br&gt;&lt;span style="font-style: italic; font-weight: bold;"&gt;;; Connection to Emacs lost. [&lt;/span&gt;&lt;br style="font-style: italic; font-weight: bold;"&gt;&lt;span style="font-style: italic; font-weight: bold;"&gt;;;&amp;nbsp; condition: WRITE-STRING: Character #\u0410 cannot be represented in the character set CHARSET:ISO-8859-1&lt;/span&gt;&lt;br style="font-style: italic; font-weight: bold;"&gt;&lt;span style="font-style: italic; font-weight: bold;"&gt;;;&amp;nbsp; type: SIMPLE-CHARSET-TYPE-ERROR&lt;/span&gt;&lt;br style="font-style: italic; font-weight: bold;"&gt;&lt;span style="font-style: italic; font-weight: bold;"&gt;;;&amp;nbsp; encoding: #&amp;lt;ENCODING ISO-8859-1 UNIX&amp;gt; style: NIL dedicated: NIL]&lt;/span&gt;&lt;br style="font-style: italic; font-weight: bold;"&gt;&lt;span style="font-style: italic; font-weight: bold;"&gt;;; swank:close-connection: NIL&lt;/span&gt;&lt;br style="font-style: italic; font-weight: bold;"&gt;&lt;span style="font-style: italic; font-weight: bold;"&gt;54776&lt;/span&gt;&lt;br&gt;&lt;br&gt;после чего приглашение, в которое можно вводить лисп:&lt;br&gt;&lt;br&gt;&lt;span style="font-style: italic; font-weight: bold;"&gt;[2]&amp;gt;&lt;/span&gt;&lt;br&gt; &lt;br&gt;файл .emacs такой:&lt;br&gt;&lt;br&gt;&lt;span style="font-style: italic; font-weight: bold;"&gt;(setq inferior-lisp-program "d:/clisp/full/lisp.exe -B d:/clisp/full -M d:/clisp/full/lispinit.mem -ansi -q")&lt;/span&gt;&lt;br style="font-style: italic; font-weight: bold;"&gt;&lt;span style="font-style: italic; font-weight: bold;"&gt;(require 'slime)&lt;/span&gt;&lt;br style="font-style: italic; font-weight: bold;"&gt;&lt;span style="font-style: italic; font-weight: bold;"&gt;(slime-setup '(slime-fancy))&lt;/span&gt;&lt;br style="font-style: italic; font-weight: bold;"&gt;&lt;span style="font-style: italic; font-weight: bold;"&gt;(tool-bar-mode 0)&lt;/span&gt;&lt;br style="font-style: italic; font-weight: bold;"&gt;&lt;br&gt;вот содержимое буфера:&amp;nbsp; http://narod.ru/disk/17499998000/inferior-lisp.txt.html</description>
+      <pubDate>Tue, 02 Feb 2010 04:07:23 GMT</pubDate>
+    </item>
+    <item>
+      <title>archimag: Русская кодировка в SLIME</title>
+      <link>http://lisper.ru/forum/thread/114</link>
+      <description>&lt;i&gt;&amp;gt; Но все-таки, что значило то сообщение, интересно.&lt;/i&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;Вероятно, не смог соедениться с swank-сервером. Причины? Х.з., мало инфы, может быть помогло таки отключение брэндмауэра ;)&lt;/div&gt;</description>
+      <pubDate>Mon, 01 Feb 2010 08:34:12 GMT</pubDate>
+    </item>
+    <item>
+      <title>optimistic: Русская кодировка в SLIME</title>
+      <link>http://lisper.ru/forum/thread/114</link>
+      <description>Извините, пожалуйста, чайника, лисп все-таки запустился и работает (во всяком случае "(+ 2 2)", единственное что я пока знаю, выполняется))). Но все-таки, что значило то сообщение, интересно. </description>
+      <pubDate>Mon, 01 Feb 2010 07:19:51 GMT</pubDate>
+    </item>
+    <item>
+      <title>optimistic: Русская кодировка в SLIME</title>
+      <link>http://lisper.ru/forum/thread/114</link>
+      <description>Здравствуйте! Столкнулся с той же проблемой в Lisp Box (нет поддержки русского), собираю по отдельности EMACS+SLIM+CLISP на windows7. Сделал все по инструкции, предложенной&lt;span style="font-weight: bold;"&gt;&amp;nbsp;&lt;/span&gt;&lt;span class="topic-author"&gt;&lt;strong&gt; artem&lt;/strong&gt;, файл&amp;nbsp; &lt;/span&gt;&lt;span class="Apple-style-span" style="font-family: Arial,sans-serif; font-size: 12px;"&gt;svm.dll &lt;/span&gt;&lt;span class="topic-author"&gt;скопировал в каталог винды. Запускаю emacs, задаю &lt;/span&gt;"M+x slime", он что-то натужно делает (бегут строки), потом останавливается, сообщая: "Lisp connection closed unexpectedly: connection broken by remote peer". Посоветуйте пожалуйста что-нибудь. (в emacs работать пока не умею). Может быть глупый поступок, но виндовый брэндмауэр отрубать пробовал, проблемы не решило.&lt;br&gt;&lt;span class="Apple-style-span" style="font-family: Arial,sans-serif; font-size: 12px;"&gt; &lt;/span&gt;</description>
+      <pubDate>Mon, 01 Feb 2010 06:59:13 GMT</pubDate>
+    </item>
+    <item>
+      <title>LispUser: (дубль) Не могу разобраться со странной ошибкой</title>
+      <link>http://lisper.ru/forum/thread/147</link>
+      <description>Посмотрите, как сделана обработка нажатия клавиш в emacs.&lt;br&gt;Все работает достаточно быстро.&lt;br&gt;</description>
+      <pubDate>Fri, 15 Jan 2010 11:25:19 GMT</pubDate>
+    </item>
+    <item>
+      <title>LiteTabs: (дубль) Не могу разобраться со странной ошибкой</title>
+      <link>http://lisper.ru/forum/thread/147</link>
+      <description>Да. Заменить, к примеру пару десятков (g-signal-connect ...) на какую-либо функцию. Только не уверен что заработает.&amp;nbsp;</description>
+      <pubDate>Thu, 14 Jan 2010 20:20:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>LispUser: (дубль) Не могу разобраться со странной ошибкой</title>
+      <link>http://lisper.ru/forum/thread/147</link>
+      <description>Т.е. замена избыточного текста дополнительным вызовом функции?&lt;br&gt;Или я пока еще не понял, это макрос?&lt;br&gt;</description>
+      <pubDate>Thu, 14 Jan 2010 11:41:24 GMT</pubDate>
+    </item>
+    <item>
+      <title>andy128k: (дубль) Не могу разобраться со странной ошибкой</title>
+      <link>http://lisper.ru/forum/thread/147</link>
+      <description>let-ui это обычный блок, можно вынести в функции. вместо виджета в let-ui можно подставить вызов функции&lt;br&gt;&lt;br&gt;например, вместо&lt;br&gt;&lt;br&gt;(gtk:button :stock &lt;span class="paren1"&gt;&lt;span class=""&gt;&lt;span class="paren2"&gt;&lt;span class=""&gt;&lt;span class="paren3"&gt;&lt;span class=""&gt;&lt;span class="paren4"&gt;&lt;span class=""&gt;&lt;span class="paren5"&gt;&lt;span class=""&gt;&lt;span class="paren6"&gt;&lt;span class=""&gt;&lt;span class="paren1"&gt;&lt;span class=""&gt;&lt;span class="string"&gt;"gtk-print"&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;)&lt;br&gt;&lt;br&gt;можно написать &lt;br&gt;&lt;br&gt;(:expr (func))&lt;br&gt;&lt;br&gt;а уж func должна вернуть кнопку.</description>
+      <pubDate>Wed, 13 Jan 2010 21:15:55 GMT</pubDate>
+    </item>
+    <item>
+      <title>LiteTabs: (дубль) Не могу разобраться со странной ошибкой</title>
+      <link>http://lisper.ru/forum/thread/147</link>
+      <description>Это код который я закоммитил на github дня 4 назад. Он немного староват. А как разбивать код графического интерфейса на куски я слабо представляю. Он вроде весь в let-ui должен помещаться.</description>
+      <pubDate>Wed, 13 Jan 2010 11:57:35 GMT</pubDate>
+    </item>
+  </channel>
+</rss>

@@ -1,0 +1,524 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru"> <head> <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> <meta name="keywords" content="Common Lisp,lisp,лисп" /> <title>libraries:postmodern</title> <link href="/css/style.css" rel="stylesheet" type="text/css" /><link href="/css/wiki.css" rel="stylesheet" type="text/css" /><link href="/css/colorize.css" rel="stylesheet" type="text/css" />  </head> <body> <div class="top"> <div id="login"> <a href="/register">Регистрация</a> | <a href="/login?done=/wiki/libraries:postmodern">Войти</a> </div> </div> <div id="caution"> <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png" /> <a href="http://www.vkusnoserver.ru/" target="_blank" style="float: right;"> <img src="/vkusnoserver.png" /> </a> </div> <div id="mainmenu"> <ul> <li> <a href="/">Главная</a> </li><li> <a href="/articles/">Статьи</a> </li><li> <a href="/planet/">Планета</a> </li><li> <a href="/forum/">Форум</a> </li><li> <a href="/apps/">Сервисы</a> </li><li> <a href="/pcl/">Practical Common Lisp</a> </li><li> <a href="/wiki/">Wiki</a> </li><li> <a href="/files/">Файлы</a> </li><li> <a href="/search">Поиск</a> </li> </ul> </div> <div id="content"> <ul class="wiki-page-menu"> <li> <a href="/wiki/edit/libraries:postmodern">Edit</a> </li>  <li> <a href="/wiki/history/libraries:postmodern">History</a> </li>   </ul><div class="article"><div class="toc"><div class="toc-header">Содержание</div><div class="toc-body"><ul><li><div><a href="#Postmodern">Postmodern</a></div></li><li><div><a href="#&#x417;&#x430;&#x432;&#x438;&#x441;&#x438;&#x43C;&#x43E;&#x441;&#x442;&#x438;">Зависимости</a></div></li><li><div><a href="#&#x41B;&#x438;&#x446;&#x435;&#x43D;&#x437;&#x438;&#x44F;">Лицензия</a></div></li><li><div><a href="#&#x421;&#x43A;&#x430;&#x447;&#x438;&#x432;&#x430;&#x43D;&#x438;&#x435; &#x438; &#x438;&#x43D;&#x441;&#x442;&#x430;&#x43B;&#x43B;&#x44F;&#x446;&#x438;&#x44F;">Скачивание и инсталляция</a></div></li><li><div><a href="#&#x411;&#x44B;&#x441;&#x442;&#x440;&#x43E;&#x441;&#x442;&#x430;&#x440;&#x442;">Быстростарт</a></div></li><li><div><a href="#&#x421;&#x43F;&#x440;&#x430;&#x432;&#x43A;&#x430;">Справка</a></div></li><li><div><a href="#&#x427;&#x430;&#x441;&#x43E;&#x432;&#x44B;&#x435; &#x43F;&#x43E;&#x44F;&#x441;&#x430;">Часовые пояса</a></div></li><li><div><a href="#&#x41F;&#x435;&#x440;&#x435;&#x43D;&#x43E;&#x441;&#x438;&#x43C;&#x43E;&#x441;&#x442;&#x44C;">Переносимость</a></div></li><li><div><a href="#&#x412;&#x435;&#x449;&#x438;, &#x43A;&#x43E;&#x442;&#x43E;&#x440;&#x44B;&#x435; &#x434;&#x43E;&#x43B;&#x436;&#x43D;&#x44B; &#x431;&#x44B;&#x442;&#x44C; &#x440;&#x435;&#x430;&#x43B;&#x438;&#x437;&#x43E;&#x432;&#x430;&#x43D;&#x44B;">Вещи, которые должны быть реализованы</a></div></li><li><div><a href="#&#x421;&#x43F;&#x440;&#x430;&#x432;&#x43E;&#x447;&#x43D;&#x43E;&#x435; &#x440;&#x443;&#x43A;&#x43E;&#x432;&#x43E;&#x434;&#x441;&#x442;&#x432;&#x43E; Postmodern">Справочное руководство Postmodern</a><ul><li><div><a href="#&#x421;&#x43E;&#x435;&#x434;&#x438;&#x43D;&#x435;&#x43D;&#x438;&#x435;">Соединение</a></div></li><li><div><a href="#&#x417;&#x430;&#x43F;&#x440;&#x43E;&#x441;&#x44B;">Запросы</a></div></li><li><div><a href="#&#x418;&#x43D;&#x442;&#x440;&#x43E;&#x441;&#x43F;&#x435;&#x43A;&#x446;&#x438;&#x44F;">Интроспекция</a></div></li><li><div><a href="#Database Access Objects">Database Access Objects</a></div></li><li><div><a href="#&#x41E;&#x43F;&#x440;&#x435;&#x434;&#x435;&#x43B;&#x435;&#x43D;&#x438;&#x435; &#x438; &#x441;&#x43E;&#x437;&#x434;&#x430;&#x43D;&#x438;&#x435; &#x442;&#x430;&#x431;&#x43B;&#x438;&#x446;&#x44B;">Определение и создание таблицы</a></div></li></ul></div></li><li><div><a href="#&#x421;&#x43F;&#x440;&#x430;&#x432;&#x43E;&#x447;&#x43D;&#x43E;&#x435; &#x440;&#x443;&#x43A;&#x43E;&#x432;&#x43E;&#x434;&#x441;&#x442;&#x432;&#x43E; S-SQL">Справочное руководство S-SQL</a><ul><li><div><a href="#&#x418;&#x43D;&#x442;&#x435;&#x440;&#x444;&#x435;&#x439;&#x441;">Интерфейс</a></div></li><li><div><a href="#SQL &#x442;&#x438;&#x43F;&#x44B;">SQL типы</a></div></li><li><div><a href="#SQL &#x441;&#x438;&#x43D;&#x442;&#x430;&#x43A;&#x441;&#x438;&#x441;">SQL синтаксис</a></div></li></ul></div></li><li><div><a href="#&#x421;&#x43F;&#x440;&#x430;&#x432;&#x43E;&#x447;&#x43D;&#x43E;&#x435; &#x440;&#x443;&#x43A;&#x43E;&#x432;&#x43E;&#x434;&#x441;&#x442;&#x432;&#x43E; simple-date">Справочное руководство simple-date</a></div></li></ul></div></div>
+<div class="chapter" id="Postmodern"><h3>Postmodern</h3>
+
+<p><em>Перевод на русский язык</em>
+</p>
+<p>Postmodern это библиотека Common Lisp для взаимодействия с базами данных PostgreSQL. Возможности:
+</p><ul><li> Эффективное взаимодействие с сервером баз данных без необходимости внешних библиотек.</li><li> Поддержка UTF-8 в реализациях Lisp'а поддерживающих юникод</li><li> Синтаксис для смешивания и SQL и Lisp кода</li><li> Удобная поддержка "prepared statements" и хранимых процедур</li><li> Метакласс для простого DAO (database-access objects)</li></ul>
+<p>Наибольшие различия между этой библиотекой и CLSQL/CommonSQL в том, что Postmodern не переносим между различными реализациями SQL (библиотека включает в себя нестандартные Postgres функции), а также в расширениях, например, lispy SQL и DAO имеют совершенно другой стиль. Эта библиотека была написана, потому что CLSQL, на мой взгляд, не очень хорош, однако вы можете думать по-другому.
+</p>
+</div><div class="chapter" id="&#x417;&#x430;&#x432;&#x438;&#x441;&#x438;&#x43C;&#x43E;&#x441;&#x442;&#x438;"><h3>Зависимости</h3>
+
+<p>Библиотека зависит от usocket (за исключением SBCL и ACL, где используется встроенная библиотека сокетов), md5, closer-mop, bordeaux-threads если вы хотите иметь потокобезопасный пул соединений и CL+SSL необходим для SSL соединений.
+</p>
+<p>Postmodern разделен на 4 различных пакета, некоторые из них могут быть использованы по отдельности. Simple-date является базовой реализацией объектов "Дата" и "Время" и используется для сохранения и получения связанных со временем SQL типов. CL-postgres библиотека нижнего уровня для соединения с БД postgresql через сокет. S-SQL используется для компиляции s-выражений в строки SQL кода, экранируя любые Lisp выражения внутри, и делающая это по мере возможности во время компиляции. Наконец, Postmodern это библиотека, которая собирает все вместе в один удобный интерфейс.
+</p>
+</div><div class="chapter" id="&#x41B;&#x438;&#x446;&#x435;&#x43D;&#x437;&#x438;&#x44F;"><h3>Лицензия</h3>
+
+<p>Postmodern опубликован под zlib-style лицензией. Это означает, что вы можете использовать код в любых случаях, за исключением публикации выдавая библиотеку, как свою собственность и публикации модифицированной версии без пометки о модификации.
+</p>
+</div><div class="chapter" id="&#x421;&#x43A;&#x430;&#x447;&#x438;&#x432;&#x430;&#x43D;&#x438;&#x435; &#x438; &#x438;&#x43D;&#x441;&#x442;&#x430;&#x43B;&#x43B;&#x44F;&#x446;&#x438;&#x44F;"><h3>Скачивание и инсталляция</h3>
+
+<p><em>Добавлю от себя, что пакет доступен из <a href="http://quicklisp.org/">quicklisp</a> репозитария.</em>
+</p>
+<pre class="code"><span class="paren1">(<span class="">ql:quickload <span class="string">"postmodern"</span></span>)</span><br/></pre>
+
+<p>Последний релиз Postmodern может быть скачать по адресу <a href="http://marijnhaverbeke.nl/postmodern/postmodern.tgz">http://marijnhaverbeke.nl/postmodern/postmodern.tgz</a>, или проинсталлирован с помощью asdf-install.
+</p>
+<p>Git репозитарий с самыми последними изменениями может быть скачан по адресу:
+</p>
+<pre class="code"><p>git clone http://marijnhaverbeke.nl/git/postmodern<br/></p></pre>
+
+<p>Вы также можете просмотреть репозитарий на <a href="http://github.com/">github</a>.
+</p>
+<p>Файл <a href="http://marijnhaverbeke.nl/postmodern/postmodern-latest.tgz">http://marijnhaverbeke.nl/postmodern/postmodern-latest.tgz</a> всегда содержит head текущего репозитария FIXME.
+</p>
+</div><div class="chapter" id="&#x411;&#x44B;&#x441;&#x442;&#x440;&#x43E;&#x441;&#x442;&#x430;&#x440;&#x442;"><h3>Быстростарт</h3>
+
+<p>Этот быстростарт даст вам почувствовать стиль работы с Postmodern. Остальная информация о работе библиотеки находится в справочном руководстве.
+</p>
+<p>Если вы уже установили ее, загрузка и использование символов системы может выглядеть так:
+</p>
+<pre class="code"><span class="paren1">(<span class="">asdf:oos 'asdf:load-op <span class="keyword">:postmodern</span></span>)</span><br/><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_use_pk.htm" class="symbol">use-package</a> <span class="keyword">:postmodern</span></span>)</span><br/></pre>
+
+<p>Если у вас запущен PostgreSQL сервер на локальной машине, с БД 'testdb', именем пользователя 'foucault' и паролем 'surveiller' вы можете создать соединение так:
+</p>
+<pre class="code"><span class="paren1">(<span class="">connect-toplevel <span class="string">"testdb"</span> <span class="string">"foucault"</span> <span class="string">"surveiller"</span> <span class="string">"localhost"</span></span>)</span><br/></pre>
+
+<p>Данная строка установит соединение, которое будет использоваться любым кодом, за исключением кода обернутого формой with-connection, которая принимает такие же аргументы, но соединение устанавливает только для обернутого кода.
+</p>
+<p>Для начала небольшой тест:
+</p>
+<pre class="code"><span class="paren1">(<span class="">query <span class="string">"select 22, 'Folie et déraison', 4.5"</span></span>)</span><br/>;; =&gt; <span class="paren1">(<span class=""><span class="paren2">(<span class="">22 <span class="string">"Folie et déraison"</span> 9/2</span>)</span></span>)</span><br/></pre>
+
+<p>который должен сработать. query основной способ послать запрос к базе данных. Предыдущий запрос может выглядеть так:
+</p>
+<pre class="code"><span class="paren1">(<span class="">query <span class="paren2">(<span class=""><span class="keyword">:select</span> 22 <span class="string">"Folie et déraison"</span> 4.5</span>)</span></span>)</span><br/>;; =&gt; <span class="paren1">(<span class=""><span class="paren2">(<span class="">22 <span class="string">"Folie et déraison"</span> 9/2</span>)</span></span>)</span><br/></pre>
+
+<p>В большинстве случаев, строки запросов и списки начинающиеся с ключевых слов могут быть взаимозаменяемыми. Списки будут скомпилированы в SQL. S-SQL руководство описывает синтаксис используемый этими выражениями. Lisp значения встречающиеся в выражении будут автоматически экранированы. В нижнем запросе использовались только константные значения, но также можно использовать и исполняемые выражения.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> database-powered-addition <span class="paren2">(<span class="">a b</span>)</span><br/>  <span class="paren2">(<span class="">query <span class="paren3">(<span class=""><span class="keyword">:select</span> <span class="paren4">(<span class=""><span class="keyword">:+</span> a b</span>)</span></span>)</span> <span class="keyword">:single</span></span>)</span></span>)</span><br/><span class="paren1">(<span class="">database-powered-addition 1030 204</span>)</span><br/><span class="comment">;; =&gt; 1234<br/></span></pre>
+
+<p>Последний аргумент :single показывает, что мы хотим получить в результате не список списков (столбцы в строках), а одиночное значение, так как мы знаем что значение будет одно. Другие опции :rows, :row, :column, :alist и :none.  Их влияние на результат описано в справочном руководстве.
+</p>
+<p>Необязательно получать все даные запроса в один момент, вы можете пройти по результатам в цикле с помощью макроса doquery.
+</p>
+<pre class="code"><span class="paren1">(<span class="">doquery <span class="paren2">(<span class=""><span class="keyword">:select</span> 'x 'y <span class="keyword">:from</span> 'some-imaginary-table</span>)</span> <span class="paren2">(<span class="">x y</span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <span class="string">"On this row, x = ~A and y = ~A.~%"</span> x y</span>)</span></span>)</span><br/></pre>
+
+<p>А вот перед нами DAO класс:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defcla.htm" class="symbol"><i><span class="symbol">defclass</span></i></a> country <span class="paren2">(<span class=""/>)</span><br/>  <span class="paren2">(<span class=""><span class="paren3">(<span class="">name <span class="keyword">:col-type</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_string.htm" class="symbol">string</a> <span class="keyword">:initarg</span> <span class="keyword">:name</span><br/>         <span class="keyword">:reader</span> country-name</span>)</span><br/>   <span class="paren3">(<span class="">inhabitants <span class="keyword">:col-type</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_intege.htm" class="symbol">integer</a> <span class="keyword">:initarg</span> <span class="keyword">:inhabitants</span><br/>                <span class="keyword">:accessor</span> country-inhabitants</span>)</span><br/>   <span class="paren3">(<span class="">sovereign <span class="keyword">:col-type</span> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_or.htm" class="symbol">or</a> db-null <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_string.htm" class="symbol">string</a></span>)</span> <span class="keyword">:initarg</span> <span class="keyword">:sovereign</span><br/>              <span class="keyword">:accessor</span> country-sovereign</span>)</span></span>)</span><br/>  <span class="paren2">(<span class=""><span class="keyword">:metaclass</span> dao-class</span>)</span><br/>  <span class="paren2">(<span class=""><span class="keyword">:keys</span> name</span>)</span></span>)</span><br/></pre>
+
+<p>Выше мы определили класс, используемый для управления записями в таблице с тремя колонками: name, inhabitants, and sovereign. В простых случаях, информации выше достаточно для определения таблицы:
+</p>
+<pre class="code"><span class="paren1">(<span class="">dao-table-definition 'country</span>)</span><br/>;; =&gt; "CREATE TABLE country <span class="paren1">(<span class=""><br/><span class="comment">;;      name TEXT NOT NULL,<br/></span><span class="comment">;;      inhabitants INTEGER NOT NULL,<br/></span><span class="comment">;;      sovereign TEXT,<br/></span><span class="comment">;;      PRIMARY KEY (name))"<br/></span><span class="paren2">(<span class="">execute <span class="paren3">(<span class="">dao-table-definition 'country</span>)</span></span>)</span><br/></span></span></pre>
+
+<p>Это определение нашей таблицы в базе данных. execute работает так же как и query, но не возвращает результат.
+</p>
+<p>Давайте добавим несколько стран:
+</p>
+<pre class="code"><span class="paren1">(<span class="">insert-dao <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_mk_ins.htm" class="symbol">make-instance</a> 'country <span class="keyword">:name</span> <span class="string">"The Netherlands"</span><br/>                                    <span class="keyword">:inhabitants</span> 16400000<br/>                                    <span class="keyword">:sovereign</span> <span class="string">"Beatrix"</span></span>)</span></span>)</span><br/><span class="paren1">(<span class="">insert-dao <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_mk_ins.htm" class="symbol">make-instance</a> 'country <span class="keyword">:name</span> <span class="string">"Croatia"</span><br/>                                    <span class="keyword">:inhabitants</span> 4400000</span>)</span></span>)</span><br/></pre>
+
+<p>Затем, для обновления населения Хорватии, мы делаем так:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren2">(<span class=""><span class="paren3">(<span class="">croatia <span class="paren4">(<span class="">get-dao 'country <span class="string">"Croatia"</span></span>)</span></span>)</span></span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> <span class="paren3">(<span class="">country-inhabitants croatia</span>)</span> 4500000</span>)</span><br/>  <span class="paren2">(<span class="">update-dao croatia</span>)</span></span>)</span><br/><span class="paren1">(<span class="">query <span class="paren2">(<span class=""><span class="keyword">:select</span> '<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> <span class="keyword">:from</span> 'country</span>)</span></span>)</span><br/><span class="comment">;; =&gt; (("The Netherlands" 16400000 "Beatrix")<br/></span><span class="comment">;;     ("Croatia" 4500000 :NULL))<br/></span></pre>
+
+<p>Идем дальше. Для демонстрации чуть больших возможностей S-SQL синтаксиса, предоставляю запрос функцию-утилиты list-tables для перечисления списка таблиц базы данных:
+</p>
+<pre class="code"><span class="paren1">(<span class="">sql <span class="paren2">(<span class=""><span class="keyword">:select</span> 'relname <span class="keyword">:from</span> 'pg-catalog.pg-class<br/>      <span class="keyword">:inner-join</span> 'pg-catalog.pg-namespace <span class="keyword">:on</span> <span class="paren3">(<span class=""><span class="keyword">:=</span> 'relnamespace 'pg-namespace.oid</span>)</span><br/>      <span class="keyword">:where</span> <span class="paren3">(<span class=""><span class="keyword">:and</span> <span class="paren4">(<span class=""><span class="keyword">:=</span> 'relkind <span class="string">"r"</span></span>)</span><br/>                   <span class="paren4">(<span class=""><span class="keyword">:not-in</span> 'nspname <span class="paren5">(<span class=""><span class="keyword">:set</span> <span class="string">"pg_catalog"</span> <span class="string">"pg_toast"</span></span>)</span></span>)</span><br/>                   <span class="paren4">(<span class=""><span class="keyword">:pg-catalog.pg-table-is-visible</span> 'pg-class.oid</span>)</span></span>)</span></span>)</span></span>)</span><br/>;; =&gt; "<span class="paren1">(<span class="">SELECT relname FROM pg_catalog.pg_class <br/><span class="comment">;;      INNER JOIN pg_catalog.pg_namespace ON (relnamespace = pg_namespace.oid)<br/></span><span class="comment">;;      WHERE ((relkind = 'r') and (nspname NOT IN ('pg_catalog', 'pg_toast'))<br/></span><span class="comment">;;             and pg_catalog.pg_table_is_visible(pg_class.oid)))"<br/></span></span></span></pre>
+
+<p>sql - это макрос который компилирует запрос, он может быть полезен для просмотра того, как выглядят запросы после компиляции, особенно когда вы хотите сделать что-то неожиданное.
+</p>
+<p>Как вы заметили, списки начинающиеся с keyword'ов используются для выражения SQL комманд и операторов (списки начинающиеся с чего-либо другого будут выполнены и результат вставлен в запрос). Закавыченные символы - это столбцы или таблицы (keyword'ы тоже могут использоваться, но добавляют двусмысленность). Синтаксис поддерживает подзапросы, множественные join'ы, хранимые процедуры и т.д. Смотрите справочное руководство для S-SQL для полного понимания.
+</p>
+<p>Наконец, вот вам пример использования "prepared statements":
+</p>
+<pre class="code"><span class="paren1">(<span class=""><i><span class="symbol">defprepared</span></i> sovereign-of<br/>  <span class="paren2">(<span class=""><span class="keyword">:select</span> 'sovereign <span class="keyword">:from</span> 'country <span class="keyword">:where</span> <span class="paren3">(<span class=""><span class="keyword">:=</span> 'name '$1</span>)</span></span>)</span><br/>  <span class="keyword">:single!</span></span>)</span><br/><span class="paren1">(<span class="">sovereign-of <span class="string">"The Netherlands"</span></span>)</span><br/><span class="comment">;; =&gt; "Beatrix"<br/></span></pre>
+
+<p>defprepared макрос создает функцию, которая принимает столько же аргументов, сколько $X позиций использовано в запроса. Запрос будет распознан и спланирован единожды (* кол-во подключений к БД) и он может быть быстрее особенно для сложных запросов.
+</p>
+<pre class="code"><span class="paren1">(<span class="">disconnect-toplevel</span>)</span><br/></pre>
+
+</div><div class="chapter" id="&#x421;&#x43F;&#x440;&#x430;&#x432;&#x43A;&#x430;"><h3>Справка</h3>
+
+<p>Справочные руководства для различных компонентов postmodern'а содержаться в различных файлах. Для использования библиотеки в наиболее простых случаях вам необходимо только прочесть Postmodern справку и просмотреть S-SQL руководство. simple-date справка описывает "временные" типы включенные в Postmodern, и CL-postrges справка может быть полезна если вы хотите общаться с PostgreSQL сервером на низком уровне.
+</p>
+
+</div><div class="chapter" id="&#x427;&#x430;&#x441;&#x43E;&#x432;&#x44B;&#x435; &#x43F;&#x43E;&#x44F;&#x441;&#x430;"><h3>Часовые пояса</h3>
+
+<p>Simple-date не имеет возможностей хранения часовых поясов. Это значит, что использование ее ошибочно, и если вы действительно нуждаетесь в хранении часовых поясов, вы не должны использовать этот тип или подумайте о методе хранения часовых поясов.
+</p>
+<p>В последнее время много работы было сделано в local-time, которая решает ту же задачу, что и simple-date, но также не понимает часовых поясов. 1.0 репозитарий содержит код для интеграции с CL-postgres, хотя возможно он еще не стабилен.
+</p>
+</div><div class="chapter" id="&#x41F;&#x435;&#x440;&#x435;&#x43D;&#x43E;&#x441;&#x438;&#x43C;&#x43E;&#x441;&#x442;&#x44C;"><h3>Переносимость</h3>
+
+<p>Лисп код в Postmodern'е теоретически может работать в любой реализации, и похоже работает во всех распространенных. Я активно не тестировал новые релизы, но если вы столкнулись с проблемами, пишите мне через список рассылки, и мы попробуем решить их. Реализации, в которых нет метаобъектного протокола, не будут иметь DAO, но остальные возможности библиотеки работать будут (все широкоиспользуемые реализации поддерживают MOP).
+</p>
+<p>Библиотека точно не будет работать с PostgreSQL версиями старше чем 7.4 (библиотека использует клиент-серверный протокол введенные в этой версии). В версиях перед 8.1, получение даты и времени сломано потому что их бинарное представление изменилось. Часть функциональности insert-dao (automatic defaulting of unbound slots FIXME) работает только PostgreSQL 8.2 и выше.
+</p>
+</div><div class="chapter" id="&#x412;&#x435;&#x449;&#x438;, &#x43A;&#x43E;&#x442;&#x43E;&#x440;&#x44B;&#x435; &#x434;&#x43E;&#x43B;&#x436;&#x43D;&#x44B; &#x431;&#x44B;&#x442;&#x44C; &#x440;&#x435;&#x430;&#x43B;&#x438;&#x437;&#x43E;&#x432;&#x430;&#x43D;&#x44B;"><h3>Вещи, которые должны быть реализованы</h3>
+
+<p>Это было бы неплохой возможностью, если бы Postmodern могла помогать вам с определением схемы базы данных и, что более важно, обновлять вашу базу данных, когда изменяетс код. Теоретически это не сложно создать функцию, которая бы сравнивала схему на лиспе и состояние базы данных и помогала бы вам интерактивно обновлять базу данных. PostgreSQL имеет полноценную систему интроспекции. К несчастью, реализация требует большой работы, так как база данных содержит достаточно много различных типов сущностей (таблицы, представления, индексы, процедуры, ограничения, последовательности и т.д.), которые могут быть созданы, изменены и удалены разными путями.
+</p>
+<p><em> Добавлю от себя, что база данных чаще всего может взаимодействовать и взаимодействует с набором приложений, написанных на разных языках/фреймворках, и ограничивать проектирование схемы каким-то ОРМ'ом не самая переспективная идея. Кроме того собственный опыт показывает, что схема проектируется один раз, а после происходит только добавление сущностей (колонок, таблиц, триггеров и т.д.)</em>
+</p>
+</div><div class="chapter" id="&#x421;&#x43F;&#x440;&#x430;&#x432;&#x43E;&#x447;&#x43D;&#x43E;&#x435; &#x440;&#x443;&#x43A;&#x43E;&#x432;&#x43E;&#x434;&#x441;&#x442;&#x432;&#x43E; Postmodern"><h3>Справочное руководство Postmodern</h3>
+
+<p>Это справочное руководство для компонента Postmodern, который является частью одноименной библиотеки.
+</p>
+<p>Заметим, что этот пакет также экспортирует database-connection и database-error типы из CL-postgres и несколько операторов из S-SQL.
+</p>
+<p>query, execute и любые другие функции, которые логически требуют взаимодействия с базой данных, генерируют исключение типа database-error, когда что-то идет не так. Как частный случай, ошибки которые разрывают соединение (ошибки сокета, выключение базы данных) будут генерироваться как подтип database-connection-error, предоставляющие :reconnect рестарт для перезапуска операции, вызвавшей ошибку FIXME.
+</p>
+<div class="chapter" id="&#x421;&#x43E;&#x435;&#x434;&#x438;&#x43D;&#x435;&#x43D;&#x438;&#x435;"><h3>Соединение</h3>
+<pre>class database-connection<br/></pre>
+<p>Объекты данного типа содержат подключение к базе данных.
+</p><pre>function   connect (database user password host &amp;key (port 5432) pooled-p use-ssl) <br/>→ database-connection<br/></pre>
+<p>Создает новое подключение к базе данные с указанными пользователем и паролем. Порт по умолчанию 5432, на котором чаще всего работают PostgreSQL сервера. Если pooled-p равно true, соединение будет взято из пула соединений данного типа, если оно там есть, и когда соединение будет разорвано оно будет помещено в пул. use-ssl может быть :no, :yes или :try, как в open-database, и по умолчанию имеет значение *default-use-ssl*.
+</p><pre>variable   *default-use-ssl* <br/></pre>
+<p>Значение по умолчанию для use-ssl аргумента для функции connect. При определении она устанавливается в :no. Если вы установите в другое значение, проверьте загрузили ли вы CL+SSL библиотеку.
+</p><pre>method  disconnect (database-connection) <br/></pre>
+<p>Разрывает соединение с базой данных или перемещает его в пул.
+</p><pre>function   connected-p (database-connection) <br/>→ boolean<br/></pre>
+<p>Возвращает булево значение о том, имеется ли соединение с сервером.
+</p><pre>method  reconnect (database-connection) <br/></pre>
+<p>Выполняет переподключение. Данное действие не разрешено для соединения из пула - после того как они отключены от БД, они могут быть использованы какими-нибудь другими процессами, и больше не должны быть использованы.
+</p><pre>variable   *database*<br/></pre>
+<p>Переменная для хранения текущей базы данны. Большинство функций и макросов взаимодействуют с базой данных через данную переменную.
+</p><pre>macro   with-connection (spec &amp;body body)<br/></pre>
+<p>Исполняет body с переменной *database*, связанной с соединением, заданным с помощью spec, которая [spec] должна быть списком переданным на вход функции connect.
+</p><pre>macro   call-with-connection (spec thunk) <br/></pre>
+<p>Это движок для макроса with-connection. Связывает *database* с новымм соединением заданным spec, которое должно быть списоком, который будет подан на вход connect, и запускает без аргументов функцию полученную во втором параметре в новом окружении. Когда функция завершается или генерирует исключение, новое соединение разрывается.
+</p><pre>function  connect-toplevel (database user password host &amp;key (port 5432))<br/></pre>
+<p>Устанавливает переменную *database* в новое соединение. Используйте ее только, если вам необходимо только одно соединение или вы хотите отладиться в REPL'е.
+</p><pre>function  disconnect-toplevel () <br/></pre>
+<p>Разрывает соединение хранящееся в переменной *database*.
+</p><pre>function  clear-connection-pool () <br/></pre>
+<p>Разрывает и удаляет все соединения в пуле.
+</p><pre>variable   *max-pool-size*<br/></pre>
+<p>Устанавливает максимальное количество соединений, содержащихся в одном пуле. Один пул содержит все сохраненные соединения с одинаковыми параметрами. По умолчанию NIL, что означает, что максимальное количество не задано.
+</p>
+</div><div class="chapter" id="&#x417;&#x430;&#x43F;&#x440;&#x43E;&#x441;&#x44B;"><h3>Запросы</h3>
+<pre>macro   query (query &amp;rest args/format)<br/>→ result<br/></pre>
+<p>Выполняет заданный запрос, который может быть строкой или S-SQL формой (список начинающийся keyword'ом). Если запрос содержит позиции ($1, $2 и т.д.) их значения будут взяты из остальных аргументов. Если один из аргументов является keyword'ом из перечисленных ниже, он не будет подставлен как значение, но будет влиять на то, какой результат будет возвращен из функции. Может использоваться любой из перечисленных форматов , по умолчанию используется :rows:
+</p><table><tbody><tr><td>:none</td><td> Игнорировать результат</td></tr><tr><td>:lists, :rows</td><td> Возвращает список списков, каждый элемент списка содержит значения строки.</td></tr><tr><td>:list, :row</td><td> Возвращает одну строку в виде списка.</td></tr><tr><td>:alists</td><td> Возвращает список alist'ов, которые содержат имена столбцов и значения, имена столбцов отображаются как keyword'ы.</td></tr><tr><td>:alist</td><td> Возвращает одну строку как alist.</td></tr><tr><td>:str-alists</td><td> То же, что и :alists, но использует оригинальные имена столбцов.</td></tr><tr><td>:str-alist</td><td> Возвращает одну строку как alist со строковыми именами столбцов.</td></tr><tr><td>:plists</td><td> Возвращает список plist'ов, которые содержат имена столбцов и значения, имена столбцов отображаются как keyword'ы.</td></tr><tr><td>:plist</td><td> Возвращает один строку как alist.</td></tr><tr><td>:column</td><td>Возвращает один столбец как список.</td></tr><tr><td>:single</td><td> Возвращает одну ячейку (значение).</td></tr><tr><td>:single!</td><td> То же что и :single, но генерирует исключение если количество строк не равно одной.</td></tr><tr><td>(:dao type)</td><td> Возвращает список DAO заданного типа. Имя полей возвращенных запросом должны совпадать со слотами объекта также, как и при query-dao.</td></tr><tr><td>(:dao type :single)</td><td> Возвращает один DAO заданного типа.</td></tr></tbody></table>
+
+<p>Если база данных возвращает информацию о количестве строк, затронутых запросом, например, при обновлении или удалении, то она будет возвращена, как второе значение.
+</p><pre>macro   execute (query &amp;rest args)<br/></pre>
+<p>То же что и query, но вызывается с опцией :none и возвращает количество затронутых строк в первом возвращаемом значении. (Также возвращает количество затронутых строк во втором значении, но использование этого не рекомендуется.)
+</p><pre>macro   doquery (query (&amp;rest names) &amp;body body)<br/></pre>
+<p>Выполняет переданный запрос (строка или список начинающийся с keyword'а), предоставляет цикл по строкам из результата. Тело будет исполняться со значениями из строки связанными с символами имен столбцов. Для цикла над параметризованным запросом, можно указать список, где car запрос, а cdr содержит аргументы. Например:
+</p>
+<pre class="code"><span class="paren1">(<span class="">doquery <span class="paren2">(<span class=""><span class="keyword">:select</span> 'name 'score <span class="keyword">:from</span> 'scores</span>)</span> <span class="paren2">(<span class="">n s</span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_incf_.htm" class="symbol">incf</a> <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_gethas.htm" class="symbol">gethash</a> n <span class="special">*scores*</span></span>)</span> s</span>)</span></span>)</span><br/><br/><span class="paren1">(<span class="">doquery <span class="paren2">(<span class=""><span class="paren3">(<span class=""><span class="keyword">:select</span> 'name <span class="keyword">:from</span> 'scores <span class="keyword">:where</span> <span class="paren4">(<span class=""><span class="keyword">:&gt;</span> 'score '$1</span>)</span></span>)</span> 100</span>)</span> <span class="paren2">(<span class="">name</span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_wr_pr.htm" class="symbol">print</a> name</span>)</span></span>)</span><br/></pre>
+<pre>macro   prepare (query &amp;optional (format :rows))<br/>→ function<br/></pre>
+<p>Создает функцию, которая может быть использована как интерфейс для "prepared statement". Полученный запрос (или строка или S-SQL форма) может содержать позиции, которые выглядят как $1, $2 и т.д. Результирующая функция принимает столько аргументов, сколько позиций было в запросе, выполняет "prepared query", и возвращает результат в заданном формате (доступны форматы такие же как и у query).
+</p>
+<p>Для запросов, которые выполняются достаточно часто, особенно когда они сложны, это может увеличить скорость, если сервер единожды провел "планирование" запроса. Смотрите PostgreSQL руководство для подробностей.
+</p>
+<p>В некоторых случаях, сервер будет ругаться о том, что не может понять типы аргументов с запросе. В данном случае вы должны добавить декларацию типа (или :: конструкция в строке или :type конструктор в S-SQL) для помощи серверу.
+</p><pre>macro   defprepared (name query &amp;optional (format :rows))<br/></pre>
+<p>Это defun-style вариант для prepare. Он задает функцию верхнего уровня для "prepared statement".
+</p><pre>macro   defprepared-with-names (name (&amp;rest args) (query &amp;rest query-args) &amp;optional (format :rows))<br/></pre>
+<p>То же что и defprepared, но разрешает специфицировать имена аргументов функции в соответствии с использованием в запросе.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><i><span class="symbol">defprepared-with-names</span></i> user-messages <span class="paren2">(<span class="">user &amp;key <span class="paren3">(<span class="">limit 10</span>)</span></span>)</span><br/>  <span class="paren2">(<span class=""><span class="string">"select * from messages<br/>    where user_id = $1<br/>    order by date desc<br/>    limit $2"</span> <span class="paren3">(<span class="">user-id user</span>)</span> limit</span>)</span><br/>    <span class="keyword">:plist</span></span>)</span><br/></pre>
+<pre>macro   with-transaction ((&amp;optional name) &amp;body body)<br/></pre>
+<p>Выполняет заданный body в транзакции базы данных, выполняя commit, если body выполнилось без ошибок, и abort в остальных случаях. Необязательный параметр name может быть назначен транзакции, и может быть использован для commit или abort в body до его завершения.
+</p><pre>function  commit-transaction (transaction)<br/></pre>
+<p>Commit для текущей транзакции.
+</p><pre>function  abort-transaction (transaction) <br/></pre>
+<p>Откат текущей транзакции.
+</p><pre>macro   with-savepoint (name &amp;body body)<br/></pre>
+<p>Может использоваться только в транзакции. Устанавливает savepoint с заданным именем в начале body, и привязывает к одноименному символу handle данной savepoint. В конце body, savepoint освобождается, если не было исключения, иначе происходит откат к savepoint.
+</p><pre>function  release-savepoint (savepoint) <br/></pre>
+<p>Явно освобождает savepoint.
+</p><pre>function  rollback-savepoint (transaction) <br/></pre>
+<p>Откат до заданной savepoint.
+</p><pre>function   sequence-next (sequence) <br/>→ integer<br/></pre>
+<p>Получить следующее значение для последовательности. Идентификатор последовательности может быть как строкой, так и символом, в этом случае он будет преобразован в строку с помощью S-SQL правил.
+</p><pre>function   coalesce (&amp;rest arguments) <br/>→ value<br/></pre>
+<p>Возвращает первый не-NULL, не-null (как :null) аргумент, или NIL если такового не найдено. Полезно для обеспечения запасного значения для результата запроса, или, когда передается один аргумент, для преобразования :nulls в NIL.
+</p>
+</div><div class="chapter" id="&#x418;&#x43D;&#x442;&#x440;&#x43E;&#x441;&#x43F;&#x435;&#x43A;&#x446;&#x438;&#x44F;"><h3>Интроспекция</h3>
+<pre>function   list-tables (&amp;optional strings-p) <br/>→ list<br/></pre>
+<p>Возвращает список таблиц текущей базы данных. Если string-p true, имена будут возвращены как строки, иначе как keyword'ы.
+</p><pre>function   table-exists-p (name) <br/>→ boolean<br/></pre>
+<p>Проверяет, существует ли таблица. Имя может быть строкой или символом.
+</p><pre>function   table-description (name) <br/>→ list<br/></pre>
+<p>Возвращает список полей таблицы с именем name. Каждое поле - это список из трех элементов: имя, тип, и булево значение о том, может ли поле быть NULL.
+</p><pre>function   list-sequences (&amp;optional strings-p) <br/>→ list<br/></pre>
+<p>Возвращает список последовательностей текущей базы данных. Если strings-p true, имена будут возвращены как строки, иначе как keyword'ы.
+</p><pre>function   sequence-exists-p (name) <br/>→ boolean<br/></pre>
+<p>Проверяет, имеется ли данная последовательность. Имя может быть строкой или символом.
+</p><pre>function   list-views (&amp;optional strings-p) <br/>→ list<br/></pre>
+<p>Возвращает список представлений текущей базы данных.  Если strings-p true, имена будут возвращены как строки, иначе как keyword'ы.
+</p><pre>function   view-exists-p (name) <br/>→ boolean<br/></pre>
+<p>Проверяет, имеется ли данное представление. Имя может быть строкой или символом.
+</p>
+</div><div class="chapter" id="Database Access Objects"><h3>Database Access Objects</h3>
+
+<p><em>Требует чуть лучшего перевода</em>
+</p>
+<p>Postmodern содержит простую систему для определения CLOS классов, которые отображают строки в базе данных. Не следует рассматривать это в качестве полноценной ORM  - они имеют свою нишу, и эта ниша выходит за рамки этой библиотеки.
+</p><pre>metaclass  dao-class <br/></pre>
+<p>В сердце Postmodern DAO системы лежит метакласс dao-class. Он позволяет вам определить классы для DAO, как обычные CLOS классы. Некоторые из слотов данных классов будут ссылаться на столбцы в базе данных. Для указания ссылки на данные, вставте :col-type опцию содержащую S-SQL выражение (полезно, если Вы хотите возможность вывести определение таблицы из определения класса), или просто опцию :column со значением T. Такие слоты могут также принимать опцию :col-default, используемую для предоставления для базы данных значения по умолчанию в S-SQL выражении.
+</p>
+<p>Определение DAO класса поддерживает две дополнительные опции класса: :table-name для указания имени таблицы, на которую ссылается класс (по умолчанию используется имя класса), и :keys для предоставления множества столбцов для первичного ключя таблицы. Если первичного ключа нет, такие операции, как update-dao и get-dao не будут работать.
+</p>
+<p>Простой пример:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defcla.htm" class="symbol"><i><span class="symbol">defclass</span></i></a> user <span class="paren2">(<span class=""/>)</span><br/>  <span class="paren2">(<span class=""><span class="paren3">(<span class="">name <span class="keyword">:col-type</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_string.htm" class="symbol">string</a> <span class="keyword">:initarg</span> <span class="keyword">:name</span> <span class="keyword">:accessor</span> user-name</span>)</span><br/>  <span class="paren3">(<span class="">creditcard <span class="keyword">:col-type</span> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_or.htm" class="symbol">or</a> db-null <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_intege.htm" class="symbol">integer</a></span>)</span> <span class="keyword">:initarg</span> <span class="keyword">:card</span> <span class="keyword">:col-default</span> <span class="keyword">:null</span></span>)</span><br/>  <span class="paren3">(<span class="">score <span class="keyword">:col-type</span> bigint <span class="keyword">:col-default</span> 0 <span class="keyword">:accessor</span> user-score</span>)</span></span>)</span><br/>  <span class="paren2">(<span class=""><span class="keyword">:metaclass</span> dao-class</span>)</span><br/>  <span class="paren2">(<span class=""><span class="keyword">:keys</span> name</span>)</span></span>)</span><br/></pre>
+
+<p>Форма (or db-null integer) используется для указания столбца, который может иметь значения NULL.
+</p>
+<p>При наследовании от DAO классов, множество столбцов потомков будет также содержать столбцы предков. Первичный ключ для такого класса - это объединение его ключей и всех ключей предков. Классы унаследованные от DAO классов должны всегда использовать метакласс metaclass.
+</p>
+<p>Когда DAO создается с помощью make-instance, можно использовать :fetch-defaults keyword параметр, который, если true, запрос будет создан для получения значений по умолчанию для всех слотов, которые имеют значения по умолчанию для столбцов и не связаны с помощью initargs FIXME. В некоторых случаях, например, serial столбцы, которые имеют неявное значение по умолчанию, это работать не будет. Вы можете обойти это создав последовательность вручную и задав значение по умолчанию (:nextval "my_sequence").
+</p>
+<p>Наконец, слоты DAO класса могут иметь опцию :ghost t для указания того, что они призраки. Они заполняются при запросе данных, но не записываются при обновлении или вставке и даже не включаются в определение таблицы. На данный момент используются для таблиц с oid'ом, и выглядят так:
+</p>
+<pre class="code"><span class="paren1">(<span class="">oid <span class="keyword">:col-type</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_intege.htm" class="symbol">integer</a> <span class="keyword">:ghost</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <span class="keyword">:accessor</span> get-oid</span>)</span><br/></pre>
+<pre>method   dao-keys (class) <br/>→ list<br/></pre>
+<p>Возвращает список имен слотов, являющихся первичным ключем DAO класса.
+</p><pre>method  dao-keys (dao) <br/>→ list<br/></pre>
+<p>Возвращает список имен слотов, являющихся первичным ключем DAO.
+</p><pre>method   dao-exists-p (dao) <br/>→ boolean<br/></pre>
+<p>Проверяет, существует ли строка с тем же первичным ключом, что и DAO в базе данных. Возвращает NIL, когда любой из ключевых слотов объекта несвязан.
+</p><pre>method   make-dao (type &amp;rest args &amp;key &amp;allow-other-keys) <br/>→ dao<br/></pre>
+<p>Комбинирует make-instance с insert-dao. Возвращает созданный dao.
+</p><pre>macro   define-dao-finalization (((dao-name class) &amp;rest keyword-args) &amp;body body) <br/></pre>
+<p>Создает :around-method для make-dao. Тело кода выполняется в лексическом окружении, где переменная dao-name привязана к только что созданному и вставленному dao. Представление DAO в базе данных затем обновляется для отображения изменений, возможных при выполнении body. Полезно для обработки значений слотов с типом serial, которые не известны до insert-dao.
+</p><pre>method   get-dao (type &amp;rest keys) <br/>→ dao<br/></pre>
+<p>Выбирает DAO из строки, которая имеет значения первичного ключа, или NIL, если необходимая строка не существует. Объекты созданные с помощью этой функции необходимо инициализировать с помощью функции initialize-instance (псоле загрузки значений из базы данных) без аргументов, даже :default-initargs будут пропущены. То же самое касается select-dao и query-dao.
+</p><pre>macro   select-dao (type &amp;optional (test t) &amp;rest sort)<br/>→ list <br/></pre>
+<p>Выбирает DAO для строк в связанной таблице, для который данный test выполняется в T (или S-SQL выражение или строка). Когда передаются аргументы для сортировки, которые также могут быть строкой или S-SQL формой, они используются для сортировки результата. (Примечание, если вам нужна сортировка, вы должны указать test).
+</p>
+<pre class="code"><span class="paren1">(<span class="">select-dao 'user <span class="paren2">(<span class=""><span class="keyword">:&gt;</span> 'score 10000</span>)</span> 'name</span>)</span><br/></pre>
+<pre>function   query-dao (type query &amp;rest args) <br/>→ list<br/></pre>
+<p>Выполняет заданный запрос (который может быть или строкой или S-SQL выражением) и возвращает резльтат как список DAO заданного типа. Если запрос содержит "позиции" ($1, $2 и т.д.) их значения могут быть получены из оставшихся аргументов. Имена полей возвращаемых запросом должно совпадать с именами слотов DAO класса, или должны быть связаны с помощью with-column-writers.
+</p><pre>variable   *ignore-unknown-columns*<br/></pre>
+<p>Обычно, когда get-dao, select-dao или query-dao находят столбцы в базе данных, которых нет в DAO классах, они генерируют ошибку. Установка данной переменной в true, заставит их игнорировать ошибки.
+</p><pre>method   insert-dao (dao) <br/>→ dao<br/></pre>
+<p>Вставляет заданный DAO в базу данных. Когда какие-нибудь из слотов в объекте несвязан, он будет установлен в значение по умолчанию в базе данных. (Если они не имеют значений по умолчанию будет ошибка.) Примечание: данная возможность работает только в PostgreSQL &gt;= 8.2. В ранних версиях не вставляйте DAO с несвязанными слотами.
+</p><pre>method   update-dao (dao) <br/>→ dao<br/></pre>
+<p>Обновляет представление данного DAO в базе данных значениями из объекта. Такая возможность не предусмотрена для таблиц, которые не имеют первичного ключа FIXME.
+</p><pre>function   save-dao (dao) <br/>→ boolean<br/></pre>
+<p>Пытается вставить заданный DAO используя insert-dao. Если она возвращает ошибку "уникальность ключа", она пытается обновить строка с помощью update-dao. Возможны условия гонки, в которых сторонний процесс удаляет строку, тогда обновление будет безуспешным. Возвращает булево значение, сообщающее: была ли вставлена новая строка.
+</p>
+<p>Эта функция небезопасна при использовании в транзакции - когда строка с данным ключем уже существует, транзакция будет отменена. Используйте save-dao/transaction в данных случаях.
+</p><pre>function   save-dao/transaction (dao) <br/>→ boolean<br/></pre>
+<p>Действует также как и save-dao, кроме того защищает вставку объекта с помощью savepoint, так возникшая ошибка не отменит транзакцию.
+</p><pre>method  delete-dao (dao)<br/></pre>
+<p>Удаляет заданный DAO из базы данных.
+</p><pre>function   dao-table-name (table) <br/>→ string<br/></pre>
+<p>Получает имя таблицы связанной с данным DAO классом (или символ имени данного класса).
+</p><pre>function   dao-table-definition (table) <br/>→ string<br/></pre>
+<p>По заданному DAO классу или его имени функция сгенерирует строку SQL запроса с определением данной таблицы. Это всего лишь простое определение, так что если вам нужна дополнительная функциональность, например индексы или ограничения, вам придется написать свой собственный запрос, чтобы добавить их.
+</p><pre>macro   with-column-writers ((&amp;rest writers) &amp;body body) <br/></pre>
+<p>Обеспечивает контроль над тем, как get-dao, select-dao, and query-dao читают значения из базы данных. Она обычно не требуется, но может быть использована для уменьшения количества запросов. writers это список альтернативных имен столбцов (строки или символы) и writers, где writers являются символами ссылкой на слот в объекте, или функции, принимающие два аргумента - экземпляр и значение - которые могут быть использованы как сохранить значение в новый экземпляр FIXME. Если какой-либо DAO-выборка функция вызывается в body, и столбцы, соответствующие данному имена встречаются в результате writers используются вместо умолчанию (попробуйте и сохраните значения в слот, который соответствует имени столбца).
+</p>
+<p>Подходящее использование является добавление некоторых нестолбцовых слотов для класса DAO, а также использование query-dao в с with-column-writers формой для запроса дополнительной информации об объектах, и сохранение его в новые экземпляры FIXME.
+</p>
+</div><div class="chapter" id="&#x41E;&#x43F;&#x440;&#x435;&#x434;&#x435;&#x43B;&#x435;&#x43D;&#x438;&#x435; &#x438; &#x441;&#x43E;&#x437;&#x434;&#x430;&#x43D;&#x438;&#x435; &#x442;&#x430;&#x431;&#x43B;&#x438;&#x446;&#x44B;"><h3>Определение и создание таблицы</h3>
+
+<p>Это может быть полезным: иметь SQL запросы необходимые для построения таблиц приложения, доступных из кода, и делать автоматическую инициализацию базы данных. Следующие макросы и функции позволяют вам сгруппировать множества SQL запросов в символы, с некоторыми ярлыками для общих элементов в декларации таблицы.
+</p><pre>macro deftable (name &amp;body definition)<br/></pre>
+<p>Определяет таблицу. name может быть символом или списком (символ строка). В первом случае, имя таблица будет взято из символа по правилам S-SQL, во втором случае название дано в явном виде. Тело определения может содержать что угодно, что выполняется в строку, а также S-SQL выражения. В этом теле переменные *table-name* и *table-symbol* связаны со своими значениями. Обратите внимание, что определение вычисляется по порядку, так что вы должны сначала создать таблицу, а затем определять индексы для нее.
+</p><pre>function create-table (symbol)<br/></pre>
+<p>Создает таблицу, идентифицируемую по символу, выполняя результат всех форм в определении таблицы.
+</p><pre>function create-all-tables ()<br/></pre>
+<p>Создает все определенные таблицы.
+</p><pre>function create-package-tables (package)<br/></pre>
+<p>Создает все таблицы, чьи символы находятся в данном пакете.
+</p><pre>variables *table-name*, *table-symbol*<br/></pre>
+<p>Переменные связаны с соответствующими символом и названием, во время выполнения определения таблицы. Могут быть использованы для определения сокращения, как показано ниже.
+</p><pre>function !dao-def ()<br/></pre>
+<p>Может использоваться только в deftable форме. Добавляет результат вызова dao-table-definition c *table-symbol* к определению.
+</p><pre>function !index (&amp;rest columns), !unique-index (&amp;rest columns)<br/></pre>
+<p>Определяет индекс для таблицы. Столбцы передаются как символы или строки.
+</p><pre>function !foreign (target-table columns &amp;optional target-columns &amp;key on-delete on-update)<br/></pre>
+<p>Добавляет внешний ключ таблице. target-table таблицы на которую ключ ссылается, columns - список имен столбцов или одно имя в данной таблице, и если имена столбцов целевой таблицы отличаются, target-columns должен быть списком имен столбцов или одно имя целевой таблицы.
+</p>
+<p>on-delete и on-update аргументы могут быть использованы для указания ON DELETE и ON UPDATE действий, в соответствии с keyword'ами разрешенными в create-table. Обратите внимание, что они не &amp;key аргументы, а выбираются из &amp;rest аргументов во время выполнения, так что они могут быть определены когда target-columns еще не получены.
+</p>
+</div></div><div class="chapter" id="&#x421;&#x43F;&#x440;&#x430;&#x432;&#x43E;&#x447;&#x43D;&#x43E;&#x435; &#x440;&#x443;&#x43A;&#x43E;&#x432;&#x43E;&#x434;&#x441;&#x442;&#x432;&#x43E; S-SQL"><h3>Справочное руководство S-SQL</h3>
+
+<p>Это справочное руководство для S-SQL компонента библиотеки postmodern.
+</p>
+<p>S-SQL предоставляет лисповый синтаксис для SQL запросов, и знает как сконвертировать разные типы лиспа в их текстовые SQL представления. Компонент старается сделать как можно больше работы во время комплиции, так что во время выполнения соединение строк это все что необходимо для получения результирующего запроса.
+</p>
+<div class="chapter" id="&#x418;&#x43D;&#x442;&#x435;&#x440;&#x444;&#x435;&#x439;&#x441;"><h3>Интерфейс</h3>
+<pre>macro sql (form)<br/>→ string<br/></pre>
+<p>Конвертирует заданную форму (список начинающийся с keyword'а) в стркоу SQL запроса во время компиляции, в соответствии с указанными здесь правилами.
+</p><pre>function sql-compile (form)<br/>→ string<br/></pre>
+<p>Это вариант макроса sql для использования во время выполнения. Он конвертирует заданный список в SQL запрос, используя те же правила, кроме того что символы в этом списке не должны быть закавычены, чтобы интерпретироваться как идентификаторы.
+</p><pre>function sql-template (form)<br/></pre>
+<p>В случаях когда вы нуждаетесь в построении запроса во время выполнения, но вы не хотите чтобы результат все время перекомпилировался, это функция может быть использована для компиляции единожды и сохранении результата. Она принимает S-SQL форму, которая может содержать $$ символы, и возвращает функцию, которая принимает по одному аргументу для каждого $$. Когда вызывается, эта возвращаемая функция строит SQL строку, в которой все позиции $$ будут заменены на значения аргументов.
+</p><pre>macro enable-s-sql-syntax (&amp;optional (char #\Q))<br/></pre>
+<p>Модифицирует текущую readtable для добавления #Q синтаксиса, который будет прочтен как (sql ...). Префикс может быть указан другой.
+</p><pre>function sql-escape-string (string)<br/>→ string<br/></pre>
+<p>Экранирует строку для включения в PostgreSQL запрос.
+</p><pre>method sql-escape (value)<br/>→ string<br/></pre>
+<p>Обобщение sql-escape-string. В зависимости от типа аргумента возвращает корректную строку для добавления в SQL запрос. Символы конвертируются в SQL имена.
+</p><pre>variable *standard-sql-strings*<br/></pre>
+<p>Используется для настройки, будет ли S-SQL использовать стандартные SQL строки (просто заменив #\' на ''), или обратнослэшево экранировать. Установка в NIL всегда безопасно, но если сервер настроен на разрешение стандартных строк (параметр времени компиляции 'standard_conforming_strings' равен 'on', который будет по умолчанию в будущих версиях PostgreSQL), шум в запросах может быть уменьшен установкой значения в T.
+</p><pre>variable *escape-sql-names-p*<br/></pre>
+<p>Определяет, могут ли двойные кавычки добавляются вокруг имени столбца. Может быть T, в этом случае все именя будут экранированы, NIL, в этом случае не будут, или :auto, в этом случае только ключевые слова будут экранированы. Значение по умолчанию: :auto. Будьте осторожными, при связывании в let - так как компиляция SQL как правило, происходит во время компиляции, результат может оказаться не таким, как вы ожидаете.
+</p><pre>function sql-type-name (type)<br/>→ string<br/></pre>
+<p>Создает SQL эквивалент для заданного лисп типа, если он известен. Смотрите типы.
+</p><pre>function to-sql-name (name &amp;optional (escape-p *escape-sql-names-p*))<br/>→ string<br/></pre>
+<p>Конвертирует символ или строку в имя, которое может быть использованы как SQL идентификатор путем преобразования всех неалфавитноцифровых символов в подеркивания. Также нижний регистр имен улучшает вид запросов. Если передается второй аргумент он перекрывает переменную *escape-sql-names-p*.
+</p><pre>function from-sql-name (string)<br/>→ keyword<br/></pre>
+<p>Преобразует строку, которая содержит SQL идентификатор в keyword путем изменения нижнего регистра в верхний и конвертации подчеркиваний в точки.
+</p><pre>macro register-sql-operators (arity &amp;rest names)<br/></pre>
+<p>Определяет простые SQL операторы. arity может быть одним из значений:</p><table><tbody><tr><td>:unary</td><td> (как 'not'),</td></tr><tr><td>:unary-postfix</td><td> (оператор стоит после операнда),</td></tr><tr><td>:n-ary</td><td> (как '+': оператора при одном операнде),</td></tr><tr><td>:2+-ary</td><td> (как '=', который не имеет смысла для одного операнда),</td></tr><tr><td>:n-or-unary</td><td> (как '-', где оператор может быть как унарном случае).</td></tr></tbody></table>
+
+<p>После arity может следовать любое количество операторов либо только keyword'ы, в этом случае нижнерегистровое символ имени будет использован как SQL оператор, или двухэлементный список содержащий keyword и строку имени FIXME.
+</p>
+</div><div class="chapter" id="SQL &#x442;&#x438;&#x43F;&#x44B;"><h3>SQL типы</h3>
+
+<p>S-SQL знает SQL эквиваленты для некоторого количество типов лиспа, и определяет несколько дополнительных типов, которые могут быть использованы для обозначения других SQL типов. Следующая таблица отображает соответсвия:
+</p><table><tbody><tr><th>Lisp type	</th><th>SQL type</th></tr><tr><td>smallint</td><td>	smallint</td></tr><tr><td>integer</td><td>	integer</td></tr><tr><td>bigint</td><td>	bigint</td></tr><tr><td>(numeric X Y)</td><td>	numeric(X, Y)</td></tr><tr><td>float, real</td><td>	real</td></tr><tr><td>double-float, double-precision</td><td>	double-precision</td></tr><tr><td>string, text</td><td>	text</td></tr><tr><td>(string X)</td><td>	char(X)</td></tr><tr><td>(varchar X)</td><td>	varchar(X)</td></tr><tr><td>boolean</td><td>	boolean</td></tr><tr><td>bytea</td><td>	bytea</td></tr><tr><td>date</td><td>	date</td></tr><tr><td>timestamp</td><td>	timestamp</td></tr><tr><td>interval</td><td>interval</td></tr></tbody></table>
+<pre>type db-null<br/></pre>
+<p>Это тип, которому принадлежит только keyword :null. Он используется для отображения NULL значений из базы данных.
+</p>
+</div><div class="chapter" id="SQL &#x441;&#x438;&#x43D;&#x442;&#x430;&#x43A;&#x441;&#x438;&#x441;"><h3>SQL синтаксис</h3>
+
+<p>S-SQL форма преобразуется в запрос в соответствии со следующими правилами:
+</p>
+<p>Списки начинающиеся с keyword'а - это операторы. Если они известны, они разворачиваются так как описано ниже, если не известны - следуя стандартному правилу: operator(arguments, ...)
+Закавыченные символы или keyword'ы интерпретируются как имена столбцов или таблиц, и преобразуются в строки с помощью t-sql-name.
+</p>
+<p>Определены следующие операторы:
+</p><pre>sql-op :+, :*, :%, :&amp;, :|, :||, :and, :or, :=, :/, :!=, :&lt;, :&gt;, :&lt;=, :&gt;=, :^, :union, :union-all, :intersect, :intersect-all, :except, :except-all (&amp;rest args)<br/></pre>
+<p>Они разворачиваются в инфиксные операторы. По смыслу, они позволяют более чем два аргумента. :- также может использоваться как унарный оператор для отрицательных значений. Следует отметить, что аргументы для :union, :union-all, :intersect и :except должны быть в запросе (:select forms).
+</p><pre>sql-op :~, :not (arg)<br/></pre>
+<p>Унарные операторы для битового и логического отрицаний.
+</p><pre>sql-op :~, :~*, :!~, :!~* (string pattern)<br/></pre>
+<p>Регулярное выражение для операторов сравнения. Восклицательный знак означает "не соответствует", звездочка делает сравнение регистронезависимым.
+</p><pre>sql-op :like, :ilike (string pattern)<br/></pre>
+<p>Простые SQL операторы сравнения (:ilike регистронезависим).
+</p><pre>sql-op :desc (column)<br/></pre>
+<p>Используется для инвертирования значения оператора в :order-by выражении.
+</p><pre>sql-op :nulls-first, :nulls-last (column)<br/></pre>
+<p>Используется для определения положения :null значений в :order-by выражении.
+</p><pre>sql-op :as (form name &amp;rest fields)<br/></pre>
+<p>Присваивает имя для столбца или таблицы в :select форме. Когда заданы fields, они будут добавлены после имени в круглых скобках. Например, (:as 'table1 't1 'foo 'bar) преобразуется в table1 as t1(foo, bar). Когда вам необходимо специфицировать типы для полей, вы можете сделать что-то вроде (:as 'table2 't2 ('foo integer)). Следует отметить, что имена закавычены, типы нет (когда используется sql-compile или sql-template, вы можете опустить кавычки) FIXME.
+</p><pre>sql-op :exists (query)<br/></pre>
+<p>Оператор EXISTS. В качестве аргумента принимает подзапрос и возвращает true или false в зависимости от того вернул ли подзапрос строку.
+</p><pre>sql-op :is-null (arg)<br/></pre>
+<p>Проверяет, равен ли аргумент NULL.
+</p><pre>sql-op :in (value set)<br/></pre>
+<p>Проверяет, существет ли значение во множестве.
+</p><pre>sql-op :not-in (value set)<br/></pre>
+<p>Инвертирует результат действия вышеназванного оператора :in.
+</p><pre>sql-op :set (&amp;rest elements)<br/></pre>
+<p>Обозначает множество значений. Имеет два интерфейса. Когда элементы известны на этапе компиляции, они могут быть заданы как несколько аргументов. Иначе, элементы должны быть заданы как один аргумент типа список.
+</p><pre>sql-op :[] (form start &amp;optional end)<br/></pre>
+<p>Значение элемента массива. Если задан end, возвращает срез массива.
+</p><pre>sql-op :extract (unit form)<br/></pre>
+<p>Выделяет поле из date/time значения. Например: (:extract :month (:now)).
+</p><pre>sql-op :case (&amp;rest clauses)<br/></pre>
+<p>Условное выражение. clauses должны иметь форму (test value).
+</p><pre>sql-op :between (n start end)<br/></pre>
+<p>Проверяет лежит ли значение в интервале.
+</p><pre>sql-op :between-symmetric (n start end)<br/></pre>
+<p>Работает так же как и :between, за исключением того, что start необязательно должен быть меньше end.
+</p><pre>sql-op :dot (&amp;rest names)<br/></pre>
+<p>Может быть использовано для комбинирования нескольких имен в имя вида "A.B" для ссылки на столбец таблицы, или таблицы в схеме. Необходимо отметить, что вы также можете использовать символ с точкой.
+</p><pre>sql-op :type (form type)<br/></pre>
+<p>Добавляет декларацию типа к значению, напрмер: "4.3::real". Второй аргумент не выполняется, но предается в sql-type-name для получения идентификатора типа.
+</p><pre>sql-op :raw (string)<br/></pre>
+<p>Вставляет строку в запрос как есть. Полезно для вещей, которые не поддерживаются синтаксисом или для повторного использования частей запроса в нескольких запросах.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let*</span></i></a> <span class="paren2">(<span class=""><span class="paren3">(<span class="">test <span class="paren4">(<span class="">sql <span class="paren5">(<span class=""><span class="keyword">:and</span> <span class="paren6">(<span class=""><span class="keyword">:=</span> 'foo 22</span>)</span> <span class="paren6">(<span class=""><span class="keyword">:not-null</span> 'bar</span>)</span></span>)</span></span>)</span></span>)</span><br/>        <span class="paren3">(<span class="">rows <span class="paren4">(<span class="">query <span class="paren5">(<span class=""><span class="keyword">:select</span> '<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> <span class="keyword">:from</span> 'baz <span class="keyword">:where</span> <span class="paren6">(<span class=""><span class="keyword">:raw</span> test</span>)</span></span>)</span></span>)</span></span>)</span></span>)</span><br/>      <span class="paren2">(<span class="">query <span class="paren3">(<span class=""><span class="keyword">:delete-from</span> 'baz <span class="keyword">:where</span> <span class="paren4">(<span class=""><span class="keyword">:raw</span> test</span>)</span></span>)</span></span>)</span><br/>      <span class="paren2">(<span class="">do-stuff rows</span>)</span></span>)</span><br/></pre>
+<pre>sql-op :select (&amp;rest args)<br/></pre>
+<p>Создает select запрос. Аргументы разделяются по keyword'ам найденным между ними. Группа аргументов сразу после :select интерпретируется как выражение, которое должно быть выбрано. После нее опционально может следовать :distinct, который заставляет select выбрать только неповотряющиеся строки, или альтернативно :distinct-on за которым следует группа имен столбцов FIXME. Далее следует опциональный keyword :from, за которым следует как минимум одно имя таблицы и затем любое количество join'ов. join выражение начинается с одного из: :left-join, :right-join, :inner-join, :outer-join или :cross-join, затем имя таблицы или подзапрос, затем если применимо keyword :on, и затем форма. join'у может быть предшествовать :natural (опуская :on выражение) для использования "натурального" join. После join'ов опционально может следовать :where с одной последующей формой. И наконец, опционально включаются :group-by и :having. Первый принимает любое количество аргументов, а второй принимает только один аргумент. Например:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><span class="keyword">:select</span> <span class="paren2">(<span class=""><span class="keyword">:+</span> 'field-1 100</span>)</span> 'field-5<br/>  <span class="keyword">:from</span> <span class="paren2">(<span class=""><span class="keyword">:as</span> 'my-table 'x</span>)</span><br/>  <span class="keyword">:left-join</span> 'your-table <span class="keyword">:on</span> <span class="paren2">(<span class=""><span class="keyword">:=</span> 'x.field-2 'your-table.field-1</span>)</span><br/>  <span class="keyword">:where</span> <span class="paren2">(<span class=""><span class="keyword">:not-null</span> 'a.field-3</span>)</span></span>)</span><br/></pre>
+<pre>sql-op :limit (query amount &amp;optional offset)<br/></pre>
+<p>В S-SQL limit не является частью оператора select, а представляет собой оператор, которые применяется к запросу (такой метод работает лучше при ограничении объединений или пересечений нескольких запросов, сортировки). Оператор ограничивает количество строк в результате в amount, и опционально может перемещать выборку строк на количество позиций переданных в третьем параметре.
+</p><pre>sql-op :order-by (query &amp;rest exprs)<br/></pre>
+<p>Сортирует результат запроса в соответствии с заданным выражением. Смотрите :desc если вы хотите инвертировать сортировку.
+</p><pre>sql-op :function (name (&amp;rest arg-types) return-type stability body)<br/></pre>
+<p>Создает хранимую SQL (не pgplsql) процедуру. arg-types и return-type интерпретируются как типы и не вычисляются. stability должны быть одним из: :immutable, :stable или :volatile (см. руководство Postgres). Например, функция которая получает foobars по идентификатору:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><span class="keyword">:function</span> 'get-foobar <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/t_intege.htm" class="symbol">integer</a></span>)</span> foobar <span class="keyword">:stable</span> <span class="paren2">(<span class=""><span class="keyword">:select</span> '<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> <span class="keyword">:from</span> 'foobar <span class="keyword">:where</span> <span class="paren3">(<span class=""><span class="keyword">:=</span> 'id '$1</span>)</span></span>)</span></span>)</span><br/></pre>
+<pre>sql-op :insert-into (table &amp;rest rest)<br/></pre>
+<p>Вставляет строку в таблицу. Если второй аргумент :set, другие аргументы должны содержать имена полей и значений, иначе второй аргумент должен быть формой :select, которая выполниться в множество значений для вставки. Например:
+</p><pre>(:insert-into 'my-table :set 'field-1 42 'field-2 "foobar")<br/></pre>
+<p>В конце формы :insert-into есть возможность добавить :returning, с последующими списком имен полей или выражениями. Это заставит запрос вернуть значения этих выражений как одну строку.
+</p><pre>sql-op :update (table &amp;rest rest)<br/></pre>
+<p>Обновляет значения в таблице. После имени таблицы должен идти keyword :set и люое количество имен полей и значений, как в :insert-into, а затем опционально keyword :where с последующим условием, и затем keyword :returning с списком имен полей или выражениями указывающими, что необходимо вернуть.
+</p><pre>sql-op :delete-from (table &amp;rest rest)<br/></pre>
+<p>Удаляет строки из таблицы. Может получать аргумент :where, за которым следует условие, и аргумент :returning, за которым следует одно или более выражений, которые будут возвращены для всех удаленных строк.
+</p><pre>sql-op :create-table (name (&amp;rest columns) &amp;rest options)<br/></pre>
+<p>Создает новую таблицу. После имени таблицы следует список определений столбцов, которые являются списками, которые начинаются с имени и друг за другом следуют следующие keyword'ы:
+</p><table><tbody><tr><td>:type</td><td>Единственное обязательное поле. Специфицирует тип столбца. Используйте тип так (or db-null integer) для указания возможных NULL значений.</td></tr><tr><td>:default</td><td>Указывает значение по умолчанию.</td></tr><tr><td>:unique</td><td>Если аргумент non-nil, значения в столбце должны быть уникальны.</td></tr><tr><td>:primary-key</td><td>Если non-nil, столбец входит в первичный ключ.</td></tr><tr><td>:check</td><td>Добавляет ограничение на данную колонку. Значение для данного аргумента должно быть S-SQL выражением, которое возвращает булево значение. Если необходимо оно может ссылаться на другие колонки в таблице.</td></tr><tr><td>:references</td><td>Добавляет ограничение "внешний ключ" на данную таблицу. Предоставляемый аргумент должен быть списком такой формы (target &amp;optional on-delete on-update). Если target символ, он указывает на таблицу на которую ссылается внешний ключ. Если target список, его первый элемент таблица, второй элемент столбец, на который ссылается внешний ключ. on-delete, on-update могут использоваться для указания действий, которые выполняются когда строка удаляется или обновляется. Доступные значения: :restrict, :set-null, :set-default, :cascade и :no-action.</td></tr></tbody></table>
+
+<p>После списка столбцов может быть указано ноль и более дополнительных опции (ограничений для таблицы). То списка начинающиеся с одного из нижеперечисленных keyword'ов:
+</p><table><tbody><tr><td>:check</td><td>Добавляет ограничение на таблицу. Принимает одно S-SQL выражение, которое возвращает булево значение.</td></tr><tr><td>:primary-key</td><td>Указывает первичный ключ для таблицы. Аргументы для данной опции - имена столбцов.</td></tr><tr><td>:unique</td><td>Добавляет ограничение "уникальности" на группу столбцов. Как и в прошлой опции аргументы это список символов указываещих на колонки.</td></tr><tr><td>:foreign-key</td><td>Создает внешний ключ. Аргументы должны иметь форму (columns target &amp;optional on-delete on-update), где columns список столбцов, которые используются для ключа, остальные аргументы имеют тот же смысл что и аргументы :reference для столбцов.</td></tr></tbody></table>
+
+<p>Каждый список может начинаться с :constraint name для создания специфичного именованного ограничения.
+</p>
+<p>Следует отметить, в отличие от большинства других операторов, :create-table ожидает большинство аргументов незакавыченными символами.
+</p>
+<p>Вот вам пример формы :create-table:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><span class="keyword">:create-table</span> enemy<br/>  <span class="paren2">(<span class=""><span class="paren3">(<span class="">name <span class="keyword">:type</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_string.htm" class="symbol">string</a> <span class="keyword">:primary-key</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a></span>)</span><br/>  <span class="paren3">(<span class="">age <span class="keyword">:type</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_intege.htm" class="symbol">integer</a></span>)</span><br/>  <span class="paren3">(<span class="">address <span class="keyword">:type</span> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_or.htm" class="symbol">or</a> db-null <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_string.htm" class="symbol">string</a></span>)</span> <span class="keyword">:references</span> <span class="paren4">(<span class="">important-addresses <span class="keyword">:cascade</span> <span class="keyword">:cascade</span></span>)</span></span>)</span><br/>  <span class="paren3">(<span class="">fatal-weakness <span class="keyword">:type</span> text <span class="keyword">:default</span> <span class="string">"None"</span></span>)</span><br/>  <span class="paren3">(<span class="">identifying-color <span class="keyword">:type</span> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_string.htm" class="symbol">string</a> 20</span>)</span> <span class="keyword">:unique</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a></span>)</span><br/>  <span class="paren3">(<span class=""><span class="keyword">:foreign-key</span> <span class="paren4">(<span class="">identifying-color</span>)</span> <span class="paren4">(<span class="">colors name</span>)</span></span>)</span><br/>  <span class="paren3">(<span class=""><span class="keyword">:constraint</span> enemy-age-check <span class="keyword">:check</span> <span class="paren4">(<span class=""><span class="keyword">:&gt;</span> 'age 12</span>)</span></span>)</span></span>)</span><br/></span></span></pre>
+<pre>sql-op:alter-table (name action &amp;rest args)<br/></pre>
+<p>Изменяет таблицу. Сейчас поддерживается только добавление и удаление ограничений. Смысл аргументов зависит от action:
+</p><table><tbody><tr><td>:add</td><td>Добавляет ограничение на таблицу. args должны быть ограничением в форме как в :create-table.</td></tr><tr><td>:add-column</td><td>Добавляет столбец в таблицу. args должны быть ограничением в форме как в :create-table.</td></tr><tr><td>:drop-constraint</td><td>Удаляет ограничение. Первым аргументом должно быть имя ограничения. Вторым опциональным аргументом - поведение при удалении объектов зависящих от ограничения и может быть :cascade или :restrict.</td></tr></tbody></table>
+<pre>sql-op :drop-table (name)<br/></pre>
+<p>Удаляет таблицу. Опционально вы можете указать :if-exists перед именем для подавления сообщения об ошибки.
+</p><pre>sql-op :create-index (name &amp;rest args)<br/></pre>
+<p>Создает индекс для таблицы. После имени индекса должен следовать keyword :on, а затем имя таблицы. Затем keyword :fields с последующими одним или более именами столбцов. Опционально может быть добвалено :where выражение для создания частичного индекса.
+</p><pre>sql-op :create-unique-index (name &amp;rest args)<br/></pre>
+<p>Работает также как и :create-index, за исключением того, что созданный индекс будет уникален.
+</p><pre>sql-op :drop-index (name)<br/></pre>
+<p>Удаляет индекс. Принимает :if-exists аргумент как в :drop-table.
+</p><pre>sql-op :create-sequence (name &amp;key increment min-value max-value start cache cycle)<br/></pre>
+<p>Создает последовательность с заданным именем. Остальные аргументы указывают на алгоритм работы последовательности.
+</p><pre>sql-op :drop-sequence (name)<br/></pre>
+<p>Удаляет последовательность. Вы можете указать :if-exists в качестве первого аргумента.
+</p><pre>sql-op :create-view (name query)<br/></pre>
+<p>Создает представление из S-SQL запроса.
+</p><pre>sql-op :drop-view (name)<br/></pre>
+<p>Удаляет представление. Принимает необязательный :if-exists аргумент.
+</p>
+</div></div><div class="chapter" id="&#x421;&#x43F;&#x440;&#x430;&#x432;&#x43E;&#x447;&#x43D;&#x43E;&#x435; &#x440;&#x443;&#x43A;&#x43E;&#x432;&#x43E;&#x434;&#x441;&#x442;&#x432;&#x43E; simple-date"><h3>Справочное руководство simple-date</h3>
+
+<p>Smiple-date предоставляет типы (CLOS классы) для date, timestamp и interval похожие на те, которые используются в базе данных, для того, чтобы предоставлять простой метод получать, обновлять, вставлять значения данных типов в базу данных. Для данных типов определены несколько очевидных операций.
+</p>
+<p>Наиболее вопиющим недостатком библиотеки является отсутствие поддержки часовых поясов. Библиотека считает, что весь мир живет по UTC. Используйте с осторожностью.
+<em>Прим. переводчика. Позволю себе вмешаться, и утверждать, что база данных должна оперировать типами без часовых поясов. Преобразование времени - это задача клиентской программы. При этом в этой программе необходимы только две функции to-utc-from-local, to-local-from-utc для вставки в базу и отображения времени пользователю соответственно.</em>
+</p>
+<p>Когда библиотека загружается после CL-postgres, она регистрирует необходимые SQL обработички для чтения/записи связанных типов базы данных.
+</p>
+<p>Тип Date
+</p><pre>class date<br/></pre>
+<p>Отображает дату, без информации о времени.
+</p><pre>function encode-date (year month day)<br/>→ date<br/></pre>
+<p>Создает объект date.
+</p><pre>function decode-date (date)<br/>→ (values year month day)<br/></pre>
+<p>Извлекает элементы из объекта date.
+</p><pre>function day-of-week (date)<br/>→ integer<br/></pre>
+<p>Возвращает день недели для заданной даты. Значения лежат на интервале от 0 до 6, отсчет начинается с воскресенья и заканчивается субботой.
+</p>
+<p>Тип Timestamp
+</p><pre>class timestamp<br/></pre>
+<p>Отображает timestamp с точностью до милисекунды.
+</p><pre>function encode-timestamp (year month day &amp;optional (hour 0) (minute 0) (second 0) (millisecond 0))<br/>→ timestamp<br/></pre>
+<p>Создает Timestamp. Недопустимы отрицательные значения или значения выходящие за границы интервалов (60 для минут, 1000 для милисекунд).
+</p><pre>function decode-timestamp (timestamp)<br/>→ (values year month day hour minute second millisecond)<br/></pre>
+<p>Возвращает компоненты timestamp'а.
+</p><pre>function timestamp-to-universal-time (timestamp)<br/>→ universal-time<br/></pre>
+<p>Преобразует timestamp в соответствующий UT timestamp с округлением до секунды. Необходимо отметить, что функция считает, что timestamp представляет UTC.
+</p>
+
+<p>function universal-time-to-timestamp (universal-time)
+→ timestamp
+</p>
+<p>Создает timestamp из UT. Здесь также timestamp должен рассматриваться как UTC.
+</p>
+<p>Тип Interval
+</p><pre>class interval<br/></pre>
+<p>Interval отображает период времени. Он содержит абсолютную часть в милисекундах (дни, недели, минуты и т.д. всегда имеют одинаковую длину), и относительную часть для месяцев и лет - количество времени, отображающее месяц или год, не всегда одной длины FIXME.
+</p><pre>function encode-interval (&amp;key (year 0) (month 0) (week 0) (day 0) (hour 0) (minute 0) (second 0) (millisecond 0))<br/>→ interval<br/></pre>
+<p>Создает interval. Аргументы могут быть отрицительными или любой величины.
+</p><pre>function decode-interval (interval)<br/>→ (values year month day hour minute second millisecond)<br/></pre>
+<p>Раскладывает interval на части. Следует отметить, что это зависит от параметров конструктора interval'а, интервал 3600 секунд то же самое, что и 1 час.
+</p>
+<p>Операции
+</p>
+<p>Для предотвращения распространения различных имен функций, используются generic функции для операций над временными значениями. Семантика функций зависит от типов операндов.
+</p><pre>method time-add (a b)<br/>→ value<br/></pre>
+<p>Складывает две объекта. Добавление interval к date или к timestamp'у возвращает date или timestamp, увеличенные на размер interval'а. Сложение двух interval'ов возвращает новый interval, являющийся суммой этих аргументов. Целочисленные значения могут использованы на месте interval'ов, они будут интерпретированы, как количество милисекунд.
+</p><pre>method time-subtract (a b)<br/>→ value<br/></pre>
+<p>Вычитает объекты. Вычитание двух date или timestamp'ов возвращает interval, который отображает различие между ними. По аналогии, вычитание двух интервалов возвращает разницу между ними.
+</p><pre>method time= (a b)<br/>→ boolean<br/></pre>
+<p>Сравнивает два объекта, возвращает булево значение, показывающее, содержат ли аргументы одинаковое время или период.
+</p><pre>method time&lt; (a b)<br/>→ boolean<br/></pre>
+<p>Сравнивает два объекта, возвращает булево значение, показывающее, меньше ли первый аргумент, чем второй.
+</p><pre>method time&gt; (a b)<br/>→ boolean<br/></pre>
+<p>Сравнивает два объекта, возвращает булево значение, показывающее, больше ли первый аргумент, чем второй.
+</p><pre>function time&lt;= (a b)<br/>→ boolean<br/></pre>
+<p>Результат противоложен time&gt;.
+</p><pre>function time&gt;= (a b)<br/>→ boolean<br/></pre>
+<p>Результат противоложен time&lt;.
+</p></div></div> </div> <div class="bottom">@2009-2013 lisper.ru</div> 
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-7734690-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+ </body> </html>

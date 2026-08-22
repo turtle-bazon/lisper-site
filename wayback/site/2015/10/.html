@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html> <head> <title>archimag: October, 2015</title> <link rel="stylesheet" href="/static/mirev/css/style.css"> <link rel="stylesheet" href="/static/mirev/css/prettify.css"> <link rel="alternate" type="application/atom+xml" title="archimag: blog entries feed" href="/feeds/atom" />   </head> <body> <a href="http://github.com/archimag/"> <img style="position: absolute; top: 0; left: 0; border: 0;" src="/static/archimag/image/forkme.png" alt="Fork me on GitHub"> </a> <div id="header"> <a href="/" id="blogname">archimag</a> </div> <div id="content"> <h1>Archive for October, 2015</h1> <div class="blog-post"> <h2><a href="/2015/10/23/%d0%9f%d0%b0%d1%80%d1%81%d0%b8%d0%bc_ODS">Парсим ODS</a></h2> <div class="post-metadata"> <div class="post-published"> <a href="/2015/"> 2015 </a>, <a href="/2015/10/"> October </a> <a href="/2015/10/23/"> 23 </a> </div> <div class="post-tags"> <a href="/tags/">Tags</a>:  <a href="/tags/lisp">lisp</a> <a href="/tags/ods">ods</a> </div> </div> <div class="document"><p>Внезапно потребовалось из программы на CL прочитать ODS файл. Подходящего решения не нашёл, правда особо не искал, потому что это довольно просто сделать самому:</p>
+<p><div class="prettyprint linenums"><ol class="linenums">
+<li class="L0">(ql:quickload <span class="string">"zip"</span>)</li>
+<li class="L1">(ql:quickload <span class="string">"cl-libxml2"</span>)</li>
+<li class="L2">(ql:quickload <span class="string">"parse-number"</span>)</li>
+<li class="L3">
+<li class="L4">(<a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defpkg.htm" class="symbol"><i><span class="symbol">defpackage</span></i></a> <span class="keyword">#:my.tools.ods</span>
+</li>
+<li class="L5">  (<span class="keyword">:use</span> <span class="keyword">#:cl</span> <span class="keyword">#:iter</span>)</li>
+<li class="L6">  (<span class="keyword">:export</span> <span class="keyword">#:parse-ods-file</span>))</li>
+<li class="L7">
+<li class="L8">
+<li class="L9">(<a href="http://www.lispworks.com/reference/HyperSpec/Body/m_in_pkg.htm" class="symbol">in-package</a> <span class="keyword">#:my.tools.ods</span>)</li>
+<li class="L10">
+<li class="L11">(<a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> ods-xpath-map ()</li>
+<li class="L12">  (<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_list_.htm" class="symbol">list*</a> (<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_list.htm" class="symbol">list</a> <span class="string">"office"</span> <span class="string">"urn:oasis:names:tc:opendocument:xmlns:office:1.0"</span>)</li>
+<li class="L13">         (<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_list.htm" class="symbol">list</a> <span class="string">"table"</span> <span class="string">"urn:oasis:names:tc:opendocument:xmlns:table:1.0"</span>)</li>
+<li class="L14">         <span class="special">xpath:*default-ns-map*</span>))</li>
+<li class="L15">
+<li class="L16">(<a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> parse-ods-content (content)</li>
+<li class="L17">  (<i><span class="symbol">xtree:with-parse-document</span></i> (doc content)</li>
+<li class="L18">    (<a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> ((<span class="special">xpath:*default-ns-map*</span> (ods-xpath-map)))</li>
+<li class="L19">      (iter (for sheet in (xpath:find-list doc <span class="string">"//table:table"</span>))</li>
+<li class="L20">            (collect (parse-sheet sheet))))))</li>
+<li class="L21">
+<li class="L22">(<a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> parse-sheet (sheet)</li>
+<li class="L23">  (<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_list_.htm" class="symbol">list*</a> (xpath:find-string sheet <span class="string">"@table:name"</span>)</li>
+<li class="L24">         (iter (for row in (xpath:find-list sheet <span class="string">"table:table-row"</span>))</li>
+<li class="L25">
+<li class="L26">
+<li class="L27">               (collect (parse-row row)))))</li>
+<li class="L28">
+<li class="L29">(<a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> parse-row (row)</li>
+<li class="L30">  (iter (for cell in (xpath:find-list row <span class="string">"table:table-cell"</span>))</li>
+<li class="L31">        (<a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> ((repeat-number (xpath:find-string cell <span class="string">"@table:number-columns-repeated"</span>)))</li>
+<li class="L32">          (<a href="http://www.lispworks.com/reference/HyperSpec/Body/m_dotime.htm" class="symbol">dotimes</a> (i (<a href="http://www.lispworks.com/reference/HyperSpec/Body/s_if.htm" class="symbol"><i><span class="symbol">if</span></i></a> repeat-number (<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_parse_.htm" class="symbol">parse-integer</a> repeat-number) 1))</li>
+<li class="L33">            (collect (parse-cell cell))))))</li>
+<li class="L34">
+<li class="L35">(<a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> parse-cell (cell)</li>
+<li class="L36">  (<a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> ((value (xtree:text-content cell))</li>
+<li class="L37">        (value-type (xpath:find-string cell <span class="string">"@office:value-type"</span>)))</li>
+<li class="L38">    (<a href="http://www.lispworks.com/reference/HyperSpec/Body/m_cond.htm" class="symbol"><i><span class="symbol">cond</span></i></a>
+</li>
+<li class="L39">      ((<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_stgeq_.htm" class="symbol">string=</a> value-type <span class="string">"float"</span>)</li>
+<li class="L40">       (parse-number:parse-number value))</li>
+<li class="L41">      (<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a>
+</li>
+<li class="L42">       value))))</li>
+<li class="L43">
+<li class="L44">(<a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> parse-ods-file (<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pn.htm" class="symbol">pathname</a>)</li>
+<li class="L45">  (<i><span class="symbol">zip:with-zipfile</span></i> (zipfile <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pn.htm" class="symbol">pathname</a>)</li>
+<li class="L46">    (parse-ods-content</li>
+<li class="L47">     (zip:zipfile-entry-contents</li>
+<li class="L48">      (zip:get-zipfile-entry <span class="string">"content.xml"</span> zipfile)))))</li>
+</ol></div></p>
+<p>Мне этого пока хватает.</p>
+</div> </div> </div> <div id="footer"> <div class="right"> Copyright (c) Moskvitin Andrey <br /> Powered by <a href="http://restas.lisper.ru">RESTAS</a> <div id="buttons"> <a href="http://www.sbcl.org/"> <img src="/static/archimag/image/sbclbutton.png" alt="SBCL" /> </a> <a href="http://weitz.de/hunchentoot/"> <img src="/static/archimag/image/hunchentoot10.png" alt="Hunchentoot" /> </a> <a href="http://www.mongodb.org/"> <img src="/static/archimag/image/logo-mongodb.png" alt="mongoDB" /> </a> </div> </div> <a href="/feeds/atom" class="feed">Posts feed</a>  </div> 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-22971320-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+     </body> </html>

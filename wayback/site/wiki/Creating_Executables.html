@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru"> <head> <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> <meta name="keywords" content="Common Lisp,lisp,лисп" /> <title>Creating_Executables</title> <link href="/css/style.css" rel="stylesheet" type="text/css" /><link href="/css/wiki.css" rel="stylesheet" type="text/css" /><link href="/css/colorize.css" rel="stylesheet" type="text/css" />  </head> <body> <div class="top"> <div id="login"> <a href="/register">Регистрация</a> | <a href="/login?done=/wiki/Creating_Executables">Войти</a> </div> </div> <div id="caution"> <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png" /> <a href="http://www.vkusnoserver.ru/" target="_blank" style="float: right;"> <img src="/vkusnoserver.png" /> </a> </div> <div id="mainmenu"> <ul> <li> <a href="/">Главная</a> </li><li> <a href="/articles/">Статьи</a> </li><li> <a href="/planet/">Планета</a> </li><li> <a href="/forum/">Форум</a> </li><li> <a href="/apps/">Сервисы</a> </li><li> <a href="/pcl/">Practical Common Lisp</a> </li><li> <a href="/wiki/">Wiki</a> </li><li> <a href="/files/">Файлы</a> </li><li> <a href="/search">Поиск</a> </li> </ul> </div> <div id="content"> <ul class="wiki-page-menu"> <li> <a href="/wiki/edit/Creating_Executables">Edit</a> </li>  <li> <a href="/wiki/history/Creating_Executables">History</a> </li>   </ul><div class="article">
+<div class="chapter" id="&#x421;&#x43E;&#x437;&#x434;&#x430;&#x43D;&#x438;&#x435; &#x438;&#x441;&#x43F;&#x43E;&#x43B;&#x43D;&#x44F;&#x435;&#x43C;&#x44B;&#x445; &#x444;&#x430;&#x439;&#x43B;&#x43E;&#x432;"><h3>Создание исполняемых файлов</h3>
+<p>(перевод статьи <a href="http://www.cliki.net/Creating%20Executables">Creating Executables</a> взятой с <a href="http://www.cliki.net">http://www.cliki.net</a>)
+</p>
+<p>Новички в Lisp часто спрашивают: как создать исполняемый файл(executable) из Lisp программы.
+</p>
+<p><a href="http://www.cliki.net/cl-launch">cl-launch</a> - это утилита, позволяющая легко запускать Lisp программы из командной оболочки UNIX. Смотрите также <a href="http://www.cliki.net/ShellScripting">ShellScripting</a>. <a href="http://www.cliki.net/Buildapp">Buildapp</a> - это подобная cl-launch утилита, но специфичная для SBCL.
+</p>
+<p>Создание самодостаточных приложений(stand-alone executables) не является основной задачей Lisp'а, в отличие от С-подобных языков. Lisp разработка гораздо более интерактивна. Функции и определения классов, обычно, компилируются и встраиваются в Lisp окружение в тот же момент, когда их описание написано. Из REPL'а можно сразу же изменить переменные Lisp окружения или вызвать из него функции. "Программы" в Lisp запускаются, как и все остальное, посредством вызова функции.
+</p>
+<p>Когда система готова к выпуску, классический подход - загрузить все скомпилированные описания в Lisp окружение и создать его "дамп" в виде образа на диске, тогда вызвать "запускающую функцию" означает запустить приложение.
+</p>
+<p>Формат такого образа зависит от реализации Lisp'а. Это, однако, мало отличается от С-приложений, требующих специфичных для платформы динамических библиотек.
+</p>
+<p>Метод создания такого образа зависит от реализации:</p><ul><li> <a href="http://clisp.cons.org/impnotes/image.html">Сохранение образов для CLISP</a></li><li> <a href="http://www.sbcl.org/manual/Saving-a-Core-Image.html">Сохранение образов ядра для SBCL</a></li><li> <a href="http://ccl.clozure.com/manual/chapter4.7.html#Saving-Applications">Сохранение приложений для OpenMCL/Clozure Common Lisp</a></li></ul>
+<p>Альтернативный вариант - создание образа, включающего не только систему, но и реализацию Lisp. Подобный образ, как правило, больше чем бинарные файлы C-программ, т.к. реализация Lisp'а, как правило, содержит отладчик, компилятор и полный набор необходимых библиотек.
+</p>
+<p><a href="http://www.cliki.net/Lispbuilder">Lispbuilder</a> <a href="http://code.google.com/p/lispbuilder/wiki/StandAloneExecutables">wiki</a> - здесь можно найти учебник по этой теме.
+</p><ul><li> <a href="http://clisp.cons.org/impnotes/quickstart.html">Развертывание(delivery)</a> приложений для CLISP</li><li> <a href="http://code.google.com/p/lispbuilder/wiki/StandAloneCLISP">Учебные примеры по использованию CLISP с Lispbuilder-SDL под Windows</a></li><li> <a href="http://www.cliki.net/CMUCL%20Hints">Советы для CMUCL</a> содержат информацию о создании консольных UNIX скриптов для выполнения CMUCL приложений</li><li> <a href="http://www.franz.com/support/documentation/8.1/doc/delivery.htm">Application Delivery for Allegro Common Lisp</a></li><li> <a href="http://www.lispworks.com/documentation/lwl42/DV-U/html/deluser.htm">Развертывание приложений для Xanalys Lispworks</a></li><li> <a href="http://ecls.sourceforge.net/new-manual/ch24s03.html">Сборка самодостаточных приложений</a> для ECL (при поддержке <a href="http://ecls.sourceforge.net/new-manual/ch24.html">множества способов</a> развертывания приложений).</li></ul>
+<p>"Tree-shaking"("утряска дерева", отделение программы от lisp-системы), может уменьшить размер исполняемого модуля, но сильно снижает гибкость. Компилятор и отладчик удобны для интерактивной и удаленной модификации системы, запущенной на клиентской машине. Также, компилятор используется в некоторых реализациях в неожиданных местах, например, в реализации CLOS. Т.о. использование tree-shaking как правило не практично.
+</p>
+</div></div> </div> <div class="bottom">@2009-2013 lisper.ru</div> 
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-7734690-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+ </body> </html>

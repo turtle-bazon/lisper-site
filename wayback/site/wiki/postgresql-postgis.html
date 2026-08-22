@@ -1,0 +1,246 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru"> <head> <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> <meta name="keywords" content="Common Lisp,lisp,лисп" /> <title>postgresql-postgis</title> <link href="/css/style.css" rel="stylesheet" type="text/css" /><link href="/css/wiki.css" rel="stylesheet" type="text/css" /><link href="/css/colorize.css" rel="stylesheet" type="text/css" />  </head> <body> <div class="top"> <div id="login"> <a href="/register">Регистрация</a> | <a href="/login?done=/wiki/postgresql-postgis">Войти</a> </div> </div> <div id="caution"> <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png" /> <a href="http://www.vkusnoserver.ru/" target="_blank" style="float: right;"> <img src="/vkusnoserver.png" /> </a> </div> <div id="mainmenu"> <ul> <li> <a href="/">Главная</a> </li><li> <a href="/articles/">Статьи</a> </li><li> <a href="/planet/">Планета</a> </li><li> <a href="/forum/">Форум</a> </li><li> <a href="/apps/">Сервисы</a> </li><li> <a href="/pcl/">Practical Common Lisp</a> </li><li> <a href="/wiki/">Wiki</a> </li><li> <a href="/files/">Файлы</a> </li><li> <a href="/search">Поиск</a> </li> </ul> </div> <div id="content"> <ul class="wiki-page-menu"> <li> <a href="/wiki/edit/postgresql-postgis">Edit</a> </li>  <li> <a href="/wiki/history/postgresql-postgis">History</a> </li>   </ul><div class="article"><div class="toc"><div class="toc-header">Содержание</div><div class="toc-body"><ul><li><div><a href="#PostGIS">PostGIS</a><ul><li><div><a href="#&#x413;&#x435;&#x43E;&#x43C;&#x435;&#x442;&#x440;&#x438;&#x447;&#x435;&#x441;&#x43A;&#x438;&#x435; &#x442;&#x438;&#x43F;&#x44B;">Геометрические типы</a></div></li><li><div><a href="#&#x424;&#x443;&#x43D;&#x43A;&#x446;&#x438;&#x438;">Функции</a><ul><li><div><a href="#&#x412;&#x432;&#x43E;&#x434;&#x430;/&#x432;&#x44B;&#x432;&#x43E;&#x434;&#x430;">Ввода/вывода</a></div></li><li><div><a href="#&#x421;&#x440;&#x430;&#x432;&#x43D;&#x435;&#x43D;&#x438;&#x44F;">Сравнения</a></div></li><li><div><a href="#&#x41F;&#x440;&#x435;&#x43E;&#x431;&#x440;&#x430;&#x437;&#x43E;&#x432;&#x430;&#x43D;&#x438;&#x44F;">Преобразования</a></div></li></ul></div></li><li><div><a href="#&#x418;&#x43D;&#x434;&#x435;&#x43A;&#x441;&#x44B;">Индексы</a></div></li></ul></div></li><li><div><a href="#&#x420;&#x430;&#x437;&#x432;&#x435;&#x440;&#x442;&#x44B;&#x432;&#x430;&#x43D;&#x438;&#x435;">Развертывание</a></div></li><li><div><a href="#OpenStreetMap">OpenStreetMap</a></div></li><li><div><a href="#OpenStreetMap 2 PostGIS">OpenStreetMap 2 PostGIS</a></div></li><li><div><a href="#gis-lab.info">gis-lab.info</a></div></li><li><div><a href="#&#x420;&#x438;&#x441;&#x43E;&#x432;&#x430;&#x43D;&#x438;&#x435;">Рисование</a></div></li><li><div><a href="#&#x417;&#x430;&#x43A;&#x43B;&#x44E;&#x447;&#x435;&#x43D;&#x438;&#x435;">Заключение</a></div></li></ul></div></div>
+<div class="chapter" id="PostGIS"><h3>PostGIS</h3>
+
+<p>В продолжение темы о Postgresql. Я думаю многим известно, что в этой чудесной СУБД, помимо бумажек, кадров, прибылей и убылей, можно хранить геометрические данные. Для этого достаточно установить расширение <a href="http://postgis.org/">PostGIS</a>.
+</p>
+<p>Данное расширение предоставляет:
+</p><ul><li>геометрические типы данных</li><li>функции для работы с ними</li><li>таблицы с метаданными</li><li>индексы</li></ul>
+<p>Кроме того, PostGIS реализует интерфейс OpenGIS, что позволяет создавать приложения, не зависящие от реализации гео базы данных.
+</p>
+<p>Рассмотрим его слегка.
+</p>
+<div class="chapter" id="&#x413;&#x435;&#x43E;&#x43C;&#x435;&#x442;&#x440;&#x438;&#x447;&#x435;&#x441;&#x43A;&#x438;&#x435; &#x442;&#x438;&#x43F;&#x44B;"><h3>Геометрические типы</h3>
+
+<p>PostGIS создает новый тип столбцов для Postgresql - geometry. Данный тип внутри себя может содержать следующие геометрические объекты:
+</p><ul><li>POINT (точка)</li><li>LINESTRING (линия)</li><li>POLYGON (полигон)</li><li>MULTIPOINT (много точек)</li><li>MULTILINESTRING (много линий)</li><li>MULTIPOLYGON (много полигонов)</li><li>GEOMETRYCOLLECTION (много всего)</li></ul>
+</div><div class="chapter" id="&#x424;&#x443;&#x43D;&#x43A;&#x446;&#x438;&#x438;"><h3>Функции</h3>
+
+<div class="chapter" id="&#x412;&#x432;&#x43E;&#x434;&#x430;/&#x432;&#x44B;&#x432;&#x43E;&#x434;&#x430;"><h3>Ввода/вывода</h3>
+
+<p>Сами данные вышеназванных типов внутри Postgresql хранятся внутреннем бинарном формате, и мы нуждаемся в некоторых методах вставки и получения геометрических объектов в и из базы. В стандарте OpenGIS для этого предусмотрены два вида функций: для текстового и бинарного (не такого как внутри Postgresql) представления объектов.
+Текстовое представление служит для взаимодействия человека с машиной, бинарное, соответственно, участие человека не предполагает, а ориентируется на взаимодействие с другой программой. Названия данных представлений well-known text и well-known binary, (далее WKT и WKB).
+</p>
+<p>Для ввода/вывода используются следующие SQL функции (они, повторюсь, заявлены в OpenGIS стандарте):
+</p>
+<pre class="code"><p>bytea WKB = ST_AsBinary<span class="paren1">(<span class="">geometry</span>)</span>;<br/>
+text WKT = ST_AsText<span class="paren1">(<span class="">geometry</span>)</span>;<br/><br/>geometry = ST_GeomFromWKB<span class="paren1">(<span class="">bytea WKB, SRID</span>)</span>;<br/>
+geometry = ST_GeometryFromText<span class="paren1">(<span class="">text WKT, SRID</span>)</span>;<br/></p></pre>
+
+<p>Текстовое представление для типов объектов может выглядть, например, так:
+</p><ul><li> POINT(0 0)</li><li> LINESTRING(0 0,1 1,1 2)</li><li> POLYGON( (0 0,4 0,4 4,0 4,0 0), (1 1, 2 1, 2 2, 1 2,1 1) )</li><li> MULTIPOINT(0 0,1 2)</li><li> MULTILINESTRING( (0 0,1 1,1 2), (2 3,3 2,5 4) )</li><li> MULTIPOLYGON( ( (0 0,4 0,4 4,0 4,0 0), (1 1,2 1,2 2,1 2,1 1) ), ( (-1 -1,-1 -2,-2 -2,-2 -1,-1 -1) ) )</li><li> GEOMETRYCOLLECTION(POINT(2 3), LINESTRING(2 3,3 4) )</li></ul>
+<p>С бинарным представлением чуть позже мы будем работать с помощью библиотеки cl-ewkb. 
+</p>
+<p>Кроме того PostGIS поддерживает текстовые вывод в таких форматах как:
+</p><ul><li> GeoJSON</li><li> GML</li><li> KML</li><li> SVG</li><li> GeoHash</li></ul>
+</div><div class="chapter" id="&#x421;&#x440;&#x430;&#x432;&#x43D;&#x435;&#x43D;&#x438;&#x44F;"><h3>Сравнения</h3>
+
+<p>Понятное дело, что мы захотим выбирать определенные геометрические объекты из базы данных, и нам нужно их уметь с чем-то сравнивать. Для этого PostGIS предоставляет несколько операторов и функций.
+</p>
+<p>Операторы:</p><pre>&amp;&amp; - Возвращает TRUE если ограничивающая рамка A пересекается c рамкой B.<br/>&amp;&lt; - Возвращает TRUE если ограничивающая рамка A пересекается или левее рамки B.<br/>&amp;&lt;| - Возвращает TRUE если ограничивающая рамка A пересекается или ниже рамки B.<br/>&amp;&gt; - Возвращает TRUE если ограничивающая рамка A пересекается или правее рамки B.<br/>&lt;&lt; - Возвращает TRUE если ограничивающая рамка A строго слева от рамки B.<br/>&lt;&lt;| - Возвращает TRUE если ограничивающая рамка A строго ниже рамки B.<br/>= - Возвращает TRUE если ограничивающая рамка A совпадает с рамкой B.<br/>&gt;&gt; - Возвращает TRUE если ограничивающая рамка A строго правее рамки B.<br/>@ - Возвращает TRUE если ограничивающая рамка A содержится в рамке B.<br/>|&amp;&gt; - Возвращает TRUE если A's ограничивающая рамка пересекается или выше рамки B.<br/>|&gt;&gt; - Возвращает TRUE если A's ограничивающая рамка строго выше рамки B.<br/>~ - Возвращает TRUE если ограничивающая рамка A содержит рамку B.<br/>~= - Возвращает TRUE если A's ограничивающая рамка совпадает с рамкой B.<br/></pre>
+<p>Функции можно посмотреть здесь, но они в рамках статьи не понядобятся:
+</p>
+<p> <a href="http://postgis.org/documentation/manual-1.5/reference.html#Spatial_Relationships_Measurements">http://postgis.org/documentation/manual-1.5/reference.html#Spatial_Relationships_Measurements</a>.
+</p>
+</div><div class="chapter" id="&#x41F;&#x440;&#x435;&#x43E;&#x431;&#x440;&#x430;&#x437;&#x43E;&#x432;&#x430;&#x43D;&#x438;&#x44F;"><h3>Преобразования</h3>
+
+<p>Функции можно посмотреть здесь: <a href="http://postgis.org/documentation/manual-1.5/reference.html#Geometry_Editors">http://postgis.org/documentation/manual-1.5/reference.html#Geometry_Editors</a>.
+</p>
+<p>Из них нам могло бы понадобиться две функции для перемещения и для масштабирования, но кто-то из программистов PostGIS подумал за нас и предоставил одну большую функцию:
+</p>
+<p>geometry <a href="http://postgis.org/documentation/manual-1.5/ST_TransScale.html">ST_TransScale</a>(geometry geomA, float deltaX, float deltaY, float XFactor, float YFactor);
+</p>
+<p>Переносит объект на deltaX по X, на deltaY по Y, и умножает(масштабирует) на XFactor значения абсциссы, на YFactor значения ординаты.
+</p>
+</div></div><div class="chapter" id="&#x418;&#x43D;&#x434;&#x435;&#x43A;&#x441;&#x44B;"><h3>Индексы</h3>
+
+<p>Индексы служат интструментом ускорения поиска. В нашем случае используются GiST тип индексов. Данный тип индексов используется только для функций/операторов сравнения, которые используют ограничивающие рамки. Например, индекс будет использоваться для оператора &amp;&amp;, и не будет при вычислении отношения: длина LINESTRING &gt; 1000.
+</p>
+<p>Данной информации нам пока достаточно.
+</p>
+</div></div><div class="chapter" id="&#x420;&#x430;&#x437;&#x432;&#x435;&#x440;&#x442;&#x44B;&#x432;&#x430;&#x43D;&#x438;&#x435;"><h3>Развертывание</h3>
+
+<p>Нужно было бы начать со скучной длительной истории о развертывании PostGIS'а, но мне повезло. Я натолкнулся на гостевой доступ к базе данных, которая, кроме вышеупомянутого расширения, еще и содержит географические данные стран бСССР. Данные предоставлены проектом <a href="http://www.openstreetmap.org/">OpenStreetMap</a> (далее OSM). OSM некоторое время назад мигрировал с MySql на Postgres и, еще не успев применить PostGIS, хранит данные как есть (колонки latitude и longitude).
+Gis-lab'овцы импортируют часть данных из OSM с помощью программы osm2pgsql, которая и создает PostGIS объекты.
+</p>
+<p>Сначала расскажу про модель данных, используемую в OSM. Она очень простая.
+</p>
+</div><div class="chapter" id="OpenStreetMap"><h3>OpenStreetMap</h3>
+
+<p><strong>Ноды:</strong> Точки используемые для пометок определенных мест или для соединения сегментов.
+</p>
+<p><strong>Пути:</strong> Упорядоченный список нод для отображения сегментов линии. Используется для дорог, путей и т.д.
+</p>
+<p><strong>Закрытые пути (полигоны):</strong> закрытые пути - это закольцованная линия. Используется для отображения парков, озер, островов, зданий и т.д.
+</p>
+<p><strong>Отношения:</strong> Когда различные пути соединены между собой, но не представляют один и тот же физический объект, используется отношение для описании функции каждого из пути. Они используются для описания таких вещей, как велодорожки, "turn restrictions" и участки с отверстиями.
+</p>
+<p><img alt="&#x418;&#x437;&#x43E;&#x431;&#x440;&#x430;&#x436;&#x435;&#x43D;&#x438;&#x435;" src="http://wiki.openstreetmap.org/w/images/3/33/Nodes-ways-closedways.PNG"/>
+</p>
+<p>Данные объекты имеют <strong>теги</strong>. <strong>Теги</strong> выполняют описательную роль, используются при визуализации карты для стилизации объектов и создания подписей, а также при поиске объектов в базе данных. 
+</p>
+<p>Подробнее: <a href="http://wiki.openstreetmap.org/wiki/Beginners_Guide_1.3">http://wiki.openstreetmap.org/wiki/Beginners_Guide_1.3</a>.
+</p>
+</div><div class="chapter" id="OpenStreetMap 2 PostGIS"><h3>OpenStreetMap 2 PostGIS</h3>
+
+<p>Эскпортирование из OSM осуществляется в xml файл. Импортирование из данного файла в Postgresql/PostGIS базу данных выполняется программой osm2pgsql.
+Вот небольшое описание схемы импортирования.
+Взято здесь: <a href="http://wiki.openstreetmap.org/wiki/Osm2pgsql/schema">http://wiki.openstreetmap.org/wiki/Osm2pgsql/schema</a>.
+</p>
+<p>Нижеперечисленные таблицы содержат географические данные:
+</p><ul><li> <strong>osm_line:</strong> содержит все импортированные <strong>пути</strong>.</li><li> <strong>osm_polygon:</strong> содержит все импортированные <strong>полигоны</strong>.</li><li> <strong>osm_point:</strong> содержит все импортированные <strong>ноды</strong> с тэгами.</li><li> <strong>osm_roads:</strong> содержит подмножество '<strong>osm_line</strong>' предназначенное для низкого разрешения. Выборка производится в соответствии с тэгами (какими не известно).</li></ul>
+<p>Каждая из таблиц имеет столбец <strong>way</strong>, который содержит геометрические данные. По два индекса созданы для каждой из таблиц: один на столбец <strong>osm_id</strong> и один на <strong>way</strong>. Координаты геометрических объектов в проекции EPSG:900913 AKA G00GlE.
+<em>Примечание. На самом деле используется проекция указанная в столбце srid таблицы geometry_columns. В нашем случае это <a href="http://spatialreference.org/ref/epsg/4326/">EPSG:4326</a>. Просмотреть все возможные проекции можно в таблице spatial_ref_sys.</em>
+</p>
+<p>Отношения напрямую не импортируются, а представляют собой несколько строк в таблице <strong>osm_line</strong>.
+</p>
+</div><div class="chapter" id="gis-lab.info"><h3>gis-lab.info</h3>
+
+<p>Нам понадобится quicklisp, <a href="http://lisper.ru/wiki/libraries:postmodern">postmodern</a>, cl-ewkb, и vecto. <a href="http://lisper.ru/wiki/libraries:quicklisp">quicklisp скачайте и установите</a>. Уже в slime разрешите зависимости.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_mapc_.htm" class="symbol">mapcar</a> #'ql:quickload '<span class="paren2">(<span class=""><span class="keyword">:postmodern</span> <span class="keyword">:cl-ewkb</span> <span class="keyword">:vecto</span></span>)</span></span>)</span><br/></pre>
+
+<p>Сервер баз данных запущен на gis-lab.info. Подключимся к нему:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_in_pkg.htm" class="symbol">in-package</a> <span class="keyword">:postmodern</span></span>)</span> <br/><span class="paren1">(<span class="">connect-toplevel <span class="string">"osm"</span> <span class="string">"guest"</span> <span class="string">"guest"</span> <span class="string">"gis-lab.info"</span></span>)</span><br/></pre>
+
+<p>Можете просмотреть список таблиц:
+</p>
+<pre class="code"><span class="paren1">(<span class="">list-tables</span>)</span><br/></pre>
+
+<p>Их будет много, не обращайте внимания. Нам понадобяться лишь несколько из них. Метаданные о "геометрических" столбцах хранятся в таблице geometry_columns:
+</p>
+<pre class="code"><span class="paren1">(<span class="">query <span class="paren2">(<span class=""><span class="keyword">:select</span> '<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> <span class="keyword">:from</span> 'geometry_columns</span>)</span></span>)</span><br/></pre>
+
+<p>Так неудобно, не видно названий столбцов. Давайте так:
+</p>
+<pre class="code"><span class="paren1">(<span class="">query <span class="paren2">(<span class=""><span class="keyword">:select</span> '<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> <span class="keyword">:from</span> 'geometry_columns</span>)</span> <span class="keyword">:plists</span></span>)</span><br/></pre>
+
+<p>Предыдущий вариант также не удобен, давайте так.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defpar.htm" class="symbol"><i><span class="symbol">defvar</span></i></a> headers <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_mapc_.htm" class="symbol">mapcar</a> <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_lambda.htm" class="symbol"><i><span class="symbol">lambda</span></i></a> <span class="paren4">(<span class="">x</span>)</span> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_car_c.htm" class="symbol">car</a> x</span>)</span></span>)</span> <span class="paren3">(<span class="">table-description 'geometry_columns</span>)</span></span>)</span></span>)</span><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defpar.htm" class="symbol"><i><span class="symbol">defvar</span></i></a> rows <span class="paren2">(<span class="">query <span class="paren3">(<span class=""><span class="keyword">:select</span> '<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_st.htm" class="symbol">*</a> <span class="keyword">:from</span> 'geometry_columns</span>)</span></span>)</span></span>)</span><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a> <span class="string">"~{ ~{ ~19&lt; ~A ~&gt; ~^|~} ~% ~}"</span> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_cons.htm" class="symbol">cons</a> headers rows</span>)</span></span>)</span><br/></pre>
+
+<p>Вот они таблицы:
+</p><table><tbody><tr><th>f_table_catalog </th><th>f_table_schema </th><th>f_table_name </th><th>f_geometry_column </th><th>coord_dimension </th><th>srid </th><th>type</th></tr><tr><td class="centeralign">                </td><td class="leftalign">public         </td><td class="leftalign">all_bounds   </td><td class="leftalign">the_geom          </td><td class="leftalign">2               </td><td>4326 </td><td>MULTIPOLYGON</td></tr><tr><td class="centeralign">                </td><td class="leftalign">public         </td><td class="leftalign">osm_point    </td><td class="leftalign">way               </td><td class="leftalign">2               </td><td>4326 </td><td>POINT</td></tr><tr><td class="centeralign">                </td><td class="leftalign">public         </td><td class="leftalign">osm_line     </td><td class="leftalign">way               </td><td class="leftalign">2               </td><td>4326 </td><td>LINESTRING</td></tr><tr><td class="centeralign">                </td><td class="leftalign">public         </td><td class="leftalign">osm_polygon  </td><td class="leftalign">way               </td><td class="leftalign">2               </td><td>4326 </td><td>GEOMETRY</td></tr><tr><td class="centeralign">                </td><td class="leftalign">public         </td><td class="leftalign">osm_roads    </td><td class="leftalign">way               </td><td class="leftalign">2               </td><td>4326 </td><td>LINESTRING</td></tr></tbody></table>
+
+<p>Я хотел бы обратить внимание на проделанную Марижном работу. Пакет S-SQL позволяет записать SQL запрос в терминах и синтаксисе лиспа. Keyword'ы представляют собой ключевые слова SQL, символы транслируются в SQL идентификаторы, ключевые слова в начале списков - в вызовы функций или применения операторов. Подробности вы можете узнать в переводе руководства к данному пакету: <a href="/wiki/libraries:postmodern#%d0%a1%d0%bf%d1%80%d0%b0%d0%b2%d0%be%d1%87%d0%bd%d0%be%d0%b5%20%d1%80%d1%83%d0%ba%d0%be%d0%b2%d0%be%d0%b4%d1%81%d1%82%d0%b2%d0%be%20S-SQL">./libraries%3Apostmodern#%D0%A1%D0%BF%D1%80%D0%B0%D0%B2%D0%BE%D1%87%D0%BD%D0%BE%D0%B5%20%D1%80%D1%83%D0%BA%D0%BE%D0%B2%D0%BE%D0%B4%D1%81%D1%82%D0%B2%D0%BE%20S-SQL</a>. Одним из плюсов S-SQL является тот факт, s-выражения получаются структурированными, в отличии от строкового SQL запроса. Это позволяет автоматически форматировать их, и облегчает визуальное "проигрывание" кода.
+</p>
+<p>Теперь давайте глянем на таблицу путей для большого масштаба поближе:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_format.htm" class="symbol">format</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a> <span class="string">"~:{ ~A ~% ~}"</span> <span class="paren2">(<span class="">table-description 'osm_roads</span>)</span></span>)</span><br/>" osm_id <br/>
+  note<br/>
+.....<br/>
+  wood <br/>
+  way <br/>
+ "<br/></pre>
+
+<p>Под многоточием понимается список столбцов. Для каждого тега для объекта, представленного в таблице, заведен отдельный столбец. Логическое значение тега можно просмотреть по ссылке <a href="http://wiki.openstreetmap.org/wiki/Key">http://wiki.openstreetmap.org/wiki/Key</a>:TAGNAME.
+Например, граница государства имеет тег <a href="http://wiki.openstreetmap.org/wiki/Key:boundary">boundary</a> со значением равным *adminstrative*. При этом граница именно государства иммет административный уровень (тег <a href="http://wiki.openstreetmap.org/wiki/Key:admin_level#admin_level">admin_level</a>) равный двум. А границы подчиненных государству административных територий могут иметь admin_level от 3 до 10.
+</p>
+<p>Как вы помните, индексы созданы только для столбцов *osm_id* и *way*. Засчет последнего индекса мы с легкостью может попросить данные, пересекающиеся с некоторым квадратом. Например, данные между 27 и 28 долготами и 54 и 55 широтами можно получить таким запросом.
+</p>
+<pre class="code"><span class="comment">;; SELECT way FROM osm_roads WHERE way &amp;&amp; ST_GeometryFromText 'LINESTRING(27.0 54.0, 28.0 55.0)'<br/></span><span class="paren1">(<span class="">query <span class="paren2">(<span class=""><span class="keyword">:select</span> 'way <span class="keyword">:from</span> 'osm_roads <span class="keyword">:where</span> <span class="paren3">(<span class=""><span class="keyword">:&amp;&amp;</span> 'way <span class="paren4">(<span class=""><span class="keyword">:ST_GeometryFromText</span> <span class="string">"LINESTRING(27.0 54.0, 28.0 55.0)"</span></span>)</span></span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>Оператор пересечения &amp;&amp; находит ограничивающие рамки левого и правого объектов и возвращает T, если рамки пересекаются. Мы могли бы использовать функцию ST_Intersects, но я хочу показать, как Postmodern S-SQL можно научить ранее неизвестным операторам. Сейчас он, понятное дело, не работает, так как модуль S-SQL ничего о нем не знает. Решение заключается в регистрации нового оператора:
+</p>
+<pre class="code"><span class="paren1">(<span class="">register-sql-operators <span class="keyword">:2+-ary</span> <span class="keyword">:&amp;&amp;</span></span>)</span><br/></pre>
+
+<p>Вторым аргументом мы указали "арность" оператора, в данном случае оператор имеет смысл только при двух аргументах. Так как postmodern не имеет символа строгой 2-арности, используем "2 и более арность".
+</p>
+<p>Мы использовали LINESTRING, который представляет диагональ квадрата, которым мы и охватываем необходимые данные.
+</p>
+<p>Но не торопитесь, то, что мы получили - это просто внутреннее представление геометрического типа PostGIS. OpenGIS стандарт предполагает, что если мы хотим получить текстовый формат, мы должны преобразовать данные функцией ST_AsText. Но опять не торопитесь, у нас нет парсера текстового представления, есть только парсер бинарного в пакете cl-ewkb. Поэтому мы должны преобразовать результат SQL функцией ST_AsBinary, а затем уже в lisp-е полученный список отобразить распарсив well-known binary данные.
+</p>
+<p>Теперь вопрос касаемый рисования. Данные мы получим в квадрате (27.0 54.0, 28.0 55.0). Но библиотека vecto позволяет рисовать объекты, координаты которых целые числа. Для этого мы можем на SQL стороне масштабировать изображение. Я предлагаю увеличить в 1000 раз, соответственно в будущем размер холста у нас будет также 1000x1000, а также предлагаю сместить полученные объекты на начало координат. Все это производится функцией ST_TransScale:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defpar.htm" class="symbol"><i><span class="symbol">defvar</span></i></a> objects<br/>            <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_mapc_.htm" class="symbol">mapcar</a> <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_lambda.htm" class="symbol"><i><span class="symbol">lambda</span></i></a> <span class="paren4">(<span class="">x</span>)</span><br/>                      <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_list.htm" class="symbol">list</a> <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_car_c.htm" class="symbol">car</a> x</span>)</span><br/>                            <span class="paren5">(<span class="">cl-ewkb:decode <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_car_c.htm" class="symbol">cadr</a> x</span>)</span></span>)</span></span>)</span></span>)</span><br/>                    <span class="paren3">(<span class="">query <span class="paren4">(<span class=""><span class="keyword">:select</span> 'name <br/>                                               <span class="paren5">(<span class=""><span class="keyword">:ST_AsBinary</span> <br/>                                                <span class="paren6">(<span class=""><span class="keyword">:ST_TransScale</span> 'way -27.0 -54.0 1000 1000</span>)</span></span>)</span><br/>                                               <span class="keyword">:from</span> 'osm_roads<br/>                                               <span class="keyword">:where</span> <span class="paren5">(<span class=""><span class="keyword">:&amp;&amp;</span> 'way<br/>                                                           <span class="paren6">(<span class=""><span class="keyword">:ST_GeometryFromText</span> <span class="string">"LINESTRING(27.0 54.0, 28.0 55.0)"</span></span>)</span></span>)</span></span>)</span></span>)</span></span>)</span></span>)</span><br/></pre>
+
+
+<p><strong>SQL уровень</strong></p><ul><li> выбираем объекты, геометрия которых пересекаеться с квадратом bottom-left = 27.0 54.0 top-right = 28.0 55.0</li><li> перемещаем вектором (-27.0 -54.0)</li><li> увеличиваем вектором (1000 1000)</li><li> отображаем объекты в well-known binary.</li></ul>
+<p><strong>LISP уровень</strong></p><ul><li> отображаем объекты из well-known binary в lisp струкутры.</li></ul>
+<p>Мы получаем столбец бинарных данных, пропускаем его через функцию декодирования cl-ewkb:decode и получаем вектор структур, которые нам надо отрисовать.
+</p>
+</div><div class="chapter" id="&#x420;&#x438;&#x441;&#x43E;&#x432;&#x430;&#x43D;&#x438;&#x435;"><h3>Рисование</h3>
+
+<p>Итак, у нас есть массив структур cl-ewkb:line-string, каждая из которых в свою очередь содержит массив структур cl-ewkb:point-primitive. Последняя содержит в себе координаты.
+</p>
+<p>Сначала я хотел рисовать с помощью библиотеки cl-svg и даже начал <a href="/wiki/libraries:cl-svg">переводить руководство</a>. Данная библиотека позволяет создавать векторную графику в формате  <a href="http://www.w3.org/Graphics/SVG/">SVG</a>. Данный формат - это обычный xml, и библиотека по сути генерирует текстовый файл. Но когда я столкнулся с необходимостью <a href="http://www.w3.org/TR/SVG/coords.html#GeographicCoordinates">переноса/поворота системы координат для географического представления</a>, энтузиазм резко пропал.
+</p>
+<p>Тогда я обратился к библиотеке <a href="http://www.xach.com/lisp/vecto/">vecto</a>. Что интересно, это pure-lisp решение включая зависимости, и у нас будет шанс оценить прикладную скорость реализации common lisp'а. Ну ее я собственно быстренько <a href="/wiki/libraries:vecto">перевел</a>, качество средненькое получилось. Данная библиотека позволяет рисовать из нижнего левого угла, умеет рисовать текст, ну и этого нам пока хватит.
+</p>
+<p>Повторюсь, с символом objects у нас связан вектор геометирческих объектов и их подписей. Попробуем их отрисовать.
+</p>
+<p>Экспортируем символ objects из postmodern, перейдем в пакет vecto, определим холст с помощью макроса with-canvas:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_export.htm" class="symbol">export</a> 'objects</span>)</span><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_in_pkg.htm" class="symbol">in-package</a> <span class="keyword">:vecto</span></span>)</span><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defpar.htm" class="symbol"><i><span class="symbol">defvar</span></i></a> objects postmodern:objects</span>)</span><br/><span class="paren1">(<span class=""><i><span class="symbol">with-canvas</span></i> <span class="paren2">(<span class=""><span class="keyword">:width</span> 1000 <span class="keyword">:height</span> 1000</span>)</span><br/>....<br/></span>)</span><br/></pre>
+
+<p>Загрузим шрифт:
+</p>
+<pre class="code"><p>....<br/>
+             <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren2">(<span class=""><span class="paren3">(<span class="">font <span class="paren4">(<span class="">get-font <span class="string">"/usr/share/fonts/TTF/times.ttf"</span></span>)</span></span>)</span></span>)</span><br/>....<br/></span></span></p></pre>
+
+<p>Установим некоторые параметры рисования (цвет, ширину линии, размер шрифта):
+</p>
+<pre class="code"><p>....<br/>
+               <span class="paren1">(<span class="">set-rgb-stroke 1 0 0</span>)</span><br/>
+               <span class="paren1">(<span class="">set-line-width 1</span>)</span><br/>
+               <span class="paren1">(<span class="">set-font font 14</span>)</span><br/>
+....<br/></p></pre>
+
+<p>Произведем итерацию по объектам полученным из базы данных:
+</p>
+<pre class="code"><p>....<br/>
+               <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_map.htm" class="symbol">map</a> '<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_vector.htm" class="symbol">vector</a> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_lambda.htm" class="symbol"><i><span class="symbol">lambda</span></i></a> <span class="paren3">(<span class="">object</span>)</span> <br/>....<br/>                    objects</span>)</span><br/>....<br/></span></span></p></pre>
+
+<p>В анонимной функции нам необходимо создать новый контур, в месте его создания нарисуем подпись:
+</p>
+<pre class="code"><p>....<br/>
+                              <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren2">(<span class=""><span class="paren3">(<span class="">point <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_elt.htm" class="symbol">elt</a> <span class="paren5">(<span class="">cl-ewkb:line-string-points-primitive <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_car_c.htm" class="symbol">cadr</a> object</span>)</span></span>)</span> 0</span>)</span></span>)</span></span>)</span><br/>                                <span class="paren2">(<span class="">move-to <br/>                                 <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_floorc.htm" class="symbol">round</a> <span class="paren4">(<span class="">cl-ewkb:point-primitive-x point</span>)</span></span>)</span><br/>                                 <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_floorc.htm" class="symbol">round</a> <span class="paren4">(<span class="">cl-ewkb:point-primitive-y point</span>)</span></span>)</span></span>)</span><br/>                                <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_when_.htm" class="symbol">when</a> <span class="paren3">(<span class="">postmodern:coalesce <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_car_c.htm" class="symbol">car</a> object</span>)</span></span>)</span><br/>                                  <span class="paren3">(<span class="">draw-string <br/>                                   <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_floorc.htm" class="symbol">round</a> <span class="paren5">(<span class="">cl-ewkb:point-primitive-x point</span>)</span></span>)</span><br/>                                   <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_floorc.htm" class="symbol">round</a> <span class="paren5">(<span class="">cl-ewkb:point-primitive-y point</span>)</span></span>)</span> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_car_c.htm" class="symbol">car</a> object</span>)</span></span>)</span></span>)</span><br/>                                </span>)</span><br/>
+.....<br/></p></pre>
+
+<p>Функция postmodern:coalesce возвращает первый не-:NULL (именно keyword) аргумент. Если аргумент не найден она возвращает NULL.
+</p>
+<p>В этой же анонимной функции рисуем все линию. Напомню, что в SQL запросе мы переместили и смасштабировали координты объектов, сейчас нам необходимо просто их округлить:
+</p>
+<pre class="code"><p>....<br/>
+                              <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_map.htm" class="symbol">map</a> '<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_vector.htm" class="symbol">vector</a> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_lambda.htm" class="symbol"><i><span class="symbol">lambda</span></i></a> <span class="paren3">(<span class="">point</span>)</span> <br/>                                             <span class="paren3">(<span class="">line-to <br/>                                              <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_floorc.htm" class="symbol">round</a> <span class="paren5">(<span class="">cl-ewkb:point-primitive-x point</span>)</span></span>)</span><br/>                                              <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_floorc.htm" class="symbol">round</a> <span class="paren5">(<span class="">cl-ewkb:point-primitive-y point</span>)</span></span>)</span></span>)</span></span>)</span><br/>                                   <span class="paren2">(<span class="">cl-ewkb:line-string-points-primitive <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_car_c.htm" class="symbol">cadr</a> object</span>)</span></span>)</span></span>)</span><br/>
+....<br/></p></pre>
+
+<p>В ней же фиксируем результаты:
+</p>
+<pre class="code"><p>....<br/>
+                              <span class="paren1">(<span class="">stroke</span>)</span>)<br/>
+....<br/></p></pre>
+
+<p>Теперь сохраняем результат в png файл:
+</p>
+<pre class="code"><p>....<br/>
+               <span class="paren1">(<span class="">save-png <span class="string">"test.png"</span></span>)</span>))<br/></p></pre>
+
+
+<p>Весь блок кода ответсвенный за отрисовку:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_export.htm" class="symbol">export</a> 'objects</span>)</span><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_in_pkg.htm" class="symbol">in-package</a> <span class="keyword">:vecto</span></span>)</span><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defpar.htm" class="symbol"><i><span class="symbol">defvar</span></i></a> objects postmodern:objects</span>)</span><br/><span class="paren1">(<span class=""><i><span class="symbol">with-canvas</span></i> <span class="paren2">(<span class=""><span class="keyword">:width</span> 1000 <span class="keyword">:height</span> 1000</span>)</span><br/>             <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren3">(<span class=""><span class="paren4">(<span class="">font <span class="paren5">(<span class="">get-font <span class="string">"/usr/share/fonts/TTF/times.ttf"</span></span>)</span></span>)</span></span>)</span><br/>               <span class="paren3">(<span class="">set-rgb-stroke 1 0 0</span>)</span><br/>               <span class="paren3">(<span class="">set-line-width 1</span>)</span><br/>               <span class="paren3">(<span class="">set-font font 16</span>)</span><br/>               <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_map.htm" class="symbol">map</a> '<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_vector.htm" class="symbol">vector</a> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_lambda.htm" class="symbol"><i><span class="symbol">lambda</span></i></a> <span class="paren5">(<span class="">object</span>)</span> <br/>                              <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren6">(<span class=""><span class="paren1">(<span class="">point <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_elt.htm" class="symbol">elt</a> <span class="paren3">(<span class="">cl-ewkb:line-string-points-primitive <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_car_c.htm" class="symbol">cadr</a> object</span>)</span></span>)</span> 0</span>)</span></span>)</span></span>)</span><br/>                                <span class="paren6">(<span class="">move-to <br/>                                 <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_floorc.htm" class="symbol">round</a> <span class="paren2">(<span class="">cl-ewkb:point-primitive-x point</span>)</span></span>)</span><br/>                                 <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_floorc.htm" class="symbol">round</a> <span class="paren2">(<span class="">cl-ewkb:point-primitive-y point</span>)</span></span>)</span></span>)</span><br/>                                <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_when_.htm" class="symbol">when</a> <span class="paren1">(<span class="">postmodern:coalesce <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_car_c.htm" class="symbol">car</a> object</span>)</span></span>)</span><br/>                                  <span class="paren1">(<span class="">draw-string <br/>                                   <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_floorc.htm" class="symbol">round</a> <span class="paren3">(<span class="">cl-ewkb:point-primitive-x point</span>)</span></span>)</span><br/>                                   <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_floorc.htm" class="symbol">round</a> <span class="paren3">(<span class="">cl-ewkb:point-primitive-y point</span>)</span></span>)</span> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_car_c.htm" class="symbol">car</a> object</span>)</span></span>)</span></span>)</span><br/>                                </span>)</span><br/>                              <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_map.htm" class="symbol">map</a> '<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_vector.htm" class="symbol">vector</a> <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_lambda.htm" class="symbol"><i><span class="symbol">lambda</span></i></a> <span class="paren1">(<span class="">point</span>)</span> <br/>                                             <span class="paren1">(<span class="">line-to <br/>                                              <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_floorc.htm" class="symbol">round</a> <span class="paren3">(<span class="">cl-ewkb:point-primitive-x point</span>)</span></span>)</span><br/>                                              <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_floorc.htm" class="symbol">round</a> <span class="paren3">(<span class="">cl-ewkb:point-primitive-y point</span>)</span></span>)</span></span>)</span></span>)</span><br/>                                   <span class="paren6">(<span class="">cl-ewkb:line-string-points-primitive <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_car_c.htm" class="symbol">cadr</a> object</span>)</span></span>)</span></span>)</span><br/>                              <span class="paren5">(<span class="">stroke</span>)</span></span>)</span><br/>                    objects</span>)</span><br/>               <span class="paren3">(<span class="">save-png <span class="string">"test.png"</span></span>)</span></span>)</span></span>)</span><br/></pre>
+
+</div><div class="chapter" id="&#x417;&#x430;&#x43A;&#x43B;&#x44E;&#x447;&#x435;&#x43D;&#x438;&#x435;"><h3>Заключение</h3>
+
+<p>Отмечу нереализованные задачи:
+</p><ul><li> Запрос только определенных гео объектов для разного масштаба.</li><li> Запрос атрибутов объектов для стиля отрисовки.</li><li> Атрибуты также влияют на z-order.</li><li> Отрисовка масштабной линейки/сетки.</li><li> Стилизованная отрисовка подписей к объектам.</li></ul>
+<p>То что получилось, конечно, представляет собой простой GIS helloworld, но несмотря на такой большой список задач, мне кажется, то, что есть - довольно неплохой результат: возможность нарисовать карту любой точки земли за 50 строчек кода:)
+</p>
+<p>Пожелания, критика приветствуются.
+</p></div></div> </div> <div class="bottom">@2009-2013 lisper.ru</div> 
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-7734690-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+ </body> </html>

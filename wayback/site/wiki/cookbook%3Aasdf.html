@@ -1,0 +1,140 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru">
+	<head>
+      	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"></meta>
+
+        <meta name="verify-v1" content="o6r5tA9qF5PflmPb3cI7rJrWpFBGTkIE9X4KU25TxiE="></meta>
+
+        <meta name="keywords" content="Common Lisp,lisp,лисп"></meta>
+
+        <link href="/css/fine/style.css" rel="stylesheet" type="text/css">
+        <link href="/css/fine/colorize.css" rel="stylesheet" type="text/css">
+	<title>cookbook:asdf</title>
+<link href="/css/fine/wiki.css" rel="stylesheet" type="text/css"></head>
+
+	<body>
+        <div class="top">
+            <div id="login">
+    <a href="/register">Регистрация</a> |
+    <a href="/login?done=http%3A%2F%2Flisper.ru%2Fwiki%2Fcookbook%3Aasdf">Войти</a>
+</div>
+        </div>
+
+        <div id="caution">
+            <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png"></img>
+        </div>
+
+        <div id="mainmenu">
+          <ul>
+<li><a href="/">Главная</a></li>
+<li><a href="/articles/">Статьи</a></li>
+<li><a href="/planet/">Планета</a></li>
+<li><a href="/forum/">Форум</a></li>
+<li><a href="/apps/">Сервисы</a></li>
+<li><a href="/pcl/">Practical Common Lisp</a></li>
+<li><a href="/wiki/">wiki</a></li>
+</ul>
+        </div>
+
+        <div id="content"><div class="article">
+<div class="toc">
+<div class="toc-header">Содержание</div>
+<div class="toc-body"><ul><li><div>
+<a href="#6d87a19f011653459575ceb722db3b69">ASDF</a><ul>
+<li><div><a href="#390e419fd9d63c1b935518f1816606cf">Как получить?</a></div></li>
+<li><div><a href="#5a42003be7e1a58e48f3cdc2093e65e9">Как использовать?</a></div></li>
+<li><div><a href="#4e9787831e2672bff15d5ffa5799565d">На примере CL-PPCRE</a></div></li>
+<li><div><a href="#0187f580f3ecaea7cfd36c53c678b341">CFFI</a></div></li>
+<li><div><a href="#f0a8381a32c74d412a686b4968a32fb4">Автоматическая загрузка</a></div></li>
+</ul>
+</div></li></ul></div>
+</div>
+<div class="chapter" id="6d87a19f011653459575ceb722db3b69">
+<h3>ASDF</h3>
+
+<p>ASDF или "Another System Definition Facility" это система слежения за расположением и зависимостями исходных кодов, а также - система установки пакетов. О ней стоит рассказать, хотя бы потому, что она повсеместно используется.
+</p>
+<div class="chapter" id="390e419fd9d63c1b935518f1816606cf">
+<h3>Как получить?</h3>
+
+<p>Одним файлом - <a href="http://common-lisp.net/project/asdf/asdf.lisp">asdf.lisp</a>, для большинства целей этого достаточно. Но можно получить и архив с дополнениями : <a href="http://common-lisp.net/project/asdf/asdf.tar.gz">asdf.tar.gz</a>. Для доступа к git-репозиторию:
+</p>
+<pre>$ git clone http://common-lisp.net/project/asdf/asdf.git<br></pre>
+</div>
+<div class="chapter" id="5a42003be7e1a58e48f3cdc2093e65e9">
+<h3>Как использовать?</h3>
+
+<p>Для начала нужно посмотреть, не установлен ли ASDF уже:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_provid.htm" class="symbol">require</a> 'asdf</span>)</span><br><span class="comment">; Если ASDF обнаружен, но не загружен - он загружается, функция возвращает ("ASDF")<br></span><span class="comment">; Если ASDF уже загружен (например в сеансе slime) функция вернёт NIL<br></span><span class="comment">; Но если ASDF не найден - будет ошибка<br></span></pre>
+
+<p>В SBCL ASDF установлен по умолчанию. На других реализациях - имеем третий вариант, поэтому загружаем asdf.lisp и задаём необходимые переменные:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_load.htm" class="symbol">load</a> <span class="string">".../asdf.lisp"</span></span>)</span> <span class="comment">; путь к asdf.lisp<br></span><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_load.htm" class="symbol">load</a> <span class="string">".../some-system.asd"</span></span>)</span> <span class="comment">; файл asd - основной файл для системы ASDF (как Makefile), он обычно один для пакета<br></span><span class="comment">; ИЛИ : можно определить пути по которым ASDF будет искать файлы asd<br></span><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> <span class="special">asdf:*central-registry*</span><br>    <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_list.htm" class="symbol">list</a> '<a href="http://www.lispworks.com/reference/HyperSpec/Body/v_defaul.htm" class="symbol"><span class="special">*default-pathname-defaults*</span></a><br>        #p<span class="string">"/home/dev/cl/system1/"</span><br>        #p<span class="string">"/home/dev/cl/system2/"</span></span>)</span></span>)</span><br><span class="comment">; так или иначе, после загрузки asd должно появится символическое имя пакета, по которому его можно загрузить:<br></span><span class="paren1">(<span class="">asdf:operate 'asdf:load-op <span class="keyword">:package-name</span></span>)</span> <span class="comment">; то же, что и (asdf:oos 'asdf:load-op :package-name)<br></span><span class="comment">; всё - далее можно сделать (in-packege :package-name) и использовать пакет<br></span></pre>
+
+</div>
+<div class="chapter" id="4e9787831e2672bff15d5ffa5799565d">
+<h3>На примере CL-PPCRE</h3>
+
+<p>Библиотека для работы с регулярными выражениями <a href="http://www.weitz.de/cl-ppcre/">CL-PPCRE</a> использует файл cl-ppcre.asd для установки. Допустим, директория для ваших лисп-библиотек /home/room/lisp, тогда для Clisp:
+</p>
+<pre>$ pwd<br>/home/room/lisp<br>$ wget http://common-lisp.net/project/asdf/asdf.tar.gz<br>...<br>$ tar zxvf asdf.tar.gz<br>...<br>$ wget http://www.weitz.de/files/cl-ppcre.tar.gz<br>...<br>$ tar zxvf cl-ppcre.tar.gz<br>...<br>$ ls<br>asdf/ cl-ppcre/<br>$ vi run-ppcre<br>(load "/home/room/lisp/asdf/asdf.lisp")<br>(load "/home/room/lisp/cl-ppcre/cl-ppcre.asd")<br>(asdf:oos 'asdf:load-op :cl-ppcre)<br>$ clisp -i run-ppcre<br>...<br>[1] (in-package :cl-ppcre)<br>[2]<br></pre>
+<p>В SBCL можно поступить иначе: при первом запуске
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_load.htm" class="symbol">load</a> <span class="string">"/home/room/lisp/cl-ppcre/cl-ppcre.asd"</span></span>)</span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_provid.htm" class="symbol">require</a> 'cl-ppcre</span>)</span><br></pre>
+
+<p>А после - просто:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_provid.htm" class="symbol">require</a> 'cl-ppcre</span>)</span><br></pre>
+
+</div>
+<div class="chapter" id="0187f580f3ecaea7cfd36c53c678b341">
+<h3>CFFI</h3>
+
+<p>Часто бывает, что пакет имеет зависимости  - например, чтобы поставить <a href="http://common-lisp.net/project/cffi/">CFFI</a> нужно поставить ещё три пакета. Чтобы узнать о зависимостях нужно посмотреть в cffi.asd часть :depends-on (alexandria trivial-features babel). Три перечисленых пакета зависят только друг от друга, их можно найти на CLiki. После скачивания всех четырех архивов, разархивируем их в папку с библиотеками:
+</p>
+<pre>$ wget http://common-lisp.net/project/cffi/releases/cffi_latest.tar.gz<br>$ wget http://common-lisp.net/~loliveira/tarballs/inofficial/alexandria-2008-07-29.tar.gz<br>$ wget http://common-lisp.net/project/babel/releases/babel_latest.tar.gz<br>$ wget http://common-lisp.net/~loliveira/tarballs/trivial-features/trivial-features_latest.tar.gz<br>$ tar zxvf cffi_latest.tar.gz<br>$ tar zxvf alexandria-2008-07-29.tar.gz<br>$ tar zxvf trivial-features_latest.tar.gz<br>$ tar zxvf babel_latest.tar.gz<br></pre>
+<p> и пишем такой скрипт загрузки:
+</p>
+<pre class="code"><span class="comment">;; load-cffi.lisp<br></span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_load.htm" class="symbol">load</a> <span class="string">"/.../trivial-features_0.5/trivial-features.asd"</span></span>)</span> <span class="comment">; вместо троеточия - правильный путь<br></span><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_load.htm" class="symbol">load</a> <span class="string">"/.../alexandria/alexandria.asd"</span></span>)</span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_load.htm" class="symbol">load</a> <span class="string">"/.../babel_0.3.0/babel.asd"</span></span>)</span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_load.htm" class="symbol">load</a> <span class="string">"/.../cffi_0.10.5/cffi.asd"</span></span>)</span><br><br><span class="paren1">(<span class="">asdf:oos 'asdf:load-op <span class="keyword">:trivial-features</span></span>)</span><br><span class="paren1">(<span class="">asdf:oos 'asdf:load-op <span class="keyword">:alexandria</span></span>)</span><br><span class="paren1">(<span class="">asdf:oos 'asdf:load-op <span class="keyword">:babel</span></span>)</span><br><span class="paren1">(<span class="">asdf:oos 'asdf:load-op <span class="keyword">:cffi</span></span>)</span><br></pre>
+
+</div>
+<div class="chapter" id="f0a8381a32c74d412a686b4968a32fb4">
+<h3>Автоматическая загрузка</h3>
+
+<p>Чтобы не запускать каждый раз скрипты инициализации, как load-cffi.lisp, автоматизируем загрузку пакетов. Для SBCL можно отредактировать файл .sbclrc в домашней папке - он выполняется при каждой загрузке SBCL:
+</p>
+<pre>$ kwrite ~/.sbclrc<br></pre>
+<p>Лучше помещать в него пакеты, которые действительно необходимы, чтобы не тратит время при каждом запуске.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_provid.htm" class="symbol">require</a> 'trivial-features</span>)</span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_provid.htm" class="symbol">require</a> 'alexandria</span>)</span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_provid.htm" class="symbol">require</a> 'babel</span>)</span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_provid.htm" class="symbol">require</a> 'cffi</span>)</span><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_provid.htm" class="symbol">require</a> 'cl-ppcre</span>)</span><br></pre>
+<p>Предполагается, что все пакеты уже были установлены с помощью <code>asdf:oos 'asdf:load-op</code>
+</p>
+</div>
+</div>
+</div></div>
+
+        <div class="bottom">@2009 lisper.ru</div>
+
+        <script type="text/javascript">
+
+          var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+
+          document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+
+        </script>
+
+        <script type="text/javascript">
+
+          try {
+
+          var pageTracker = _gat._getTracker("UA-7734690-1");
+
+          pageTracker._trackPageview();
+
+          } catch(err) {}
+
+        </script>
+
+    </body>
+</html>

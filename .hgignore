@@ -1,10 +1,4 @@
 syntax: glob
-build/
-*.conf
-.git
-.gitignore
-src/resources.lisp
-src/game-sources.lisp
-src/tool-sources.lisp
-src/db.fasl
-src/migrations.lisp
+wayback/download.log
+wayback/download.pid
+wayback/retry.txt

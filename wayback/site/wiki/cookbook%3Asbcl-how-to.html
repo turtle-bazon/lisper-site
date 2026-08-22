@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru"> <head> <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> <meta name="keywords" content="Common Lisp,lisp,лисп" />  <title>cookbook:sbcl-how-to</title>   <link href="/css/style.css" rel="stylesheet" type="text/css" />  <link href="/css/wiki.css" rel="stylesheet" type="text/css" />  <link href="/css/colorize.css" rel="stylesheet" type="text/css" />   </head> <body> <div class="top">  <div id="login"> <a href="/register">Регистрация</a> | <a href="/login?done=/wiki/cookbook:sbcl-how-to">Войти</a> </div>  </div> <div id="caution"> <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png" /> </div> <div id="mainmenu"> <ul>  <li> <a href="/">Главная</a> </li>  <li> <a href="/articles/">Статьи</a> </li>  <li> <a href="/planet/">Планета</a> </li>  <li> <a href="/forum/">Форум</a> </li>  <li> <a href="/apps/">Сервисы</a> </li>  <li> <a href="/pcl/">Practical Common Lisp</a> </li>  <li> <a href="/wiki/">Wiki</a> </li>  <li> <a href="/files/">Файлы</a> </li>  <li> <a href="/search">Поиск</a> </li>  </ul> </div> <div id="content">  <div class="article">
+<div class="chapter" id="&#x41F;&#x440;&#x43E;&#x431;&#x43B;&#x435;&#x43C;&#x44B; (&#x438; &#x438;&#x445; &#x440;&#x435;&#x448;&#x435;&#x43D;&#x438;&#x44F;)"><h3>Проблемы (и их решения)</h3>
+
+<div class="chapter" id="SBCL - &#x443;&#x441;&#x442;&#x430;&#x43D;&#x43E;&#x432;&#x43A;&#x430; &#x43A;&#x43E;&#x434;&#x438;&#x440;&#x43E;&#x432;&#x43A;&#x438; &#x43F;&#x43E; &#x443;&#x43C;&#x43E;&#x43B;&#x447;&#x430;&#x43D;&#x438;&#x44E;."><h3>SBCL - установка кодировки по умолчанию.</h3>
+
+<p>При работе с SBCl может возникнуть следующая проблема - при загрузке файлов (в некоторой кодировке) содержащих не стандартные знаки по отношению к кодировке используемой SBCL будет возникать ошибка:
+</p>
+<p><br/>
+</p><pre>decoding error on stream<br/>#&lt;SB-SYS:FD-STREAM<br/>  for "file ###"<br/>  {B291831}&gt;<br/>(:EXTERNAL-FORMAT ###):<br/>  the octet sequence (###) cannot be decoded.<br/>   [Condition of type SB-INT:STREAM-DECODING-ERROR]<br/></pre>
+<p><br/>
+</p>
+<p>В SBCL за кодировку используемую при загрузке файлов отвечает переменная sb-impl::*default-external-format*, по этому простейший путь решения в следующем:
+</p><ul><li> Проверить, что файлы кодируются единообразно - например, в UTF-8.</li><li> Проверить переменную sb-impl::*default-external-format*:</li></ul>
+<pre class="code"><p>CL-USER&gt; <span class="paren1">(<span class=""><i><span class="symbol">sb-impl::default-external-format</span></i></span>)</span><br/>
+:ANSI_X3.4-1968<br/><br/>;; что тоже самое:<br/>
+CL-USER&gt; sb-impl::*default-external-format*<br/>
+:ANSI_X3.4-1968<br/></p></pre>
+<ul><li> Установить этой переменной нужное значение:</li></ul>
+<pre class="code"><p>CL-USER&gt; <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> <span class="special">sb-impl::*default-external-format*</span> <span class="keyword">:UTF-8</span></span>)</span><br/>
+:UTF-8<br/></p></pre>
+<ul><li> Наконец, добавить эту строчку в ~/.sbclrc</li></ul>
+<p><strong>P.S.</strong> использовать произвольную кодировку при открытии файла можно с помощью with-open-file:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_w_open.htm" class="symbol"><i><span class="symbol">with-open-file</span></i></a> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/t_stream.htm" class="symbol">stream</a> file-name <span class="keyword">:external-format</span> #кодировка#</span>)</span><br/>  ...</span>)</span><br/></pre>
+
+</div></div></div> </div> <div class="bottom">@2009-2010 lisper.ru</div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-7734690-1");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+ </body> </html>

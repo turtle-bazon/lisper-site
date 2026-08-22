@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru">
+	<head>
+      	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"></meta>
+
+        <meta name="verify-v1" content="o6r5tA9qF5PflmPb3cI7rJrWpFBGTkIE9X4KU25TxiE="></meta>
+
+        <meta name="keywords" content="Common Lisp,lisp,лисп"></meta>
+
+        <link href="/css/fine/style.css" rel="stylesheet" type="text/css">
+        <link href="/css/fine/colorize.css" rel="stylesheet" type="text/css">
+	<title>несколько вопросов по cl-pdf/cl-typesetting</title>
+<link rel="alternate" type="application/rss+xml" title="Тема  'несколько вопросов по cl-pdf/cl-typesetting' - RSS-лента" href="/forum/rss/threads/65.rss">
+<link href="/css/fine/forum.css" rel="stylesheet" type="text/css">
+<link href="/css/fine/jquery.wysiwyg.css" rel="stylesheet" type="text/css">
+<script src="/js/jquery.js" type="text/javascript"></script><script src="/js/jquery.wysiwyg.js" type="text/javascript"></script><script src="/js/forum.js" type="text/javascript"></script></head>
+
+	<body>
+        <div class="top">
+            <div id="login">
+    <a href="/register">Регистрация</a> |
+    <a href="/login?done=http%3A%2F%2Flisper.ru%2Fforum%2Fthread%2F65">Войти</a>
+</div>
+        </div>
+
+        <div id="caution">
+            <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png"></img>
+        </div>
+
+        <div id="mainmenu">
+          <ul>
+<li><a href="/">Главная</a></li>
+<li><a href="/articles/">Статьи</a></li>
+<li><a href="/planet/">Планета</a></li>
+<li><a href="/forum/">Форум</a></li>
+<li><a href="/apps/">Сервисы</a></li>
+<li><a href="/pcl/">Practical Common Lisp</a></li>
+<li><a href="/wiki/">wiki</a></li>
+</ul>
+        </div>
+
+        <div id="content"><div id="forum-nav-panel">
+<a class="rss-link" href="/forum/rss/threads/65.rss">RSS</a><ul>
+<li><a href="/forum/">Список форумов</a></li>
+<li><a href="/forum/common-lisp">Common Lisp</a></li>
+<li><strong>несколько вопросов по cl-pdf/cl-typesetting</strong></li>
+</ul>
+</div>
+<div class="thread">
+<div class="topic">
+<div><big>несколько вопросов по cl-pdf/cl-typesetting</big></div>
+<div class="topic-info"><span class="topic-author">Автор: <strong>archimag</strong> - 25.09.2009 16:05, Сообщений - 8</span></div>
+<div class="topicbody">
+<p>Делаю перевод PCL в формате PDF, возникло несколько проблем, которые я пока не знаю как разрешить:<br></p>
+<ul>
+<li>Как вставлять в документ гиперссылки (pdf это позволяет)? </li>
+<li>Как создать outline (bookmark) для произвольного места внутри страницы? На главы я делаю с помощью pdf:register-page-reference, но это получается только закладка на страницу. Для создания закладок на подразделы надо уметь создавать закладки внутри страницы.</li>
+<li>Возможно кому-то уже приходилось создавать с помощью cl-typesetting таблицы в "стиле html". Для имеющихся в cl-typesetting таблиц надо точно указывать ширину столбцов и нельзя объединять ячейки.<br>
+</li>
+</ul>
+</div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>allchemist</strong> - 25.09.2009 19:20</span></div>
+<div class="replybody"><p>немного не в тему, но почему из dokuwiki сразу в pdf, а не в latex и потом pdf?<br>Взять, например, DokuTeXit.<br>Наличие tex-версии дает больше возможностей для верстки книжного варианта.</p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>archimag</strong> - 25.09.2009 19:35</span></div>
+<div class="replybody"><p>&gt; немного не в тему, но почему из dokuwiki сразу в pdf, а не в latex и потом pdf?<br>Почему нет? Во всяком случае, желающих сделать по другому пока не нашлось :)</p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>allchemist</strong> - 25.09.2009 20:35</span></div>
+<div class="replybody"><p>Тогда трэбую .wiki-файлы, хотя бы один на пробу<br>может что и получится</p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>archimag</strong> - 25.09.2009 21:33</span></div>
+<div class="replybody">
+<span style="font-style: italic;">&gt; Тогда трэбую .wiki-файлы, хотя бы один на пробу</span><br><br>Блин, ну при чём здесь я то? Заходим на http://pcl.catap.ru/, там ссылка на снапшот...</div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>allchemist</strong> - 25.09.2009 23:09</span></div>
+<div class="replybody"><p>да, я как-то забыл про оригинал...<br><br>попробовал завести dokuTeXit:<br>он потребовал сам dokuwiki, который в свою очередь потребовал апач и пишапи.<br>после долгих компиляний оно вывалилось с какой-то левой ошибкой.<br><br>на следующей неделе будет доступ к машинке с арчем, там такой проблемы не будет</p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>archimag</strong> - 25.09.2009 23:29</span></div>
+<div class="replybody">
+<span style="font-style: italic;">&gt; после долгих компиляний оно вывалилось с какой-то левой ошибкой</span><br><br>У меня PDF делают 200 строк кода, некоторым не понравилось, но я думаю, что проще всего таки добить вариант с cl-typesetting</div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>archimag</strong> - 26.09.2009 03:18</span></div>
+<div class="replybody"><p>Проблему "<span style="font-style: italic;">outline (bookmark) для произвольного места внутри страницы</span>" я победил, пришлось, правда, почитать спецификацию на PDF и покапаться в исходниках. Вообще, система поддержки outline в cl-pdf никуда не годится...</p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>archimag</strong> - 26.09.2009 20:42</span></div>
+<div class="replybody"><p>Проблему с таблицами тоже победил, алгоритм автоматического вычисления ширины столбцов уместился в 50 строк, я думал будет сложнее..</p></div>
+</div>
+</div></div>
+
+        <div class="bottom">@2009 lisper.ru</div>
+
+        <script type="text/javascript">
+
+          var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+
+          document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+
+        </script>
+
+        <script type="text/javascript">
+
+          try {
+
+          var pageTracker = _gat._getTracker("UA-7734690-1");
+
+          pageTracker._trackPageview();
+
+          } catch(err) {}
+
+        </script>
+
+    </body>
+</html>

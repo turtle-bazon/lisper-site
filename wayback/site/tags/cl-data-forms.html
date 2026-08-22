@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html> <head> <title>archimag: cl-data-forms</title> <link rel="stylesheet" href="/static/mirev/css/style.css"> <link rel="stylesheet" href="/static/mirev/css/prettify.css"> <link rel="alternate" type="application/atom+xml" title="archimag: blog entries feed" href="/feeds/atom" />  <link rel="alternate" type="application/rss+xml" title="All articles, tagged with “cl-data-forms”" href="/feeds/atom/tag/cl-data-forms" /> </head> <body> <a href="http://github.com/archimag/"> <img style="position: absolute; top: 0; left: 0; border: 0;" src="/static/archimag/image/forkme.png" alt="Fork me on GitHub"> </a> <div id="header"> <a href="/" id="blogname">archimag</a> </div> <div id="content"> <h1><a href="/feeds/atom/tag/cl-data-forms" class="bigfeed">All articles, tagged with “cl-data-forms”</a></h1> <div class="blog-post"> <h2><a href="/2013/01/20/%d0%95%d1%89%d1%91_%d0%be%d0%b4%d0%bd%d0%b0_%d0%b1%d0%b8%d0%b1%d0%bb%d0%b8%d0%be%d1%82%d0%b5%d0%ba%d0%b0_-_cl-data-forms">Ещё одна библиотека - cl-data-forms</a></h2> <div class="post-metadata"> <div class="post-published"> <a href="/2013/"> 2013 </a>, <a href="/2013/01/"> January </a> <a href="/2013/01/20/"> 20 </a> </div> <div class="post-tags"> <a href="/tags/">Tags</a>:  <a href="/tags/lisp">lisp</a> <a href="/tags/cl-data-forms">cl-data-forms</a> <a href="/tags/data-sift">data-sift</a> </div> </div> <div class="document"><p>При разработке веб-приложений есть такая неприятная вещь, как обработка форм. Вроде бы довольно тривиально, но без системного подхода превращается в какой-то мрак. Я давно облизывался на <a class="reference" href="http://wtforms.simplecodes.com/"><span>WTForms</span></a> и вот теперь имею подходящее решение - <a class="reference" href="https://github.com/archimag/cl-data-forms"><span>cl-data-forms</span></a>.</p>
+<p>В принципе, <a class="reference" href="https://github.com/archimag/cl-data-forms"><span>cl-data-forms</span></a> может быть использована не только для веб, никаких заточек под это там нет, но разработкой других приложений с пользовательским интерфейсом я пока на CL не занимаюсь.</p>
+<p>Прежде, чем рассказывать про использование <a class="reference" href="https://github.com/archimag/cl-data-forms"><span>cl-data-forms</span></a>, необходимо сказать несколько слов про <a class="reference" href="https://github.com/archimag/data-sift"><span>data-sift</span></a>. В принципе, я уже несколько раз упоминал эту библиотеку (и даже успел её использовать в <a class="reference" href="https://github.com/archimag/restas"><span>RESTAS</span></a>), но очень мало, плюс я несколько её переработал.</p>
+<p>Там, где есть взаимодействие компьютера с человеком на основе текстовых форматов, возникает проблема преобразование внутренних представлений в текстовый, понятный для человека вид, и обратно. Мне очень понравилась библиотека <a class="reference" href="http://www.jarw.org.uk/lisp/cl-data-format-validation.html"><span>cl-data-format-validation</span></a>, призванная упростить эту проблему. Но с этой библиотекой есть одна проблема - она распространяется под лицензией <a class="reference" href="http://ru.wikipedia.org/wiki/GNU_General_Public_License"><span>GPL v3</span></a>. Собственно, эта и подтолкнуло меня меня к созданию альтернативного решения под более мягкой лицензией.</p>
+<p><a class="reference" href="https://github.com/archimag/data-sift"><span>data-sift</span></a> определяет две обобщённые функции:</p>
+<ul>
+<li><p class="first">compile-parse-rule (rule &amp;key &amp;allow-other-keys)</p>
+</li>
+<li><p class="first">compile-render-rule (rule &amp;key &amp;allow-other-keys)</p>
+</li>
+</ul>
+<p><tt class="docutils literal">
+<span class="pre">compile-parse-rule</span></tt> принимает на вход правило, описывающее тип значения, и создаёт на его основе замыкание, которое может использоваться для валидации и, возможно, трансформации текстового значения, <tt class="docutils literal">
+<span class="pre">compile-render-rule</span></tt> делает совершенно обратное, т.е. возвращает функцию, которая может превратить значение в текст. Использовать это можно, например, так:</p>
+<p><div class="prettyprint linenums"><ol class="linenums">
+<li class="L0">(<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_funcal.htm" class="symbol">funcall</a> (data-sift:compile-parse-rule '<a href="http://www.lispworks.com/reference/HyperSpec/Body/t_intege.htm" class="symbol">integer</a> <span class="keyword">:min-value</span> 0 <span class="keyword">:max-value</span> 100) <span class="string">"56"</span>)</li>
+<li class="L1">
+</ol></div></p>
+<p><a class="reference" href="https://github.com/archimag/data-sift"><span>data-sift</span></a> уже включает в себя поддержку нескольких форматов данных (правда, всё это пока довольно сыро), а в своём приложении можно определить дополнительные форматы, специфичные для данного приложения. Например, так можно определить формат date, соответствующий элементу &lt;input type="date" /&gt; из HTML5:</p>
+<p><div class="prettyprint linenums"><ol class="linenums">
+<li class="L0">(<a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defmet.htm" class="symbol"><i><span class="symbol">defmethod</span></i></a> data-sift:compile-parse-rule ((rule (<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_eql.htm" class="symbol">eql</a> 'date)) &amp;key)</li>
+<li class="L1">  (alexandria:named-lambda date-parser (str)</li>
+<li class="L2">    (<a href="http://www.lispworks.com/reference/HyperSpec/Body/m_hand_1.htm" class="symbol">handler-case</a>
+</li>
+<li class="L3">        (local-time:parse-rfc3339-timestring str <span class="keyword">:allow-missing-time-part</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a>)</li>
+<li class="L4">      (<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_error.htm" class="symbol">error</a> ()</li>
+<li class="L5">        (data-sift::vfail <span class="string">"Invalid date"</span>)))))</li>
+<li class="L6">
+<li class="L7">(<a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defmet.htm" class="symbol"><i><span class="symbol">defmethod</span></i></a> data-sift:compile-render-rule ((rule (<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_eql.htm" class="symbol">eql</a> 'date)) &amp;key)</li>
+<li class="L8">  (alexandria:named-lambda date-renderer (date)</li>
+<li class="L9">    (local-time:format-timestring <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a> date <span class="keyword">:format</span> local-time:+rfc3339-format/date-only+)))</li>
+<li class="L10">
+</ol></div></p>
+<p>Теперь можно вернуться к <a class="reference" href="https://github.com/archimag/cl-data-forms"><span>cl-data-forms</span></a>. Сразу буду показывать код:</p>
+<p><div class="prettyprint linenums"><ol class="linenums">
+<li class="L0">(<i><span class="symbol">define-form-class</span></i> user-info-form ()</li>
+<li class="L1">  ((username</li>
+<li class="L2">    <span class="keyword">:initarg</span> |username|</li>
+<li class="L3">    <span class="keyword">:initform</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a>
+</li>
+<li class="L4">    <span class="keyword">:required</span> <span class="string">"Username is required"</span>
+</li>
+<li class="L5">    <span class="keyword">:label</span> <span class="string">"Username"</span>)</li>
+<li class="L6">   (email</li>
+<li class="L7">    <span class="keyword">:initarg</span> |email|</li>
+<li class="L8">    <span class="keyword">:initform</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a>
+</li>
+<li class="L9">    <span class="keyword">:stype</span> data-sift:email</li>
+<li class="L10">    <span class="keyword">:required</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a>
+</li>
+<li class="L11">    <span class="keyword">:label</span> <span class="string">"Email Address"</span>)))</li>
+<li class="L12">
+<li class="L13">(<i><span class="symbol">define-form-class</span></i> user-password-form ()</li>
+<li class="L14">  ((password</li>
+<li class="L15">    <span class="keyword">:initarg</span> |password|</li>
+<li class="L16">    <span class="keyword">:initform</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a>
+</li>
+<li class="L17">    <span class="keyword">:required</span> <span class="string">"Password is required"</span>
+</li>
+<li class="L18">    <span class="keyword">:stype</span> (<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_string.htm" class="symbol">string</a> <span class="keyword">:min-length</span> 6 <span class="keyword">:message</span> <span class="string">"Password must be at least 6 characters."</span>)</li>
+<li class="L19">    <span class="keyword">:label</span> <span class="string">"Password"</span>
+</li>
+<li class="L20">    <span class="keyword">:itype</span> <span class="string">"password"</span>)</li>
+<li class="L21">   (confirm-password</li>
+<li class="L22">    <span class="keyword">:initarg</span> |confirmPassword|</li>
+<li class="L23">    <span class="keyword">:initform</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a>
+</li>
+<li class="L24">    <span class="keyword">:itype</span> <span class="string">"password"</span>
+</li>
+<li class="L25">    <span class="keyword">:label</span> <span class="string">"Confirm password"</span>)))</li>
+<li class="L26">
+<li class="L27">(<i><span class="symbol">define-form-class</span></i> registration-form (user-info-form user-password-form)</li>
+<li class="L28">  ((birthday</li>
+<li class="L29">    <span class="keyword">:initform</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a>
+</li>
+<li class="L30">    <span class="keyword">:initarg</span> |birthday|</li>
+<li class="L31">    <span class="keyword">:stype</span> date</li>
+<li class="L32">    <span class="keyword">:label</span> <span class="string">"Birthday"</span>
+</li>
+<li class="L33">    <span class="keyword">:itype</span> <span class="string">"date"</span>)</li>
+<li class="L34">   (keep-me-signed</li>
+<li class="L35">    <span class="keyword">:initform</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a>
+</li>
+<li class="L36">    <span class="keyword">:initarg</span> |keepMeSigned|</li>
+<li class="L37">    <span class="keyword">:label</span> <span class="string">"Keep me signed-in on this computer."</span>
+</li>
+<li class="L38">    <span class="keyword">:itype</span> <span class="string">"checkbox"</span>)))</li>
+</ol></div></p>
+<p>Здесь определяется три формы:</p>
+<ul>
+<li><p class="first">user-info-form - предназначена для ввода имени пользователя и email</p>
+</li>
+<li><p class="first">user-password-form - предназначенная для ввода пароля и его подтверждения</p>
+</li>
+<li><p class="first">registration-form - включает в себя user-info-form и user-password-form, а также два дополнительных поля - день рождения и флаг "запомнить меня на этом компьютере"</p>
+</li>
+</ul>
+<p>Каждый макрос define-form-class создаёт новый класс. При описании слотов:</p>
+<ul>
+<li><p class="first">Можно использовать все те же самые параметры, что и при обычном <a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defcla.htm" class="common-lisp-entity">defclass</a>.</p>
+</li>
+<li><p class="first">Параметр :initarg в описании слота является обязательным - он используется в последующем для получения данных формы. В коде выше вместо стандартных <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_kwd.htm" class="common-lisp-entity">keyword</a>-ов я использовал экранированные символы - так получается более красивый HTML (об этом ниже).</p>
+</li>
+<li><p class="first">Параметр :requried используется для указания того, что поле является обязательным. Если указана строка, то она будет использоваться для создания сообщения об ошибке.</p>
+</li>
+<li><p class="first">В параметре :stype можно указать формат для библиотеки <a class="reference" href="https://github.com/archimag/data-sift"><span>data-sift</span></a> и на его основе будет происходить проверка и преобразование данных.</p>
+</li>
+<li><p class="first">Дополнительно можно указать любые другие параметры (в коде выше это :label и :itype) - они никак не обрабатываются, а просто сохраняются и могут быть использованы произвольным образом в зависимости от потребностей приложения.</p>
+</li>
+</ul>
+<p>Вот скриншот, полученный на основе <tt class="docutils literal">
+<span class="pre">registration-form</span></tt> (поскольку использован HTML5, то не во всех браузера поле для ввода даты будет именно таким, я использовал <a class="reference" href="http://ru.wikipedia.org/wiki/Chromium"><span>Chromium</span></a>):</p>
+<img src="https://lh3.googleusercontent.com/-mmuzytsBSr4/UPv-fwJwV5I/AAAAAAAAALo/f9Z4PvPvPVA/s497/data-forms-screen.png" alt="Скриншот HTML формы" /><p>Объекты форм можно создавать:</p>
+<ul>
+<li><p class="first">С помощью стандартного <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_mk_ins.htm" class="common-lisp-entity">make-instance</a></p>
+</li>
+<li><p class="first">С помощью функции <tt class="docutils literal">
+<span class="pre">make-form</span></tt>, которая принимает имя класса формы и набор параметров в формате alist (как post-параметры в <a class="reference" href="http://weitz.de/hunchentoot/"><span>Hunchentoot</span></a>). При этом, сопоставление параметров слотам производится на основе параметра :initarg, указанного при описании слота.</p>
+</li>
+</ul>
+<p>Проверка значения слота производится при каждом его изменении с помощью <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="common-lisp-entity">setf</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_slt_va.htm" class="common-lisp-entity">slot-value</a> в том случае, если для задания нового значения используется строка. В случае ошибки валидации исключение не возбуждается (подавляется), а сообщение сохраняется во внутренней структуре формы, его можно получить с помощью <tt class="docutils literal">
+<span class="pre">field-error</span></tt>.</p>
+<p>Важный момент, <a class="reference" href="https://github.com/archimag/cl-data-forms"><span>cl-data-forms</span></a> не имеет никаких функций для генерации HTML. Вместо этого, она позволяет добавить в описание слота любые произвольные данные, которые могут быть получены вместе со значением и сообщением об ошибке при вызове функций: <tt class="docutils literal">
+<span class="pre">form-data-alist</span></tt> и <tt class="docutils literal">
+<span class="pre">form-data-plist</span></tt> (разница между ними только в формате). Например:</p>
+<p><div class="prettyprint linenums"><ol class="linenums">
+<li class="L0">EXAMPLE&gt; (data-forms:form-data-alist (<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_mk_ins.htm" class="symbol">make-instance</a> 'user-info-form '|username| <span class="string">"Andrey"</span> '|email| <span class="string">"fake"</span>))</li>
+<li class="L1">((|username| (<span class="keyword">:VALUE</span> . <span class="string">"Andrey"</span>)</li>
+<li class="L2">             (<span class="keyword">:LABEL</span> . <span class="string">"Username"</span>))</li>
+<li class="L3"> (|email| (<span class="keyword">:ERROR</span> . <span class="string">"Doesn't look like a valid email."</span>)</li>
+<li class="L4">          (<span class="keyword">:VALUE</span> . <span class="string">"fake"</span>)</li>
+<li class="L5">          (<span class="keyword">:LABEL</span> . <span class="string">"Email Address"</span>)))</li>
+</ol></div></p>
+<p>На основе такого описания приложение может создавать HTML в своём собственном стиле. Для теста я использовал <a class="reference" href="https://github.com/archimag/cl-data-forms/blob/master/examples/example.tmpl"><span>специальный шаблон </span></a> для <a class="reference" href="https://github.com/archimag/cl-closure-template"><span>cl-closure-template</span></a>.</p>
+<p>Быстро узнать корректно ли заполнена форма можно с помощью функцию <tt class="docutils literal">
+<span class="pre">is-valid</span></tt>.</p>
+<p>Полный код примера <a class="reference" href="https://github.com/archimag/cl-data-forms/tree/master/examples"><span>здесь </span></a>, а то я и так уже слишком много написал. Для работы этого примера необходимы самые последние версии <a class="reference" href="https://github.com/archimag/data-sift"><span>data-sift</span></a>, <a class="reference" href="https://github.com/archimag/restas"><span>restas</span></a>, <a class="reference" href="https://github.com/archimag/cl-closure-template"><span>cl-closure-template</span></a> и <a class="reference" href="https://github.com/archimag/cl-data-forms"><span>cl-data-forms</span></a>.</p>
+<p>P.S. Если посмотреть на описание формы, то видно, что оно полностью декларативное (за исключением пары нюансов). А значит, можно пробовать на основе такого описания генерировать JavaScript код для того, что проводить модные проверки валидности данных ещё на клиенте.</p>
+</div> </div>  </div> <div id="footer"> <div class="right"> Copyright (c) Moskvitin Andrey <br /> Powered by <a href="http://restas.lisper.ru">RESTAS</a> <div id="buttons"> <a href="http://www.sbcl.org/"> <img src="/static/archimag/image/sbclbutton.png" alt="SBCL" /> </a> <a href="http://weitz.de/hunchentoot/"> <img src="/static/archimag/image/hunchentoot10.png" alt="Hunchentoot" /> </a> <a href="http://www.mongodb.org/"> <img src="/static/archimag/image/logo-mongodb.png" alt="mongoDB" /> </a> </div> </div> <a href="/feeds/atom" class="feed">Posts feed</a>  </div> 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-22971320-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+     </body> </html>

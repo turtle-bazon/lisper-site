@@ -1,0 +1,213 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru"> <head> <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> <meta name="keywords" content="Common Lisp,lisp,лисп" /> <title>clos-initialization-protocol</title> <link href="/css/style.css" rel="stylesheet" type="text/css" /><link href="/css/wiki.css" rel="stylesheet" type="text/css" /><link href="/css/colorize.css" rel="stylesheet" type="text/css" />  </head> <body> <div class="top"> <div id="login"> <a href="/register">Регистрация</a> | <a href="/login?done=/articles/clos-initialization-protocol">Войти</a> </div> </div> <div id="caution"> <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png" /> <a href="http://www.vkusnoserver.ru/" target="_blank" style="float: right;"> <img src="/vkusnoserver.png" /> </a> </div> <div id="mainmenu"> <ul> <li> <a href="/">Главная</a> </li><li> <a href="/articles/">Статьи</a> </li><li> <a href="/planet/">Планета</a> </li><li> <a href="/forum/">Форум</a> </li><li> <a href="/apps/">Сервисы</a> </li><li> <a href="/pcl/">Practical Common Lisp</a> </li><li> <a href="/wiki/">Wiki</a> </li><li> <a href="/files/">Файлы</a> </li><li> <a href="/search">Поиск</a> </li> </ul> </div> <div id="content"> <ul class="wiki-page-menu"> <li> <a href="/articles/edit/clos-initialization-protocol">Edit</a> </li>  <li> <a href="/articles/history/clos-initialization-protocol">History</a> </li>   </ul><div class="article">
+<div class="chapter" id="&#x41F;&#x440;&#x43E;&#x442;&#x43E;&#x43A;&#x43E;&#x43B; &#x438;&#x43D;&#x438;&#x446;&#x438;&#x430;&#x43B;&#x438;&#x437;&#x430;&#x446;&#x438;&#x438; CLOS"><h3>Протокол инициализации CLOS</h3>
+
+<p>© 2009 Nathan Froyd.  Originally published at <a href="http://www.method-combination.net/blog/archives/2009/12/22/clos-initialization-protocol.html">http://www.method-combination.net/blog/archives/2009/12/22/clos-initialization-protocol.html</a>
+</p>
+<p>Перевод <a href="http://lispnik.livejournal.com/">Ивана Болдырева</a>
+</p>
+<p><strong>Добавление:</strong> Тобиас Риттвейлер указал, что в моих объявлениях методов
+не нужно использовать <code>&amp;ALLOW-OTHER-KEYS</code>, т.к. он уже объявлен
+в <code>DEFGENERIC</code> и не обязателен в индивидуальных методах.  Более
+того, <code>&amp;ALLOW-OTHER-KEYS</code> в ваших объявлениях методов, если
+он уже был объявлен в <code>DEFGENERIC</code>, препятствует полезной проверке
+аргументов.  Так что не делаете этого.  Я исправил нижеследующие
+примеры.
+</p><hr/>
+
+<p>Как мы видели в прошлом посте, <code>REINITIALIZE-INSTANCE</code> — очень
+полезный способ уменьшения выделения памяти.  Вы можете сказать:
+«Конечно, вот почему в библиотеке/программе, которую я пишу, есть
+функции <code>RESET-FOO</code>».  Хочу сказать, что если вы пишите
+подобные функции, то лучше вместо них объявлять методы
+<code>REINITIALIZE-INSTANCE</code> (если вы реинициализируете структуры), либо
+писать <code>:AFTER</code>-методы обычных методов протокола инициализации CLOS.
+Это больший Lisp-way, чем обычные функции сброса.  Использование
+существующего протокола поощряет вас точнее определить, что является
+инициализацией, что реинициализацией, а что используется ими обеими.
+</p>
+<p>«ОК» - вы скажете, — «но что это за методы и как их
+использовать?» Рад, что вы спросили!
+</p>
+<p>Есть три главные обобщённые функции, используемые в протоколе:
+</p><ul><li> <code><a href="http://www.lispworks.com/documentation/HyperSpec/Body/f_init_i.htm">INITIALIZE-INSTANCE</a></code></li><li> <code><a href="http://www.lispworks.com/documentation/HyperSpec/Body/f_reinit.htm">REINITIALIZE-INSTANCE</a></code></li><li> <code><a href="http://www.lispworks.com/documentation/HyperSpec/Body/f_shared.htm">SHARED-INITIALIZE</a></code></li></ul>
+<p>Как вы могли догадаться, <code>INITIALIZE-INSTANCE</code> вызывается из
+<code>MAKE-INSTANCE</code>, а <code>REINITIALIZE-INSTANCE</code>, хм,
+из <code>REINITIALIZE-INSTANCE</code>.  <code>SHARED-INITIALIZE</code> вызывается как
+из <code>INITIALIZE-INSTANCE</code>, так и <code>REINITIALIZE-INSTANCE</code> и содержит
+общий для обоих методов код.  Мы сфокусируемся
+на <code>SHARED-INITIALIZE</code>, так как она является основанием для двух
+других, а также вызывается при изменении объявлении класса и смене
+класса экземпляра.  Вы бесплатно получаете многое, объявляя метод
+<code>SHARED-INITIALIZE</code>.
+</p>
+<p>Начнём по порядку: обычно вам нужно объявить лишь <code>:AFTER</code>-методы
+<code>SHARED-INITIALIZE</code>:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defmet.htm" class="symbol"><i><span class="symbol">defmethod</span></i></a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_shared.htm" class="symbol">shared-initialize</a> <span class="keyword">:after</span> <span class="paren2">(<span class=""><span class="paren3">(<span class="">object my-class</span>)</span> slot-names &amp;rest initargs &amp;key</span>)</span><br/>  ...</span>)</span><br/></pre>
+
+<p>Причина этого в том, что главный метод <code>SHARED-INITIALIZE</code> делает
+множество полезных вещей, таких как инициализация слотов по их
+<code>:INITFORM</code> и <code>:INITARG</code>.  (По той же причине вы обычно должны
+определять <code>:AFTER</code>-методы у <code>INITIALIZE-INSTANCE</code>
+и <code>REINITIALIZE-INSTANCE</code>).  Конечно, вы можете написать:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defmet.htm" class="symbol"><i><span class="symbol">defmethod</span></i></a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_shared.htm" class="symbol">shared-initialize</a> <span class="paren2">(<span class=""><span class="paren3">(<span class="">object my-class</span>)</span> slot-names &amp;rest initargs &amp;key</span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_call_n.htm" class="symbol">call-next-method</a></span>)</span><br/>  ...</span>)</span>      <br/></pre>
+
+<p>Но обычно делают не так.  Я считаю, что написание <code>:AFTER</code>-методов
+делает ваши намерения более ясными: вы делаете дополнительную работу
+после выполнения стандартного кода.  Кроме того, легко забыть вызвать
+<code>CALL-NEXT-METHOD</code>, что приведёт к загадочному поведению, а также
+к странным баг-репортам типа «Инициализация CLOS не работает
+у классов, определённых пользователем».  Кроме того,
+использование комбинации методов часто полезнее и декларативнее, чем
+вызовы <code>CALL-NEXT-METHOD</code> в нужном месте.  Это не значит, что
+<code>CALL-NEXT-METHOD</code> не надо использовать, это просто значит, по моему
+мнению, что нужно предпочитать комбинацию методов во всех возможных
+случаях.
+</p>
+<p>ОК, теперь давайте займёмся инициализацией.  Что означает параметр
+<code>SLOT-NAMES</code>?  Это (возможно, пустой) список имён слотов, которые
+должны быть проинициализированы по их <code>:INITFORM</code>, либо <code>T</code>, что
+означает «все слоты».  Для наших целей мы сейчас будем
+предполагать, что <code>SLOT-NAMES</code> всегда равен <code>T</code> (когда
+<code>SHARED-INITIALIZE</code> вызывается из <code>INITIALIZE-INSTANCE</code>) или
+из <code>NIL</code> (когда <code>SHARED-INITIALIZE</code> вызывается
+из <code>REINITIALIZE-INSTANCE</code>).  В случае <code>T</code>, главный метод
+<code>SHARED-INITIALIZE</code> обрабатывает&lt;!– TODO –&gt; логику инициализации.
+Так нам не надо сильно беспокоиться о <code>SLOT-NAMES</code>.
+</p>
+<p>Вы также можете большей частью игнорировать <code>INITARGS</code>.  Большинство
+ключевых аргументов будет обработана стандартными функциями CLOS.
+Всё, что вам интересно, может быть вытащено индивидуальными
+<code>&amp;KEY</code>-аргументами; мы рассмотрим такой пример чуть ниже.
+</p>
+<p>ОК, какие же полезные вещи мы можем делать в <code>SHARED-INITIALIZE</code>?
+Мы можем пересчитать слоты, которые зависят от значений других слотов
+и поэтому не могут быть инициализированы полезными значениями
+с помощью <code>:INITFORM</code> или <code>:INITARGS</code>:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defcla.htm" class="symbol"><i><span class="symbol">defclass</span></i></a> triangle <span class="paren2">(<span class=""/>)</span><br/>  <span class="paren2">(<span class=""><span class="paren3">(<span class="">a <span class="keyword">:initarg</span> <span class="keyword">:a</span> <span class="keyword">:reader</span> a</span>)</span><br/>   <span class="paren3">(<span class="">b <span class="keyword">:initarg</span> <span class="keyword">:b</span> <span class="keyword">:reader</span> b</span>)</span><br/>   <span class="paren3">(<span class="">c <span class="keyword">:initarg</span> <span class="keyword">:c</span> <span class="keyword">:reader</span> c</span>)</span><br/>   <span class="paren3">(<span class="">area <span class="keyword">:reader</span> area</span>)</span></span>)</span></span>)</span><br/><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defmet.htm" class="symbol"><i><span class="symbol">defmethod</span></i></a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_shared.htm" class="symbol">shared-initialize</a> <span class="keyword">:after</span> <span class="paren2">(<span class=""><span class="paren3">(<span class="">o triangle</span>)</span> slot-names &amp;rest initargs &amp;key</span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren3">(<span class=""><span class="paren4">(<span class="">area <span class="paren5">(<span class="">compute-area-of-triangle <span class="paren6">(<span class="">a o</span>)</span> <span class="paren6">(<span class="">b o</span>)</span> <span class="paren6">(<span class="">c o</span>)</span></span>)</span></span>)</span></span>)</span><br/>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_slt_va.htm" class="symbol">slot-value</a> o 'area</span>)</span> area</span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>В подобных случаях вы, возможно, захотите написать какую-нибудь
+обёртку (с соответствующим изменением определением <code>TRIANGLE</code>):
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> make-triangle <span class="paren2">(<span class="">a b c</span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren3">(<span class=""><span class="paren4">(<span class="">area <span class="paren5">(<span class="">compute-area-of-triangle a b c</span>)</span></span>)</span></span>)</span><br/>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_mk_ins.htm" class="symbol">make-instance</a> 'triangle <span class="keyword">:a</span> a <span class="keyword">:b</span> b <span class="keyword">:c</span> c <span class="keyword">:area</span> area</span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>что, конечно, возможно (я оставлю тему о том, обёртывать ли
+<code>MAKE-INSTANCE</code> или сделать доступной пользователю вашего API,
+на будущее).  Но подобная обёртка не позволяет легко организовать
+реинициализацию.  Представьте, как могла бы выглядеть написанная вами
+функция <code>RESET-TRIANGLE</code>, обрабатывающая все случаи, которые
+<code>SHARED-INITIALIZE</code> обрабатывает бесплатно:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> reset-triangle <span class="paren2">(<span class="">triangle &amp;key a b c</span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren3">(<span class=""><span class="paren4">(<span class="">a <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_or.htm" class="symbol">or</a> a <span class="paren6">(<span class="">a triangle</span>)</span></span>)</span></span>)</span><br/>        <span class="paren4">(<span class="">b <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_or.htm" class="symbol">or</a> b <span class="paren6">(<span class="">b triangle</span>)</span></span>)</span></span>)</span><br/>        <span class="paren4">(<span class="">c <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_or.htm" class="symbol">or</a> c <span class="paren6">(<span class="">c triangle</span>)</span></span>)</span></span>)</span></span>)</span><br/>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_slt_va.htm" class="symbol">slot-value</a> triangle 'a</span>)</span> a<br/>          <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_slt_va.htm" class="symbol">slot-value</a> triangle 'b</span>)</span> b<br/>          <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_slt_va.htm" class="symbol">slot-value</a> triangle 'c</span>)</span> c<br/>          <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_slt_va.htm" class="symbol">slot-value</a> triangle 'area</span>)</span> <span class="paren4">(<span class="">compute-area-of-triangle a b c</span>)</span></span>)</span><br/>    triangle</span>)</span></span>)</span><br/></pre>
+
+<p>Обратите внимание, что вы продублировали установку слотов (которые
+внутренности CLOS делают за вас) и вычисляете площадь треугольника
+в двух разных, но связанных (оба — часть инициализации) местах.
+Вы можете сказать, что хотите, чтобы пользователи переустанавливали
+все три стороны треугольника, и API должно это отражать.  Но в этом
+случае именно вы должны вызывать <code>REINITIALIZE-INSTANCE</code>, а значит
+и <code>SHARED-INITIALIZE</code>.  Я также считаю, что метод
+<code>SHARED-INITIALIZE</code> лучше отражает роль вычисление площади:
+вычисление площади является неотъемлемой частью инициализации,
+а не то, что выс делаете заранее перед созданием объекта.
+</p>
+<p>Для менее педагогичного примера давайте представим, что у вас есть
+классный алгоритм шифрования:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defcla.htm" class="symbol"><i><span class="symbol">defclass</span></i></a> les <span class="paren2">(<span class=""/>)</span> <span class="comment">; the LISP encryption standard<br/></span>  <span class="paren2">(<span class=""><span class="paren3">(<span class="">round-keys <span class="keyword">:reader</span> round-keys</span>)</span><br/>   <span class="paren3">(<span class="">n-rounds <span class="keyword">:reader</span> n-rounds</span>)</span></span>)</span></span>)</span><br/><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defmet.htm" class="symbol"><i><span class="symbol">defmethod</span></i></a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_shared.htm" class="symbol">shared-initialize</a> <span class="keyword">:after</span> <span class="paren2">(<span class=""><span class="paren3">(<span class="">o les</span>)</span> slot-names &amp;rest initargs &amp;key key</span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_multip.htm" class="symbol">multiple-value-bind</a> <span class="paren3">(<span class="">round-keys n-rounds</span>)</span> <span class="paren3">(<span class="">schedule-key key</span>)</span><br/>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_slt_va.htm" class="symbol">slot-value</a> o 'round-keys</span>)</span> round-keys<br/>          <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_slt_va.htm" class="symbol">slot-value</a> o 'n-rounds</span>)</span> n-rounds</span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>Возможно, вы заметили, что <code>SHARED-INITIALIZE</code> принимает ключевой
+аргумент <code>KEY</code>, хотя в <code>DEFCLASS</code> и нет <code>:INITARG :KEY</code>.  Одно
+из достоинств <code>SHARED-INITIALIZE</code> состоит в том, что любой его
+ключевой аргумент автоматически становится кандидатом на использование
+с <code>MAKE-INSTANCE</code> и остальными обобщёнными функциями, участвующими
+в протоколе инициализации.  Это позволяет вам передавать ключевые
+аргументы в <code>MAKE-INSTANCE</code>, которые не связаны напрямую со слотами,
+но требуют какой-либо обработки для вычисления значения какого-либо
+поля.  Так что, используя вышеприведённый код, вы можете написать:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defpar.htm" class="symbol"><i><span class="symbol">defvar</span></i></a> <span class="special">*l*</span> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_mk_ins.htm" class="symbol">make-instance</a> 'les <span class="keyword">:key</span> #<span class="paren3">(<span class="">#xde #xad #xbe #xef</span>)</span></span>)</span></span>)</span><br/>...lots of code...<br/><span class="comment">;; sometime later<br/></span><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_reinit.htm" class="symbol">reinitialize-instance</a> <span class="special">*l*</span> <span class="keyword">:key</span> #<span class="paren2">(<span class="">#xca #xfe #xbe #xbe</span>)</span></span>)</span><br/></pre>
+
+<p>И снова вы могли бы использовать функции-обёртки.  Но я думаю, здесь
+применимы те же аргументы о ясности и избежании повторов.  (А если
+вы действительно всерьёз занимаетесь шифрованием, вы можете захотеть
+иметь возможность перестанавливать вектор инициализации для вашего
+режима шифрования и, возможно, даже полностью менять режим шифрования.
+После того, как вы это сделаете, вы практически перепишете
+<code>SHARED-INITIALIZE</code> и, возможно, продублируете логику вашей оболочки
+<code>MAKE-INSTANCE</code> в вашей функции переустановки).
+</p>
+<p>Другая причина иметь методы <code>SHARED-INITIALIZE</code> — они естественным
+способом взаимодействуют с созданием подклассов.  Скажем, вы работаете
+с каким-то форматом сжатия, и вы создаёте записи из байтовых векторов:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defcla.htm" class="symbol"><i><span class="symbol">defclass</span></i></a> entry <span class="paren2">(<span class=""/>)</span><br/>  ...slots...</span>)</span><br/><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> make-entry-from-buffer <span class="paren2">(<span class="">buffer &amp;key <span class="paren3">(<span class="">start 0</span>)</span></span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren3">(<span class="">...parse out individual slots from BUFFER...</span>)</span><br/>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_mk_ins.htm" class="symbol">make-instance</a> 'entry ...initargs for slots...</span>)</span></span>)</span></span>)</span><br/></pre>
+
+
+<p>Дёшево и сердито.  Теперь давайте представим, что ваш клиент сообщает
+вам о второй версии формата, которые в основном совпадает с первой,
+но создаёт возможность указывать дополнительные метаданные как часть
+записи.  ОК:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defcla.htm" class="symbol"><i><span class="symbol">defclass</span></i></a> entry-v2 <span class="paren2">(<span class="">entry</span>)</span><br/>  ...more slots...</span>)</span><br/><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> make-entry-from-buffer <span class="paren2">(<span class="">buffer &amp;key <span class="paren3">(<span class="">start 0</span>)</span></span>)</span><br/>  <span class="comment">;; A `2' at the start of the buffer indicates a version 2 entry.<br/></span>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_if.htm" class="symbol"><i><span class="symbol">if</span></i></a> <span class="paren3">(<span class="">= <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_aref.htm" class="symbol">aref</a> buffer start</span>)</span> 2</span>)</span><br/>      <span class="paren3">(<span class="">make-entry-v2-from-buffer buffer <span class="keyword">:start</span> start</span>)</span><br/>      <span class="paren3">(<span class="">make-entry-v1-from-buffer buffer <span class="keyword">:start</span> start</span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>Хм.  Нам нужно инициализировать слоты записи в одном месте, чтобы
+избежать повторения:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> initialize-common-entries <span class="paren2">(<span class="">entry buffer &amp;key <span class="paren3">(<span class="">start 0</span>)</span></span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren3">(<span class="">...parse out individual slots from BUFFER...</span>)</span><br/>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> ...lots of slots...</span>)</span><br/>    entry</span>)</span></span>)</span><br/><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> make-entry-v2-from-buffer <span class="paren2">(<span class="">buffer &amp;key <span class="paren3">(<span class="">start 0</span>)</span></span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren3">(<span class=""><span class="paren4">(<span class="">entry <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_mk_ins.htm" class="symbol">make-instance</a> 'entry-v2</span>)</span></span>)</span></span>)</span><br/>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> ...new slots for ENTRY-V2...</span>)</span><br/>    <span class="paren3">(<span class="">initialize-common-entries entry buffer <span class="keyword">:start</span> start</span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>и так далее.  Возможно, понадобится небольшое изменение, так как
+разбор слотов для <code>ENTRY-V2</code> может зависеть от значения одного или
+нескольких слотов в <code>ENTRY</code>.  Я заявляю, что это элегантнее решать
+так:
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defmet.htm" class="symbol"><i><span class="symbol">defmethod</span></i></a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_shared.htm" class="symbol">shared-initialize</a> <span class="keyword">:after</span> <span class="paren2">(<span class=""><span class="paren3">(<span class="">o entry</span>)</span> slot-names &amp;rest initargs &amp;key buffer start</span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren3">(<span class="">...parse out individual slots from BUFFER...</span>)</span><br/>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> ...lots of slots...</span>)</span><br/>    o</span>)</span></span>)</span><br/><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defmet.htm" class="symbol"><i><span class="symbol">defmethod</span></i></a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_shared.htm" class="symbol">shared-initialize</a> <span class="keyword">:after</span> <span class="paren2">(<span class=""><span class="paren3">(<span class="">o entry-v2</span>)</span> slot-names &amp;rest initargs &amp;key buffer start</span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren3">(<span class="">...parse out individual slots from BUFFER...</span>)</span><br/>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> ...slots for ENTRY-V2...</span>)</span><br/>    o</span>)</span></span>)</span><br/><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> make-entry-from-buffer <span class="paren2">(<span class="">buffer &amp;key <span class="paren3">(<span class="">start 0</span>)</span></span>)</span><br/>  <span class="comment">;; A `2' at the start of the buffer indicates a version 2 entry.<br/></span>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_if.htm" class="symbol"><i><span class="symbol">if</span></i></a> <span class="paren3">(<span class="">= <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_aref.htm" class="symbol">aref</a> buffer start</span>)</span> 2</span>)</span><br/>      <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_mk_ins.htm" class="symbol">make-instance</a> 'entry-v2 <span class="keyword">:buffer</span> buffer <span class="keyword">:start</span> start</span>)</span><br/>      <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_mk_ins.htm" class="symbol">make-instance</a> 'entry <span class="keyword">:buffer</span> <span class="keyword">:start</span> start</span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>Так как <code>:AFTER</code>-методы выполняются начиная с наиболее общего,
+первым будет вызван <code>:AFTER</code>-метод для класса <code>ENTRY</code>.  Поэтому
+<code>:AFTER</code> для класса <code>ENTRY-V2</code> может свободно использовать
+значение любого слота из <code>ENTRY</code>.  Использование
+<code>SHARED-INITIALIZE</code> в данном случае не только даёт возможность
+использовать <code>REINITIALIZE-INSTANCE</code>, но и определяет правильный
+общий код с точки зрения проектирования программного обеспечения.
+</p>
+<p>Конечно, если у вас есть особый код, который должен выполняться
+во время <code>MAKE-INSTANCE</code> или <code>REINITIALIZE-INSTANCE</code>, то вы можете
+добавить <code>:AFTER</code>-методы к <code>MAKE-INSTANCE</code> или
+<code>REINITIALIZE-INSTANCE</code> соответственно.  Например, если у всех ваши
+объектов должен быть уникальный идентификатор, то вы наверняка
+не захотите устанавливать его в <code>SHARED-INITIALIZE</code>.
+</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defcla.htm" class="symbol"><i><span class="symbol">defclass</span></i></a> unique-id-mixin <span class="paren2">(<span class=""/>)</span><br/>  <span class="paren2">(<span class=""><span class="paren3">(<span class="">unique-id <span class="keyword">:reader</span> unique-id</span>)</span></span>)</span></span>)</span><br/><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defmet.htm" class="symbol"><i><span class="symbol">defmethod</span></i></a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_init_i.htm" class="symbol">initialize-instance</a> <span class="keyword">:after</span> <span class="paren2">(<span class=""><span class="paren3">(<span class="">o unique-id-mixin</span>)</span> &amp;rest initargs &amp;key</span>)</span><br/>  <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_slt_va.htm" class="symbol">slot-value</a> o 'unique-id</span>)</span> <span class="paren3">(<span class="">get-unique-id-for-instance o</span>)</span></span>)</span></span>)</span><br/></pre>
+
+<p>(Однако вы можете захотеть присвоить другой идентификатор, если
+кто-нибудь изменит класс вашего объекта.  Это будет темой будущего
+обсуждения; у меня лишь примерное представление о протоколе,
+используемом
+в <code><a href="http://www.lispworks.com/documentation/HyperSpec/Body/f_chg_cl.htm">CHANGE-CLASS</a></code>,
+и мне нужно сначала увидеть действительно прагматичные причины
+для добавления методов к используемым обобщённым функциям).
+</p>
+<p>Я знаю, что мой код не всегда работает в соответствии
+с вышеизложенными идеями; я не сразу понял, что и почему происходит.
+Но теперь, когда я разобрался, я постепенно модифицирую свой код,
+используя эти идеи.  Где эти идеи могут принести пользу вашему коду?
+</p>
+</div></div> </div> <div class="bottom">@2009-2013 lisper.ru</div> 
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-7734690-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+ </body> </html>

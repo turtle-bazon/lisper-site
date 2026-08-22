@@ -1,0 +1,180 @@
+<html> <head> <meta http-equiv="Content-Type" content="text/html; charset='utf-8'" /> <link rel="stylesheet" type="text/css" href="../_static/style.css" /> <title>Основы</title> </head> <body> <div id="header"> <h1>cl-closure-template</h1> <span>Use Closure Templates from Common Lisp</span> </div> <div id="menu"> <ul> <li> <a href="../index.html">Начало</a>  </li><li> <a href="contents.html">Руководство</a> <ul> <li> <a href="hello-world-js.html">Hello World с JavaScript</a> </li><li> <a href="hello-world-cl.html">Hello World с Common Lisp</a> </li><li> <span>Основы</span> </li><li> <a href="commands.html">Команды</a> </li><li> <a href="functions-and-directives.html">Функции и директивы печати</a> </li><li> <a href="common-lisp-usage.html">Использование с Common Lisp</a> </li> </ul> </li><li> <a href="../ref/index.html">API reference</a>  </li><li> <a href="../differences.html">Отличия от оригинальной реализации</a>  </li> </ul> </div> <div id="content"> <div id="основы" class="document"><h1>Основы<a href="#основы" class="headerlink" title="Permalink to this headline">¶</a></h1><!-- -*- RST -*- -->
+<a id="concepts" class="target" name="concepts"></a><div id="table-of-contents" class="topic contents"><ul class="simple">
+<li><a name="id1" class="reference" id="id1" href="#compiler-backends"><span id="id1">Compiler Backends</span></a></li>
+<li><a name="id2" class="reference" id="id2" href="#модель-данных"><span id="id2">Модель данных</span></a></li>
+<li><a name="id3" class="reference" id="id3" href="#структура-файлов"><span id="id3">Структура файлов</span></a></li>
+<li><a name="id4" class="reference" id="id4" href="#синтаксис-команд"><span id="id4">Синтаксис команд</span></a></li>
+<li><a name="id5" class="reference" id="id5" href="#выражения"><span id="id5">Выражения</span></a></li>
+<li><a name="id6" class="reference" id="id6" href="#внедрённые-данные"><span id="id6">Внедрённые данные</span></a></li>
+<li><a name="id7" class="reference" id="id7" href="#комментарии"><span id="id7">Комментарии</span></a></li>
+<li><a name="id8" class="reference" id="id8" href="#простой-текст"><span id="id8">Простой текст</span></a></li>
+</ul>
+</div>
+<div id="compiler-backends" class="section"><h2>Compiler Backends<a href="#compiler-backends" class="headerlink" title="Permalink to this headline">¶</a></h2><p><a class="reference" href="https://github.com/archimag/cl-closure-template/"><span>cl-closure-template</span></a> имеет один frontend для парсинга шаблонов и строительства промежуточного представления и несколько backend-ов для поддержки различных языков программирования. В данный момент доступны следующие backend-ы:</p>
+<ul>
+<li><p class="first last">JavaScript Source backend (:javascript-backend) для использования Closure Templates в JavaScript. Данный backend компилирует файлы с шаблонами в JavaScript-код. Для каждого пространства имён создаётся отдельный объект-словарь, а шаблоны становятся функциями-свойствами данного объекта с такими же именами.</p>
+</li>
+<li><p class="first last">JavaScript RequireJS Source backend. Отличается от "" тем, что выходной код может быть использован совместно с <a class="reference" href="http://requirejs.org/"><span>RequireJS</span></a>.</p>
+</li>
+<li><p class="first last">Common Lisp backend поддерживает использовать Closure Templates в Common Lisp. Данный backend для каждого пространства имён создаёт отдельный <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_pkg.htm" class="common-lisp-entity">package</a>, а шаблоны становятся функциями и связываются с символами в данном <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_pkg.htm" class="common-lisp-entity">package</a>. При этом, все используемые имена проходят процедуру "лиспификации", например шаблон с именем helloWorld становится функцией hello-world.</p>
+</li>
+</ul>
+</div>
+<div id="модель-данных" class="section"><h2>Модель данных<a href="#модель-данных" class="headerlink" title="Permalink to this headline">¶</a></h2><p><a class="reference" href="https://github.com/archimag/cl-closure-template/"><span>cl-closure-template</span></a> использует универсальную модель данных, что позволяет использовать одни и те же шаблоны как в JavaScript, так и в Common Lisp. Для структуризации данных могут использовать словари и списки. Ключи словаря должны быть идентификаторами (т.е. можно использовать буквы, цифры и символ подчёркивания). Так же поддерживаются 5 примитивных типов: null, boolean, integer, float, и string.</p>
+<p>Каждый backend имеет собственные представления о том, как данные должны передаваться в шаблон. Для примера, рассмотрим шаблон, который принимает два параметра: name - имя человека и destinations - список городов, в которые он недавно ездил.</p>
+<p>В JavaScript можно использовать любой JavaScript-объект, например:</p>
+<p><div class="code">var data = {name: 'Melissa', destinations: ['Singapore', 'London', 'New York']};</div></p>
+<p>В Common Lisp в качестве входных данных шаблона можно использовать разные типы данных, для которых должны быть определены специализации generic-функций <span class="common-lisp-entity">closure-template:fetch-property</span> и <span class="common-lisp-entity">closure-template:fetch-keys</span>. Библиотекой поддерживаются <a href="" class="common-lisp-entity">plist</a>, <a href="" class="common-lisp-entity">alist</a> или <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_hash_t.htm" class="common-lisp-entity">hash-table</a>, при этом, в качестве ключей можно использовать как <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_kwd.htm" class="common-lisp-entity">keyword</a>-символы, так и их строковое представление (например, для параметра шаблона additionalName можно использовать :additional-name или "ADDITIONAL-NAME").</p>
+<p><div class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_list.htm" class="symbol">list</a> <span class="keyword">:name</span> <span class="string">"Melissa"</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">:destinations</span> '<span class="paren2">(<span class=""><span class="string">"Singapore"</span> <span class="string">"London"</span> <span class="string">"New York"</span></span>)</span></span>)</span></div></p>
+</div>
+<div id="структура-файлов" class="section"><h2>Структура файлов<a href="#структура-файлов" class="headerlink" title="Permalink to this headline">¶</a></h2><p>Каждый файл с шаблонами должен иметь, как минимум, два компонента:</p>
+<ul>
+<li><p class="first last">Декларацию пространства имён</p>
+</li>
+<li><p class="first last">Определение одного или нескольких шаблонов.</p>
+</li>
+</ul>
+<div id="декларация-пространства-имён" class="section"><h3>Декларация пространства имён<a href="#декларация-пространства-имён" class="headerlink" title="Permalink to this headline">¶</a></h3><p>Файл с шаблонами должен иметь единственное определение пространства имён. Корректным именем пространства имён является один или несколько идентификаторов, соединённых с помощью точки. Например:</p>
+<p><div class="code">{namespace examples.simple}</div></p>
+</div>
+<div id="определение-шаблонов" class="section"><h3>Определение шаблонов<a href="#определение-шаблонов" class="headerlink" title="Permalink to this headline">¶</a></h3><p>Один или несколько шаблонов определяются после декларации пространства имён, по одному тэгу template на каждый шаблон. Вы должны использовать уникальные имена для каждого шаблона. Тело шаблона размещается между тэгом template и соответствующим тэгом /template. Например:</p>
+<p><div class="code">{template helloName}<br>
+ &nbsp;&nbsp;&nbsp;Hello {$name}<br>
+{/template}</div></p>
+</div>
+</div>
+<div id="синтаксис-команд" class="section"><h2>Синтаксис команд<a href="#синтаксис-команд" class="headerlink" title="Permalink to this headline">¶</a></h2><p>Команды это инструкции на основе которых определяется логика шаблонов. Команды определяется с помощью Closure Template тэгов, выделяемых фигурными скобками ({}). Первый токен в тэге это имя команды (если имя не указано, то считается что это команда print). Если команда имеет соответствующий закрывающий тэг, то он помечается с помощью / расположенного перед именем в начале команды, например foreach и /foreach.</p>
+<p>Описание всех команд смотрите в разделе <a href="commands.html#команды">Команды</a>.</p>
+</div>
+<div id="выражения" class="section"><h2>Выражения<a href="#выражения" class="headerlink" title="Permalink to this headline">¶</a></h2><p>Вы можете использовать в шаблонах выражения для ссылок на данные шаблоны или переменные. Closure Templates использует независимый от языка синтаксис выражений. В этом разделе описывается, как обращаться к данным, создавать литералы для всех примитивных типов, а также использовать основные операторы.</p>
+<div id="использование-параметров-или-переменных" class="section"><h3>Использование параметров или переменных<a href="#использование-параметров-или-переменных" class="headerlink" title="Permalink to this headline">¶</a></h3><p>Для обращения к параметрам шаблона используется знак $ и имя параметра после него, например, $userName. Для обращения к вложенным данным можно соединить несколько ключей с помощью точки. Например, выражение $folders.0.name вычисляется как значение с ключом name первого объект параметра folders. Однако, это вычисление будет успешным только в том случае, если folders не пустой список или словарь, а его первый элемент это словарь, содержащий ключ name. Это выражение можно записать также как $folders[0].name или $folders[0]['name'].</p>
+<p>Специальный префикс $ij используется для доступа к <a href="concepts.html#внедрённые-данные">внедрённым данным</a>, которые автоматически передаются во все вызываемые шаблоны. Для примера, $ij.foo ссылается на внедрённый параметр foo.</p>
+<p>Некоторые команды создают локальные переменные, на которые ссылаются так же, как и на параметры шаблона. Таким образом, обращение $user.email корректно когда user это параметр шаблона или локальная переменная.</p>
+</div>
+<div id="основные-типы" class="section"><h3>Основные типы<a href="#основные-типы" class="headerlink" title="Permalink to this headline">¶</a></h3><table class="docutils"><colgroup><col width="18%" /><col width="82%" /></colgroup>
+<thead valign="bottom"><tr><th>Тип</th>
+<th>Литерал</th>
+</tr>
+</thead>
+<tbody valign="top"><tr><td>Null</td>
+<td>null</td>
+</tr>
+<tr><td>Boolean</td>
+<td>false или true</td>
+</tr>
+<tr><td>Integer</td>
+<td>Десятичный (например, -827) или шестнадцатеричный (должен начинаться с 0x и использовать буквы A-F, например, 0x1A2B).</td>
+</tr>
+<tr><td>Float</td>
+<td><p class="first">Должен быть в десятичной систем, а также:</p>
+<ul class="last">
+<li><p class="first last">Иметь цифры как слева, так и справа от точки, например, 0.5, -100.0, 0.0, или</p>
+</li>
+<li><p class="first last">Иметь букву e для обозначения научного формата, например, -3e-3, 6.02e23.</p>
+</li>
+</ul>
+</td>
+</tr>
+<tr><td>String</td>
+<td>Выделяется одинарными кавычками. Можно использовать escape-последовательности: \\, \', \", \n, \r, \t, \b, \f и \u####, где #### могут быть 4 любых шестнадцатеричных символа обозначающих символ Unicode.</td>
+</tr>
+<tr><td>List</td>
+<td><div class="line-block first last">
+<div class="line">[&lt;expr1&gt;, &lt;expr2&gt;, ...]</div>
+<div class="line">Например: [1, 'two', [3, false]]</div>
+<div class="line">[] - пустой список</div>
+</div>
+</td>
+</tr>
+<tr><td>Map</td>
+<td><div class="line-block first last">
+<div class="line">{&lt;keyExpr1&gt;: &lt;valueExpr1&gt;, &lt;keyExpr2&gt;: &lt;valueExpr2&gt;, ...}</div>
+<div class="line">Например: {'aaa': 42, 'bbb': 'hello'}</div>
+<div class="line">{:} - пустой словарь</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="операторы" class="section"><h3>Операторы<a href="#операторы" class="headerlink" title="Permalink to this headline">¶</a></h3><p>Поддерживаются следующие операторы, перечисленные в порядке убывания приоритета (самый высокий приоритет в верхней части):</p>
+<ul>
+<li><p class="first last"><tt class="docutils literal">
+<span class="pre">-</span></tt> (унарный) <tt class="docutils literal">
+<span class="pre">not</span></tt></p>
+</li>
+<li><p class="first last"><tt class="docutils literal">
+<span class="pre">*</span> <span class="pre">/</span> <span class="pre">%</span></tt></p>
+</li>
+<li><p class="first last"><tt class="docutils literal">
+<span class="pre">+</span> <span class="pre">-</span></tt> (бинарный)</p>
+</li>
+<li><p class="first last"><tt class="docutils literal">
+<span class="pre">&lt;</span> <span class="pre">&gt;</span> <span class="pre">&lt;=</span> <span class="pre">&gt;=</span></tt></p>
+</li>
+<li><p class="first last"><tt class="docutils literal">
+<span class="pre">==</span> <span class="pre">!=</span></tt></p>
+</li>
+<li><p class="first last"><tt class="docutils literal">
+<span class="pre">and</span></tt></p>
+</li>
+<li><p class="first last"><tt class="docutils literal">
+<span class="pre">or</span></tt></p>
+</li>
+<li><p class="first last"><tt class="docutils literal">
+<span class="pre">?:</span></tt> (бинарный) <tt class="docutils literal">
+<span class="pre">?</span> <span class="pre">:</span></tt> (тернарный)</p>
+</li>
+</ul>
+<p>Оператор <tt class="docutils literal">
+<span class="pre">+</span></tt> предназначен для сложения чисел или объединения строк. Если один из двух операндов является строка, то другое значение приводится строке. Все примитивные значения имеют строковые представления.  Строковое представление словаря и списка не определены.</p>
+<p>Оператор <tt class="docutils literal">
+<span class="pre">/</span></tt> выполняет деление с плавающей точкой. Для операций целочисленного деления используйте функции <tt class="docutils literal">
+<span class="pre">floor</span></tt> и <tt class="docutils literal">
+<span class="pre">ceiling</span></tt> вместе с делением.</p>
+<p>Когда не-булево значение используется в булевом выражении, оно приводится к булеву. Каждый примитивный тип имеет ровно одно "ложное" значения: <tt class="docutils literal">
+<span class="pre">null</span></tt> это всегда "ложь", <tt class="docutils literal">
+<span class="pre">false</span></tt> "ложь" для булевых значений, 0 является "ложью" для целых, 0.0 "ложь" для чисел с плавающей точкой, '' (пустая строка) "ложь" для строк. Все остальные значения примитивных типов являются "истиной". Значения списков и словарей всегда "истинны", даже если они не имеют элементов.</p>
+</div>
+<div id="функции" class="section"><h3>Функции<a href="#функции" class="headerlink" title="Permalink to this headline">¶</a></h3><p>Так же в выражениях можно использовать несколько простых функций. Список доступных функций приведён в разделе <a href="functions-and-directives.html#функции-и-директивы-печати">Функции и директивы печати</a>.</p>
+<a id="injected-data" class="target" name="injected-data"></a></div>
+</div>
+<div id="внедрённые-данные" class="section"><h2>Внедрённые данные<a href="#внедрённые-данные" class="headerlink" title="Permalink to this headline">¶</a></h2><p>Внедрённые данные доступны в каждом шаблоне, их не нужно руками передавать в вызываемые шаблоны.</p>
+<p>Для шаблона:</p>
+<p><div class="code">{namespace ns}<br>
+<br>{template example}<br>
+ &nbsp;&nbsp;&nbsp;foo is {$ij.foo}<br>
+{/template}</div></p>
+<p>В JavaScript можно внедрить данные с помощью третьего параметра</p>
+<p><div class="code">output = ns.example<span class="paren1">(<span class=""><br>&nbsp;&nbsp;{}, &nbsp;// data<br>&nbsp;&nbsp;<a href="http://www.lispworks.com/reference/HyperSpec/Body/a_null.htm" class="symbol">null</a>, &nbsp;// optional output buffer<br>&nbsp;&nbsp;{'foo'<span class="keyword">:</span> 'injected foo'}</span>)</span> &nbsp;// injected data</div></p>
+<p>В Common Lisp внедрение данных происходит с помощью специальной переменной <span class="common-lisp-entity">closure-tempate:*injected-data*</span>:</p>
+<p><div class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren2">(<span class=""><span class="paren3">(<span class="">*injected-data '<span class="paren4">(<span class=""><span class="keyword">:foo</span> <span class="string">"injected foo"</span></span>)</span></span>)</span></span>)</span><br>&nbsp;&nbsp;<span class="paren2">(<span class="">ns:example <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="symbol">nil</a></span>)</span></span>)</span></div></p>
+<p>Пример использования внедрённых данных:</p>
+<p><div class="code">{namespace ns}<br>
+<br>{template example}<br>
+ &nbsp;&nbsp;&nbsp;{call helper /}<br>
+{/template}<br>
+<br>{template helper}<br>
+ &nbsp;&nbsp;&nbsp;foo is {$ij.foo}<br>
+{/template}</div></p>
+</div>
+<div id="комментарии" class="section"><h2>Комментарии<a href="#комментарии" class="headerlink" title="Permalink to this headline">¶</a></h2><p>Комментарии в шаблонах имеют синтаксис, традиционный для C-подобных языков:</p>
+<ul>
+<li><p class="first last"><tt class="docutils literal">
+<span class="pre">//</span></tt> - однострочный комментарий</p>
+</li>
+<li><p class="first last"><tt class="docutils literal">
+<span class="pre">/*</span> <span class="pre">comment</span> <span class="pre">*/</span></tt> - многострочный комментарий</p>
+</li>
+</ul>
+<p>Комментарии игнорируются всеми backend-ами и не оказывают какого-либо влияния на результат.</p>
+</div>
+<div id="простой-текст" class="section"><h2>Простой текст<a href="#простой-текст" class="headerlink" title="Permalink to this headline">¶</a></h2><p>Весь текст в шаблоне, включая HTML-тэги, не окружённый фигурными скобками, считается "сырым" текстом. <a class="reference" href="https://github.com/archimag/cl-closure-template/"><span>cl-closure-template</span></a> удаляет лишние пробельные символы в таком тексте, но не пытается его анализировать, а просто добавляет в результат работы шаблона.</p>
+</div>
+</div> </div> <div id="foother"> Copyright @2010-2013 <a href="mailto:archimag@gmail.com">Moskvitin Andrey</a> </div> <div id="comments"> <div id="disqus_thread"></div> <script type="text/javascript"> var disqus_shortname = "archimagblog"; 
+     (function() {
+     var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+     dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+     })();
+      </script> <noscript> Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a> </noscript> <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a> </div> </body> </html>

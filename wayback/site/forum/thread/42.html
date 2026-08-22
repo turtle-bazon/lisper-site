@@ -1,0 +1,136 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru">
+	<head>
+      	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"></meta>
+
+        <meta name="verify-v1" content="o6r5tA9qF5PflmPb3cI7rJrWpFBGTkIE9X4KU25TxiE="></meta>
+
+        <meta name="keywords" content="Common Lisp,lisp,лисп"></meta>
+
+        <link href="/css/fine/style.css" rel="stylesheet" type="text/css">
+        <link href="/css/fine/colorize.css" rel="stylesheet" type="text/css">
+	<title>Lisp + Forth = love</title>
+<link rel="alternate" type="application/rss+xml" title="Тема  'Lisp + Forth = love' - RSS-лента" href="/forum/rss/threads/42.rss">
+<link href="/css/fine/forum.css" rel="stylesheet" type="text/css">
+<link href="/css/fine/jquery.wysiwyg.css" rel="stylesheet" type="text/css">
+<script src="/js/jquery.js" type="text/javascript"></script><script src="/js/jquery.wysiwyg.js" type="text/javascript"></script><script src="/js/forum.js" type="text/javascript"></script></head>
+
+	<body>
+        <div class="top">
+            <div id="login">
+    <a href="/register">Регистрация</a> |
+    <a href="/login?done=http%3A%2F%2Flisper.ru%2Fforum%2Fthread%2F42">Войти</a>
+</div>
+        </div>
+
+        <div id="caution">
+            <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png"></img>
+        </div>
+
+        <div id="mainmenu">
+          <ul>
+<li><a href="/">Главная</a></li>
+<li><a href="/articles/">Статьи</a></li>
+<li><a href="/planet/">Планета</a></li>
+<li><a href="/forum/">Форум</a></li>
+<li><a href="/apps/">Сервисы</a></li>
+<li><a href="/pcl/">Practical Common Lisp</a></li>
+<li><a href="/wiki/">wiki</a></li>
+</ul>
+        </div>
+
+        <div id="content"><div id="forum-nav-panel">
+<a class="rss-link" href="/forum/rss/threads/42.rss">RSS</a><ul>
+<li><a href="/forum/">Список форумов</a></li>
+<li><a href="/forum/common-lisp">Common Lisp</a></li>
+<li><strong>Lisp + Forth = love</strong></li>
+</ul>
+</div>
+<div class="thread">
+<div class="topic">
+<div><big>Lisp + Forth = love</big></div>
+<div class="topic-info"><span class="topic-author">Автор: <strong>hardreset</strong> - 11.08.2009 05:46, Сообщений - 13</span></div>
+<div class="topicbody"><p>Существует ли реализация интерпретатора какого-нибудь диалекта липа (желательно Scheme) на Forth?<br>А то я тут собрался годную ОСь писать и, соответственно, асм заменил на форт... <br>Короче, мне нужен простенький интерпретатор лиспа на форте, без всяких дополнительных крутых приблуд, только базовые элементы лиспа.</p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>Love5an</strong> - 11.08.2009 07:33</span></div>
+<div class="replybody"><p>&gt;базовые элементы лиспа.<br><br>defmacro? CLOS? :)</p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>dmitry_vk</strong> - 11.08.2009 07:49</span></div>
+<div class="replybody"><p>В принципе, интерпретатор схемы (без call/cc, конечно же) пишется довольно быстро и "игрушечных" реализаций полно. В том числе и под форт.<br>Например, http://www.complang.tuwien.ac.at/schani/oldstuff/index.html#schemeinforth</p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>lispnik</strong> - 11.08.2009 07:58</span></div>
+<div class="replybody"><p>defmacro, на самом деле, пишется элементарно.  А CLOS к базовым никак не относится :)</p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>hardreset</strong> - 11.08.2009 08:39</span></div>
+<div class="replybody"><p>2lispnik<br><br>Спасибо, походу это то что мне нужно. Сча cкачаю gforth и заюзаю.</p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>hardreset</strong> - 11.08.2009 08:43</span></div>
+<div class="replybody"><p>Блин, я ошибся. Пред. мой пост к <span class="topic-author"><strong>dmitry_vk (не обитсо) :)<br><br>P.S. Плохо, что нельзя сообщения редактировать.<br></strong></span></p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>allchemist</strong> - 11.08.2009 10:56</span></div>
+<div class="replybody"><p>Хм, я тоже периодически подрываюсь сделать что-нибудь осеподобное на форте, но из-за отсутствия должных знаний<br>про форт книг умных чтением заканчивается все.<br><br>Так что, да поделится топикстартер кодом, интересно же :)<br><br>Кстати, да. Загрузчик FreeBSD написан на форте, сейчас его код изучаю. Рекоммендую почитать, т.к. написан красяво.</p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>hardreset</strong> - 11.08.2009 14:30</span></div>
+<div class="replybody">
+<h3 style="font-weight: normal;"><small>2allchemist</small></h3>
+<h3 style="font-weight: normal;"><small>Ты будешь смеяться, но у меня пока ничего нет (в смысле своего кода). Есть только революционные идеи.</small></h3>
+<h3 style="font-weight: normal;"><small>Если в двух словах, то я собираюсь использовать интерпретатор лиспа на форте как виртуальную машину. И основная фишка в том, что программы будут работать прямо из исходников, без компиляции<span style="font-weight: bold;">. Т.е. лисп будет "ассемблером" моей виртуальной машины.</span></small></h3>И на данным момент планы у меня такие: взять какой-нибудь левый загрузчик (хоть из FreeBSD, не важно), оптимизировать код на форте интерпретатора лиспа (главный вопрос это скорость, потом переносимость, компактность и чистота), откомпилить его и заставить загрузчкика его загружать. Вот если всё это получится, то дальше уже будет видно что делать, ведь один из главных аспектов в любой разработке - это гибкость. Поэтому я не вгоняю себя в жесткие рамки. Просто есть идея (виртуальная машина) и основные принципы, которым я следую: абсолютная переносимость, минимализм и простота  :)<br><br><h3><span class="topic-author"><strong></strong></span></h3>
+</div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>allchemist</strong> - 11.08.2009 20:02</span></div>
+<div class="replybody"><p>Хм, меня посещают те же идеи (виртуальная машина на форте, реализующая некий упрощенный диалект common lisp).<br>Но все упирается в отсутствие реального опыта. Если подкинешь хорошую современную ботвень по форту, буду благодарен :)</p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>hardreset</strong> - 12.08.2009 00:23</span></div>
+<div class="replybody"><p>Например, планировщик nnCron написан на SPF. Можешь скачать исходники здесь:<br>http://nncron.ru/download/nnsrc.zip<br>Там в папке nnCron, nnCron Lite и nnBackup. Их описание читай здесь:<br>http://nncron.ru/index_ru.shtml<br></p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>Love5an</strong> - 19.08.2009 20:28</span></div>
+<div class="replybody"><p>&gt;defmacro, на самом деле, пишется элементарно.<br>Ну, вот тут человек попробовал простенький лисп с defmacro на template haskell изобразить.<br>http://rsdn.ru/forum/decl/3506090.1.aspx<br>defmacro прикрутить не удалось</p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>metaprogrammer</strong> - 28.08.2009 00:29</span></div>
+<div class="replybody"><p>Да нет, прикрутить то удалось, но не удалось сделать это прозрачно и красиво, без хаков. <br><br>И это в случае с компиляцией. Для интерптетатора же defmacro делается очень тривиально.</p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>Love5an</strong> - 28.08.2009 02:30</span></div>
+<div class="replybody"><p>Ну дак а какова ценность defmacro в интерпретаторах-то?</p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>metaprogrammer</strong> - 28.08.2009 12:30</span></div>
+<div class="replybody"><p>А какая разница, компилятор или интерпретатор? defmacro - это семантическая фича, а не "для оптимизации", как думают некоторые несознательные граждане.<br><br>Тем более, интерпретатор с макрами становится в какой-то степени комилятором. Фаза раскрытия макр - компиляция, а более простой и компактный язык после этого интерпретируется.<br><br>У меня для бутстрапа используется вообще язык предельно примитивный, без замыканий и рекурсивных определений - его интерпретировать можно легко и эффективно. Далее средствами самого этого языка делается компилятор из минимального Лиспа в минимальный язык (лямбда-лифтинг), рекурсия реализуется на этапе бутстрапа через Y-комбинатор. Всё остальное, все фичи языка - на макрах реализуются. Когда включается уже компиляция в .NET, все те же макры срабатывают уже для компилятора, и точно те же исходники, которые ранее интерпретировались, потом компилируются.<br><br>В общем, defmacro - это сила.</p></div>
+</div>
+</div></div>
+
+        <div class="bottom">@2009 lisper.ru</div>
+
+        <script type="text/javascript">
+
+          var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+
+          document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+
+        </script>
+
+        <script type="text/javascript">
+
+          try {
+
+          var pageTracker = _gat._getTracker("UA-7734690-1");
+
+          pageTracker._trackPageview();
+
+          } catch(err) {}
+
+        </script>
+
+    </body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru">
+	<head>
+      	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"></meta>
+
+        <meta name="verify-v1" content="o6r5tA9qF5PflmPb3cI7rJrWpFBGTkIE9X4KU25TxiE="></meta>
+
+        <meta name="keywords" content="Common Lisp,lisp,лисп"></meta>
+
+        <link href="/css/fine/style.css" rel="stylesheet" type="text/css">
+        <link href="/css/fine/colorize.css" rel="stylesheet" type="text/css">
+	<title>Загрузка файла, содержащего произволное s-выражение</title>
+<link rel="alternate" type="application/rss+xml" title="Тема  'Загрузка файла, содержащего произволное s-выражение' - RSS-лента" href="/forum/rss/threads/56.rss">
+<link href="/css/fine/forum.css" rel="stylesheet" type="text/css">
+<link href="/css/fine/jquery.wysiwyg.css" rel="stylesheet" type="text/css">
+<script src="/js/jquery.js" type="text/javascript"></script><script src="/js/jquery.wysiwyg.js" type="text/javascript"></script><script src="/js/forum.js" type="text/javascript"></script></head>
+
+	<body>
+        <div class="top">
+            <div id="login">
+    <a href="/register">Регистрация</a> |
+    <a href="/login?done=http%3A%2F%2Flisper.ru%2Fforum%2Fthread%2F56">Войти</a>
+</div>
+        </div>
+
+        <div id="caution">
+            <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png"></img>
+        </div>
+
+        <div id="mainmenu">
+          <ul>
+<li><a href="/">Главная</a></li>
+<li><a href="/articles/">Статьи</a></li>
+<li><a href="/planet/">Планета</a></li>
+<li><a href="/forum/">Форум</a></li>
+<li><a href="/apps/">Сервисы</a></li>
+<li><a href="/pcl/">Practical Common Lisp</a></li>
+<li><a href="/wiki/">wiki</a></li>
+</ul>
+        </div>
+
+        <div id="content"><div id="forum-nav-panel">
+<a class="rss-link" href="/forum/rss/threads/56.rss">RSS</a><ul>
+<li><a href="/forum/">Список форумов</a></li>
+<li><a href="/forum/common-lisp">Common Lisp</a></li>
+<li><strong>Загрузка файла, содержащего произволное s-выражение</strong></li>
+</ul>
+</div>
+<div class="thread">
+<div class="topic">
+<div><big>Загрузка файла, содержащего произволное s-выражение</big></div>
+<div class="topic-info"><span class="topic-author">Автор: <strong>archimag</strong> - 11.09.2009 13:33, Сообщений - 2</span></div>
+<div class="topicbody">
+<p>Есть файл, содеражащий, например, такое выражение:<br></p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defpar.htm" class="symbol"><i><span class="symbol">defparameter</span></i></a> <span class="special">*xxx*</span> '<span class="paren2">(<span class="">xxx:hello</span>)</span></span>)</span></pre>Его надо загрузить с помощью команды:<br><pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_load.htm" class="symbol">load</a> #<span class="string">"/path/to/file"</span></span>)</span></pre>Проблема в том, что в момент загрузки данного файла, пакет xxx, который используется в данном выражении, ещё не существует. Для решения данной проблемы можно попробовать настроить рестарты таким образом, что при обнаружении ссылки на ещё не существующий пакет динамически его создавать и вызывать:<br><pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_invo_1.htm" class="symbol">invoke-restart</a> '<a href="http://www.lispworks.com/reference/HyperSpec/Body/t_rst.htm" class="symbol">restart</a></span>)</span></pre> Как это лучше всего реализовать для sbcl?</div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>Love5an</strong> - 11.09.2009 21:49</span></div>
+<div class="replybody">
+<p>дык это,</p>
+<pre class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defpar.htm" class="symbol"><i><span class="symbol">defparameter</span></i></a> <span class="special">*xxx*</span> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_list.htm" class="symbol">list</a> <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_find_s.htm" class="symbol">find-symbol</a> <span class="string">"HELLO"</span> <span class="string">"XXX"</span></span>)</span></span>)</span></span>)</span></pre>
+</div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>archimag</strong> - 12.09.2009 00:46</span></div>
+<div class="replybody">
+<span style="font-style: italic;">to Love5an:</span><br><br>Не, это заставляет писать код специальным, не вполне естественным, способом. Хотелось бы без этого. <a href="http://lisper.ru/apps/format/9%20">http://lisper.ru/apps/format/9 </a>- вот вариант dmitry_vk, это, конечно, жуткий хак, который может перестать работать даже в следующей версии sbcl. Я написал другой вариант, переопределив find-package и find-symbol, но это тоже жуткий хак. <br><br>Вообщем, я решил в итоге использовать схему, в которой выражения, содержащие ссылки на неизвестные пакеты будут просто игнорироваться. <a href="http://lisper.ru/apps/format/11">http://lisper.ru/apps/format/11</a> - пример кода (от fionbio ) используюего подобную технику, но для более специально случая, я добавил к этому коду eval и получил нужный мне результат.<span class="info"><strong><br></strong></span>
+</div>
+</div>
+</div></div>
+
+        <div class="bottom">@2009 lisper.ru</div>
+
+        <script type="text/javascript">
+
+          var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+
+          document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+
+        </script>
+
+        <script type="text/javascript">
+
+          try {
+
+          var pageTracker = _gat._getTracker("UA-7734690-1");
+
+          pageTracker._trackPageview();
+
+          } catch(err) {}
+
+        </script>
+
+    </body>
+</html>

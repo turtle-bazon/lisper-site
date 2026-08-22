@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru">
+	<head>
+      	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"></meta>
+
+        <meta name="verify-v1" content="o6r5tA9qF5PflmPb3cI7rJrWpFBGTkIE9X4KU25TxiE="></meta>
+
+        <meta name="keywords" content="Common Lisp,lisp,лисп"></meta>
+
+        <link href="/css/fine/style.css" rel="stylesheet" type="text/css">
+        <link href="/css/fine/colorize.css" rel="stylesheet" type="text/css">
+	<title>Hello World с GUI на Common Lisp</title></head>
+
+	<body>
+        <div class="top">
+            <div id="login">
+    <a href="/register">Регистрация</a> |
+    <a href="/login?done=http%3A%2F%2Flisper.ru%2Farticles%2Fhello-world-with-cl-gtk2">Войти</a>
+</div>
+        </div>
+
+        <div id="caution">
+            <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png"></img>
+        </div>
+
+        <div id="mainmenu">
+          <ul>
+<li><a href="/">Главная</a></li>
+<li><a href="/articles/">Статьи</a></li>
+<li><a href="/planet/">Планета</a></li>
+<li><a href="/forum/">Форум</a></li>
+<li><a href="/apps/">Сервисы</a></li>
+<li><a href="/pcl/">Practical Common Lisp</a></li>
+<li><a href="/wiki/">wiki</a></li>
+</ul>
+        </div>
+
+        <div id="content"><h2>Hello World с GUI на Common Lisp</h2>
+<table><tbody>
+<tr>
+<td><b>Автор:</b></td>
+<td><a href="http://dmitry-vk.livejournal.com/">dmitry_vk</a></td>
+</tr>
+<tr>
+<td><b>Источник:</b></td>
+<td><a href="http://dmitry-vk.livejournal.com/21752.html">http://dmitry-vk.livejournal.com/21752.html</a></td>
+</tr>
+</tbody></table>
+<div class="article">
+
+    
+
+    <p>Создадим простую программу с GUI, которую можно будет запускать как отдельное приложение. Программа не будет делать ничего полезного, и будет просто показывать окно с надписью “Hello, world”.</p>
+    
+    <p>Для построения GUI воспользуемся библиотекой cl-gtk2.</p>
+
+    <p>Опишем процесс по шагам</p>
+
+    <p>Запускаем Slime, загружаем cl-gtk2:</p>
+
+    <div class="code">
+<span class="paren1">(<span class="">asdf:oos 'asdf:load-op <span class="keyword">:cl-gtk2-gtk</span></span>)</span><br>
+</div>
+
+    <p>Создаем исходный файл (назовем его hello-world.lisp) со следующим текстом:</p>
+
+    <div class="code">
+<span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defpkg.htm" class="symbol"><i><span class="symbol">defpackage</span></i></a> <span class="keyword">:hello-world</span><br>  <span class="paren2">(<span class=""><span class="keyword">:use</span> <span class="keyword">:cl</span> <span class="keyword">:gobject</span> <span class="keyword">:gtk</span></span>)</span><br>  <span class="paren2">(<span class=""><span class="keyword">:export</span> <span class="keyword">:main</span> <span class="keyword">:run</span></span>)</span></span>)</span><br><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_in_pkg.htm" class="symbol">in-package</a> <span class="keyword">:hello-world</span></span>)</span><br><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> main <span class="paren2">(<span class=""></span>)</span><br>  <span class="paren2">(<span class="">within-main-loop<br>    <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">let</span></i></a> <span class="paren4">(<span class=""><span class="paren5">(<span class="">w <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_mk_ins.htm" class="symbol">make-instance</a> 'gtk-window <span class="keyword">:title</span> <span class="string">"Hello, world"</span></span>)</span></span>)</span><br>          <span class="paren5">(<span class="">l <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_mk_ins.htm" class="symbol">make-instance</a> 'label <span class="keyword">:label</span> <span class="string">"Hello, world!"</span></span>)</span></span>)</span></span>)</span><br>      <span class="paren4">(<span class="">container-add w l</span>)</span><br>      <span class="paren4">(<span class="">connect-signal w <span class="string">"destroy"</span> <span class="paren5">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_lambda.htm" class="symbol"><i><span class="symbol">lambda</span></i></a> <span class="paren6">(<span class="">w</span>)</span><br>                                    <span class="paren6">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_declar.htm" class="symbol">declare</a> <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/d_ignore.htm" class="symbol">ignore</a> w</span>)</span></span>)</span><br>                                    <span class="paren6">(<span class="">gtk-main-quit</span>)</span></span>)</span></span>)</span><br>      <span class="paren4">(<span class="">widget-show w</span>)</span></span>)</span></span>)</span></span>)</span><br><br><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> run <span class="paren2">(<span class=""></span>)</span><br>  <span class="paren2">(<span class="">main</span>)</span><br>  <span class="paren2">(<span class="">join-main-thread</span>)</span></span>)</span><br>
+</div>
+
+    <p>В этом исходнике определяется пакет hello-world, в котором определяются две функции: main и run. Функция main нужна во время разработки – она запускает программу в другой нитке (за это отвечает макрос within-main-loop), а run используется при запуске программы отдельно, не из slime.</p>
+
+    <p>Функция join-main-thread ожидает, когда главный цикл обработки сообщений в Gtk+ будет завершен. Этот цикл завершается, когда окно закрывается и получает сигнал “destroy”.</p>
+
+    <p>Можно протестировать программу прямо из Slime:</p>
+
+    <div class="code">
+<span class="paren1">(<span class="">hello-world:main</span>)</span><br>
+</div>
+
+    <p>После ввода этой формы в REPL будет запущена фоновая нить (thread), в которой работает Gtk+, и управление сразу вернется в REPL.</p>
+
+    <p>Теперь перейдем к созданию программы, которая может запускаться отдельно.</p>
+
+    <p>Для начала, следует определить ASDF-систему для нашего hello-world'а.</p>
+
+    <p>Создаем файл hello-world.asd в одном каталоге с hello-world.lisp следующего содержания (хотя названия системы и пакета в данном примере совпадают, это совсем не обязательно):</p>
+
+    <div class="code">
+<span class="paren1">(<span class=""><i><span class="symbol">defsystem</span></i> <span class="keyword">:hello-world</span><br>  <span class="keyword">:name</span> <span class="string">"hello-world"</span><br>  <span class="keyword">:components</span> <span class="paren2">(<span class=""><span class="paren3">(<span class=""><span class="keyword">:file</span> <span class="string">"hello-world"</span></span>)</span></span>)</span><br>  <span class="keyword">:depends-on</span> <span class="paren2">(<span class=""><span class="keyword">:cl-gtk2-gtk</span></span>)</span></span>)</span><br>
+</div>
+
+    <p>В этом описании системы указывается, как следует собирать программу: программа зависит от системы cl-gtk2-gtk и состоит из одного исходного файла hello-world.lisp (расширение .lisp добавляется автоматически).</p>
+
+    <p>Обычно с помощью ASDF определяются системы, содержащие код библиотек и помещаются в общесистемный каталог /usr/share/common-lisp/systems. В данном случае, определяется система для отдельной программы.</p>
+
+    <p>С помощью cl-launch можно превратить описание этой системы в запускающий бинарник.</p>
+
+    <p>Сперва надо установить cl-launch. В gentoo linux с подключенным lisp-overlay это делается вводом команды</p>
+
+    <pre>emerge dev-lisp/cl-launch</pre>
+
+    <p>В других дистрибутивах можно воспользоваться ASDF-INSTALL для установки в общесистемный каталог или каталог пользователя:</p>
+
+    <div class="code">
+<span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_provid.htm" class="symbol">require</a> <span class="keyword">:asdf-install</span></span>)</span><br><span class="paren1">(<span class="">asdf-install:install <span class="keyword">:cl-launch</span></span>)</span><br>
+</div>
+
+    <p>cl-launch содержит шелл-скрипт cl-launch.sh, который используется для приготовления лисповских программ к запуску как отдельные приложения.</p>
+
+    <p>Сперва создадим образ лиспа, в котором содержатся cl-gtk2-gtk и наш hello-world. Если не создавать образ, то придется загружать cl-gtk2-gtk из исходников или fasl'ов. Загрузка и компиляция из исходников – очень долгий процесс; загрузка из fasl'ов происходит быстрее, но все равно долго (на моем компьютере загрузка из fasl'ов занимает 30 секунд). Для разработки программ создавать образ не нужно, так как все загружается один раз при запуске.</p>
+
+    <p>Для того, чтобы создать образ, введем команду (находясь в одном каталоге с hello-world.lisp и hello-world.asd):</p>
+
+    <pre>cl-launch.sh -s hello-world -d hello-world-image</pre>
+
+    <p>cl-launch загружает систему hello-world вместе со всеми зависимости (cl-launch добавляет текущий каталог в список каталогов, в которых ASDF ищет системы, поэтому никаких симлинков на hello-world.asd создавать не нужно) и сохраняет образ в файл hello-world-image.</p>
+
+    <p>Если установлено несколько реализаций лиспа, то можно выбрать, какую из них использовать:</p>
+
+    <pre>cl-launch.sh --lisp sbcl -s hello-world -d hello-world-image</pre>
+
+    <p>Далее надо с помощью cl-launch создать шелл-скрипт, запускающий программу из созданного образа:</p>
+
+    <pre>cl-launch.sh -m hello-world-image -i '(hello-world:run)' -o hello-world</pre>
+
+    <p>(если установлено несколько реализаций лиспа, то также можно добавить ключ --lisp)</p>
+
+    <p>В результате этой команды будет создан скрипт hello-world, который запускает программу.</p>
+
+    <p>Попробуем запустить его:</p>
+
+    <pre>./hello-world</pre>
+
+    <p>Должно практически сразу же появиться окошко:</p>
+
+    <img alt="Скриншот программы 'Hello world!'" src="http://img-fotki.yandex.ru/get/3612/kalyanovdmitry.0/0_19352_2f7381c5_orig">
+
+    <p>Время запуска программы из образа можно назвать вполне приемлемым: окошко появляется спустя едва различимый интервал времени.</p>
+
+    <p>Но у рассмотренного способа создания приложений есть один недостаток – размер получаемого образа. В моем случае (для SBCL на 64-битной машине) размер составил 64 мегабайта. Основная часть этого образа – сам SBCL (размер основного образа SBCL на моей машине – 42 мегабайта), остальная часть – это cl-gtk2-gtk и совсем небольшая часть – собственно приложение. То есть, при усложнении собственной программы и добавлении к ней кода размер образа не будет сильно расти.</p>
+
+    <p>Чтобы исправить эту проблему, можно сжать исполняемый образ с помощью программы gzexe.</p>
+
+    <pre>gzexe hello-world-image</pre>
+
+    <p>На моей машине размер образа уменьшается с 64Mb до 12Mb и несколько увеличивается время загрузки программы (с 0.5 с до 1.4 с). 12Mb – это уже более приемлемо даже для загрузки программы из интернета, но все равно много. Разные реализации лиспа создают образы по-разному, и размеры варьируются от реализации к реализации, поэтому из приведенных чисел не следует, что приложения всегда будут получаться большими.</p>
+
+    <p>Одним из приемлемых способов распространения приложений на лиспе для дистрибутивов линукса, по-видимому, является сборка образа из исходников на конечной машине. При таком способе общий объем загружаемых из интернета данных получается не настолько большим (при условии, что в составе дистрибутива имеется компилятор лиспа), и время запуска приложения приемлемое. При этом все используемые лисповые библиотеки можно как брать с машины пользователя (для gentoo- или debian-подобных дистрибутивов), так и держать рядом с исходниками (если нет пакетного менеджера, в репозитории которого имеется необходимый софт)</p>
+
+    <em>Замечание: сохранение образов с загруженным cl-gtk2 пока работает лишь в SBCL. Работоспособность сохраненных образов с cl-gtk2 в других лиспах - вопрос времени.    </em>
+</div></div>
+
+        <div class="bottom">@2009 lisper.ru</div>
+
+        <script type="text/javascript">
+
+          var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+
+          document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+
+        </script>
+
+        <script type="text/javascript">
+
+          try {
+
+          var pageTracker = _gat._getTracker("UA-7734690-1");
+
+          pageTracker._trackPageview();
+
+          } catch(err) {}
+
+        </script>
+
+    </body>
+</html>

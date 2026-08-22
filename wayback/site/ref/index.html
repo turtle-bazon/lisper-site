@@ -1,0 +1,122 @@
+<html> <head> <meta http-equiv="Content-Type" content="text/html; charset='utf-8'" /> <title>API Reference</title> <link rel="stylesheet" type="text/css" href="../_static/style.css" /> <link rel="stylesheet" type="text/css" href="../_static/colorize.css" /> </head> <body> <div id="frame"> <div id="page-title"> <h1>RESTAS</h1> <b>Фрэймворк для разработки web-приложений на Common Lisp</b> </div> <div id="menu"> <ul>  <li>  <a href="../index.html">Начало</a>   </li>  <li>  <a href="../overview.html">Обзор</a>   </li>  <li>  <a href="../installation.html">Установка</a>   </li>  <li>  <a href="../tutorial/contents.html">Введение</a>   <ul>  <li>  <a href="../tutorial/hello-world.html">Hello World</a>  </li>  <li>  <a href="../tutorial/pastebin.html">Pastebin</a>  </li>  </ul>  </li>  <li>  <a href="../manual/contents.html">Руководство</a>   <ul>  <li>  <a href="../manual/routes.html">Маршруты</a>  </li>  <li>  <a href="../manual/modules.html">Модули</a>  </li>  <li>  <a href="../manual/view.html">Представление</a>  </li>  <li>  <a href="../manual/daemon.html">Демонизация</a>  </li>  <li>  <a href="../manual/slime.html">SLIME</a>  </li>  </ul>  </li>  <li>  <strong>API Reference</strong>   </li>  </ul> </div> <div id="content"> <div id="id1" class="document"><h1 class="title">API Reference</h1>
+<!-- -*- RST -*- -->
+<a id="api-reference" class="target" name="api-reference"></a><p><div class="entity-description"><a name="restas-start"></a><div><span class="common-lisp-entity">Function restas:start</span> (module &key hostname (port 80) (context (make-context)))</div><div class="description-body"><p>Устанавливает (запускает) модуль для обработки HTTP-запросов. <a class="reference" href="http://restas.lisper.ru/"><span>RESTAS</span></a> поддерживает концепцию <a class="reference" href="http://httpd.apache.org/docs/current/vhosts/"><span>виртуальных хостов </span></a>, что позволяет в рамках одного процесса размещать несколько сайтов с различными доменными именами. Кроме того, также возможно обслуживание нескольких портов.</p>
+<p><strong><span>Параметры</span></strong>:</p>
+<ul>
+<li><p class="first">module - <a class="reference" href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#package_designator"><span>package designator</span></a>, индентифицирующий модуль, определённый с помощью <a class="common-lisp-entity" href="index.html#restas-define-module">restas:define-module</a></p>
+</li>
+<li><p class="first">hostname - имя хоста, запросы к которму долж</p>
+</li>
+<li><p class="first">port - порт на котором будут приниматься запросы</p>
+</li>
+<li><p class="first">context - окружение, аналогичное указываемумо в <a class="common-lisp-entity" href="index.html#restas-define-submodule">restas:define-submodule</a>, которое позволяет настроить параметры модуля.</p>
+</li>
+</ul>
+<p>Данная функция может быть вызвана несколько раз с различными параметрами. Если разные модули были запущены для одной и той же комбинации имени хости и номера порта, то возможны конфликты маршрутов и в случае их возникновеня способ диспетчерезации запросов не определён.</p>
+</div></div></p>
+<p><div class="entity-description"><a name="restas-reconnect-all-routes"></a><div><span class="common-lisp-entity">Function restas:reconnect-all-routes</span> ()</div><div class="description-body">Реинициализирует диспетчер запросов. Обычно в непосредственном вызове данной функции нет необходимости, посольку при выполнении (:execute) макросов <a class="common-lisp-entity" href="index.html#restas-define-submodule">restas:define-submodule</a> и <a class="common-lisp-entity" href="index.html#restas-define-route">restas:define-route</a> она вызывается автоматически.</div></div></p>
+<div id="специальные-переменные" class="section"><h2><a name="специальные-переменные">Специальные переменные</a></h2>
+<p><div class="entity-description"><a name="restas-default-host-redirect"></a><div class="common-lisp-entity">Variable restas:*default-host-redirect*</div><div class="description-body">Хост по-умолчанию, на который будут перенаправлять запросы, адресованные к незарегистрированному хосту.</div></div></p>
+<p><div class="entity-description"><a name="restas-bindings"></a><div class="common-lisp-entity">Variable restas:*bindings*</div><div class="description-body">В этой переменной сохраняется набор распарсенных переменных маршрута.</div></div></p>
+<p><div class="entity-description"><a name="restas-submodule"></a><div class="common-lisp-entity">Variable restas:*submodule*</div><div class="description-body">Активный submodule, которому принадлежит обрабатываемый маршрут</div></div></p>
+<p><div class="entity-description"><a name="restas-request-pool"></a><div class="common-lisp-entity">Variable restas:*request-pool*</div><div class="description-body">Пул ресурсов библиотеки <a class="reference" href="http://code.google.com/p/garbage-pools/"><span>garbage-pools</span></a>, который освобождается после завершения обработки запроса.</div></div></p>
+<p><div class="entity-description"><a name="restas-route"></a><div class="common-lisp-entity">Variable restas:*route*</div><div class="description-body">Обрабатываемый маршрут.</div></div></p>
+</div>
+<div id="маршруты" class="section"><h2><a name="маршруты">Маршруты</a></h2>
+<p><div class="entity-description"><a name="restas-define-route"></a><div><span class="common-lisp-entity">Macro restas:define-route</span> (name (template &key (method :get) content-type render-method requirement parse-vars) &body body)</div><div class="description-body"><p>Создаёт новый маршрут в текущем модуле</p>
+<ul>
+<li><p class="first">name - уникальный <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_symbol.htm" class="common-lisp-entity">symbol</a>, являющийся индефикатором маршрута. Один и тот же <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_symbol.htm" class="common-lisp-entity">symbol</a> не может использоваться для различных маршрутов.</p>
+</li>
+<li><p class="first">template - шаблон URL, на основе которого проверяется соответствие маршрута запросу. Может содержать переменные, которые непосредственно доступны в теле маршрута.</p>
+</li>
+<li><p class="first">method - тип обрабатываемого HTTP-запроса, возможные значения: :GET, :POST, :PUT, :DELETE.</p>
+</li>
+<li><p class="first">content-type - <strong><span>Content-Type</span></strong> результата обработки запроса, устанавлиевается в заголовке HTTP-ответа.</p>
+</li>
+<li><p class="first">render-method - объект, который будет использоваться в вызове <a class="common-lisp-entity" href="index.html#restas-render-object">restas:render-object</a> для обработки результата маршрута перед отдачей его клиенту.</p>
+</li>
+<li><p class="first">requirement - произвольное функция, которая вызвается для проверки соответствия маршрута условиям запроса. Если результат <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="common-lisp-entity">NIL</a>, то маршрут считается не удовлетворяющим запросу.</p>
+</li>
+<li><p class="first">parse-vars - <em><span>plist</span></em> с именами переменных (в виде <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_kwd.htm" class="common-lisp-entity">keyword</a>) и функциям их парсинга.</p>
+</li>
+<li><p class="first">body - тело обработчика, может содержать произвольный код, результат выполнения которого возвращается клиенту (после обработки с помощью <a class="common-lisp-entity" href="index.html#restas-render-object">restas:render-object</a>).</p>
+</li>
+</ul>
+<p>Пример объявления тривиального маршрута:</p>
+<p><div class="code"><span class="paren1">(<span class=""><i><span class="symbol">restas:define-route</span></i> main <span class="paren2">(<span class=""><span class="string">""</span></span>)</span><br>&nbsp;&nbsp;<span class="string">"&lt;h1&gt;Hello world!&lt;/h1&gt;"</span></span>)</span></div></p>
+<p>Подробнее об определении маршрутов смотрие <a href="../manual/routes.html#маршруты">Маршруты</a></p>
+</div></div></p>
+<p><div class="entity-description"><a name="restas-route-symbol"></a><div><span class="common-lisp-entity">Function restas:route-symbol</span> (route)</div><div class="description-body">Возвращает <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_symbol.htm" class="common-lisp-entity">symbol</a>, связанный с объектом-маршрутом (например, во время обработки запроса такой объект связан  с переменной <a class="common-lisp-entity" href="index.html#restas-route">restas:*route*</a>).</div></div></p>
+<p><div class="entity-description"><a name="restas-genurl"></a><div><span class="common-lisp-entity">Function restas:genurl</span> (route-symbol &rest args)</div><div class="description-body"><p>Вычисляет URL маршрута на основе индентифицирующего <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_symbol.htm" class="common-lisp-entity">symbol</a> и набора значений переменных его шаблона (см. <a class="common-lisp-entity" href="index.html#restas-define-route">restas:define-route</a>)</p>
+<ul>
+<li><p class="first">route-symbol - индентификатор маршрута</p>
+</li>
+<li><p class="first">args - последовательность (в формате <em><span>plist</span></em>) имён переменных маршрута и их значений.</p>
+</li>
+</ul>
+<p>Пример:</p>
+<p><div class="code"><span class="paren1">(<span class="">restas:genurl 'my-route<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">:arg1</span> <span class="string">"foo"</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">:arg2</span> <span class="string">"bar"</span></span>)</span></div></p>
+<p><strong><span>Важно</span></strong>: данная функция работает правильно только маршрутов, которые находятся в одном модуле с обрабатываемым в момент вызова маршрутом.</p>
+</div></div></p>
+<p><div class="entity-description"><a name="restas-genurl-submodule"></a><div><span class="common-lisp-entity">Function restas:genurl-submodule</span> (submodule-symbol route-symbol &rest args)</div><div class="description-body"><p>Аналогична <a class="common-lisp-entity" href="index.html#restas-genurl">restas:genurl</a>, но используется для маршрутов из подключаемых с помощью <a class="common-lisp-entity" href="index.html#restas-define-submodule">restas:define-submodule</a> модулей.</p>
+<ul>
+<li><p class="first">submodule-symbol - индефикатор субмодуля, указаный при его определении с помощю <a class="common-lisp-entity" href="index.html#restas-define-submodule">restas:define-submodule</a>.</p>
+</li>
+</ul>
+</div></div></p>
+<p><div class="entity-description"><a name="restas-genurl-with-host"></a><div><span class="common-lisp-entity">Function restas:genurl-with-host</span> (route &rest args)</div><div class="description-body">Данная функция аналогична <a class="common-lisp-entity" href="index.html#restas-genurl">restas:genurl</a> за тем исключением, что в генерируемый URL также включается имя хоста.</div></div></p>
+<p><div class="entity-description"><a name="restas-redirect"></a><div><span class="common-lisp-entity">Function restas:redirect</span> (route-symbol &rest args)</div><div class="description-body">Перенаправляет запрос с помощью <span class="common-lisp-entity">hunchentoot:redirect</span> для URL, вычисляемого с помощью <a class="common-lisp-entity" href="index.html#restas-genurl">restas:genurl</a>. Параметры аналогичны параметрам функции <a class="common-lisp-entity" href="index.html#restas-genurl">restas:genurl</a>.</div></div></p>
+</div>
+<div id="модули" class="section"><h2><a name="модули">Модули</a></h2>
+<p><div class="entity-description"><a name="restas-define-module"></a><div><span class="common-lisp-entity">Macro restas:define-module</span> (name &rest options)</div><div class="description-body">Инициализирует новый модуль: создаёт новый <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_pkg.htm" class="common-lisp-entity">package</a> и проводит его инициализацию (добавляет в него некоторые служебные переменные)</div></div></p>
+<p><div class="entity-description"><a name="restas-define-initialization"></a><div><span class="common-lisp-entity">Macro restas:define-initialization</span> ((context) &body body)</div><div class="description-body">Определяет функцию, которая вызывается при подключении модуля с помощью <a class="common-lisp-entity" href="index.html#restas-define-submodule">restas:define-submodule</a>. Может использваться, например, для дополнительной настройки контекста субмодуля. Должна находиться внутри пакета, определённого с помощью <a class="common-lisp-entity" href="index.html#restas-define-module">restas:define-module</a>.</div></div></p>
+<p><div class="entity-description"><a name="restas-define-finalization"></a><div><span class="common-lisp-entity">Macro restas:define-finalization</span> ((context) &body body)</div><div class="description-body">Определяет функцию, противоположную определённой с помощью <a class="common-lisp-entity" href="index.html#restas-define-initialization">restas:define-initialization</a>. Вызывается при повторном вычислении <a class="common-lisp-entity" href="index.html#restas-define-submodule">restas:define-submodule</a> и может использоваться, например, для освобождении ресрсов, выделенных при инциализации субмодуля.</div></div></p>
+</div>
+<div id="субмодули" class="section"><h2><a name="субмодули">Субмодули</a></h2>
+<p><div class="entity-description"><a name="restas-define-submodule"></a><div><span class="common-lisp-entity">Macro restas:define-submodule</span> (name (module) &rest bindings)</div><div class="description-body"><p>Определяет субмодуль, который становится частью модуля, в пакете которого он определяется.</p>
+<ul>
+<li><p class="first">name - индентификатор (<a href="http://www.lispworks.com/reference/HyperSpec/Body/t_symbol.htm" class="common-lisp-entity">symbol</a>) субмодуля.</p>
+</li>
+<li><p class="first">module - <a class="reference" href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#package_designator"><span>package designator</span></a> присоеденяемого модуля.</p>
+</li>
+<li><p class="first">bindings - набор символов переменных и их значений, определяющий контекст субмодуля. Обработка маршрутов, принадлежащих данному субмодулю, будет производиться в этом контексте с помощью вызова <a href="http://www.lispworks.com/reference/HyperSpec/Body/s_progv.htm" class="common-lisp-entity">progv</a>.</p>
+</li>
+</ul>
+<p>Пример:</p>
+<p><div class="code"><span class="paren1">(<span class=""><i><span class="symbol">restas:define-submodule</span></i> tmp <span class="paren2">(<span class=""><span class="keyword">#:restas.directory-publisher</span></span>)</span><br>&nbsp;&nbsp;<span class="paren2">(<span class=""><span class="special">restas.directory-publisher:*baseurl*</span> '<span class="paren3">(<span class=""><span class="string">"tmp"</span></span>)</span></span>)</span><br>&nbsp;&nbsp;<span class="paren2">(<span class=""><span class="special">restas.directory-publisher:*directory*</span> #P<span class="string">"/tmp/"</span></span>)</span></span>)</span></div></p>
+</div></div></p>
+<p><div class="entity-description"><a name="restas-submodule-symbol"></a><div><span class="common-lisp-entity">Function restas:submodule-symbol</span> (submodule)</div><div class="description-body">Возвращает <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_symbol.htm" class="common-lisp-entity">symbol</a>, связанный с объектом-субмодулем (например, во время обработки запроса такой объект связан  с переменной <a class="common-lisp-entity" href="index.html#restas-submodule">restas:*submodule*</a>).</div></div></p>
+<p><div class="entity-description"><a name="restas-submodule-module"></a><div><span class="common-lisp-entity">Function restas:submodule-module</span> (submodule)</div><div class="description-body">Возвращает <a class="reference" href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#package_designator"><span>package designator</span></a>, связанный с объектом-субмодулем</div></div></p>
+<p><div class="entity-description"><a name="restas-submodule-parent"></a><div><span class="common-lisp-entity">Function restas:submodule-parent</span> (submodule)</div><div class="description-body">Возвращает субмодуль, к которому присоединён переданный субмодуль. С помощью макроса <a class="common-lisp-entity" href="index.html#restas-define-submodule">restas:define-submodule</a> можно создавать целые иерархии субмодулей.</div></div></p>
+<p><div class="entity-description"><a name="restas-with-submodule-context"></a><div><span class="common-lisp-entity">Macro restas:with-submodule-context</span> (submodule &body body)</div><div class="description-body">Позволяет произвольный выполнить код в окружении контекста указанного субмодуля.</div></div></p>
+</div>
+<div id="отображение" class="section"><h2><a name="отображение">Отображение</a></h2>
+<p><div class="entity-description"><a name="restas-render-object"></a><div><span class="common-lisp-entity">Function restas:render-object</span> (drawer object)</div><div class="description-body"><p>Generic-метод, используется для обработки данных, возвращаемых обработчиком маршрутов (определяемого в теле <a class="common-lisp-entity" href="index.html#restas-define-route">restas:define-route</a>). Если в <a class="common-lisp-entity" href="index.html#restas-define-route">restas:define-route</a> не указан параметр :render-method, то в качестве объекта <em><span>drawer</span></em> используется значение переменной <span class="common-lisp-entity">*default-render-method*</span> из модуля, в котором определён обрабатываемый маршрут (она создаётся автоматически при определении модуля с помощью <a class="common-lisp-entity" href="index.html#restas-define-module">restas:define-module</a> и её значение равно <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="common-lisp-entity">NIL</a>).</p>
+<p>Более подробную информацию смотрите в разделе <a href="../manual/view.html#представление">Представление</a>.</p>
+</div></div></p>
+</div>
+<div id="контекст" class="section"><h2><a name="контекст">Контекст</a></h2>
+<p>В <a class="reference" href="http://restas.lisper.ru/"><span>RESTAS</span></a> для обеспечения модульности используется механизм, напоминающий <a class="reference" href="http://www.gnu.org/software/emacs/elisp/html_node/Intro-to-Buffer_002dLocal.html"><span>Buffer-Local Variables</span></a> в <a class="reference" href="http://www.gnu.org/software/emacs/"><span>GNU Emacs</span></a>.</p>
+<p><div class="entity-description"><a name="restas-make-context"></a><div><span class="common-lisp-entity">Macro restas:make-context</span> (&body bindings)</div><div class="description-body"><p>Создаёт новый динамический контекст, связывающий динамические переменные со значениями. Пример:</p>
+<p><div class="code"><span class="paren1">(<span class="">restas:make-context <span class="paren2">(<span class=""><span class="special">restas.directory-publisher:*baseurl*</span> '<span class="paren3">(<span class=""><span class="string">"tmp"</span></span>)</span></span>)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="paren2">(<span class=""><span class="special">restas.directory-publisher:*directory*</span> #P<span class="string">"/tmp/"</span></span>)</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="paren2">(<span class=""><span class="special">restas.directory-publisher:*autoindex*</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a></span>)</span></span>)</span></div></p>
+</div></div></p>
+<p><div class="entity-description"><a name="restas-context-add-variable"></a><div><span class="common-lisp-entity">Function restas:context-add-variable</span> (context symbol &optional value)</div><div class="description-body"><p>Добавляет новую переменную в контекст</p>
+<ul>
+<li><p class="first">context - контекст</p>
+</li>
+<li><p class="first">symbol - <a href="http://www.lispworks.com/reference/HyperSpec/Body/t_symbol.htm" class="common-lisp-entity">symbol</a>, связанный с динамической переменной</p>
+</li>
+<li><p class="first">value - значение переменной, если не указано, то используется результат вызова <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_symb_5.htm" class="common-lisp-entity">symbol-value</a>.</p>
+</li>
+</ul>
+</div></div></p>
+<p><div class="entity-description"><a name="restas-context-remove-variable"></a><div><span class="common-lisp-entity">Function restas:context-remove-variable</span> (context symbol)</div><div class="description-body">Удаляет переменную из контекста</div></div></p>
+<p><div class="entity-description"><a name="restas-context-symbol-value"></a><div><span class="common-lisp-entity">Function restas:context-symbol-value</span> (context symbol => value, present-p)</div><div class="description-body">Возращает значение <em><span>value</span></em> динамической переменной, если переменная отсутствует в контексте, то для вычисления её значения используется <a href="http://www.lispworks.com/reference/HyperSpec/Body/f_symb_5.htm" class="common-lisp-entity">symbol-value</a>, а present-p равен <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_nil.htm" class="common-lisp-entity">NIL</a>.</div></div></p>
+<p><div class="entity-description"><a name="restas-with-context"></a><div><span class="common-lisp-entity">Macro restas:with-context</span> (context &body body)</div><div class="description-body">Выполняет код в окружении заданного контекста с помощью <a href="http://www.lispworks.com/reference/HyperSpec/Body/s_progv.htm" class="common-lisp-entity">progv</a>.</div></div></p>
+</div>
+<div id="отладка" class="section"><h2><a name="отладка">Отладка</a></h2>
+<p><div class="entity-description"><a name="restas-debug-mode-on"></a><div><span class="common-lisp-entity">Function restas:debug-mode-on</span> ()</div><div class="description-body">Устанавливает отладочный режим.</div></div></p>
+<p><div class="entity-description"><a name="restas-debug-mode-off"></a><div><span class="common-lisp-entity">Function restas:debug-mode-off</span> ()</div><div class="description-body">Отменяет отладочный режим.</div></div></p>
+<p><div class="entity-description"><a name="restas-max-debugging-threads"></a><div class="common-lisp-entity">Variable restas:*max-debugging-threads*</div><div class="description-body">Максимально колличество одновременно отлаживаемых поток.</div></div></p>
+</div>
+</div> </div> </div> <div class="bottom">@2009-2010 Moskvitin Andrey</div> <script type="text/javascript"> var _gaq = _gaq || []; _gaq.push(['_setAccount', 'UA-5970365-12']); _gaq.push(['_trackPageview']); (function() { var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true; ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s); })(); </script> </body></html>

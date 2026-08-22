@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html> <head> <title>archimag: 24 March, 2013</title> <link rel="stylesheet" href="/static/mirev/css/style.css"> <link rel="stylesheet" href="/static/mirev/css/prettify.css"> <link rel="alternate" type="application/atom+xml" title="archimag: blog entries feed" href="/feeds/atom" />   </head> <body> <a href="http://github.com/archimag/"> <img style="position: absolute; top: 0; left: 0; border: 0;" src="/static/archimag/image/forkme.png" alt="Fork me on GitHub"> </a> <div id="header"> <a href="/" id="blogname">archimag</a> </div> <div id="content"> <h1>Archive for 24 March, 2013</h1> <div class="blog-post"> <h2><a href="/2013/03/24/%d0%98%d0%b7%d0%bc%d0%b5%d0%bd%d0%b5%d0%bd%d0%b8%d1%8f_%d0%b2_mongo-cl-driver">Изменения в mongo-cl-driver</a></h2> <div class="post-metadata"> <div class="post-published"> <a href="/2013/"> 2013 </a>, <a href="/2013/03/"> March </a> <a href="/2013/03/24/"> 24 </a> </div> <div class="post-tags"> <a href="/tags/">Tags</a>:  <a href="/tags/lisp">lisp</a> <a href="/tags/mongo">mongo</a> </div> </div> <div class="document"><p>После длительного перерыва снова взялся за <a class="reference" href="https://github.com/archimag/mongo-cl-driver"><span>mongo-cl-driver</span></a> и основательно его переделал.</p>
+<p><strong><span>Адаптеры</span></strong></p>
+<p>Для начала выкинул <a class="reference" href="http://common-lisp.net/project/iolib/"><span>iolib</span></a>. При чём, не могу сказать о ней ничего плохого, но... Во-первых, до сих пор я использовал <a class="reference" href="https://github.com/archimag/mongo-cl-driver"><span>mongo-cl-driver</span></a> только в блокирующем режиме, мои надежды на то, что <a class="reference" href="http://common-lisp.net/project/iolib/"><span>iolib</span></a> откроет двери в мир асинхронного программирования не оправдываются - просто никто ничего такого не пишет, никакого веб-сервера и т.п. на <a class="reference" href="http://common-lisp.net/project/iolib/"><span>iolib</span></a> до сих пор не появилось. А между тем, <a class="reference" href="http://blog.killtheradio.net/"><span>Andrew Lyon </span></a> активно пилит платформу на базе <a class="reference" href="http://libevent.org/"><span>libevent</span></a>: cl-libevent2, <a class="reference" href="https://github.com/orthecreedence/cl-async"><span>cl-async</span></a>, drakma-async и даже асинхронный веб-сервер <a class="reference" href="https://github.com/orthecreedence/wookie"><span>wookie</span></a> (это при том, что кое-какой веб-сервер есть в самой <a class="reference" href="http://libevent.org/"><span>libevent</span></a>). Кстати, <a class="reference" href="http://libevent.org/"><span>libevent</span></a> отлично работает на винде.</p>
+<p>В итоге, под впечатлением от <a class="reference" href="https://pika.readthedocs.org/en/latest/"><span>pika</span></a> добавил в <a class="reference" href="https://github.com/archimag/mongo-cl-driver"><span>mongo-cl-driver</span></a> поддержку адаптеров и сейчас есть два работающих адаптера: на базе <a class="reference" href="http://common-lisp.net/project/usocket/"><span>usocket</span></a> и <a class="reference" href="https://github.com/orthecreedence/cl-async"><span>cl-async</span></a>. Вернуть адаптер для <a class="reference" href="http://common-lisp.net/project/iolib/"><span>iolib</span></a> несложно, но пока не понятно что с ним вообще делать то.</p>
+<p><strong><span>Futures</span></strong></p>
+<p>Долго не мог решить, как же совместить в одной библиотеке синхронный и асинхронный интерфейс. Идти по пути node.js, где каждая функция представлена в двух вариантах (например, fs.readFile и fs.readFileSync) мне не хотелось. Как сделано в <a class="reference" href="https://pika.readthedocs.org/en/latest/"><span>pika</span></a> (каждый адаптер предоставляет свой набор классов) мне тоже не нравится. В итоге остановился на использовании <a class="reference" href="http://orthecreedence.github.com/cl-async/future"><span>futures </span></a>: никакого разделения API на синхронный и асинхронный нет, но при использовании асинхронного адаптера возвращается не результат, а <em><span>future</span></em>. Сейчас мне кажется, что это очень удачный вариант, за одним но... Я пока не придумал, как нормально организовать обработку ошибок в таком варианте. <a class="reference" href="https://github.com/orthecreedence/cl-async-future"><span>cl-async-future</span></a> (по моей просьбе автор выделил её в отдельную библиотеку) предоставляет API и набор макросов. Эти макросы работают просто замечательно если ошибок нет. А вот когда есть ошибки, случается что-то мутное. Пока план в том, что бы взять API и реализовать на его основе аналог <a class="reference" href="https://github.com/creationix/step"><span>Step</span></a>, но этого я ещё не сделал. Собственно, поэтому пользоваться <a class="reference" href="https://github.com/orthecreedence/cl-async"><span>cl-async</span></a> адаптером пока не стоит, но можно с ним экспериментировать.</p>
+<p><strong><span>MongoClient</span></strong></p>
+<p>Другим направлением работы было приведение драйвера в соответствии с официальными рекомендациями. В первую очередь, добавлен класс <tt class="docutils literal">
+<span class="pre">mongo:mongo-client</span></tt>, при создании которого указывается параметры сервера (класс <tt class="docutils literal">
+<span class="pre">mongo:server-config</span></tt>) и уровень <a class="reference" href="http://docs.mongodb.org/manual/core/write-operations/#write-concern"><span>Write Concern</span></a> (класс <tt class="docutils literal">
+<span class="pre">mongo:write-concern</span></tt>).</p>
+<p>Адаптеры наследуют от <tt class="docutils literal">
+<span class="pre">mongo:mongo-client</span></tt> и поэтому для создания клиента следует использовать функцию <tt class="docutils literal">
+<span class="pre">mongo:create-mongo-client</span></tt>:</p>
+<p><div class="prettyprint linenums"><ol class="linenums">
+<li class="L0">(<i><span class="symbol">mongo:with-client</span></i> (client (mongo:create-mongo-client <span class="keyword">:usocket</span>
+</li>
+<li class="L1">                                                      <span class="keyword">:server</span> config</li>
+<li class="L2">                                                      <span class="keyword">:write-concern</span> w))</li>
+<li class="L3">  (<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_wr_pr.htm" class="symbol">print</a> (mongo:$count (mongo:collection (<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_mk_ins.htm" class="symbol">make-instance</a> 'mongo:database</li>
+<li class="L4">                                                        <span class="keyword">:client</span> client</li>
+<li class="L5">                                                        <span class="keyword">:name</span> <span class="string">"blog"</span>))</li>
+<li class="L6">                                         <span class="string">"posts"</span>))))</li>
+</ol></div></p>
+<p>Для упрощения задания <a class="reference" href="http://docs.mongodb.org/manual/core/write-operations/#write-concern"><span>Write Concern</span></a> предопределены следующие константы:</p>
+<ul>
+<li><p class="first"><tt class="docutils literal">
+<span class="pre">mongo:+write-concern-normal+</span></tt></p>
+</li>
+<li><p class="first"><tt class="docutils literal">
+<span class="pre">mongo:+write-concern-fsync+</span></tt></p>
+</li>
+<li><p class="first"><tt class="docutils literal">
+<span class="pre">mongo:+write-concern-replicas+</span></tt></p>
+</li>
+<li><p class="first"><tt class="docutils literal">
+<span class="pre">mongo:+write-concern-journal+</span></tt></p>
+</li>
+<li><p class="first"><tt class="docutils literal">
+<span class="pre">mongo:+write-concern-fast+</span></tt></p>
+</li>
+<li><p class="first"><tt class="docutils literal">
+<span class="pre">mongo:+write-concern-crazy+</span></tt></p>
+</li>
+</ul>
+<p><strong><span>Другие изменения</span></strong></p>
+<p>У функций</p>
+<ul>
+<li><p class="first"><tt class="docutils literal">
+<span class="pre">mongo:update-op</span></tt></p>
+</li>
+<li><p class="first"><tt class="docutils literal">
+<span class="pre">mongo:insert-op</span></tt></p>
+</li>
+<li><p class="first"><tt class="docutils literal">
+<span class="pre">mongo:delete-op</span></tt></p>
+</li>
+</ul>
+<p>опциональный параметры превращены в keys для того, что бы добавить key-параметр <tt class="docutils literal">
+<span class="pre">:write-concern</span></tt>.</p>
+<p>Функция <tt class="docutils literal">
+<span class="pre">mongo:collection-count</span></tt> переименована в <tt class="docutils literal">
+<span class="pre">mongo:$count</span></tt>. Плюс добавленная функция <tt class="docutils literal">
+<span class="pre">mongo:$distinct</span></tt>, очень удобная, например, все тэги в этом блоге с её помощью я получаю так:</p>
+<p><div class="prettyprint linenums"><ol class="linenums"><li class="L0">(mongo:$distinct posts <span class="string">"tags"</span>)</li></ol></div></p>
+<p>Добавил функцию <tt class="docutils literal">
+<span class="pre">mongo:eval-js</span></tt>:</p>
+<p><div class="prettyprint linenums"><ol class="linenums">
+<li class="L0">(<i><span class="symbol">mongo:with-client</span></i> (client (mongo:create-mongo-client <span class="keyword">:usocket</span>))</li>
+<li class="L1">  (mongo:eval-js (<a href="http://www.lispworks.com/reference/HyperSpec/Body/f_mk_ins.htm" class="symbol">make-instance</a> 'mongo:database <span class="keyword">:mongo-client</span> client <span class="keyword">:name</span> <span class="string">"test"</span>)</li>
+<li class="L2">                 <span class="string">"function (x, y) { return x * y; }"</span>
+</li>
+<li class="L3">                 <span class="keyword">:args</span> #(2 3)))</li>
+<li class="L4">6.0d0</li>
+</ol></div></p>
+<p>Ну и ещё наверное есть пара небольших изменений, о которых сейчас не помню.</p>
+</div> </div> </div> <div id="footer"> <div class="right"> Copyright (c) Moskvitin Andrey <br /> Powered by <a href="http://restas.lisper.ru">RESTAS</a> <div id="buttons"> <a href="http://www.sbcl.org/"> <img src="/static/archimag/image/sbclbutton.png" alt="SBCL" /> </a> <a href="http://weitz.de/hunchentoot/"> <img src="/static/archimag/image/hunchentoot10.png" alt="Hunchentoot" /> </a> <a href="http://www.mongodb.org/"> <img src="/static/archimag/image/logo-mongodb.png" alt="mongoDB" /> </a> </div> </div> <a href="/feeds/atom" class="feed">Posts feed</a>  </div> 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-22971320-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+     </body> </html>

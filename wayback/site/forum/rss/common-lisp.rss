@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Common Lisp</title>
+    <link>http://lisper.ru/forum/</link>
+    <description>Common Lisp - RSS-лента</description>
+    <item>
+      <title>archimag: несколько вопросов по cl-pdf/cl-typesetting</title>
+      <link>http://lisper.ru/forum/thread/65</link>
+      <description>Проблему с таблицами тоже победил, алгоритм автоматического вычисления ширины столбцов уместился в 50 строк, я думал будет сложнее..</description>
+      <pubDate>Sat, 26 Sep 2009 16:42:06 GMT</pubDate>
+    </item>
+    <item>
+      <title>archimag: несколько вопросов по cl-pdf/cl-typesetting</title>
+      <link>http://lisper.ru/forum/thread/65</link>
+      <description>Проблему "&lt;span style="font-style: italic;"&gt;outline (bookmark) для произвольного места внутри страницы&lt;/span&gt;" я победил, пришлось, правда, почитать спецификацию на PDF и покапаться в исходниках. Вообще, система поддержки outline в cl-pdf никуда не годится...</description>
+      <pubDate>Fri, 25 Sep 2009 23:18:20 GMT</pubDate>
+    </item>
+    <item>
+      <title>archimag: несколько вопросов по cl-pdf/cl-typesetting</title>
+      <link>http://lisper.ru/forum/thread/65</link>
+      <description>&lt;span style="font-style: italic;"&gt;&amp;gt; после долгих компиляний оно вывалилось с какой-то левой ошибкой&lt;/span&gt;&lt;br&gt;&lt;br&gt;У меня PDF делают 200 строк кода, некоторым не понравилось, но я думаю, что проще всего таки добить вариант с cl-typesetting</description>
+      <pubDate>Fri, 25 Sep 2009 19:29:50 GMT</pubDate>
+    </item>
+    <item>
+      <title>allchemist: несколько вопросов по cl-pdf/cl-typesetting</title>
+      <link>http://lisper.ru/forum/thread/65</link>
+      <description>да, я как-то забыл про оригинал...&lt;br&gt;&lt;br&gt;попробовал завести dokuTeXit:&lt;br&gt;он потребовал сам dokuwiki, который в свою очередь потребовал апач и пишапи.&lt;br&gt;после долгих компиляний оно вывалилось с какой-то левой ошибкой.&lt;br&gt;&lt;br&gt;на следующей неделе будет доступ к машинке с арчем, там такой проблемы не будет</description>
+      <pubDate>Fri, 25 Sep 2009 19:09:01 GMT</pubDate>
+    </item>
+    <item>
+      <title>archimag: несколько вопросов по cl-pdf/cl-typesetting</title>
+      <link>http://lisper.ru/forum/thread/65</link>
+      <description>&lt;span style="font-style: italic;"&gt;&amp;gt; Тогда трэбую .wiki-файлы, хотя бы один на пробу&lt;/span&gt;&lt;br&gt;&lt;br&gt;Блин, ну при чём здесь я то? Заходим на http://pcl.catap.ru/, там ссылка на снапшот...</description>
+      <pubDate>Fri, 25 Sep 2009 17:33:07 GMT</pubDate>
+    </item>
+    <item>
+      <title>allchemist: несколько вопросов по cl-pdf/cl-typesetting</title>
+      <link>http://lisper.ru/forum/thread/65</link>
+      <description>Тогда трэбую .wiki-файлы, хотя бы один на пробу&lt;br&gt;может что и получится</description>
+      <pubDate>Fri, 25 Sep 2009 16:35:15 GMT</pubDate>
+    </item>
+    <item>
+      <title>archimag: несколько вопросов по cl-pdf/cl-typesetting</title>
+      <link>http://lisper.ru/forum/thread/65</link>
+      <description>&amp;gt; немного не в тему, но почему из dokuwiki сразу в pdf, а не в latex и потом pdf?&lt;br&gt;Почему нет? Во всяком случае, желающих сделать по другому пока не нашлось :)</description>
+      <pubDate>Fri, 25 Sep 2009 15:35:21 GMT</pubDate>
+    </item>
+    <item>
+      <title>allchemist: несколько вопросов по cl-pdf/cl-typesetting</title>
+      <link>http://lisper.ru/forum/thread/65</link>
+      <description>немного не в тему, но почему из dokuwiki сразу в pdf, а не в latex и потом pdf?&lt;br&gt;Взять, например, DokuTeXit.&lt;br&gt;Наличие tex-версии дает больше возможностей для верстки книжного варианта.</description>
+      <pubDate>Fri, 25 Sep 2009 15:20:32 GMT</pubDate>
+    </item>
+    <item>
+      <title>archimag: несколько вопросов по cl-pdf/cl-typesetting</title>
+      <link>http://lisper.ru/forum/thread/65</link>
+      <description>Делаю перевод PCL в формате PDF, возникло несколько проблем, которые я пока не знаю как разрешить:&lt;br&gt;&lt;ul&gt;&lt;li&gt;Как вставлять в документ гиперссылки (pdf это позволяет)?&amp;nbsp;&lt;/li&gt;&lt;li&gt;Как создать outline (bookmark) для произвольного места внутри страницы? На главы я делаю с помощью pdf:register-page-reference, но это получается только закладка на страницу. Для создания закладок на подразделы надо уметь создавать закладки внутри страницы.&lt;/li&gt;&lt;li&gt;Возможно кому-то уже приходилось создавать с помощью cl-typesetting таблицы в "стиле html". Для имеющихся в cl-typesetting таблиц надо точно указывать ширину столбцов и нельзя объединять ячейки.&lt;br&gt;&lt;/li&gt;&lt;/ul&gt;</description>
+      <pubDate>Fri, 25 Sep 2009 12:05:38 GMT</pubDate>
+    </item>
+    <item>
+      <title>Love5an: доступ к полям структуры</title>
+      <link>http://lisper.ru/forum/thread/64</link>
+      <description>Работает, почему нет.&lt;br&gt;&lt;img src="http://pic.ipicture.ru/uploads/090924/rUnSK2bQ6e.png"&gt;&lt;br&gt;&lt;br&gt;CCL из svn.</description>
+      <pubDate>Thu, 24 Sep 2009 15:47:20 GMT</pubDate>
+    </item>
+    <item>
+      <title>dmitry_vk: доступ к полям структуры</title>
+      <link>http://lisper.ru/forum/thread/64</link>
+      <description>(конечно же, CLASS-SLOTS для STRUCTURE-CLASS)</description>
+      <pubDate>Thu, 24 Sep 2009 12:08:42 GMT</pubDate>
+    </item>
+    <item>
+      <title>dmitry_vk: доступ к полям структуры</title>
+      <link>http://lisper.ru/forum/thread/64</link>
+      <description>CLASS-SLOTS в CCL точно не работает.</description>
+      <pubDate>Thu, 24 Sep 2009 12:08:19 GMT</pubDate>
+    </item>
+    <item>
+      <title>Love5an: доступ к полям структуры</title>
+      <link>http://lisper.ru/forum/thread/64</link>
+      <description>ну, в ccl оно все же работает. Ровно как и в clisp, и в sbcl</description>
+      <pubDate>Thu, 24 Sep 2009 11:16:56 GMT</pubDate>
+    </item>
+    <item>
+      <title>Ander Skirnir: доступ к полям структуры</title>
+      <link>http://lisper.ru/forum/thread/64</link>
+      <description>Ясно. У меня вообщем-то нет особой проблемы с преобразовыванием имени структуры в строку, конкатенацией к ней дефиса и преобразованного в строку имени поля, последующим интерном этой конструкции, но как-то это неизящно. Лучше был бы get, а этой генерации аксессора не было.</description>
+      <pubDate>Thu, 24 Sep 2009 04:49:41 GMT</pubDate>
+    </item>
+    <item>
+      <title>lispnik: доступ к полям структуры</title>
+      <link>http://lisper.ru/forum/thread/64</link>
+      <description>Всё правильно, slot-value может работать, а может и не работать, поэтому нигде этого не упоминается -- это нестандартная фича.&amp;nbsp; Если хотите обращаться по имени -- используйте классы.&amp;nbsp; Структуры рассчитаны на эффективную реализацию с минимумом метаинформации.</description>
+      <pubDate>Thu, 24 Sep 2009 03:51:31 GMT</pubDate>
+    </item>
+    <item>
+      <title>dmitry_vk: доступ к полям структуры</title>
+      <link>http://lisper.ru/forum/thread/64</link>
+      <description>В CCL не получится вытащить слоты структуры через class-slots/class-direct-slots. В CLHS определено, что классы структур наследуются от STRUCTURE-CLASS, а не STANDARD-CLASS, а MOP работает только с STANDARD-CLASS.</description>
+      <pubDate>Wed, 23 Sep 2009 23:20:48 GMT</pubDate>
+    </item>
+    <item>
+      <title>Love5an: доступ к полям структуры</title>
+      <link>http://lisper.ru/forum/thread/64</link>
+      <description>Ну, в гиперспеке где-то все-же упоминается, емнип, о том, что в ANSI CL структуры, формально, определены в терминах классов, и с ними можно делать те же вещи, что и с объектами классов - перегружать обобщенные функции, использовать slot-value для доступа к слотам и т.п.</description>
+      <pubDate>Wed, 23 Sep 2009 19:20:44 GMT</pubDate>
+    </item>
+    <item>
+      <title>Ander Skirnir: доступ к полям структуры</title>
+      <link>http://lisper.ru/forum/thread/64</link>
+      <description>Спасибо, теперь всё шикарно. Интересно, почему ни в pcl, ни в мире лиспа, ни в кукбуке, ни в гиперспеке об этой ф-ции не упоминают в описании структур и работы с ними.</description>
+      <pubDate>Wed, 23 Sep 2009 18:54:17 GMT</pubDate>
+    </item>
+    <item>
+      <title>Love5an: доступ к полям структуры</title>
+      <link>http://lisper.ru/forum/thread/64</link>
+      <description>оный, кстати, можно вытащить через mop, если, например, он сгенерирован через gensym, и руками его просто так не вбить.&lt;br&gt;&lt;br&gt;&lt;pre class="code"&gt;&lt;span class="paren1"&gt;(&lt;span class=""&gt;&lt;a href="http://www.lispworks.com/reference/HyperSpec/Body/f_use_pk.htm" class="symbol"&gt;use-package&lt;/a&gt; &lt;span class="keyword"&gt;:closer-mop&lt;/span&gt;&lt;/span&gt;)&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span class="paren1"&gt;(&lt;span class=""&gt;&lt;a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defstr.htm" class="symbol"&gt;&lt;i&gt;&lt;span class="symbol"&gt;defstruct&lt;/span&gt;&lt;/i&gt;&lt;/a&gt; v3&lt;br&gt;&amp;nbsp;&amp;nbsp;&lt;span class="paren2"&gt;(&lt;span class=""&gt;#.&lt;span class="paren3"&gt;(&lt;span class=""&gt;&lt;a href="http://www.lispworks.com/reference/HyperSpec/Body/f_gensym.htm" class="symbol"&gt;gensym&lt;/a&gt;&lt;/span&gt;)&lt;/span&gt; #1=&lt;span class="paren3"&gt;(&lt;span class=""&gt;&lt;a href="http://www.lispworks.com/reference/HyperSpec/Body/f_random.htm" class="symbol"&gt;random&lt;/a&gt; 10&lt;/span&gt;)&lt;/span&gt;&lt;/span&gt;)&lt;/span&gt;&lt;br&gt;&amp;nbsp;&amp;nbsp;&lt;span class="paren2"&gt;(&lt;span class=""&gt;#.&lt;span class="paren3"&gt;(&lt;span class=""&gt;&lt;a href="http://www.lispworks.com/reference/HyperSpec/Body/f_gensym.htm" class="symbol"&gt;gensym&lt;/a&gt;&lt;/span&gt;)&lt;/span&gt; #1#&lt;/span&gt;)&lt;/span&gt;&lt;br&gt;&amp;nbsp;&amp;nbsp;&lt;span class="paren2"&gt;(&lt;span class=""&gt;#.&lt;span class="paren3"&gt;(&lt;span class=""&gt;&lt;a href="http://www.lispworks.com/reference/HyperSpec/Body/f_gensym.htm" class="symbol"&gt;gensym&lt;/a&gt;&lt;/span&gt;)&lt;/span&gt; #1#&lt;/span&gt;)&lt;/span&gt;&lt;/span&gt;)&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span class="paren1"&gt;(&lt;span class=""&gt;&lt;a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defpar.htm" class="symbol"&gt;&lt;i&gt;&lt;span class="symbol"&gt;defparameter&lt;/span&gt;&lt;/i&gt;&lt;/a&gt; &lt;span class="special"&gt;*test*&lt;/span&gt; &lt;span class="paren2"&gt;(&lt;span class=""&gt;make-v3&lt;/span&gt;)&lt;/span&gt;&lt;/span&gt;)&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span class="paren1"&gt;(&lt;span class=""&gt;&lt;a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defpar.htm" class="symbol"&gt;&lt;i&gt;&lt;span class="symbol"&gt;defparameter&lt;/span&gt;&lt;/i&gt;&lt;/a&gt; &lt;span class="special"&gt;*test-description*&lt;/span&gt;&lt;br&gt;&amp;nbsp;&amp;nbsp;&lt;span class="paren2"&gt;(&lt;span class=""&gt;&lt;a href="http://www.lispworks.com/reference/HyperSpec/Body/f_mapc_.htm" class="symbol"&gt;mapcar&lt;/a&gt; &lt;span class="paren3"&gt;(&lt;span class=""&gt;&lt;a href="http://www.lispworks.com/reference/HyperSpec/Body/a_lambda.htm" class="symbol"&gt;&lt;i&gt;&lt;span class="symbol"&gt;lambda&lt;/span&gt;&lt;/i&gt;&lt;/a&gt; &lt;span class="paren4"&gt;(&lt;span class=""&gt;slot-def&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;amp;aux &lt;span class="paren5"&gt;(&lt;span class=""&gt;slot-name &lt;span class="paren6"&gt;(&lt;span class=""&gt;slot-definition-name slot-def&lt;/span&gt;)&lt;/span&gt;&lt;/span&gt;)&lt;/span&gt;&lt;/span&gt;)&lt;/span&gt;&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;span class="paren4"&gt;(&lt;span class=""&gt;&lt;a href="http://www.lispworks.com/reference/HyperSpec/Body/a_list.htm" class="symbol"&gt;list&lt;/a&gt; &lt;span class="keyword"&gt;:slot-name&lt;/span&gt; slot-name&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;span class="keyword"&gt;:slot-value&lt;/span&gt; &lt;span class="paren5"&gt;(&lt;span class=""&gt;&lt;a href="http://www.lispworks.com/reference/HyperSpec/Body/f_slt_va.htm" class="symbol"&gt;slot-value&lt;/a&gt; &lt;span class="special"&gt;*test*&lt;/span&gt; slot-name&lt;/span&gt;)&lt;/span&gt;&lt;/span&gt;)&lt;/span&gt;&lt;/span&gt;)&lt;/span&gt;&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;span class="paren3"&gt;(&lt;span class=""&gt;class-direct-slots &lt;span class="paren4"&gt;(&lt;span class=""&gt;&lt;a href="http://www.lispworks.com/reference/HyperSpec/Body/f_clas_1.htm" class="symbol"&gt;class-of&lt;/a&gt; &lt;span class="special"&gt;*test*&lt;/span&gt;&lt;/span&gt;)&lt;/span&gt;&lt;/span&gt;)&lt;/span&gt;&lt;/span&gt;)&lt;/span&gt;&lt;/span&gt;)&lt;/span&gt;&lt;/pre&gt;</description>
+      <pubDate>Wed, 23 Sep 2009 17:35:37 GMT</pubDate>
+    </item>
+    <item>
+      <title>Love5an: доступ к полям структуры</title>
+      <link>http://lisper.ru/forum/thread/64</link>
+      <description>slot-value&lt;br&gt;&lt;br&gt;символ должен быть ровно тот же, которым слот структуры именовался</description>
+      <pubDate>Wed, 23 Sep 2009 17:24:04 GMT</pubDate>
+    </item>
+  </channel>
+</rss>

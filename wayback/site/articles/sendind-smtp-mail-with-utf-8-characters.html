@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru">
+	<head>
+      	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <meta name="verify-v1" content="o6r5tA9qF5PflmPb3cI7rJrWpFBGTkIE9X4KU25TxiE=" />
+
+        <meta name="keywords" content="Common Lisp,lisp,лисп" />
+
+        <link href="/css/fine/style.css" rel="stylesheet" type="text/css" />
+        <link href="/css/fine/colorize.css" rel="stylesheet" type="text/css" />
+	<title>Отпавка эллектронного письма в кодироке utf-8</title></head>
+
+	<body>
+        <div class="top">
+          <div id="login">
+    <a href="/register">Регистрация</a> |
+    <a href="/login?done=http%3A%2F%2Flisper.ru%2Farticles%2Fsendind-smtp-mail-with-utf-8-characters">Войти</a>
+</div>
+        </div>
+
+        <div id="caution">
+            <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png" />
+        </div>
+
+        <div id="mainmenu">
+          <ul><li><a href="/">Главная</a></li><li><a href="/articles/">Статьи</a></li><li><a href="/planet/">Планета</a></li><li><a href="/forum/">Форум</a></li><li><a href="/apps/">Сервисы</a></li><li><a href="/pcl/">Practical Common Lisp</a></li><li><a href="/wiki/">wiki</a></li></ul>
+        </div>
+
+        <div id="content"><h2>Отпавка эллектронного письма в кодироке utf-8</h2><table><tbody><tr><td><b>Автор:</b></td><td><a href="http://lisp-univ-etc.blogspot.com/">Всеволод Дёмкин</a></td></tr><tr><td><b>Источник:</b></td><td><a href="http://lisp-univ-etc.blogspot.com/2009/02/sendind-smtp-mail-with-utf-8-characters.html">http://lisp-univ-etc.blogspot.com/2009/02/sendind-smtp-mail-with-utf-8-characters.html</a></td></tr></tbody></table><div class="article">
+
+    
+
+    <p>В этой заметке исследуется тема отправки закодированного в base64 письма (с русским оригиналом) по SMTP. Из Common Lisp с помощью открытых библиотек (не Franz инфраструктуры). Как оказалось, для этого нужно задействовать целых 4 библотеки, не сильно документированные, поэтому я решил записать, как с ними расправиться...</p>
+
+    <h3>CL-SMTP</h3>
+    <p>Изначально, кроме HELO и EHLO я мало что знал об SMTP протоколе. Свое изучение его я начал с того, что попробовал решить задачу в лоб с помощью функции SEND-EMAIL [1]. Функция не документированна (по идее, должны быть все итак понятно :) и не сигнализирует собственных ошибок, а просто прокидывает ошибки от USOCKET'а, на который она опирается. Однако, есть все же один способ отладки в CL-SMTP с помощью <div class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> <span class="special">cl-smtp::*debug*</span> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a></span>)</span><br /></div> [2]</p>
+    <p>Собственно, почему мне понадобилась отладка, так это из-за того, что вот это работало:</p>
+    <div class="code"><span class="paren1">(<span class="">cl-smtp:send-email <span class="string">"localhost"</span><br />                    <span class="string">"noreply@our.domain.net"</span><br />                    <span class="string">"test@gmail.com"</span><br />                    <span class="string">"subject"</span><br />                    <span class="string">"test"</span></span>)</span><br /></div>
+    а вот это выдавало USOCKET:UKNOWN-ERROR [2]:
+    <div class="code"><span class="paren1">(<span class="">cl-smtp:send-email <span class="string">"localhost"</span><br />                    <span class="string">"noreply@our.domain.net"</span><br />                    <span class="string">"test@gmail.com"</span><br />                    <span class="string">"subject"</span><br />                    <span class="string">"тест"</span></span>)</span><br /></div>
+    <blockquote>(Пояснение: отправляем пичьмо с темой "subject" от noreply@our.domain.net на test@gmail.com через localhost)</blockquote>
+
+    Оказалось, что SMTP-сервер не принимает не ascii символы в теле письма, потому что кодировкой по умолчанию является <b>7bit</b>.
+
+    <h3>CL-MIME</h3>
+    <p>В общем, пришлось спросить Google, который ответил <a href="http://netzhansa.blogspot.com/2008/03/feature-development-and-getting-carried.html">вот этой статьей</a> от Ханса Хюбнера, в которой он объясняет свои доработки к CL-SMTP, которые сейчас уже интегрированны в библиотеку. Для их правильного применения нужно разобраться с тем, как работает <a href="http://en.wikipedia.org/wiki/MIME">MIME</a>. В примере Ханс использует <b>multipart/mixed</b> Content-type для отсылки писем с вложенями. Но для нашей простой задачи отправки письма с русским текстом в кодировке UTF-8 это не обязательно. Сгодится и <b>text/plain</b>, но для того, чтобы SMTP-сервера принимали не-ascii символы, нужно использовать другой <b>Content-encoding</b>: base64. А управляется весь этот механизм с помощью библиотеки CL-MIME. В данном случае она вполне самодокументированна, поэтому отсутствие полноценной документации не влияет на возможности ее использования.</p>
+
+    <p>Для формирования данных в нужном нам кодировании используется функция PRINT-MIME [4], которая берет на вход CLOS-объект MIME с заданными полями. Единственная проблема с ней в том, что результирующие данные содержат как то, что должно пойти в тело письма, так и некоторые SMTP-заголовки. Поэтому ее вывод не может использоваться как аргумент для SEND-EMAIL: заголовки попадут в тело пиьсма (будут разделены новой строкой) и не будут учитываться на серверах. Для этого и других случаев, когда нужен больший контроль над процессом SMTP взаимодействия, Ханс ввел высокоуровневый макрос WITH-SMTP-MAIL [5]. У него есть небольшое отлтичие от SEND-EMAIL: вместо одного получателя (в виде строки e-mail адреса), он принимает список получателей.</p>
+
+    <h3>CL-BASE64 и ARNESI</h3>
+    <p>Однако, что мне доставило больше всего хлопот  это неочевидная обработка инитарга :CONTENT [6] для MIME-объектов. Если задан инитарг :ENCODING, например, :BASE64, :CONTENT будет поддан соответствуемуму кодированию (которое выполняется для данной кодировки с помощью библиотеки CL-BASE64). Интересно, что это даст неверные данные для UTF-8 строк. Правильный формат этого аргумента не строка, а <b>octet array</b>.</p>
+
+    <p>Т.е. нужна функция, чтобы привести строку к нему. Для этого можно задействовать библиотеку ARNESI, которая является собранием разнообразных утилит. Она как раз предоставляет такую функциональность через функцию STRING-TO-OCTETS [7].</p>
+
+    <p>Стоит также заметить, что если не-ascii символы будут присутствовать в теле письма (с правильным Contnet-encoding, т.е. не 7bit), они могут быть отправлены и так. Однако, конечно, наиболее работоспособный вариант для любой ситуации  использовать данные, закодированные в base64. </p>
+
+    <h3>Результат</h3>
+    Короче говоря, в итоге у нас получилось нечто в этом духе:
+    <div class="code"><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> send-email <span class="paren2">(<span class="">text &amp;rest reciepients</span>)</span><br />  <span class="string">"Generic send SMTP mail with some TEXT to RECIEPIENTS"</span><br />  <span class="paren2">(<span class=""><i><span class="symbol">cl-smtp:with-smtp-mail</span></i> <span class="paren3">(<span class="">out <span class="string">"localhost"</span> <span class="string">"noreply@fin-ack.com"</span> reciepients</span>)</span><br />    <span class="paren3">(<span class="">cl-mime:print-mime out<br />                        <span class="paren4">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_mk_ins.htm" class="symbol">make-instance</a> 'cl-mime:text-mime<br />                                       <span class="keyword">:encoding</span> <span class="keyword">:base64</span><br />                                       <span class="keyword">:charset</span> <span class="string">"UTF-8"</span><br />                                       <span class="keyword">:content</span> <span class="paren5">(<span class="">arnesi:string-to-octets text <span class="keyword">:utf-8</span></span>)</span></span>)</span><br />                        <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a> <a href="http://www.lispworks.com/reference/HyperSpec/Body/a_t.htm" class="symbol">t</a></span>)</span></span>)</span></span>)</span><br /></div>
+
+    <h3>Уроки</h3>
+    <ol>
+        <li>Чтобы отправить обычное письмо с ascii символами по SMTP можно использовать CL-SMTP:SEND-EMAIL</li>
+        <li>Если сигнализируется ошибка USOCKET:UKNOWN-ERROR, скорее всего проблема с форматом аргументов</li>
+        <li>А детально разобраться в этом можно, установив (setf cl-smtp::*debug* t)</li>
+        <li>Чтобы использовать MIME, лучше подойдет CL-SMTP:WITH-SMTP-EMAIL в паре с CL-MIME:PRINT-MIME</li>
+        <li>Для CL-MIME:TEXT-MIME's инитарга :CONTENT нужен вектор октетов, а не строка</li>
+        <li>Для преобразования UTF-8 строки в вектор октетов можно задействовать ARNESI:STRING-TO-OCTETS</li>
+    </ol>
+    
+    
+</div></div>
+
+        <div class="bottom">@2009 lisper.ru</div>
+
+        <script type="text/javascript">
+
+          var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+
+          document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+
+        </script>
+
+        <script type="text/javascript">
+
+          try {
+
+          var pageTracker = _gat._getTracker("UA-7734690-1");
+
+          pageTracker._trackPageview();
+
+          } catch(err) {}
+
+        </script>
+
+    </body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru"> <head> <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> <meta name="keywords" content="Common Lisp,lisp,лисп" />  <title>funcall inline example</title>   <link href="/css/style.css" rel="stylesheet" type="text/css" />  <link href="/css/colorize.css" rel="stylesheet" type="text/css" />   </head> <body> <div class="top">  <div id="login"> <a href="/register">Регистрация</a> | <a href="/login?done=/apps/format/159">Войти</a> </div>  </div> <div id="caution"> <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png" /> </div> <div id="mainmenu"> <ul>  <li> <a href="/">Главная</a> </li>  <li> <a href="/articles/">Статьи</a> </li>  <li> <a href="/planet/">Планета</a> </li>  <li> <a href="/forum/">Форум</a> </li>  <li> <a href="/apps/">Сервисы</a> </li>  <li> <a href="/pcl/">Practical Common Lisp</a> </li>  <li> <a href="/wiki/">Wiki</a> </li>  <li> <a href="/files/">Файлы</a> </li>  <li> <a href="/search">Поиск</a> </li>  </ul> </div> <div id="content"> <ul class="colorize-top-menu"> <li> <a href="/apps/format/all">Все записи</a> </li> <li> <a href="/apps/format/create">Создать</a> </li> </ul> <div class="paste-detail"> <strong>funcall inline example</strong> <div class="info"> Автор: <strong>dmitry_vk</strong> - 2010-09-11T21:32:11.000000+04:00 </div> <div class="code"> <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_declai.htm" class="symbol">declaim</a> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/d_inline.htm" class="symbol">inline</a> foo</span>)</span></span>)</span><br>
+<span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> foo <span class="paren2">(<span class="">x</span>)</span> <span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_pl.htm" class="symbol">+</a> 1 x</span>)</span></span>)</span><br>
+<br>
+<span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/m_defun.htm" class="symbol"><i><span class="symbol">defun</span></i></a> bar <span class="paren2">(<span class="">x</span>)</span><br>&nbsp;&nbsp;<span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_funcal.htm" class="symbol">funcall</a> #'foo x</span>)</span></span>)</span><br>
+<br>
+<span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_disass.htm" class="symbol">disassemble</a> 'bar</span>)</span><br>
+<span class="comment">; disassembly for BAR<br>
+</span><span class="comment">; 02C99C19: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;488B55F8 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOV RDX, [RBP-8] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;; no-arg-parsing entry point<br>
+</span><span class="comment">; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1D: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BF08000000 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOV EDI, 8<br>
+</span><span class="comment">; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;22: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4C8D1C25E0010020 LEA R11, [#x200001E0] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;; GENERIC-+<br>
+</span><span class="comment">; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2A: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;41FFD3 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CALL R11<br>
+</span><span class="comment">; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2D: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;480F42E3 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CMOVB RSP, RBX<br>
+</span><span class="comment">; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;31: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;488BE5 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MOV RSP, RBP<br>
+</span><span class="comment">; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;34: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;F8 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CLC<br>
+</span><span class="comment">; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;35: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5D &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POP RBP<br>
+</span><span class="comment">; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;36: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;C3 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RET<br>
+</span><span class="comment">; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;37: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CC0A &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BREAK 10 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;; error trap<br>
+</span><span class="comment">; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;39: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;02 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BYTE #X02<br>
+</span><span class="comment">; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3A: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;18 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BYTE #X18 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;; INVALID-ARG-COUNT-ERROR<br>
+</span><span class="comment">; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3B: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;54 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BYTE #X54 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;; RCX</span> </div> </div> </div> <div class="bottom">@2009-2010 lisper.ru</div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-7734690-1");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+ </body> </html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru"> <head> <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> <meta name="keywords" content="Common Lisp,lisp,лисп" />  <title>setf-vs-setq</title>   <link href="/css/style.css" rel="stylesheet" type="text/css" />  <link href="/css/wiki.css" rel="stylesheet" type="text/css" />  <link href="/css/colorize.css" rel="stylesheet" type="text/css" />   </head> <body> <div class="top">  <div id="login"> <a href="/register">Регистрация</a> | <a href="/login?done=/articles/setf-vs-setq">Войти</a> </div>  </div> <div id="caution"> <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png" /> </div> <div id="mainmenu"> <ul>  <li> <a href="/">Главная</a> </li>  <li> <a href="/articles/">Статьи</a> </li>  <li> <a href="/planet/">Планета</a> </li>  <li> <a href="/forum/">Форум</a> </li>  <li> <a href="/apps/">Сервисы</a> </li>  <li> <a href="/pcl/">Practical Common Lisp</a> </li>  <li> <a href="/wiki/">Wiki</a> </li>  <li> <a href="/files/">Файлы</a> </li>  <li> <a href="/search">Поиск</a> </li>  </ul> </div> <div id="content"> <ul class="wiki-page-menu">  <li> <a href="/articles/edit/setf-vs-setq">Edit</a> </li>    <li> <a href="/articles/history/setf-vs-setq">History</a> </li>    </ul><div class="article">
+<div class="chapter" id="&#x427;&#x435;&#x43C; SETF &#x43E;&#x442;&#x43B;&#x438;&#x447;&#x430;&#x435;&#x442;&#x441;&#x44F; &#x43E;&#x442; SETQ"><h3>Чем SETF отличается от SETQ</h3>
+
+<p><strong>Автор:</strong> <a href="http://lispnik.livejournal.com/">Иван Болдырев</a>
+</p>
+<p><strong>Источник:</strong> <a href="http://lispnik.livejournal.com/130098.html">http://lispnik.livejournal.com/130098.html</a>
+</p>
+
+<p>SETQ — специальный оператор, присваивающий значение переменным, как лексическим, так и динамическим. Этим его функции исчерпываются.
+</p>
+
+<p>SETF — это макрос. Он позволяет делать присваивания в произвольное место. Переменная — тоже место. Но и (car x), (cddr x) и многое другое — тоже места. Любопытно посмотреть, во что раскрывается этот макрос (GNU CLISP 2.33.2) в разных случаях:
+</p>
+<pre class="code"><p>[1]&gt; <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_mexp_.htm" class="symbol">macroexpand-1</a> '<span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> x 1</span>)</span></span>)</span><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_setq.htm" class="symbol"><i><span class="symbol">SETQ</span></i></a> X 1</span>)</span> ;<br/>
+T<br/>
+[2]&gt; <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_mexp_.htm" class="symbol">macroexpand-1</a> '<span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_gethas.htm" class="symbol">gethash</a> x y</span>)</span> 1</span>)</span></span>)</span><br/><span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/s_let_l.htm" class="symbol"><i><span class="symbol">LET*</span></i></a> <span class="paren2">(<span class=""><span class="paren3">(<span class=""><span class="keyword">#:G5038</span> X</span>)</span> <span class="paren3">(<span class=""><span class="keyword">#:G5039</span> Y</span>)</span> <span class="paren3">(<span class=""><span class="keyword">#:G5040</span> 1</span>)</span></span>)</span><br/><span class="paren2">(<span class="">SYSTEM::PUTHASH <span class="keyword">#:G5038</span> <span class="keyword">#:G5039</span> <span class="keyword">#:G5040</span></span>)</span></span>)</span> ;<br/>
+T<br/>
+[3]&gt; <span class="paren1">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_mexp_.htm" class="symbol">macroexpand-1</a> '<span class="paren2">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/a_setf.htm" class="symbol">setf</a> <span class="paren3">(<span class=""><a href="http://www.lispworks.com/reference/HyperSpec/Body/f_car_c.htm" class="symbol">car</a> x</span>)</span> 1</span>)</span></span>)</span><br/><span class="paren1">(<span class="">SYSTEM::%RPLACA X 1</span>)</span> ;<br/>
+T<br/></p></pre>
+
+
+<p>Как видим, если первый аргумент SETF — символ, то он просто перепоручает всю работу SETQ. Если это что-то более сложное (список), то используются системозависимые функции, выбор которых основан на первом элементе этого списка. Если это GETHASH, то вызывается системозависимая функция SYSTEM::PUTHASH, если это CAR, вызывается такая же SYSTEM::%RPLACA.
+</p>
+
+<p>Разумеется, можно задавать SETF и для своих функций. Для этого есть целых три способа:Как видим, если первый аргумент SETF — символ, то он просто перепоручает всю работу SETQ. Если это что-то более сложное (список), то используются системозависимые функции, выбор которых основан на первом элементе этого списка. Если это GETHASH, то вызывается системозависимая функция SYSTEM::PUTHASH, если это CAR, вызывается такая же SYSTEM::%RPLACA.
+</p>
+
+<p>Разумеется, можно задавать SETF и для своих функций. Для этого есть целых три способа:
+</p><ul><li> DEFINE-SETF-EXPANDER</li><li> DEFSETF</li><li> DEFUN (SETF ...)</li></ul>
+<p>Примеры смотрите в Common Lisp HyperSpec.
+</p>
+
+<p>В принципе, SETQ не нужен. SETF для символа вполне мог бы раскрываться во что-то системозависимое. SETQ добавили в Common Lisp только для совместимости с более старыми лиспами.
+</p>
+
+<p>Я считаю, что стилистически лучше использовать везде SETF. Почему — напишу как-нибудь попозже :)
+</p></div></div> </div> <div class="bottom">@2009-2010 lisper.ru</div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-7734690-1");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+ </body> </html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru">
+	<head>
+      	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"></meta>
+
+        <meta name="verify-v1" content="o6r5tA9qF5PflmPb3cI7rJrWpFBGTkIE9X4KU25TxiE="></meta>
+
+        <meta name="keywords" content="Common Lisp,lisp,лисп"></meta>
+
+        <link href="/css/fine/style.css" rel="stylesheet" type="text/css">
+        <link href="/css/fine/colorize.css" rel="stylesheet" type="text/css">
+	<title>sb-ext:save-lisp-and-die и зависимости?</title>
+<link rel="alternate" type="application/rss+xml" title="Тема  'sb-ext:save-lisp-and-die и зависимости?' - RSS-лента" href="/forum/rss/threads/40.rss">
+<link href="/css/fine/forum.css" rel="stylesheet" type="text/css">
+<link href="/css/fine/jquery.wysiwyg.css" rel="stylesheet" type="text/css">
+<script src="/js/jquery.js" type="text/javascript"></script><script src="/js/jquery.wysiwyg.js" type="text/javascript"></script><script src="/js/forum.js" type="text/javascript"></script></head>
+
+	<body>
+        <div class="top">
+            <div id="login">
+    <a href="/register">Регистрация</a> |
+    <a href="/login?done=http%3A%2F%2Flisper.ru%2Fforum%2Fthread%2F40">Войти</a>
+</div>
+        </div>
+
+        <div id="caution">
+            <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png"></img>
+        </div>
+
+        <div id="mainmenu">
+          <ul>
+<li><a href="/">Главная</a></li>
+<li><a href="/articles/">Статьи</a></li>
+<li><a href="/planet/">Планета</a></li>
+<li><a href="/forum/">Форум</a></li>
+<li><a href="/apps/">Сервисы</a></li>
+<li><a href="/pcl/">Practical Common Lisp</a></li>
+<li><a href="/wiki/">wiki</a></li>
+</ul>
+        </div>
+
+        <div id="content"><div id="forum-nav-panel">
+<a class="rss-link" href="/forum/rss/threads/40.rss">RSS</a><ul>
+<li><a href="/forum/">Список форумов</a></li>
+<li><a href="/forum/common-lisp">Common Lisp</a></li>
+<li><strong>sb-ext:save-lisp-and-die и зависимости?</strong></li>
+</ul>
+</div>
+<div class="thread">
+<div class="topic">
+<div><big>sb-ext:save-lisp-and-die и зависимости?</big></div>
+<div class="topic-info"><span class="topic-author">Автор: <strong>strobegen</strong> - 10.08.2009 13:49, Сообщений - 10</span></div>
+<div class="topicbody">
+<p>Пытаюсь сделать основу для распространения приложений на sbcl.</p>
+<div>И, что - то ни как не могу понять как получить директорию относительно которой запускается конечный бинарник (сохраненный при помощи sb-ext:save-lisp-and-die).</div>
+<div>Есть например *default-pathname-defaults* в которой вроде как находится путь до текущего sbcl но он берется по всей видимости из системной переменной которую sbcl создает при установке (в win). И, что самое плохое после сохранения бинарника он запоминает ее значение и ссылается на изначальную папку.</div>
+<div><br></div>
+<div>Если кратко то задача такая надо сохранить exe так, что бы он загружал все необходимые библиотеки и ресурсы которые лежат в этой же папке. Например в папке /site либы а в корне lisp.bmp которую использует приложение. Нельзя ли для этого бинарника сделать свой собственный sbclrc? </div>
+<div><br></div>
+<div>заранее благодарю за любую помощь</div>
+<div><br></div>
+<div><div><br></div></div>
+</div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>archimag</strong> - 10.08.2009 14:44</span></div>
+<div class="replybody">
+<span style="font-style: italic;">&gt; как получить директорию относительно которой запускается конечный бинарник</span><br><br>Ну, если речь о винде, то там же в API есть функция GetCurrentDirectory (если я правильно помню, давно это было). Я совершенно не в курсе, насколько SBCL поддерживает виндовый API, но, в любом случае, его можно научить её вызывать с помощью <a href="http://common-lisp.net/project/cffi/">CFFI</a> или, если не хочется тянуть лишнюю зависимость, с помощью <a href="http://www.sbcl.org/manual/Introduction-to-the-Foreign-Function-Interface.html">встроенного FFI</a>.<br><br><span style="font-style: italic;">&gt; Нельзя ли для этого бинарника сделать свой собственный sbclrc?</span><br><br>Бинарник - это не более, чем сохраннённый образ, использование которого сокращает время загрузки, но динамичествие свойства CL никуда не деваются. Поэтому, всегда можно вызвать (load #P"/path/fo/file") для загрузки произвольного файла, в котором, например, можно хранить какие-то настройки.<br>
+</div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>strobegen</strong> - 10.08.2009 18:26</span></div>
+<div class="replybody"><p>спасибо за подсказку, да помнится с полгода назад использовал, <span class="Apple-style-span" style="font-family: Arial, sans-serif; font-size: 12px; ">GetCurrentDirectory или что-то похожее из boost но мне как то ближе второй вариант т.к. не хочется привязывать решения к windows</span></p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>strobegen</strong> - 10.08.2009 19:53</span></div>
+<div class="replybody">
+<p>Неожиданно понял, что на самом деле проблема совсем не в том,</p>
+<div>что я добавляю путь к библиотекам таким образом:</div>
+<div><br></div>
+<div>
+<div>(dolist (dir (directory (merge-pathnames #p"site/*/" (get-home) )))</div>
+<div>      (pushnew dir asdf:*central-registry* :test #'equal))</div>
+<div><br></div>
+<div>и указываю   неправильную директорию (merge-pathnames #p"site/*/" (get-home) )    - она правильная</div>
+<div>а в том, что когда перед сохранением бинарника я </div>
+<div>выполняю что-нибудь такое:</div>
+<div>(asdf:operate 'asdf:load-source-op :lispbuilder-sdl )<br>
+</div>
+<div>то после сохранения он пытается запустить скомпилированный модуль по старому пути!</div>
+<div>По этому у меня в новь вопрос как сделать так чтобы asdf загружал либы относительно заранее определенного пути?</div>
+<div><br></div>
+<div><br></div>
+<div><br></div>
+</div>
+</div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>strobegen</strong> - 10.08.2009 20:07</span></div>
+<div class="replybody">
+<p>для примера</p>
+<div>он у меня выдает такую ошибку:</div>
+<div>
+<div>debugger invoked on a SIMPLE-ERROR:</div>
+<div>  Error opening shared object "C:\\Program Files (x86)\\Steel Bank Common Lisp\\</div>
+<div>1.0.29\\site\\lispbuilder-sdl\\bin\\lispbuilder-sdl-glue.dll":</div>
+<div>  126.</div>
+<div><br></div>
+<div>при том, что lispbuilder-sdl-glue.dll лежит в той же директории, что и бинарник</div>
+</div>
+</div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>archimag</strong> - 10.08.2009 20:57</span></div>
+<div class="replybody"><p>&gt; при том, что lispbuilder-sdl-glue.dll лежит в той же директории, что и бинарник<br>Совершенно точно ничего не скажу по поводу как SBCL поддерживает dll на винде. Это может быть даже баг, ибо винду поддерживают разработчики довольно слабо.<br><br>Но могу предложить всегда класть dll в System32. Так делать больше не рекомендуют, но может помочь :)</p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>strobegen</strong> - 10.08.2009 21:27</span></div>
+<div class="replybody">
+<div>&gt;&gt;<span class="Apple-style-span" style="font-family: Arial, sans-serif; font-size: 12px; ">класть dll в System32. </span>
+</div>к сожалению даже это в данном случае не помогает - ищет все равно в <span class="Apple-style-span" style="font-family: Arial, sans-serif; font-size: 12px; ">C:\Program Files...</span><div><font class="Apple-style-span" face="Arial, sans-serif" size="3"><span class="Apple-style-span" style="font-size: 12px;"><br></span></font></div>
+<div>
+<span class="Apple-style-span" style="font-family: Arial, sans-serif; font-size: 12px; ">Eсть еще предположение, что можно вместо то го, чтобы делать бинарник положить  рабочий sbcl и сделать стартовый батник пускающий sbcl и загружающий в него*.fasl c самой программой. Но мне не совсем понятно, чем по сути является *.fasl это нативный код или что-то еще? Насколько такое решение переносимо (т.е нужно ли пере компилировать его в случае разных версий win OC или архитектур)? и на сколько это будет медленнее если заранее все скомпилировать?</span><br>
+</div>
+<div><font class="Apple-style-span" face="Arial, sans-serif" size="3"><span class="Apple-style-span" style="font-size: 12px; "><br></span></font></div>
+<div><font class="Apple-style-span" face="Arial, sans-serif" size="3"><span class="Apple-style-span" style="font-size: 12px;">В принципе похоже, что под виндой разумнее использовать Clozure CL (и x64 есть и треды) но вроде как  раза в 2 тормозней.</span></font></div>
+<div>
+<span class="Apple-style-span" style="font-family: Arial, sans-serif; font-size: 12px; ">P.S Просто пока еще очень плохо ориентируюсь в инфраструктуре CL)</span><br>
+</div>
+<div><font class="Apple-style-span" face="Arial, sans-serif" size="3"><span class="Apple-style-span" style="font-size: 12px;"><br></span></font></div>
+<div><font class="Apple-style-span" face="Arial, sans-serif" size="3"><span class="Apple-style-span" style="font-size: 12px;"><br></span></font></div>
+<div>
+<div><font class="Apple-style-span" face="Arial, sans-serif" size="3"><span class="Apple-style-span" style="font-size: 12px; "><br></span></font></div>
+<div><font class="Apple-style-span" face="Arial, sans-serif" size="3"><span class="Apple-style-span" style="font-size: 12px;"><br></span></font></div>
+</div>
+</div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>archimag</strong> - 10.08.2009 22:05</span></div>
+<div class="replybody"><font class="Apple-style-span" face="Arial, sans-serif" size="3"><span class="Apple-style-span" style="font-size: 12px;">&gt; В принципе похоже, что под виндой разумнее использовать Clozure CL (и x64 есть и треды) но вроде как  раза в 2 тормозней.<br>В общем да, SBCL это в основном под Linux, и надо смотреть другие решения. Вон, <a href="http://lisper.ru/forum/thread/39">говорят</a> в <a href="http://clisp.cons.org/">clisp</a> потоки добавляют... <a href="http://ecls.sourceforge.net/">ECL</a> тоже может быть интересным (вроде как может делать классические бинарники и даже dll).<br></span></font></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>strobegen</strong> - 10.08.2009 22:10</span></div>
+<div class="replybody"><p>ECL недавно пробовал - вроде интересная штука (весит мало и памяти читал, что чуть ли не меньше всех потребляет), но для меня оказалась в данный момент бессмысленной т.к главным образом из-за особенностей реализации на ней не может работать trivial-garbage а без него <span class="Apple-style-span" style="font-family: Arial, sans-serif; font-size: 12px; ">lispbuilder который мне нужен не работает)</span></p></div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>strobegen</strong> - 11.08.2009 01:36</span></div>
+<div class="replybody">
+<p>не знаю как у но у меня получилось отучить sbcl от абсолютных путей.</p>
+<div>В общем отчаявшись я решил попробовать собрать отдельную версию sbcl запускаемую батником ... </div>
+<div>немного повозившись вышло, что то типа</div>
+<div>
+<div>SET PATH=%CD%;%CD%\bin\sbcl\;</div>
+<div>SET SBCL_HOME=%CD%\bin\sbcl</div>
+<div>sbcl.exe --core %CD%\bin\sbcl\sbcl.core  --eval  "(require 'asdf)" --load init.lisp --eval (sdleng:main)</div>
+<div><br></div>
+<div>в init.lisp написал:</div>
+<div> </div>
+<div>
+<div>(defparameter *subdir-search-registry* (list (make-pathname :directory '(:relative "site")))</div>
+<div>  "List of directories to search subdirectories within.")</div>
+<div><br></div>
+<div>(defvar *subdir-search-wildcard* :wild</div>
+<div>  "Value of :wild means search only one level of subdirectories; value of :wild-inferiors</div>
+<div>  means search all levels of subdirectories (I don't advise using this in big directories!)")</div>
+<div><br></div>
+<div>(defun sysdef-subdir-search (system)</div>
+<div>  (let ((latter-path (make-pathname :name (coerce-name system)</div>
+<div>                       :directory (list :relative</div>
+<div>                                    *subdir-search-wildcard*)</div>
+<div>                       :type "asd"</div>
+<div>                       :version :newest</div>
+<div>                       :case :local)))</div>
+<div>    (dolist (d *subdir-search-registry*)</div>
+<div>      (let* ((wild-path (merge-pathnames latter-path d))</div>
+<div>             (files (directory wild-path)))</div>
+<div>        (when files</div>
+<div>          (return (first files)))))))</div>
+<div><br></div>
+<div>(pushnew 'sysdef-subdir-search *system-definition-search-functions*)<br>
+</div>
+<div><br></div>
+<div>и добавил к своему модулю экспортируемую функцию для сохранения exe ну и сделал подобный батник который ее пускает</div>
+<div>так на удивление полученный бинарник оказался полностью отвязан от каких либо абсолютных путей (даже на другом компе запустился).</div>
+<div>Есть подозрение, что дело в том, что я изначально сохранял exe из repl.</div>
+</div>
+</div>
+</div>
+</div>
+<div class="reply">
+<div class="topic-info"><span class="topic-author">Автор: <strong>masterziv</strong> - 28.08.2009 11:19</span></div>
+<div class="replybody"><p>Я на своём опыте пришёл к выводу, что лисп попросту не поддерживает понятия "текущий каталог", и, если оно вам нужно, нужно его задавать явно, например, через ещё один параметр строки запуска приложения. Я так и делаю.</p></div>
+</div>
+</div></div>
+
+        <div class="bottom">@2009 lisper.ru</div>
+
+        <script type="text/javascript">
+
+          var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+
+          document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+
+        </script>
+
+        <script type="text/javascript">
+
+          try {
+
+          var pageTracker = _gat._getTracker("UA-7734690-1");
+
+          pageTracker._trackPageview();
+
+          } catch(err) {}
+
+        </script>
+
+    </body>
+</html>

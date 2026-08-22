@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0"><channel><title>Lisper.ru: String ports</title><link>http://lisper.ru/forum/thread/606</link><description>Зачем нужен subj?</description><item><title>joba: String ports</title><link>http://lisper.ru/forum/messages/6410</link><description>Пожалуйста.</description><pubDate>WED, 19 Oct 2011 17:33:31 GMT</pubDate></item><item><title>power: String ports</title><link>http://lisper.ru/forum/messages/6409</link><description>Спасибо, joba.</description><pubDate>WED, 19 Oct 2011 12:12:51 GMT</pubDate></item><item><title>joba: String ports</title><link>http://lisper.ru/forum/messages/6408</link><description>http://srfi.schemers.org/srfi-6/srfi-6.html&lt;br&gt;&lt;h1&gt;Rationale&lt;/h1&gt;&#13;
+&#13;
+Scheme's procedures for performing input and output from and to ports&#13;
+become more useful when extended by string ports.  The interface&#13;
+described here has been in use since 1986 or before, and is currently&#13;
+supported by several of the major implementations.&#13;
+&#13;
+</description><pubDate>WED, 19 Oct 2011 09:00:11 GMT</pubDate></item><item><title>power: String ports</title><link>http://lisper.ru/forum/messages/5988</link><description>В общем, в irc объяснили что пользуются этим в основном для тестов и для дебага.</description><pubDate>SAT, 09 Jul 2011 07:31:38 GMT</pubDate></item><item><title>power: String ports</title><link>http://lisper.ru/forum/messages/5973</link><description>Зачем нужен subj?</description><pubDate>THU, 07 Jul 2011 10:52:37 GMT</pubDate></item></channel></rss>

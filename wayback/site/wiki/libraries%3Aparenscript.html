@@ -1,0 +1,308 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru" xml:lang="ru"> <head> <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> <meta name="keywords" content="Common Lisp,lisp,лисп" /> <title>libraries:parenscript</title> <link href="/css/style.css" rel="stylesheet" type="text/css" /><link href="/css/wiki.css" rel="stylesheet" type="text/css" /><link href="/css/colorize.css" rel="stylesheet" type="text/css" />  </head> <body> <div class="top"> <div id="login"> <a href="/register">Регистрация</a> | <a href="/login?done=/wiki/libraries:parenscript">Войти</a> </div> </div> <div id="caution"> <img alt="Lisp — программируемый язык программирования" src="/image/gecko.png" /> <a href="http://www.vkusnoserver.ru/" target="_blank" style="float: right;"> <img src="/vkusnoserver.png" /> </a> </div> <div id="mainmenu"> <ul> <li> <a href="/">Главная</a> </li><li> <a href="/articles/">Статьи</a> </li><li> <a href="/planet/">Планета</a> </li><li> <a href="/forum/">Форум</a> </li><li> <a href="/apps/">Сервисы</a> </li><li> <a href="/pcl/">Practical Common Lisp</a> </li><li> <a href="/wiki/">Wiki</a> </li><li> <a href="/files/">Файлы</a> </li><li> <a href="/search">Поиск</a> </li> </ul> </div> <div id="content"> <ul class="wiki-page-menu"> <li> <a href="/wiki/edit/libraries:parenscript">Edit</a> </li>  <li> <a href="/wiki/history/libraries:parenscript">History</a> </li>   </ul><div class="article"><div class="toc"><div class="toc-header">Содержание</div><div class="toc-body"><ul><li><div><a href="#&#x41A;&#x43E;&#x43C;&#x43F;&#x438;&#x43B;&#x44F;&#x442;&#x43E;&#x440; Parenscript">Компилятор Parenscript</a></div></li><li><div><a href="#&#x41F;&#x440;&#x435;&#x43E;&#x431;&#x440;&#x430;&#x437;&#x43E;&#x432;&#x430;&#x43D;&#x438;&#x435; &#x441;&#x438;&#x43C;&#x432;&#x43E;&#x43B;&#x43E;&#x432;">Преобразование символов</a></div></li><li><div><a href="#Parenscript &#x441;&#x438;&#x441;&#x442;&#x435;&#x43C;&#x430; &#x43F;&#x440;&#x43E;&#x441;&#x442;&#x440;&#x430;&#x43D;&#x441;&#x442;&#x432; &#x438;&#x43C;&#x435;&#x43D;">Parenscript система пространств имен</a><ul><li><div><a href="#&#x41E;&#x431;&#x444;&#x443;&#x441;&#x43A;&#x430;&#x446;&#x438;&#x44F; &#x438;&#x434;&#x435;&#x43D;&#x442;&#x438;&#x444;&#x438;&#x43A;&#x430;&#x442;&#x43E;&#x440;&#x43E;&#x432;">Обфускация идентификаторов</a></div></li><li><div><a href="#&#x41C;&#x438;&#x43D;&#x438;&#x43C;&#x438;&#x437;&#x430;&#x446;&#x438;&#x44F;">Минимизация</a></div></li></ul></div></li><li><div><a href="#&#x417;&#x430;&#x440;&#x435;&#x437;&#x435;&#x440;&#x432;&#x438;&#x440;&#x43E;&#x432;&#x430;&#x43D;&#x43D;&#x44B;&#x435; &#x441;&#x438;&#x43C;&#x432;&#x43E;&#x43B;&#x44B;">Зарезервированные символы</a></div></li><li><div><a href="#&#x41E;&#x43F;&#x435;&#x440;&#x430;&#x442;&#x43E;&#x440;&#x44B;, &#x432;&#x44B;&#x440;&#x430;&#x436;&#x435;&#x43D;&#x438;&#x44F; &#x438; &#x432;&#x43E;&#x437;&#x432;&#x440;&#x430;&#x442;">Операторы, выражения и возврат</a></div></li><li><div><a href="#&#x422;&#x438;&#x43F;&#x44B; &#x438; &#x43F;&#x440;&#x435;&#x434;&#x438;&#x43A;&#x430;&#x442;&#x44B;">Типы и предикаты</a></div></li><li><div><a href="#&#x41B;&#x438;&#x442;&#x435;&#x440;&#x430;&#x43B;&#x44B;">Литералы</a><ul><li><div><a href="#&#x427;&#x438;&#x441;&#x43B;&#x430;">Числа</a></div></li><li><div><a href="#&#x421;&#x442;&#x440;&#x43E;&#x43A;&#x438; &#x438; &#x441;&#x438;&#x43C;&#x432;&#x43E;&#x43B;&#x44B;">Строки и символы</a></div></li><li><div><a href="#&#x420;&#x435;&#x433;&#x443;&#x43B;&#x44F;&#x440;&#x43D;&#x44B;&#x435; &#x432;&#x44B;&#x440;&#x430;&#x436;&#x435;&#x43D;&#x438;&#x44F;">Регулярные выражения</a></div></li><li><div><a href="#&#x41B;&#x43E;&#x433;&#x438;&#x447;&#x435;&#x441;&#x43A;&#x438;&#x439; &#x442;&#x438;&#x43F; &#x438; undefined">Логический тип и undefined</a></div></li></ul></div></li><li><div><a href="#&#x41E;&#x431;&#x44A;&#x435;&#x43A;&#x442;&#x44B;">Объекты</a></div></li><li><div><a href="#&#x41C;&#x430;&#x441;&#x441;&#x438;&#x432;&#x44B;">Массивы</a></div></li><li><div><a href="#&#x410;&#x440;&#x438;&#x444;&#x43C;&#x435;&#x442;&#x438;&#x447;&#x435;&#x441;&#x43A;&#x438;&#x435; &#x438; &#x43B;&#x43E;&#x433;&#x438;&#x447;&#x435;&#x441;&#x43A;&#x438;&#x435; &#x43E;&#x43F;&#x435;&#x440;&#x430;&#x442;&#x43E;&#x440;&#x44B;">Арифметические и логические операторы</a></div></li><li><div><a href="#&#x41C;&#x430;&#x442;&#x435;&#x43C;&#x430;&#x442;&#x438;&#x447;&#x435;&#x441;&#x43A;&#x438;&#x435; &#x444;&#x443;&#x43D;&#x43A;&#x446;&#x438;&#x438; &#x438; &#x43A;&#x43E;&#x43D;&#x441;&#x442;&#x430;&#x43D;&#x442;&#x44B;">Математические функции и константы</a></div></li><li><div><a href="#&#x411;&#x43B;&#x43E;&#x43A;&#x438;">Блоки</a></div></li><li><div><a href="#&#x424;&#x443;&#x43D;&#x43A;&#x446;&#x438;&#x438; &#x438; &#x43D;&#x435;&#x441;&#x43A;&#x43E;&#x43B;&#x44C;&#x43A;&#x43E; &#x437;&#x43D;&#x430;&#x447;&#x435;&#x43D;&#x438;&#x439;">Функции и несколько значений</a></div></li><li><div><a href="#&#x41F;&#x435;&#x440;&#x435;&#x434;&#x430;&#x447;&#x430; &#x443;&#x43F;&#x440;&#x430;&#x432;&#x43B;&#x435;&#x43D;&#x438;&#x44F; &#x438; &#x438;&#x441;&#x43A;&#x43B;&#x44E;&#x447;&#x435;&#x43D;&#x438;&#x44F;">Передача управления и исключения</a></div></li><li><div><a href="#&#x423;&#x441;&#x43B;&#x43E;&#x432;&#x43D;&#x44B;&#x435; &#x43F;&#x435;&#x440;&#x435;&#x445;&#x43E;&#x434;&#x44B;">Условные переходы</a></div></li><li><div><a href="#&#x414;&#x435;&#x43A;&#x43B;&#x430;&#x440;&#x430;&#x446;&#x438;&#x44F; &#x43F;&#x435;&#x440;&#x435;&#x43C;&#x435;&#x43D;&#x43D;&#x44B;&#x445; &#x438; &#x441;&#x432;&#x44F;&#x437;&#x44B;&#x432;&#x430;&#x43D;&#x438;&#x435;">Декларация переменных и связывание</a></div></li><li><div><a href="#&#x41F;&#x440;&#x438;&#x441;&#x432;&#x430;&#x438;&#x432;&#x430;&#x43D;&#x438;&#x435;">Присваивание</a></div></li><li><div><a href="#&#x426;&#x438;&#x43A;&#x43B;&#x44B;">Циклы</a></div></li><li><div><a href="#&#x41C;&#x430;&#x43A;&#x440;&#x43E;&#x441;&#x44B;">Макросы</a><ul><li><div><a href="#&#x414;&#x435;&#x43A;&#x43B;&#x430;&#x440;&#x430;&#x446;&#x438;&#x44F; &#x43C;&#x430;&#x43A;&#x440;&#x43E;&#x441;&#x43E;&#x432;">Декларация макросов</a></div></li><li><div><a href="#&#x421;&#x438;&#x43C;&#x432;&#x43E;&#x43B;&#x44B; &#x43C;&#x430;&#x43A;&#x440;&#x43E;&#x441;&#x43E;&#x432;">Символы макросов</a></div></li><li><div><a href="#GENSYM">GENSYM</a></div></li></ul></div></li><li><div><a href="#&#x423;&#x442;&#x438;&#x43B;&#x438;&#x442;&#x44B;">Утилиты</a><ul><li><div><a href="#DOM">DOM</a></div></li><li><div><a href="#&#x413;&#x435;&#x43D;&#x435;&#x440;&#x430;&#x446;&#x438;&#x44F; HTML">Генерация HTML</a></div></li></ul></div></li><li><div><a href="#&#x411;&#x438;&#x431;&#x43B;&#x438;&#x43E;&#x442;&#x435;&#x43A;&#x430;">Библиотека</a></div></li><li><div><a href="#&#x418;&#x43D;&#x442;&#x435;&#x433;&#x440;&#x430;&#x446;&#x438;&#x44F; &#x441;&#x43E; SLIME">Интеграция со SLIME</a></div></li></ul></div></div>
+<p>Справочное руководство Parenscript 
+</p>
+<div class="chapter" id="&#x41A;&#x43E;&#x43C;&#x43F;&#x438;&#x43B;&#x44F;&#x442;&#x43E;&#x440; Parenscript"><h3>Компилятор Parenscript</h3>
+<pre>  (PS &amp;body body)<br/>  (PS-TO-STREAM stream &amp;body body)<br/>  (PS* &amp;rest body)<br/>  (PS-DOC &amp;body body)<br/>  (PS-DOC* &amp;body body)<br/>  (PS-INLINE form &amp;optional *JS-STRING-DELIMITER*)<br/>  (PS-INLINE* form &amp;optional *JS-STRING-DELIMITER*)<br/>  (PS-COMPILE-STREAM stream)<br/>  (PS-COMPILE-FILE file)<br/>  (LISP lisp-forms)<br/>  (SYMBOL-TO-JS-STRING symbol)<br/>  *JS-TARGET-VERSION*<br/>  *PARENSCRIPT-STREAM*<br/>  *JS-STRING-DELIMITER*<br/>  *JS-INLINE-STRING-DELIMITER*<br/>  *PS-READ-FUNCTION*<br/>  *VERSION*<br/>  *DEFINED-OPERATORS*<br/></pre>
+<pre>body<br/>неявный PROGN<br/></pre>
+<p>Различие между обычным и * версиями формами компилятора Parenscript примерно похоже на различие между COMPILE и EVAL. Формы с * - это функции, которые производят всю компиляцию во время выполнения, тогда как обычные формы - это макросы, которые производят большую часть компиляции (кроме использования специальных форм, см. далее) во время разворачивания макросов.
+</p>
+<p>PS и PS* предоставляют основной интерфейс к компилятору Parenscript. PS-DOC и PS-DOC* компилируют код, при установленной в 0 переменной *PS-GENSYM-COUNTER*, и удобны для автоматизированных тестов.
+</p>
+<p>По-умолчанию Parenscript выводит результат в строку. Вы можете перенаправить вывод прямо в поток с помощью одного из методов: использовать PS-TO-STREAM вместо PS, или связать переменную *PARENSCRIPT-STREAM* перед вызовом PS*.
+</p>
+<p>PS-INLINE и PS-INLINE* принимают одну форму Parenscript и выводят строку начинающуюся с javascript:, которая может использоваться в html тегах. У них есть аргумент, значение которого будет связано с символом *JS-STRING-DELIMITER* для управления символом экранирования JavaScript строк для того, чтобы обеспечить совместимость с используемым механизмом генерации HTML (например, если в html используется #\', то использование #\" позволит избежать конфликтов). По-умолчанию значение берется из *JS-INLINE-STRING-DELIMITER*.
+</p>
+<p>Parenscript также может вызывать Common Lisp код во время вывода JavaScript, (т.е. каждый раз когда будет вызыватся компиляция или разворот макросов, FIXME), с помощью формы LISP. Форма LISP будет выполнена, и ее вывод будет интерпретирован как код для Parenscript. Для PS и PS-INLINE, генерация вывода Parenscript кода, будет производится во время разворачивания макросов, и LISP форма будет вставлена в код и будет иметь доступ к лексическому окружению. PS* и PS1* выполняют формы LISP используя EVAL, предоставляя им доступ только к текущему динамическому окружению (конечно изпользование LISP при вызов этих функций необязательно, FIXME).
+</p>
+<p>*JS-TARGET-VERSION* (по-умолчанию 1.3) указывает, какую версию JavaScript будет использовать Parenscript. Для новых версий JS, некоторые Parenscript формы могут быть скомпилированы в более сжатые и/или эффективные выражения, которые не присутствовали в предыдущих версиях JS.
+</p>
+<p>SYMBOL-TO-JS-STRING - это Parenscript функция предназначенная для транслирования символов Common Lisp в идентификаторы JavaScript (см. раздел с таблицей конверсий символов для правил трансляции). Это необходимо для написания библиотек или других частей кода, которые взаимодействуют со сгенерированным Parenscript-ом.
+</p>
+<p>Новые версии Parenscript могут реализовывать специальные формы Common Lisp-а, функции и макросы, которые не были реализованы в предыдущих версиях. Это может вызвать проблемы, если ваш код уже предоставляет реализацию. Для помощи в разрешении этой проблемы, *DEFINED-OPERATORS* предоставляет список специальных форм, макросов и символов уже реализованных в Parenscript. *VERSION* связан со значением номера текущего релиза Parenscript.
+</p>
+</div><div class="chapter" id="&#x41F;&#x440;&#x435;&#x43E;&#x431;&#x440;&#x430;&#x437;&#x43E;&#x432;&#x430;&#x43D;&#x438;&#x435; &#x441;&#x438;&#x43C;&#x432;&#x43E;&#x43B;&#x43E;&#x432;"><h3>Преобразование символов</h3>
+
+<p>Parenscript подерживает вывод обоих видов символов: регистрозависимых и регистронезависимых. По-умолчанию Lisp reader возводит все символы в верхний регистр. После установки readtable-case в :invert (вы можете использовать библиотеку named-readtables для упрощения задачи) регистр символов сохраняется, и Parenscript будет выводить символы (как encodeURIComponent) без изменения.
+</p>
+<p>Символы Lisp (не keyword-ы), которые содержат специальные символы, преобразуются в идентификаторы JavaScript используя простые правила. Символы !, ?, #, @, %, /, * и + замещаются их словесными эквивалентами "bang", "what", "hash", "at", "percent", "slash", "start" и "plus" соответственно. Символ $ не меняется.
+</p><pre>!?#@%<br/>    bangwhathashatpercent;<br/></pre>
+<p>Дефис указывает, что следующий символ будет возведен в верхний регистр.
+</p><pre>bla-foo-bar<br/>    blaFooBar;<br/></pre>
+<p>Идентификаторы JavaScript, которые начинаются с большой буквы могут быть транслированы с предшествующем - или *.
+</p><pre>  *array<br/>      Array;<br/></pre>
+<p>Символы начинающиеся и заканчивающиеся на + или * будет транслированы в идентификатор в верхнем регистре, как константы или глобальные переменные.
+</p><pre>  *global-array*<br/>      GLOBALARRAY;<br/></pre>
+<p>Keywords не транслируются в идентификаторы JavaScript, но выводятся в нижнем регистре без каких-либо преобразований, как строки. Так сделано, потому что строки являются наиболее похожим эквивалентом для Common Lisp keyword-ов.
+</p><pre>:+<br/>    '+';<br/>:foo-bar<br/>    'foo-bar';<br/></pre>
+</div><div class="chapter" id="Parenscript &#x441;&#x438;&#x441;&#x442;&#x435;&#x43C;&#x430; &#x43F;&#x440;&#x43E;&#x441;&#x442;&#x440;&#x430;&#x43D;&#x441;&#x442;&#x432; &#x438;&#x43C;&#x435;&#x43D;"><h3>Parenscript система пространств имен</h3>
+<pre>  (in-package package-designator)<br/>  (use-package package-designator)<br/>  (setf (PS-PACKAGE-PREFIX package-designator) string)<br/></pre>
+<p>Так как JavaScript не предоставляет постранств имен или системы пакетов, Parenscript реализует механизм пространств имен для сгенерированного JavaScript-а с помощью интеграции с Common Lisp системой пакетов. Parenscript код разбирается Lisp reader-ом, все символы (кроме невнутренних, например, с использованием #:) принадлежат Lisp пакету. По-умолчанию, префикс для пакетов не используется. Вы можете указать, чтобы символы в определенном пакете содержали префикс при транслировании в JavaScript код, с помощью PS-PACKAGE-PREFIX.
+</p><pre>(defpackage "PS-REF.MY-LIBRARY"<br/>  (:use "PARENSCRIPT"))<br/>(setf (ps-package-prefix "PS-REF.MY-LIBRARY") "my_library_")<br/>(defun ps-ref.my-library::library-function (x y)<br/>  (return (+ x y)))<br/></pre>
+
+<pre>    function my_library_libraryFunction(x, y) {<br/>        return x + y;<br/>    };<br/></pre>
+<p>Parenscript предоставляет формы IN-PACKAGE и USE-PACKAGE, наиболее полезные c PS-COMPILE-FUNCTION и PS-COMPILE-STREAM.
+</p>
+<div class="chapter" id="&#x41E;&#x431;&#x444;&#x443;&#x441;&#x43A;&#x430;&#x446;&#x438;&#x44F; &#x438;&#x434;&#x435;&#x43D;&#x442;&#x438;&#x444;&#x438;&#x43A;&#x430;&#x442;&#x43E;&#x440;&#x43E;&#x432;"><h3>Обфускация идентификаторов</h3>
+<pre>  (OBFUSCATE-PACKAGE package-designator &amp;optional symbol-map)<br/>  (UNOBFUSCATE-PACKAGE package-designator)<br/></pre>
+<p>Сходный с механизмом пространств имен, Parenscript предоставляет возможнсть генерации обфусцированных идентификаторов в заданном CL пакете. Функция OBFUSCATE-PACKAGE опционально может использоваться в замыкании, где заданы соотвествия символов к их обфусцированным аналогам. По-умолчанию, соответствие задается с помощью PS-GENSYM.
+</p><pre>(defpackage "PS-REF.OBFUSCATE-ME")<br/>(obfuscate-package "PS-REF.OBFUSCATE-ME"<br/>  (let ((code-pt-counter #x8CF6)<br/>        (symbol-map (make-hash-table)))<br/>    (lambda (symbol)<br/>      (or (gethash symbol symbol-map)<br/>          (setf (gethash symbol symbol-map)<br/>                (make-symbol (string (code-char (incf code-pt-counter)))))))))<br/>(defun ps-ref.obfuscate-me::a-function (a b ps-ref.obfuscate-me::foo)<br/>  (+ a (ps-ref.my-library::library-function b ps-ref.obfuscate-me::foo)))<br/></pre>
+<pre>  function 賷(a, b, 賸) {<br/>      return a + libraryFunction(b, 賸);<br/>  };<br/></pre>
+<p>Обфускация и пространства имен могут быть использованы одновременно.
+</p>
+<p>Так как Parenscript ничего не знает о DOM и других JavaScript библиотеках, функции и свойства объектов могут быть обфусцированы. Чтобы избежать данной проблемы, Parenscript содержит ps-dom1-symbols, ps-dom2-symbols, ps-window-wd-symbols, ps-dom-nonstandard-symbols and ps-dhtml-symbols пакеты, которые определяют различные свойства DOM и идентификаторы функций, как экспортированные символы (в двух вариантах: регистрозависимом и регистронезависимом), которые вы можете импортировать в свой пакет для защиты символа от обфусцирования. Пакет ps-dhtml-symbols содержит самый широкий набор символов.
+</p>
+<p>Если вы используете обфускацию и внешние JavaScript библиотеки, вы можете использовать этот же метод для защиты ваших символов от обфусцирования.
+</p>
+</div><div class="chapter" id="&#x41C;&#x438;&#x43D;&#x438;&#x43C;&#x438;&#x437;&#x430;&#x446;&#x438;&#x44F;"><h3>Минимизация</h3>
+<pre>  *PS-PRINT-PRETTY*<br/>  *INDENT-NUM-SPACES*<br/></pre>
+<p>*PS-PRETPRINT-PRETTY* и *INDENT-NUM-SPACES* указывают, будет ли результирующий код "красиво" распечатан, и если так, то сколько пробелов используется для отступов. По умолчанию код печатается "красиво" с 4-мя пробелами.
+</p>
+<p>Установка *PS-PRINT-PRETTY* в nil и включенная обфускация уменьшит JavaScript код.
+</p>
+</div></div><div class="chapter" id="&#x417;&#x430;&#x440;&#x435;&#x437;&#x435;&#x440;&#x432;&#x438;&#x440;&#x43E;&#x432;&#x430;&#x43D;&#x43D;&#x44B;&#x435; &#x441;&#x438;&#x43C;&#x432;&#x43E;&#x43B;&#x44B;"><h3>Зарезервированные символы</h3>
+
+<p>Следующие символы являются зарезервированными в Parenscript, и не могут использоваться в качестве имен переменных.
+</p><pre>! ~ ++ -- * / % + - &lt;&lt; &gt;&gt; &gt;&gt;&gt; &lt; &gt; &lt;= &gt;= == != === !== &amp; ^ | &amp;&amp; || *= /= %= += -= &lt;&lt;= &gt;&gt;= &gt;&gt;&gt;= &amp;= ^= |= 1- 1+ @ ABSTRACT AND AREF ARRAY BOOLEAN BREAK BYTE CASE CATCH CHAR CLASS COMMA CONST CONTINUE CREATE DEBUGGER DECF DEFAULT DEFUN DEFVAR DELETE DO DO* DOEACH DOLIST DOTIMES DOUBLE ELSE ENUM EQL EXPORT EXTENDS F FALSE FINAL FINALLY FLOAT FLOOR FOR FOR-IN FUNCTION GOTO IF IMPLEMENTS IMPORT IN INCF INSTANCEOF INT INTERFACE JS LABELED-FOR LAMBDA LET LET* LISP LIST LONG MAKE-ARRAY NATIVE NEW NIL NOT OR PACKAGE PRIVATE PROGN PROTECTED PUBLIC RANDOM REGEX RETURN SETF SHORT GETPROP STATIC SUPER SWITCH SYMBOL-MACROLET SYNCHRONIZED T THIS THROW THROWS TRANSIENT TRY TYPEOF UNDEFINED UNLESS VAR VOID VOLATILE WHEN WHILE WITH WITH-SLOTS<br/></pre>
+</div><div class="chapter" id="&#x41E;&#x43F;&#x435;&#x440;&#x430;&#x442;&#x43E;&#x440;&#x44B;, &#x432;&#x44B;&#x440;&#x430;&#x436;&#x435;&#x43D;&#x438;&#x44F; &#x438; &#x432;&#x43E;&#x437;&#x432;&#x440;&#x430;&#x442;"><h3>Операторы, выражения и возврат</h3>
+
+<p>В отличие от лиспа, где все является выражением, JavaScript делает различие между выражениями возращающими значения, которые могут использоваться в других выражениях, и операторы не имеющие возвращаемого значения, которые не могут встречатся в других выражениях.
+</p>
+<p>Некоторые специальные формы Parenscript компилируются в выражения, тогда как другие только в операторы. Несомненно такие формы Parenscript, как IF или PROGN, генерируют разный JavaScript в зависимости от того, где используются. В таких случаях ParenScript пытается генерировать "операторный" код для повышения читабельности, оставляя код с выражениями только по необходимости.
+</p><pre>(+ i (if x (foo) (bar)))<br/>    i + (x ? foo() : bar());<br/>(if x (foo) (bar))<br/></pre>
+
+<pre>    if (x) {<br/>        foo();<br/>    } else {<br/>        bar();<br/>    };<br/></pre>
+<p>Одна важная возможность существующая в лиспе и отсутствующая в JavaScript - неявный возврат значения из функции. Parenscript поддерживает неявный возврат.
+</p><pre>(defun foo (x)<br/>  (1+ x))<br/></pre>
+
+<pre>    function foo(x) {<br/>        return x + 1;<br/>    };<br/></pre>
+
+<pre>(lambda (x)<br/>  (case x<br/>    (1 (loop repeat 3 do (alert "foo")))<br/>    (:bar (alert "bar"))<br/>    (otherwise 4)))<br/></pre>
+
+<pre>    function (x) {<br/>        switch (x) {<br/>        case 1:<br/>            for (var _js1 = 0; _js1 &lt; 3; _js1 += 1) {<br/>                alert('foo');<br/>            };<br/>            return null;<br/>        case 'bar':<br/>            return alert('bar');<br/>        default:<br/>            return 4;<br/>        };<br/>    };<br/></pre>
+<p>Следует отметить, что Parenscript может сгенерировать некорректный JavaScript.
+</p><pre>(+ 1 (dotimes (x 3) (+ x x)))<br/></pre>
+
+<pre>    1 + for (var x = 0; x &lt; 3; x += 1) {<br/>        x + x;<br/>    };<br/></pre>
+</div><div class="chapter" id="&#x422;&#x438;&#x43F;&#x44B; &#x438; &#x43F;&#x440;&#x435;&#x434;&#x438;&#x43A;&#x430;&#x442;&#x44B;"><h3>Типы и предикаты</h3>
+<pre>  (TYPEOF object)<br/>  (INSTANCEOF object type)<br/>  (NULL object)<br/>  (UNDEFINED object)<br/>  (DEFINED object)<br/>  (STRINGP object)<br/>  (NUMBERP object)<br/>  (FUNCTIONP object)<br/>  (OBJECTP object)<br/></pre>
+<pre>object<br/>выражение возвращающее объект<br/>type<br/>обозначение типа<br/></pre>
+</div><div class="chapter" id="&#x41B;&#x438;&#x442;&#x435;&#x440;&#x430;&#x43B;&#x44B;"><h3>Литералы</h3>
+<div class="chapter" id="&#x427;&#x438;&#x441;&#x43B;&#x430;"><h3>Числа</h3>
+
+<p>Parenscript пребразует integer в integer, float, ratio во floats в десятеричной системе.
+</p><pre>1<br/>    1;<br/>123.123<br/>    123.123;<br/>3/4<br/>    0.75;<br/>#x10<br/>    16;<br/></pre>
+</div><div class="chapter" id="&#x421;&#x442;&#x440;&#x43E;&#x43A;&#x438; &#x438; &#x441;&#x438;&#x43C;&#x432;&#x43E;&#x43B;&#x44B;"><h3>Строки и символы</h3>
+
+<p>Строки лиспа преобразуются в JavaScript строки.
+</p><pre>"foobar"<br/>    'foobar';<br/></pre>
+<p>Непечатаемые символы выводятся с помощью escape последовательностей.
+</p><pre>#\Tab<br/>    '\t';<br/>"\\n"<br/>    '\\n';<br/></pre>
+</div><div class="chapter" id="&#x420;&#x435;&#x433;&#x443;&#x43B;&#x44F;&#x440;&#x43D;&#x44B;&#x435; &#x432;&#x44B;&#x440;&#x430;&#x436;&#x435;&#x43D;&#x438;&#x44F;"><h3>Регулярные выражения</h3>
+<pre>  (REGEX regex)<br/></pre>
+<pre>regex<br/>строка<br/></pre>
+<p>Регулярные выражения могут быть созданы с помощью формы REGEX. Если аргумент не начинается с /, он будет окружен /, иначе останется как есть.
+</p><pre>(regex "foobar")<br/>    /foobar/;<br/>(regex "/foobar/i")<br/>    /foobar/i;<br/></pre>
+<p><a href="http://weitz.de/cl-interpol/">CL-INTERPOL</a> служит помощником для написания регулярных выражений:
+</p><pre>(regex #?r"/([^\s]+)foobar/i")<br/>    /([^\s]+)foobar/i;<br/></pre>
+</div><div class="chapter" id="&#x41B;&#x43E;&#x433;&#x438;&#x447;&#x435;&#x441;&#x43A;&#x438;&#x439; &#x442;&#x438;&#x43F; &#x438; undefined"><h3>Логический тип и undefined</h3>
+<pre>  T<br/>  F<br/>  FALSE<br/>  NIL<br/>  UNDEFINED<br/></pre>
+<p>T и FALSE (или F) транслируются в их JavaScript эквиваленты: true и false.
+</p>
+<p>NIL преобразуется в null.
+</p>
+<p>UNDEFINED в глобальную переменную undefined.
+</p>
+</div></div><div class="chapter" id="&#x41E;&#x431;&#x44A;&#x435;&#x43A;&#x442;&#x44B;"><h3>Объекты</h3>
+<pre>  (NEW constructor)<br/>  (CREATE {name value}*)<br/>  (GETPROP object {slot-specifier}*)<br/>  (@ {slot-specifier}*)<br/>  (CHAIN {slot-specifier | function-call}*)<br/>  (WITH-SLOTS ({slot-name}*) object body)<br/>  (DELETE object)<br/></pre>
+<pre>constructor<br/>вызов функции как конструктора<br/>name<br/>символ. строка или keyword<br/>value<br/>выражение<br/>object<br/>выражение возвращающее объект<br/>slot-specifier<br/>закавыченный символ, строка, число или выражение возвращающее строку или число<br/>body<br/>неявный progn<br/></pre>
+<p>Объект может быть создан с помощью CREATE. CREATE принимает список свойств и значений.
+</p><pre>(create foo "bar" :blorg 1)<br/></pre>
+<pre>    { foo : 'bar', 'blorg' : 1 };<br/></pre>
+
+<pre>(create foo "hihi"<br/>        blorg (array 1 2 3)<br/>        another-object (create :schtrunz 1))<br/></pre>
+
+<pre>    { foo : 'hihi',<br/>         blorg : [ 1, 2, 3 ],<br/>         anotherObject : { 'schtrunz' : 1 } };<br/></pre>
+<p>Свойства объекты могут быть получены с помощью GETPROP, что принимает объект и список свойств.
+</p><pre>(getprop obj 'foo)<br/>    obj.foo;<br/>(getprop obj foo)<br/>    obj[foo];<br/>(getprop element i 'child-node 0 'node-value)<br/>    element[i].childNode[0].nodeValue;<br/></pre>
+<p>Удобный макрос @ кавычит все принимаемые символы.
+</p><pre>(@ an-object foo bar)<br/>    anObject.foo.bar;<br/>(@ foo bar child-node 0 node-value)<br/>    foo.bar.childNode[0].nodeValue;<br/></pre>
+<p>CHAIN может использоватся для цепочек вызовов функций и свойств:
+</p><pre>(chain foo (bar x y) 0 baz)<br/>    foo.bar(x, y)[0].baz;<br/></pre>
+<p>WITH-SLOTS может быть использована для связи передаваемых имен слотов с переменными, которые затем будут развернуты в соответствующие конструкции.
+</p><pre>(with-slots (a b c) this<br/>  (+ a b c))<br/></pre>
+
+<pre>    this.a + this.b + this.c;<br/></pre>
+</div><div class="chapter" id="&#x41C;&#x430;&#x441;&#x441;&#x438;&#x432;&#x44B;"><h3>Массивы</h3>
+<pre>  (ARRAY {values}*)<br/>  (LIST {values}*)<br/>  ([] {values}*)<br/>  (MAKE-ARRAY {values}*)<br/>  (LENGTH array)<br/>  (AREF array index)<br/>  (ELT array index)<br/>  (DESTRUCTURING-BIND bindings array body)<br/>  (CONCATENATE 'STRING {values}*)<br/>  (APPEND {values}*)<br/></pre>
+<pre>values<br/>выражение<br/>array<br/>выражение<br/>index<br/>выражение<br/></pre>
+<p>Массивы могут быть созданы используя формы ARRAY и LIST.
+</p><pre>(array)<br/>    [];<br/>(array 1 2 3)<br/>    [1, 2, 3];<br/>(list (foo) (bar) 3)<br/>    [foo(), bar(), 3];<br/>(array (array 2 3)<br/>  (array "foo" "bar"))<br/></pre>
+
+<pre>    [[ 2, 3 ], ['foo', 'bar']];<br/></pre>
+<p>Массивы также могут быть созданы с помощью вызова функции Array с помощью MAKE-ARRAY.
+</p><pre>(make-array)<br/>    new Array();<br/>(make-array 1 2 3)<br/>    new Array(1, 2, 3);<br/>(make-array<br/> (make-array 2 3)<br/> (make-array "foobar" "bratzel bub"))<br/></pre>
+
+<pre>    new Array(new Array(2, 3), new Array('foobar', 'bratzel bub'));<br/></pre>
+<p>Доступ к элементам массива осуществляется с помощью AREF или ELT.
+</p>
+</div><div class="chapter" id="&#x410;&#x440;&#x438;&#x444;&#x43C;&#x435;&#x442;&#x438;&#x447;&#x435;&#x441;&#x43A;&#x438;&#x435; &#x438; &#x43B;&#x43E;&#x433;&#x438;&#x447;&#x435;&#x441;&#x43A;&#x438;&#x435; &#x43E;&#x43F;&#x435;&#x440;&#x430;&#x442;&#x43E;&#x440;&#x44B;"><h3>Арифметические и логические операторы</h3>
+<pre>  (&lt;operator&gt; {argument}*)<br/>  (&lt;single-operator&gt; argument)<br/></pre>
+<pre>&lt;operator&gt;<br/>один из *, /, %, +, -, &lt;&lt;, &gt;&gt;, &gt;&gt;&gt;, &lt; &gt;, EQL, ==, !=, =, ===, !==, &amp;, ^, |, &amp;&amp;, AND, ||, OR <br/>&lt;single-operator&gt;<br/>один из INCF, DECF, ++, --, NOT, !<br/>argument<br/>выражение<br/></pre>
+<p>Формы операторов похожи на формы с вызовом функции, однако содержат имя оператора вместо имени функции.
+</p>
+<p>Пожалуйста, запомните, что = траслируется в == . = не является оператором присваивания.
+</p><pre>(* 1 2)<br/>    1 * 2;<br/>(= 1 2)<br/>    1 === 2;<br/></pre>
+</div><div class="chapter" id="&#x41C;&#x430;&#x442;&#x435;&#x43C;&#x430;&#x442;&#x438;&#x447;&#x435;&#x441;&#x43A;&#x438;&#x435; &#x444;&#x443;&#x43D;&#x43A;&#x446;&#x438;&#x438; &#x438; &#x43A;&#x43E;&#x43D;&#x441;&#x442;&#x430;&#x43D;&#x442;&#x44B;"><h3>Математические функции и константы</h3>
+<pre>  (MAX {number}*)<br/>  (MIN {number}*)<br/>  (FLOOR number &amp;optional divisor)<br/>  (CEILING number &amp;optional divisor)<br/>  (ROUND number &amp;optional divisor)<br/>  (SIN number)<br/>  (COS number)<br/>  (TAN number)<br/>  (ASIN number)<br/>  (ACOS number)<br/>  (ATAN number1 &amp;optional number2)<br/>  (SINH number)<br/>  (COSH number)<br/>  (TANH number)<br/>  (ASINH number)<br/>  (ACOSH number)<br/>  (ATANH number)<br/>  (1+ number)<br/>  (1- number)<br/>  (ABS number)<br/>  (EVENP number)<br/>  (ODDP number)<br/>  (EXP number)<br/>  (EXPT base power)<br/>  (LOG number &amp;optional base)<br/>  (SQRT number)<br/>  (RANDOM &amp;optional limit)<br/>  PI<br/></pre>
+<p>Математический функции перечисленные выше работают также, как в аналоги Common Lisp, кроме того, что не поддерживаются комплексные числа. Однако, многие из них реализованы как макросы и не могут использоваться в качестве параметров.
+</p>
+</div><div class="chapter" id="&#x411;&#x43B;&#x43E;&#x43A;&#x438;"><h3>Блоки</h3>
+<pre>  (PROGN {statement}*) in statement context<br/>  (PROGN {expression}*) in expression context<br/>  (PROG1 {expression | statement}*)<br/>  (PROG2 {expression | statement}*)<br/></pre>
+<pre>statement<br/>форма транслирующаяся в оператор<br/>expression<br/>форма транслирующаяся в выражение<br/>  <br/></pre><p>Транслрование PROGN зависит от контекста использования.
+</p><pre>(progn (blorg i) (blafoo i))<br/></pre>
+
+<pre>    blorg(i);<br/>    blafoo(i);<br/></pre>
+
+<p> </p><pre>(+ i (progn (blorg i) (blafoo i)))<br/>    i + (blorg(i), blafoo(i));<br/></pre>
+</div><div class="chapter" id="&#x424;&#x443;&#x43D;&#x43A;&#x446;&#x438;&#x438; &#x438; &#x43D;&#x435;&#x441;&#x43A;&#x43E;&#x43B;&#x44C;&#x43A;&#x43E; &#x437;&#x43D;&#x430;&#x447;&#x435;&#x43D;&#x438;&#x439;"><h3>Функции и несколько значений</h3>
+<pre>  (DEFUN name lambda-list body)<br/>  (LAMBDA lambda-list body)<br/>  (FLET ({(name lambda-list body)}*) body)<br/>  (LABELS ({(name lambda-list body)}*) body)<br/>  (VALUES {expression}*)<br/>  (MULTIPLE-VALUE-BIND (var*) expression body)<br/>  (APPLY function expression*)<br/>  (FUNCALL function expression*)<br/>  THIS<br/></pre>
+<pre>expression<br/>форма транслирующаяся в выражение<br/>name<br/>символ<br/>lambda-list<br/>список лямбд<br/>body<br/>неявный PROGN<br/>var<br/>символ для имени переменной<br/>function<br/>выражение, возвращающее функцию<br/></pre>
+<p>Определения новых функций может быть введены используя все доступные Lisp формы - DEFUN, LAMBDA, FLET и LABELS. Аргументы могут быть: &amp;optional, &amp;rest и &amp;key.
+</p>
+<p>Parenscript механизм возврата нескольких значений использует первое значение для обычных вызовов JavaScript, это значит, что функции возвращающие несколько значение могут вызываться в JavaScript, и MULTIPLE-VALUE-BIND работает с обычными JavaScript функциями. FIXME.
+</p>
+<p>APPLY макрос, который разворачивается в вызов JavaScript apply метода.
+</p>
+</div><div class="chapter" id="&#x41F;&#x435;&#x440;&#x435;&#x434;&#x430;&#x447;&#x430; &#x443;&#x43F;&#x440;&#x430;&#x432;&#x43B;&#x435;&#x43D;&#x438;&#x44F; &#x438; &#x438;&#x441;&#x43A;&#x43B;&#x44E;&#x447;&#x435;&#x43D;&#x438;&#x44F;"><h3>Передача управления и исключения</h3>
+<pre>  (RETURN {value}?)<br/>  (THROW {exp}?)<br/>  (TRY form {(:CATCH (var) body)}? {(:FINALLY body)}?)<br/>  (IGNORE-ERRORS body)<br/></pre>
+<pre>value<br/>оператор или выражение<br/>exp<br/>выражение<br/>var<br/>переменная, к которой привязан сгенерированный объект исключения<br/>body<br/>неявный PROGN<br/></pre>
+<p>Parenscript RETURN и THROW работают НЕ также, как одноименные Common Lisp формы.
+</p>
+<p>RETURN может быть использовано для возврата значения только из функции - Parenscript не имеет аналогов Common Lisp blocks. RETURN работает с переданным оператором и выражением (в этом случае, происходит семантический анализ для определения значения для возврата).
+</p><pre>(lambda (x)<br/>  (return (case x<br/>            (1 :a)<br/>            (2 :b))))<br/></pre>
+
+<pre>    function (x) {<br/>        switch (x) {<br/>        case 1:<br/>            return 'a';<br/>        case 2:<br/>            return 'b';<br/>        };<br/>    };<br/></pre>
+<p>Также THROW транслируется напрямую в JavaScript throw, для использования с try, который в свою очередь также напрямую переводится в JavaScript try.
+</p><pre>(try (throw "i")<br/> (:catch (error)<br/>   (alert (+ "an error happened: " error)))<br/> (:finally<br/>   (alert "Leaving the try form")))<br/></pre>
+
+<pre>    try {<br/>           throw 'i';<br/>       } catch (error) {<br/>           alert('an error happened: ' + error);<br/>       } finally {<br/>           alert('Leaving the try form');<br/>       };<br/></pre>
+</div><div class="chapter" id="&#x423;&#x441;&#x43B;&#x43E;&#x432;&#x43D;&#x44B;&#x435; &#x43F;&#x435;&#x440;&#x435;&#x445;&#x43E;&#x434;&#x44B;"><h3>Условные переходы</h3>
+<pre>  (IF condition then {else})<br/>  (WHEN condition then)<br/>  (UNLESS condition then)<br/>  (COND {clauses}*)<br/>  (CASE case-value clause*)<br/>  (SWITCH case-value clause*)<br/>  BREAK<br/></pre>
+<pre>condition<br/>выражение<br/>then<br/>оператор в контексте оператора, выражение в контексте выражения<br/>else<br/>оператор в контексте оператора, выражение в контексте выражения<br/>clause<br/>(&lt;value&gt; body) | (default body)<br/></pre>
+<p>IF, WHEN, UNLESS и COND работают как их аналоги в лиспе.
+</p><pre>(cond ((= x 1) (+ x (if (foo y) 2 3))))<br/></pre>
+
+<pre>    if (x == 1) {<br/>        x + (foo(y) ? 2 : 3);<br/>    };<br/></pre>
+<p>CASE работает как и его Common Lisp эквивалент. Дополнительная форма, SWITCH, имеет тот же синтаксис, CASE, но отдельные ветки должны быть завершены символом BREAK. Это позволяет "fall-throughs" в стиле С.
+</p>
+<p>Следует отметить, что ветка default в SWITCH операторе должна быть названа как DEFAULT. 
+</p>
+</div><div class="chapter" id="&#x414;&#x435;&#x43A;&#x43B;&#x430;&#x440;&#x430;&#x446;&#x438;&#x44F; &#x43F;&#x435;&#x440;&#x435;&#x43C;&#x435;&#x43D;&#x43D;&#x44B;&#x445; &#x438; &#x441;&#x432;&#x44F;&#x437;&#x44B;&#x432;&#x430;&#x43D;&#x438;&#x435;"><h3>Декларация переменных и связывание</h3>
+<pre>  (LET ({var | (var value)}*) body)<br/>  (LET* ({var | (var value)}*) body)<br/>  (DEFVAR var {value}?)<br/>  (VAR var {value}?)<br/></pre>
+<pre>var<br/>символ<br/>value<br/>выражение<br/>body<br/>неявный PROGN<br/>object<br/>выражение вычислемое в объект<br/></pre>
+<p>Parenscript предоставляет специальные формы LET и LET* для создания новых переменных. Обе специальные формы реализуют лексическое окружение с помощью переименования предоставляемых переменных с помощью GENSYM, и реализуют динамическое связывание с помощью TRY-FINALLY.
+</p>
+<p>Let и Let* верхнего уровня будут создавать новые глобальные переменные, или перезаписывать значения уже одноименных существующих.
+</p>
+<p>Помните, что лексические окружения в JavaScript отличаются от Lisp, и даже могут быть реализованы неправильно в некоторых реализациях JavaScript браузера. Особенно это относится к лексическим замыканиям.
+</p>
+<p>Специальные переменные могут быть задекларированы с помощью DEFVAR. Следует отметить, что результат неопределен, если DEFVAR не является top-level формой.
+</p>
+<p>Одна возможность Parenscript, не представленная в Common Lisp - глобальные переменные в лексическом окружении, которые создаются формой VAR. Результат неопределен, если VAR не является top-level формой.
+</p>
+<p>Пример создания и связывания переменных:
+</p><pre>(defvar *a* 4)<br/>(var *b* 3)<br/>(lambda ()<br/>  (let ((x 1)<br/>        (*a* 2)<br/>        (*b* 6))<br/>    (let* ((y (+ x 1))<br/>           (x (+ x y)))<br/>      (+ *a* *b* x y))))<br/></pre>
+
+<pre>    var A = 4;<br/>    var B = 3;<br/>    function () {<br/>        var x = 1;<br/>        var B = 6;<br/>        var A_TMPSTACK1;<br/>        try {<br/>            A_TMPSTACK1 = A;<br/>            A = 2;<br/>            var y = x + 1;<br/>            var x2 = x + y;<br/>            return A + B + x2 + y;<br/>        } finally {<br/>            A = A_TMPSTACK1;<br/>        };<br/>    };<br/></pre>
+</div><div class="chapter" id="&#x41F;&#x440;&#x438;&#x441;&#x432;&#x430;&#x438;&#x432;&#x430;&#x43D;&#x438;&#x435;"><h3>Присваивание</h3>
+
+<p>Parenscript присваивание осуществляется с помощью стандартных SETF, SETQ, PSETF и PSETQ. Parenscript поддерживает протокол Common Lisp о SETFable местах.
+</p>
+<p>Новые места могут быть задекларированы одним из путей: используя DEFSETF или используя DEFUN вместе с setf для имени функции. Оба метода аналогичны Common Lisp. DEFSETF поддерживает и длинную, и короткую формы, тогда как DEFUN с setf место генерирует JavaScript функцию с именем с префиксом <span class="underline">setf_:
+
+  (defun (setf color) (new-color el)
+    (setf (@ el style color) new-color))
+
+
+
+      function </span>setf_color(newColor, el) {</p><pre>        return el.style.color = newColor;<br/>    };<br/></pre>
+
+<pre>(setf (color some-div) (+ 23 "em"))<br/></pre>
+
+<pre>    var _js2 = someDiv;<br/>    var _js1 = 23 + 'em';<br/>    __setf_color(_js1, _js2);<br/></pre>
+<p>Следующий пример иллюстрирует, как setf места могут быть использованы для предоставления унифицированного протокола для позиционирования элементов в HTML страницах.
+</p>
+</div><div class="chapter" id="&#x426;&#x438;&#x43A;&#x43B;&#x44B;"><h3>Циклы</h3>
+
+<pre>  (DO ({var | (var {init}? {step}?)}*) (end-test {result}?) body)<br/>  (DO* ({var | (var {init}? {step}?)}*) (end-test {result}?) body)<br/>  (DOTIMES (var numeric-form {result}?) body)<br/>  (DOLIST (var list-form {result}?) body)<br/>  (FOR-IN (var object) body)<br/>  (WHILE end-test body)<br/>  (LOOP {loop clauses}*)<br/></pre>
+<pre>var<br/>символ<br/>numeric-form<br/>выражение возвращающее число<br/>list-form<br/>выражение возвращающее массив<br/>object-form<br/>выражение возвращающее объект<br/>init<br/>выражение<br/>step<br/>выражение<br/>end-test<br/>выражение<br/>result<br/>выражение<br/>body<br/>неявный PROGN<br/></pre>
+<p>Parenscript содержит широкий набор Common Lisp конструкций циклов, которые транслируются в эффективный JavaScript код, включая подмножество реализации loop.
+</p>
+</div><div class="chapter" id="&#x41C;&#x430;&#x43A;&#x440;&#x43E;&#x441;&#x44B;"><h3>Макросы</h3>
+
+<div class="chapter" id="&#x414;&#x435;&#x43A;&#x43B;&#x430;&#x440;&#x430;&#x446;&#x438;&#x44F; &#x43C;&#x430;&#x43A;&#x440;&#x43E;&#x441;&#x43E;&#x432;"><h3>Декларация макросов</h3>
+<pre>  (DEFMACRO name lambda-list macro-body)<br/>  (DEFPSMACRO name lambda-list macro-body)<br/>  (DEFMACRO+PS name lambda-list macro-body)<br/>  (IMPORT-MACROS-FROM-LISP symbol*)<br/>  (MACROLET ({name lambda-list macro-body}*) body)<br/></pre>
+<pre>name<br/>символ<br/>lambda-list<br/>список аргументов<br/>macro-body<br/>Lisp код преобразующийся в Parenscript код<br/>body<br/>неявный PROGN<br/>symbol<br/>символ связанный с Lisp определением макроса<br/></pre>
+<p>Макросы Parenscript похожи на макросы Lisp, у них есть доступ ко всем языку lisp, но они должны возвращать Parenscript код. Так как Parenscript реализует большое подмножество Common Lisp, многие Lisp макросы уже возвращают валидный Parenscript код. Parenscript предоставляет несколько других путей для определения новых макросов, и использования уже существующих Lisp макросов.
+</p>
+<p>DEFMACRO и MACROLET могут быть использованы для определения новых макросов в Parenscript коде. Следует отметить, что макросы определяются в нулевом окружении (пример не сработает  (let ( (x 1) ) (defmacro baz (y) `(+ ,y ,x))) ), так как окружающий код будет уже транслирован в JavaScript.
+</p>
+<p>DEFPSMACRO форма Lisp (не Parenscript), которая служит для создания Parenscript макросов без вызова компилятора.
+</p>
+<p>DEFMACRO+PS определяет два макроса с одним и тем же именем и результатом, один в Parenscript, другой в Common Lisp. DEFMACRO+PS используется, конда полный разворот Lisp макроса не может быть выполнен в Parenscript.
+</p>
+<p>Parenscript также поддерживает использование макросов определенных в Common Lisp. Существующие макросы могут быть импортированы в Parenscript с помощью IMPORT-MACROS-FROM-LISP. Данная функциональность позволяет использовать один код в двух разных окружениях: CL и Parenscript, и облегчает отладку, так как могут использоваться все средства доступные для CL. Важно отметить, что окружения для разворота макросов отличаются и некоторые Lisp макросы не заработают в Parenscript.
+</p>
+</div><div class="chapter" id="&#x421;&#x438;&#x43C;&#x432;&#x43E;&#x43B;&#x44B; &#x43C;&#x430;&#x43A;&#x440;&#x43E;&#x441;&#x43E;&#x432;"><h3>Символы макросов</h3>
+<pre>  (DEFINE-PS-SYMBOL-MACRO symbol expansion)<br/>  (SYMBOL-MACROLET ({name macro-body}*) body)<br/></pre>
+<p>Символы макросов могут быть назначены с помощью SYMBOL-MACROLET и для Lisp DEFINE-PS-SYMBOL-MACRO. Например, Parenscript WITH-SLOTS реализован так:
+</p><pre>(defpsmacro with-slots (slots object &amp;rest body)<br/>  `(symbol-macrolet ,(mapcar #'(lambda (slot)<br/>                                 `(,slot '(getprop ,object ',slot)))<br/>                             slots)<br/>    ,@body))<br/></pre>
+</div><div class="chapter" id="GENSYM"><h3>GENSYM</h3>
+<pre>  (PS-GENSYM {string})<br/>  (WITH-PS-GENSYMS symbols &amp;body body)<br/>  (PS-ONCE-ONLY (&amp;rest vars) &amp;body body)<br/>  *PS-GENSYM-COUNTER*<br/></pre>
+<p>Равенство JavaScript базируется на равенстве их строковых представлений, в отличие от Common Lisp, где два невнутренних одноименных символы являются различными объектами. Parenscript GENSYM зависит от значений *PS-GENSYM-COUNTER* только для генерации уникальных имен. *PS-GENSYM-COUNTER* не является потокобезопасным, будьте внимательны при использовании генератора из разных потоков.  
+</p>
+</div></div><div class="chapter" id="&#x423;&#x442;&#x438;&#x43B;&#x438;&#x442;&#x44B;"><h3>Утилиты</h3>
+<div class="chapter" id="DOM"><h3>DOM</h3>
+<pre>  (INNER-HTML el)<br/>  (URI-ENCODE el)<br/>  (ATTRIBUTE el)<br/>  (OFFSET compass el)<br/>  (SCROLL compass el)<br/>  (INNER wh el)<br/>  (CLIENT wh el)<br/></pre>
+<pre>el<br/>выражение возвращающее элемент DOM<br/>compass<br/>один из :TOP, :LEFT, :HEIGHT, :WIDTH, :BOTTOM, :RIGHT<br/>wh<br/>один из :WIDTH, :HEIGHT <br/></pre>
+</div><div class="chapter" id="&#x413;&#x435;&#x43D;&#x435;&#x440;&#x430;&#x446;&#x438;&#x44F; HTML"><h3>Генерация HTML</h3>
+<pre>  (PS-HTML html-expression)<br/>  (WHO-PS-HTML html-expression)<br/>  *PS-HTML-EMPTY-TAG-AWARE-P*<br/>  *PS-HTML-MODE*<br/></pre>
+<p>Parenscript содержит два HTML генератора: PS-HTML и WHO-PS-HTML. Первый принимает <a href="http://opensource.franz.com/aserve/htmlgen.html">LHTML-style</a> синтаксис, последний - <a href="http://weitz.de/cl-who/">CL-WHO-style</a>.
+</p>
+<p>*PS-HTML-EMPTY-TAG-AWARE-P* и *PS-HTML-MODE* указывают, как будет закрыт тег без контента. Если *PS-HTML-EMpty_TAG-AWARE-P* nil, все теги закрываются полностью (например, :BR -&gt; &lt;BR&gt;&lt;/BR&gt;), иначе если *PS-HTML-MODE* равен :SGML, такие теги как BR выводятся не закрытыми, если *PS-HTML-MODE* равен :XML, используется XML стиль для закрытия (например, :BR -&gt; &lt;BR /&gt;).
+</p><pre>  (ps-html ((:a :href "foobar") "blorg"))<br/>      '&lt;A HREF=\"foobar\"&gt;blorg&lt;/A&gt;';<br/>  (who-ps-html (:a :href (generate-a-link) "blorg"))<br/>      '&lt;A HREF=\"' + generateALink() + '\"&gt;blorg&lt;/A&gt;';<br/></pre>
+<p>Parentscript компилятор может быть рекурсивно вызван в HTML выражении:
+</p><pre>  ((@ document write)<br/>    (ps-html ((:a :href "#"<br/>                  :onclick (ps-inline (transport))) "link")))<br/></pre>
+
+<pre>      document.write('&lt;A HREF=\"#\" ONCLICK=\"' + ('javascript:' + 'transport()') + '\"&gt;link&lt;/A&gt;');<br/></pre>
+<p>Формы могут быть использованы в списках атрибутов для условной генерации следующих атрибутов. В данном примере textarea иногда становится недоступной.
+</p><pre>  (let ((disabled nil)<br/>        (authorized t))<br/>     (setf (@ element inner-h-t-m-l)<br/>           (ps-html ((:textarea (or disabled (not authorized)) :disabled "disabled")<br/>                  "Edit me"))))<br/></pre>
+
+<pre>      var disabled = null;<br/>         var authorized = true;<br/>         element.innerHTML =<br/>         '&lt;TEXTAREA'<br/>         + (disabled || !authorized ? ' DISABLED=\"' + 'disabled' + '\"' : '')<br/>         + '&gt;Edit me&lt;/TEXTAREA&gt;';<br/></pre></div></div><div class="chapter" id="&#x411;&#x438;&#x431;&#x43B;&#x438;&#x43E;&#x442;&#x435;&#x43A;&#x430;"><h3>Библиотека</h3>
+<pre>  (MEMBER object array)<br/>  (MAP function array)<br/>  (MAPCAR function {array}*)<br/>  (REDUCE function array object)<br/>  (MAP-INTO function array)<br/>  (SET-DIFFERENCE array1 array2)<br/>  *PS-LISP-LIBRARY*<br/></pre>
+<p>Все конструкции Parenscript перечисленные выше не имеют зависимостей времени выполнения. Parenscript также содержит библиотеку полезных функций, которые могут быть добавлены в ваш проект. Эти функции содержатся, как код Parenscript, в специальной переменной *PS-LISP-LIBRARY*.
+</p>
+<p>MAP отличается от Common Lisp эквивалента тем, что, как и MAPCAR, принимает только одну последовательность. MAP-UNTIL похож на MAP, но заменяет контент полученного массива.
+</p>
+</div><div class="chapter" id="&#x418;&#x43D;&#x442;&#x435;&#x433;&#x440;&#x430;&#x446;&#x438;&#x44F; &#x441;&#x43E; SLIME"><h3>Интеграция со SLIME</h3>
+
+<p>Директория extras дистрибутива Parenscript содержит js-expander.el, который при загрузке в Emacs c SLIME добавляет возможность быстрого просмотра результата компиляции любой Lisp формы в JavaScript, и работает так же как и 'C-c M-m' в SLIME.
+</p>
+<p>'C-c j' (PS) или 'C-c d' (PS-DOC) на выражении Parenscript в буфере со slime-mode, воздает буфер с результирующим JavaScript кодом. Следует отметить, что расширение не работает в slime-repl-mode.
+</p>
+</div></div> </div> <div class="bottom">@2009-2013 lisper.ru</div> 
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-7734690-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+ </body> </html>
