@@ -13,6 +13,6 @@
                                 :address (config :address)
                                 :port (config :port)
                                 :server :wookie
-                                :debug nil)))
+                                :debug t)))
     (declare (ignore server))
     (loop (sleep 1))))

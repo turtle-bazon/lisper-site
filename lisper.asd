@@ -33,6 +33,7 @@
                    (:file "auth")
                    (:file "antispam")
                    (:file "forum")
+                  (:file "blog")
                   (:file "analytics")
                  (:file "css")
                  (:file "js")

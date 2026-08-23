@@ -110,6 +110,29 @@
              `(200 (:content-type "text/html; charset=utf-8")
                    (,(forum-page-rules user))))
 
+            ;; Блоги
+            ((and (string= path "/blog") (eq (env-method env) :GET))
+             (let* ((qs (parse-query-string env))
+                    (start-str (when qs (gethash "start" qs)))
+                    (start (or (ignore-errors (parse-integer start-str)) 0)))
+               `(200 (:content-type "text/html; charset=utf-8")
+                     (,(blog-page-feed user (max 0 start))))))
+
+            ((and (string= path "/blog/new") (eq (env-method env) :GET))
+             (if user
+                 `(200 (:content-type "text/html; charset=utf-8")
+                       (,(blog-page-form user :mode "new")))
+                 '(302 (:location "/login") (""))))
+
+            ((and (string= path "/blog/new") (eq (env-method env) :POST))
+             (handle-blog-create env user))
+
+            ((and (string= path "/blog/update") (eq (env-method env) :POST))
+             (handle-blog-update env user))
+
+            ((and (string= path "/blog/delete") (eq (env-method env) :POST))
+             (handle-blog-delete env user))
+
             ;; Forum routes
             ((and (string= path "/forum") (eq (env-method env) :GET))
              `(200 (:content-type "text/html; charset=utf-8")
@@ -237,6 +260,12 @@
                    (own-hosts (list (request-header env "host"))))
                `(200 (:content-type "text/html; charset=utf-8")
                      (,(forum-page-analytics user bot-filter own-hosts tab-base)))))
+
+            ;; Блоги: /blog/<user>[/<slug>][/edit]
+            ((and (>= (length path) 6)
+                  (string= (subseq path 0 6) "/blog/")
+                  (eq (env-method env) :GET))
+             (handle-blog-view env user (subseq path 6)))
 
 ;; 404
              (t
@@ -563,4 +592,97 @@
               (admin-cat-redirect))
             ;; в разделе есть темы — удалить нельзя
             (admin-cat-redirect (tr :cat-not-empty))))))
+
+
+;;; --- Блоги: обработчики
+
+(defun handle-blog-view (env user rest)
+  "rest = всё после /blog/: <user> | <user>/<slug> | <user>/<slug>/edit"
+  (declare (ignore env))
+  (let* ((parts (remove "" (split-sequence:split-sequence #\/ rest)
+                        :test #'string=))
+         (n (length parts)))
+    (cond
+      ((= n 1)
+       `(200 (:content-type "text/html; charset=utf-8")
+             (,(blog-page-user user (first parts)))))
+      ((= n 2)
+       `(200 (:content-type "text/html; charset=utf-8")
+             (,(blog-page-post user (first parts) (second parts)))))
+      ((and (= n 3) (string= (third parts) "edit"))
+       (if user
+           (let ((post (get-blog-post-by-slug (first parts) (second parts))))
+             (if (and post (= (getf user :id) (getf post :user-id)))
+                 `(200 (:content-type "text/html; charset=utf-8")
+                       (,(blog-page-form user :mode "edit"
+                                         :username (getf post :username)
+                                         :slug (getf post :slug)
+                                         :title (getf post :title)
+                                         :body (getf post :body))))
+                 '(403 (:content-type "text/html; charset=utf-8")
+                   ("<h1>403</h1>"))))
+           '(302 (:location "/login") (""))))
+      (t
+       '(404 (:content-type "text/html; charset=utf-8") (""))))))
+
+(defun blog-values-from-body (body)
+  (values (string-trim " " (or (gethash "title" body) ""))
+          (or (gethash "body" body) "")))
+
+(defun handle-blog-create (env user)
+  (if (not user)
+      '(302 (:location "/login") (""))
+      (multiple-value-bind (title text) (blog-values-from-body (parse-post-body env))
+        (cond
+          ((not (rate-allowed-p (list :blog (session-user-id user)) 10 3600))
+           `(200 (:content-type "text/html; charset=utf-8")
+                 (,(blog-page-form user :mode "new" :title title :body text
+                                   :error (tr :auth-rate-limited)))))
+          ((not (and (valid-blog-title-p title) (valid-blog-body-p text)))
+           `(200 (:content-type "text/html; charset=utf-8")
+                 (,(blog-page-form user :mode "new" :title title :body text
+                                   :error (tr :cat-invalid)))))
+          (t
+           (let ((id (create-blog-post (session-user-id user) title text)))
+             (let* ((slug-row (postmodern:query
+                               "SELECT slug FROM blog_posts WHERE id = $1"
+                               id :single)))
+               `(302 (:location ,(format nil "/blog/~A/~A"
+                                         (session-username user) slug-row))
+                     ("")))))))))
+
+(defun handle-blog-update (env user)
+  (if (not user)
+      '(302 (:location "/login") (""))
+      (let* ((body (parse-post-body env))
+             (username (gethash "username" body))
+             (slug (gethash "slug" body))
+             (post (when (and username slug)
+                     (get-blog-post-by-slug username slug))))
+        (if (and post (= (getf user :id) (getf post :user-id)))
+            (progn
+              (update-blog-post (getf post :id)
+                                (string-trim " " (or (gethash "title" body) ""))
+                                (or (gethash "body" body) ""))
+              `(302 (:location ,(format nil "/blog/~A/~A" username slug))
+                    ("")))
+            '(403 (:content-type "text/html; charset=utf-8")
+              ("<h1>403</h1>"))))))
+
+(defun handle-blog-delete (env user)
+  (if (not user)
+      '(302 (:location "/login") (""))
+      (let* ((body (parse-post-body env))
+             (id (ignore-errors (parse-integer (gethash "id" body))))
+             (owner (when id (get-blog-post-owner id))))
+        (if (and owner (= owner (getf user :id)))
+            (progn
+              (delete-blog-post id)
+              `(302 (:location ,(format nil "/blog/~A" (session-username user)))
+                    ("")))
+            '(403 (:content-type "text/html; charset=utf-8")
+              ("<h1>403</h1>"))))))
+
+
+
 

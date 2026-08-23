@@ -61,6 +61,7 @@
      (:nav :class "header-nav"
       (:a :href "/" (:span :class "nav-icon" (cl-who:str "<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8'/><path d='M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/></svg>")) (cl-who:str (tr :nav-home)))
       (:a :href "tg://resolve?domain=commonlisp_ru" (:span :class "nav-icon" (cl-who:str "<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 240 240'><circle cx='120' cy='120' r='120' fill='#229ED9'/><path d='M81.229,128.772l14.237,39.406s1.78,3.687,3.686,3.687,30.255-29.492,30.255-29.492l31.525-60.89L81.737,118.6Z' fill='#c8daea'/><path d='M100.106,138.878l-2.733,29.046s-1.144,8.9,7.754,0,17.415-15.763,17.415-15.763' fill='#a9c6d8'/><path d='M81.486,130.178,52.2,120.636s-3.5-1.42-2.373-4.64c.232-.664.7-1.229,2.1-2.2,6.489-4.523,120.106-45.36,120.106-45.36s3.208-1.081,5.1-.362a2.766,2.766,0,0,1,1.885,2.055,9.357,9.357,0,0,1,.254,2.585c-.009.752-.1,1.449-.169,2.542-.692,11.165-21.4,94.493-21.4,94.493s-1.239,4.876-5.678,5.043A8.13,8.13,0,0,1,146.1,172.5c-8.711-7.493-38.819-27.727-45.472-32.177a1.27,1.27,0,0,1-.546-.9c-.093-.469.417-1.05.417-1.05s52.426-46.6,53.821-51.492c.108-.379-.3-.566-.848-.4-3.482,1.281-63.844,39.4-70.506,43.607A3.21,3.21,0,0,1,81.486,130.178Z' fill='#fff'/></svg>")) (cl-who:str (tr :nav-telegram)))
+      (:a :href "/blog" (:span :class "nav-icon" (cl-who:str (tr :blog-title))))
       (:a :href "/forum" (:span :class "nav-icon" (cl-who:str "<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719'/></svg>")) (cl-who:str (tr :nav-forum))))
      (:div :class "header-right"
       (cl-who:str (render-lang-switch))
@@ -791,6 +792,158 @@
 
 
 
+
+
+
+
+;;; ============================================================
+;;; Блоги
+;;; ============================================================
+
+(defun blog-render-card (title slug created excerpt username show-author)
+  (cl-who:with-html-output-to-string (s nil :prologue nil)
+   (cl-who:htm
+   (:div :class "post-card"
+    (:h3 :style "margin:0 0 6px"
+     (:a :class "topic-link" :href (format nil "/blog/~A/~A" username slug)
+         (cl-who:str title)))
+    (:div :class "post-header" :style "margin-bottom:8px"
+     (when show-author
+       (cl-who:htm
+        (:a :class "post-author" :href (format nil "/blog/~A" username)
+            (cl-who:str username))))
+     (:span :class "post-date" (cl-who:str created)))
+    (:p :style "color:#9ca3af;margin:0" (cl-who:str excerpt))))))
+
+(defun blog-page-feed (user &optional (start 0))
+  (let ((posts (get-all-blog-posts start 20)))
+    (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
+      (cl-who:htm
+       (:html :lang *lang*
+        (:head (cl-who:str (forum-render-head (tr :blog-title))))
+        (:body
+         (:div :class "container"
+          (:header (cl-who:str (forum-render-header user)))
+          (:div :class "section"
+           (:h2 (cl-who:str (tr :blog-title)))
+           (when user
+             (cl-who:htm
+              (:p (:a :class "try-button" :href "/blog/new"
+                      (cl-who:str (tr :blog-new))))))
+           (if posts
+               (cl-who:htm
+                (:div :class "topic-list"
+                 (loop for (title slug created excerpt uname) in posts
+                       do (cl-who:str
+                           (blog-render-card title slug created excerpt uname t)))))
+               (cl-who:htm
+                (:p :class "empty-state" (cl-who:str (tr :blog-empty)))))
+           (when (= (length posts) 20)
+             (cl-who:htm
+              (:p (:a :href (format nil "/blog?start=~d" (+ start 20))
+                      (cl-who:str (tr :older-posts)))))))
+          (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
+                        " &copy; 2026 | GPL-3.0")))))))))
+
+(defun blog-page-user (viewer username &optional (start 0))
+  (let ((posts (get-user-blog-posts username 0 20))
+        (profile (get-user-by-name username)))
+    (if (not profile)
+        (forum-page-not-found viewer)
+        (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
+          (cl-who:htm
+           (:html :lang *lang*
+            (:head (cl-who:str (forum-render-head
+                                (format nil "~A — ~A" (tr :blog-of) username))))
+            (:body
+             (:div :class "container"
+              (:header (cl-who:str (forum-render-header viewer)))
+              (:div :class "section"
+               (:h2 (cl-who:str (format nil "~A ~A" (tr :blog-of) username)))
+               (if posts
+                   (cl-who:htm
+                    (:div :class "topic-list"
+                     (loop for (title slug created excerpt) in posts
+                           do (cl-who:str
+                               (blog-render-card title slug created excerpt
+                                                 username nil)))))
+                   (cl-who:htm
+                    (:p :class "empty-state" (cl-who:str (tr :blog-empty))))))
+              (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site"
+                               "lisper")
+                           " &copy; 2026 | GPL-3.0"))))))))))
+
+(defun blog-page-post (viewer username slug)
+  (let ((post (get-blog-post-by-slug username slug)))
+    (if (not post)
+        (forum-page-not-found viewer)
+        (let ((own (and viewer (= (getf viewer :id) (getf post :user-id)))))
+          (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
+            (cl-who:htm
+             (:html :lang *lang*
+              (:head (cl-who:str (forum-render-head (getf post :title))))
+              (:body
+               (:div :class "container"
+                (:header (cl-who:str (forum-render-header viewer)))
+                (:div :class "section"
+                 (:a :class "back-link" :href (format nil "/blog/~A" username)
+                     (cl-who:str (format nil "← ~A ~A" (tr :blog-of) username)))
+                 (:h2 (cl-who:str (getf post :title)))
+                 (:div :class "topic-info"
+                  (:a :class "post-author" :href (format nil "/blog/~A" username)
+                      (cl-who:str username))
+                  (:span (cl-who:str (format nil " · ~A" (getf post :created-at)))))
+                 (when own
+                   (cl-who:htm
+                    (:p :style "margin:10px 0"
+                        (:a :href (format nil "/blog/~A/~A/edit" username slug)
+                            (cl-who:str (tr :edit)))
+                        " · "
+                        (:form :method "POST" :action "/blog/delete"
+                               :style "display:inline"
+                               :onsubmit (format nil "return confirm('~A')"
+                                                 (tr :confirm-delete-post))
+                               (:input :type "hidden" :name "id"
+                                       :value (getf post :id))
+                               (:button :class "delete-btn" :type "submit"
+                                        (cl-who:str (tr :delete)))))))
+                 (:div :class "post-body md-content"
+                       (cl-who:str (getf post :body))))
+                (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site"
+                                 "lisper")
+                             " &copy; 2026 | GPL-3.0")))))))))))
+
+(defun blog-page-form (user &key mode username slug title body error)
+  (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
+    (cl-who:htm
+     (:html :lang *lang*
+      (:head (cl-who:str (forum-render-head
+                          (if (string= mode "new")
+                              (tr :blog-new) (tr :blog-edit)))))
+      (:body
+       (:div :class "container"
+        (:header (cl-who:str (forum-render-header user)))
+        (:div :class "section"
+         (:h2 (cl-who:str (if (string= mode "new")
+                              (tr :blog-new) (tr :blog-edit))))
+         (when error
+           (cl-who:htm (:div :class "auth-error" (cl-who:str error))))
+         (:form :method "POST"
+                :action (if (string= mode "new") "/blog/new" "/blog/update")
+                (:input :type "hidden" :name "username" :value username)
+                (:input :type "hidden" :name "slug" :value slug)
+                (:div :class "form-group"
+                 (:label :for "btitle" (cl-who:str (tr :title-field)))
+                 (:input :type "text" :name "title" :id "btitle" :value title
+                         :required "required" :maxlength "250"))
+                (:div :class "form-group"
+                 (:label :for "bbody" (cl-who:str (tr :body-field)))
+                 (cl-who:str (forum-render-editor "body"
+                                                  (tr :blog-placeholder))))
+                (:button :class "try-button" :type "submit"
+                         (cl-who:str (tr :submit)))))
+        (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site"
+                         "lisper") " &copy; 2026 | GPL-3.0"))))))))
 
 
 
