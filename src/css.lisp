@@ -803,11 +803,14 @@
          :margin-right "12px")
 
         (".blog-date-tree"
+         :float "left"
+         :width "230px"
+         :box-sizing "border-box"
          :background-color "#161b22"
          :border "1px solid #21262d"
          :border-radius "8px"
          :padding "12px 16px"
-         :margin "10px 0 18px")
+         :margin "4px 24px 18px 0")
 
         (".blog-date-tree h3"
          :margin "0 0 8px"
@@ -817,13 +820,26 @@
         (".blog-date-tree ul"
          :list-style "none"
          :padding "0"
-         :margin "0"
-         :display "flex"
-         :flex-wrap "wrap"
-         :gap "6px 16px")
+         :margin "0")
+
+        (".blog-date-tree li.dt-year"
+         :color "#e6edf3"
+         :font-weight "bold"
+         :margin "10px 0 4px")
 
         (".blog-date-tree li a"
          :color "#58a6ff")
+
+        (".blog-date-tree li.dt-sel"
+         :color "#22c55e")
+
+        (".blog-date-tree li.dt-sel a"
+         :color "#22c55e")
+
+        ("div.section::after"
+         :content "\"\""
+         :display "table"
+         :clear "both")
 
         (".blog-date-tree li.dt-sel span"
          :color "#22c55e"
