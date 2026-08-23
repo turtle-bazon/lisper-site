@@ -88,11 +88,11 @@
                      (max 0 offset) (max 0 limit))))
     (postmodern:query
      (concatenate 'string
-       "SELECT b.title, b.slug, TO_CHAR(b.created_at,'DD.MM.YYYY HH24:MI'), left(b.body,2000),
-               EXTRACT(YEAR FROM b.created_at)::int AS y,
-               EXTRACT(MONTH FROM b.created_at)::int AS m
-        FROM blog_posts b JOIN users u ON u.id=b.user_id
-        WHERE u.username = '" username "'" ym lim))))
+        "SELECT b.title, b.slug, TO_CHAR(b.created_at,'DD.MM.YYYY HH24:MI'), left(b.body,2000),
+                EXTRACT(YEAR FROM b.created_at)::int AS y,
+                EXTRACT(MONTH FROM b.created_at)::int AS m, b.is_html
+         FROM blog_posts b JOIN users u ON u.id=b.user_id
+         WHERE u.username = '" username "'" ym lim))))
 
 (defun get-all-blog-posts (&key (offset 0) (limit 20) year month)
   (let ((ym (if (and year month)
@@ -104,9 +104,9 @@
                      (max 0 offset) (max 0 limit))))
     (postmodern:query
      (concatenate 'string
-       "SELECT b.title, b.slug, TO_CHAR(b.created_at,'DD.MM.YYYY HH24:MI'), left(b.body,2000), u.username
-        FROM blog_posts b JOIN users u ON u.id=b.user_id WHERE true"
-       ym lim))))
+        "SELECT b.title, b.slug, TO_CHAR(b.created_at,'DD.MM.YYYY HH24:MI'), left(b.body,2000), u.username, b.is_html
+         FROM blog_posts b JOIN users u ON u.id=b.user_id WHERE true"
+        ym lim))))
 
 
 (defun get-blog-date-tree (&optional username)
@@ -142,6 +142,22 @@
   (let ((raw (if (and body (> (length body) 0))
                  (subseq body 0 (min (length body) 2000)) "")))
     (> (length (strip-html raw)) 280)))
+
+(defun blog-card-markdown-snippet (body)
+  "Markdown-сохраняющий тизер карточки: первые ≤280 символов сырого тела
+   (без strip тегов — markdown отрендерит клиент). Закрываем непарный
+   ```-забор, чтобы не ломать разметку карточки при обрезке."
+  (let* ((n (length body))
+         (cut (if (<= n 280) body (subseq body 0 280)))
+         (fences 0) (i 0) (L (length cut)))
+    (loop while (<= i (- L 3)) do
+      (when (and (char= (char cut i) #\`) (char= (char cut (1+ i)) #\`)
+                 (char= (char cut (+ i 2)) #\`))
+        (incf fences) (incf i 3))
+      (incf i))
+    (when (oddp fences)
+      (setf cut (concatenate 'string cut (string #\Newline) "```")))
+    cut))
 
 (defun valid-blog-title-p (s)
   (and (stringp s) (<= 3 (length s) 250)))

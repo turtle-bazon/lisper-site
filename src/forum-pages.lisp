@@ -800,9 +800,9 @@
 ;;; Блоги
 ;;; ============================================================
 
-(defun blog-render-card (title slug created excerpt username show-author)
-  (let ((ex (blog-card-excerpt excerpt))
-        (trunc (blog-card-truncated-p excerpt)))
+(defun blog-render-card (title slug created excerpt username show-author
+                         &optional is-html)
+  (let ((trunc (blog-card-truncated-p excerpt)))
     (cl-who:with-html-output-to-string (s nil :prologue nil)
      (cl-who:htm
       (:div :class "post-card"
@@ -815,7 +815,12 @@
            (:a :class "post-author" :href (format nil "/blog/~A" username)
                (cl-who:str username))))
         (:span :class "post-date" (cl-who:str created)))
-       (:p :style "color:#9ca3af;margin:0" (cl-who:str ex))
+       (if is-html
+           (cl-who:htm
+            (:p :style "color:#9ca3af;margin:0" (cl-who:str (blog-card-excerpt excerpt))))
+           (cl-who:htm
+            (:p :class "post-excerpt md-content" :style "color:#9ca3af;margin:0"
+                (cl-who:str (blog-card-markdown-snippet excerpt)))))
        (when trunc
          (cl-who:htm
           (:a :class "read-more" :href (format nil "/blog/~A/~A" username slug)
@@ -886,9 +891,9 @@
            (if posts
                (cl-who:htm
                 (:div :class "topic-list"
-                 (loop for (title slug created excerpt uname) in posts
-                       do (cl-who:str
-                 (blog-render-card title slug created excerpt uname t)))))
+                  (loop for (title slug created excerpt uname is-html) in posts
+                        do (cl-who:str
+                  (blog-render-card title slug created excerpt uname t is-html)))))
                (cl-who:htm
                 (:p :class "empty-state" (cl-who:str (tr :blog-empty)))))
            (when (= (length posts) 20)
@@ -930,10 +935,10 @@
                (if posts
                    (cl-who:htm
                     (:div :class "topic-list"
-                     (loop for (title slug created excerpt y m) in posts
-                           do (cl-who:str
-                                (blog-render-card title slug created excerpt
-                                                  username nil)))))
+                      (loop for (title slug created excerpt y m is-html) in posts
+                            do (cl-who:str
+                                 (blog-render-card title slug created excerpt
+                                                   username nil is-html)))))
                    (cl-who:htm
                     (:p :class "empty-state" (cl-who:str (tr :blog-empty))))))
               (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site"
