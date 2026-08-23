@@ -816,21 +816,23 @@
     (:p :style "color:#9ca3af;margin:0" (cl-who:str excerpt))))))
 
 (defun blog-date-item-html (base-url username y m c current-year current-month)
-  "Одна строка дерева дат: выбранный месяц — текстом, остальные — ссылками."
+  "Одна строка дерева дат: выбранный месяц — .dt-sel, остальные — ссылки.
+   Возвращает готовый <li>…</li>: <a> напрямую в <ul> рендерится inline
+   и склеивается в одну строку (баг «2016·09(1)2016·08(1)…»)."
   (cl-who:with-html-output-to-string (s nil :prologue nil)
-    ;; ВНИМАНИЕ: внутри if/progn формы (:tag ...) НЕ обрабатываются
-    ;; cl-who — только строки через cl-who:str / чистый lisp.
     (let* ((sel (and current-year (= y current-year)
                      (or (not current-month) (= m current-month)))))
       (if sel
-          (progn
-            (cl-who:str (format nil "~d · ~2,'0d (~d)" y m c))
-            (cl-who:str
-             (format nil " <a class='dt-all' href='~A'>~A</a>"
-                     base-url (tr :blog-all-posts))))
-          (cl-who:str
-           (format nil "<a href='~A?year=~d&amp;month=~2,'0d'>~d · ~2,'0d (~d)</a>"
-                   base-url y m y m c))))))
+          (cl-who:htm
+           (:li :class "dt-sel"
+                (cl-who:str (format nil "~d · ~2,'0d (~d)" y m c))
+                " "
+                (:a :class "dt-all" :href base-url
+                    (cl-who:str (tr :blog-all-posts)))))
+          (cl-who:htm
+           (:li
+            (:a :href (format nil "~A?year=~d&month=~2,'0d" base-url y m)
+                (cl-who:str (format nil "~d · ~2,'0d (~d)" y m c)))))))))
 
 (defun blog-render-date-tree (base-url username current-year current-month)
   "Список «Год: месяц(N)…» со ссылками-фильтрами."
