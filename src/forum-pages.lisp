@@ -800,6 +800,14 @@
 ;;; Блоги
 ;;; ============================================================
 
+(defun blog-old-author-text (old-author)
+  "Текст метки исходного авторства для импортированного контента.
+   Сентинл \"old-wiki\" (контент без авторства, вики) переводится через
+   :old-wiki, остальное — 'метка: имя'."
+  (if (string= old-author "old-wiki")
+      (tr :old-wiki)
+      (format nil "~A: ~A" (tr :old-author) old-author)))
+
 (defun blog-render-card (title slug created excerpt username show-author
                          &optional is-html old-author)
   (let ((trunc (blog-card-truncated-p excerpt)))
@@ -819,7 +827,7 @@
           (cl-who:htm
            (:span :class "old-author"
                   (cl-who:str
-                   (format nil " · ~A: ~A" (tr :old-author) old-author))))))
+                   (format nil " · ~A" (blog-old-author-text old-author)))))))
        (if is-html
            (cl-who:htm
             (:p :style "color:#9ca3af;margin:0" (cl-who:str (blog-card-excerpt excerpt))))
@@ -976,8 +984,9 @@
                      (cl-who:htm
                       (:span :class "old-author"
                              (cl-who:str
-                              (format nil " · ~A: ~A" (tr :old-author)
-                                      (getf post :old-author))))))
+                              (format nil " · ~A"
+                                      (blog-old-author-text
+                                       (getf post :old-author)))))))
                    (when own
                     (cl-who:htm
                     (:p :style "margin:10px 0"

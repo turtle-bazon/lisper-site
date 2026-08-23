@@ -172,6 +172,7 @@
     (:captcha-failed . "Wrong answer to the check question.")
     (:pow-failed . "Browser check failed. Reload the page and try again.")
     (:old-author . "original author")
+    (:old-wiki . "old wiki")
     (:blog-title . "Blogs")
     (:blog-new . "New blog post")
     (:blog-edit . "Edit post")

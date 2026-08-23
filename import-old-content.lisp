@@ -99,8 +99,11 @@
              (slug (unique-content-slug title))
              (date (jval p "date" nil))
              (body (sanitize-old-html (jval p "body_html" "")))
+             ;; автор: реальное имя или сентинл "old-wiki";
+             ;; без авторства — SQL NULL (:null!), т.к. postmodern превращает
+             ;; Lisp NIL в SQL false (см. AGENTS.md «подводные камни»)
              (author (let ((a (jval p "author" nil)))
-                       (if (or (null a) (string= a "")) "lisper.ru" a))))
+                       (if (and a (plusp (length a))) a :null))))
        (handler-case
            (progn
              (postmodern:query

@@ -28,7 +28,9 @@
     (setf *db-available* t)))
 
 (defun db-disconnect ()
-  (handler-case (postmodern:disconnect)
+  ;; connect-toplevel парный к disconnect-toplevel; postmodern:disconnect
+  ;; требует объект соединения (см. AGENTS.md «подводные камни»)
+  (handler-case (postmodern:disconnect-toplevel)
     (error (e) (format t "~&db-disconnect: ~A~%" e))))
 
 (defun get-applied-migrations ()

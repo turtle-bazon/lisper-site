@@ -172,6 +172,7 @@
     (:captcha-failed . "Kontrol sorusuna yanlış cevap.")
     (:pow-failed . "Tarayıcı denetimi başarısız. Sayfayı yenileyip tekrar deneyin.")
     (:old-author . "orijinal yazar")
+    (:old-wiki . "eski wiki")
     (:blog-title . "Bloglar")
     (:blog-new . "Yeni blog yazısı")
     (:blog-edit . "Yazıyı düzenle")

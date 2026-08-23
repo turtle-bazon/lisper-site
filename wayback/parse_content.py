@@ -78,16 +78,79 @@ def rfc_to_iso(s):
     return f'{y}-{mo:02d}-{int(d):02d} {hh}:{mi}:{ss}' if mo else None
 
 def extract_author(h):
-    """Имя автора из строки 'Автор: <a>Имя</a>' (статьи lisper.ru).
-       Блог/wiki автора в архиве не хранят -> None."""
-    m = re.search(r'Автор:(.*?)(?:Источник:|</td>|</p>|</tr>)', h, re.S)
-    if not m:
-        return None
-    seg = m.group(1)
-    am = re.search(r'<a[^>]*>([^<]+)</a>', seg)
-    name = am.group(1) if am else re.sub(r'<[^>]+>', '', seg)
-    name = clean_title(name)
-    return name or None
+    """Имя автора/переводчика статьи lisper.ru по строке в шапке.
+       Работаем по тексту без тегов (имена бывают внутри <a>/<strong>,
+       двоеточие — до или после метки, метка не обязательно с начала строки).
+       Варианты: 'Автор:', 'Автор :', '<strong>Автор</strong>:',
+       'Автор перевода:', 'Перевод: Имя' (не URL!), 'Перевод Ивана Болдырева'."""
+    plain = H.unescape(re.sub(r'(?is)<[^>]+>', '', h))
+
+    def _cut(seg):
+        for stop in ('Источник', 'Оригинальная', 'Оригинал', 'Добавление'):
+            i = seg.find(stop)
+            if i >= 0:
+                seg = seg[:i]
+        prev = None
+        while prev != seg:
+            prev = seg
+            seg = seg.strip().strip('()').rstrip(',.;:- ').strip()
+        return seg
+
+    # 1) 'Автор:' / 'Автор :' / 'Автор перевода:' / 'Переводчик:'
+    m = re.search(
+        r'(?is)(?<![\wа-яё])(?:Автор\s+перевода|Автор|Переводчик)\s*:\s*(.{0,160})',
+        plain)
+    if m:
+        name = _cut(m.group(1))
+        if name and len(name.split()) <= 4 and '://' not in name:
+            return name
+    # 2) 'Перевод: Имя' (за двоеточием НЕ URL)
+    m = re.search(
+        r'(?is)(?<![\wа-яё])Перевод\s*:\s*(?!https?://|www\.)(.{0,160})', plain)
+    if m:
+        name = _cut(m.group(1))
+        if name and '://' not in name and len(name.split()) <= 4:
+            return name
+    # 3) 'Перевод Ивана Болдырева' — родительный падеж без двоеточия;
+    #    простая морфология: муж. родительный на -а/-я -> именительный
+    m = re.search(
+        r'(?<![\wа-яё])Перевод\s+((?:[А-ЯЁ][а-яё\-]+)(?:\s+[А-ЯЁ][а-яё\-]+){0,2})',
+        plain)
+    if m:
+        words = clean_title(m.group(1)).split()
+        while words and words[-1] in ('Добавление', 'Источник', 'Оригинал',
+                                      'Оригинальная', 'Перевод'):
+            words.pop()
+        words = [w[:-1] if len(w) > 4 and w[-1] in 'ая' else w for w in words]
+        if words and len(words) <= 3:
+            return ' '.join(words)
+    return None
+
+def extract_blog_author(h):
+    """Владелец блога из шапки страницы поста:
+       v1: <h1 id="title"><a href="/">archimag</a></h1>
+       v2: <div id="header"><a href="/" id="blogname">archimag</a></div>
+       fallback: <title>archimap: 17 March, 2009</title> -> 'archimag'."""
+    m = re.search(r'(?is)<h1[^>]*id="title"[^>]*>\s*<a[^>]*>([^<]+)</a>', h)
+    if m:
+        name = clean_title(m.group(1))
+        if name:
+            return name
+    m = re.search(r'(?is)<div[^>]*id="header"[^>]*>\s*<a[^>]*id="(?:blogname|[\w-]+)"[^>]*>([^<]+)</a>', h)
+    if m:
+        name = clean_title(m.group(1))
+        if name:
+            return name
+    m = re.search(r'(?is)<title>\s*([^:<]+?)\s*[:\u2014]', h)
+    if m:
+        name = clean_title(m.group(1))
+        if name and len(name.split()) <= 3:
+            return name
+    return None
+
+# сентинл для контента без авторства (вики) — переводится на клиенте/сервере
+# через i18n-ключ :old-wiki при рендере
+WIKI_AUTHOR = 'old-wiki'
 
 def slug_from_url(url):
     path = urlparse(url).path.rstrip('/')
@@ -208,7 +271,7 @@ def main():
                         r'</div>\\s*</div>(?=\\s)', '', body,
                         count=1, flags=re.S)
                     add(url, clean_title(tm.group(1)) if tm else '',
-                        date_iso, body, None)
+                        date_iso, body, extract_blog_author(h))
                     stats['blog'] += 1
                     continue
                 if 'class="post"' not in h:
@@ -220,7 +283,8 @@ def main():
                 dm = re.search(r'<span class="date">([^<]+)</span>', post_div)
                 body = div_inner(post_div, 'content') or ''
                 add(url, clean_title(tm.group(1)) if tm else '',
-                    rfc_to_iso(dm.group(1)) if dm else None, body, None)
+                    rfc_to_iso(dm.group(1)) if dm else None, body,
+                    extract_blog_author(h))
                 stats['blog'] += 1
 
     # --- статьи (только Lisp-whitelist)
@@ -270,7 +334,8 @@ def main():
         tm = re.search(r'<title>([^<]*)</title>', h)
         ts = _lookup(url)
         date_iso = rfc_to_iso(ts or '') or (cd_ts_iso(ts))
-        add(url, clean_title(tm.group(1)) if tm else name, date_iso, art, None)
+        add(url, clean_title(tm.group(1)) if tm else name, date_iso, art,
+            WIKI_AUTHOR)
         stats['wiki'] += 1
 
     posts.sort(key=lambda p: (p.get('date') or ''))
