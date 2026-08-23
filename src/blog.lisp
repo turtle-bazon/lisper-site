@@ -67,14 +67,15 @@
                      "SELECT b.id, b.user_id, b.title, b.slug, b.body,
                              TO_CHAR(b.created_at,'DD.MM.YYYY HH24:MI'),
                              TO_CHAR(b.updated_at,'DD.MM.YYYY HH24:MI'),
-                             u.username
+                             u.username, b.is_html
                       FROM blog_posts b JOIN users u ON u.id = b.user_id
                       WHERE u.username = $1 AND b.slug = $2"
                      username slug))))
     (when row
-      (destructuring-bind (id user-id title pslug body created updated uname) row
+      (destructuring-bind (id user-id title pslug body created updated uname is-html) row
         (list :id id :user-id user-id :title title :slug pslug :body body
-              :created-at created :updated-at updated :username uname)))))
+              :created-at created :updated-at updated :username uname
+              :is-html is-html)))))
 
 (defun get-user-blog-posts (username &key (offset 0) (limit 20) year month)
   ;; username приходит из роутов сайта; числа — целые после parse-integer

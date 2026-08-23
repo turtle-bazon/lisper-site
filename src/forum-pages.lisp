@@ -977,8 +977,10 @@
                                        :value (getf post :id))
                                (:button :class "delete-btn" :type "submit"
                                         (cl-who:str (tr :delete)))))))
-                 (:div :class "post-body md-content"
-                       (cl-who:str (getf post :body))))
+                  (:div :class (if (getf post :is-html)
+                                    "post-body legacy-html"
+                                    "post-body md-content")
+                        (cl-who:str (getf post :body))))
                 (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site"
                                  "lisper")
                              " &copy; 2026 | GPL-3.0")))))))))))
