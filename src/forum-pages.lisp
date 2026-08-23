@@ -801,7 +801,7 @@
 ;;; ============================================================
 
 (defun blog-render-card (title slug created excerpt username show-author
-                         &optional is-html)
+                         &optional is-html old-author)
   (let ((trunc (blog-card-truncated-p excerpt)))
     (cl-who:with-html-output-to-string (s nil :prologue nil)
      (cl-who:htm
@@ -815,6 +815,11 @@
            (:a :class "post-author" :href (format nil "/blog/~A" username)
                (cl-who:str username))))
         (:span :class "post-date" (cl-who:str created)))
+        (when old-author
+          (cl-who:htm
+           (:span :class "old-author"
+                  (cl-who:str
+                   (format nil " · ~A: ~A" (tr :old-author) old-author))))))
        (if is-html
            (cl-who:htm
             (:p :style "color:#9ca3af;margin:0" (cl-who:str (blog-card-excerpt excerpt))))
@@ -824,7 +829,7 @@
        (when trunc
          (cl-who:htm
           (:a :class "read-more" :href (format nil "/blog/~A/~A" username slug)
-              (cl-who:str (tr :blog-read-more))))))))))
+              (cl-who:str (tr :blog-read-more)))))))))
 
 (defun blog-date-item-html (base-url username y m c current-year current-month)
   "Одна строка дерева дат: выбранный месяц — .dt-sel, остальные — ссылки.
@@ -891,9 +896,10 @@
            (if posts
                (cl-who:htm
                 (:div :class "topic-list"
-                  (loop for (title slug created excerpt uname is-html) in posts
+                  (loop for (title slug created excerpt uname is-html old-author) in posts
                         do (cl-who:str
-                  (blog-render-card title slug created excerpt uname t is-html)))))
+                  (blog-render-card title slug created excerpt uname t is-html
+                                    (unless (eq old-author :null) old-author))))))
                (cl-who:htm
                 (:p :class "empty-state" (cl-who:str (tr :blog-empty)))))
            (when (= (length posts) 20)
@@ -935,10 +941,11 @@
                (if posts
                    (cl-who:htm
                     (:div :class "topic-list"
-                      (loop for (title slug created excerpt y m is-html) in posts
+                      (loop for (title slug created excerpt y m is-html old-author) in posts
                             do (cl-who:str
                                  (blog-render-card title slug created excerpt
-                                                   username nil is-html)))))
+                                                   username nil is-html
+                                                   (unless (eq old-author :null) old-author))))))
                    (cl-who:htm
                     (:p :class "empty-state" (cl-who:str (tr :blog-empty))))))
               (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site"
@@ -965,8 +972,14 @@
                   (:a :class "post-author" :href (format nil "/blog/~A" username)
                       (cl-who:str username))
                   (:span (cl-who:str (format nil " · ~A" (getf post :created-at)))))
-                 (when own
-                   (cl-who:htm
+                   (when (getf post :old-author)
+                     (cl-who:htm
+                      (:span :class "old-author"
+                             (cl-who:str
+                              (format nil " · ~A: ~A" (tr :old-author)
+                                      (getf post :old-author))))))
+                   (when own
+                    (cl-who:htm
                     (:p :style "margin:10px 0"
                         (:a :href (format nil "/blog/~A/~A/edit" username slug)
                             (cl-who:str (tr :edit)))

@@ -98,18 +98,21 @@
                       (if (> (length tt) 250) (subseq tt 0 250) tt)))
              (slug (unique-content-slug title))
              (date (jval p "date" nil))
-             (body (sanitize-old-html (jval p "body_html" ""))))
-      (handler-case
-          (progn
-            (postmodern:query
-             "INSERT INTO blog_posts (user_id, title, slug, body, created_at, updated_at, is_html)
-              VALUES ($1,$2,$3,$4,$5,$5,TRUE)"
-             *oldlisper-id* title slug body
-             (if (and date (>= (length date) 10)) date "2010-01-01 00:00:00"))
-            (incf ok))
-        (error (e)
-          (incf err)
-          (format t "~&FAIL ~a: ~a~%" slug e)))))
+             (body (sanitize-old-html (jval p "body_html" "")))
+             (author (let ((a (jval p "author" nil)))
+                       (if (or (null a) (string= a "")) "lisper.ru" a))))
+       (handler-case
+           (progn
+             (postmodern:query
+              "INSERT INTO blog_posts (user_id, title, slug, body, created_at, updated_at, is_html, old_author)
+               VALUES ($1,$2,$3,$4,$5,$5,TRUE,$6)"
+              *oldlisper-id* title slug body
+              (if (and date (>= (length date) 10)) date "2010-01-01 00:00:00")
+              author)
+             (incf ok))
+         (error (e)
+           (incf err)
+           (format t "~&FAIL ~a: ~a~%" slug e)))))
   (format t "~&ИМПОРТ ЗАВЕРШЁН: ok=~a err=~a~%" ok err))
 
-(postmodern:disconnect)(uiop:quit 0)
+(db-disconnect)(uiop:quit 0)

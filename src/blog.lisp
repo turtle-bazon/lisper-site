@@ -67,15 +67,16 @@
                      "SELECT b.id, b.user_id, b.title, b.slug, b.body,
                              TO_CHAR(b.created_at,'DD.MM.YYYY HH24:MI'),
                              TO_CHAR(b.updated_at,'DD.MM.YYYY HH24:MI'),
-                             u.username, b.is_html
+                             u.username, b.is_html, b.old_author
                       FROM blog_posts b JOIN users u ON u.id = b.user_id
                       WHERE u.username = $1 AND b.slug = $2"
                      username slug))))
     (when row
-      (destructuring-bind (id user-id title pslug body created updated uname is-html) row
+      (destructuring-bind (id user-id title pslug body created updated uname is-html old-author) row
         (list :id id :user-id user-id :title title :slug pslug :body body
               :created-at created :updated-at updated :username uname
-              :is-html is-html)))))
+              :is-html is-html
+              :old-author (unless (eq old-author :null) old-author))))))
 
 (defun get-user-blog-posts (username &key (offset 0) (limit 20) year month)
   ;; username приходит из роутов сайта; числа — целые после parse-integer
@@ -90,7 +91,7 @@
      (concatenate 'string
         "SELECT b.title, b.slug, TO_CHAR(b.created_at,'DD.MM.YYYY HH24:MI'), left(b.body,2000),
                 EXTRACT(YEAR FROM b.created_at)::int AS y,
-                EXTRACT(MONTH FROM b.created_at)::int AS m, b.is_html
+                EXTRACT(MONTH FROM b.created_at)::int AS m, b.is_html, b.old_author
          FROM blog_posts b JOIN users u ON u.id=b.user_id
          WHERE u.username = '" username "'" ym lim))))
 
@@ -104,7 +105,7 @@
                      (max 0 offset) (max 0 limit))))
     (postmodern:query
      (concatenate 'string
-        "SELECT b.title, b.slug, TO_CHAR(b.created_at,'DD.MM.YYYY HH24:MI'), left(b.body,2000), u.username, b.is_html
+        "SELECT b.title, b.slug, TO_CHAR(b.created_at,'DD.MM.YYYY HH24:MI'), left(b.body,2000), u.username, b.is_html, b.old_author
          FROM blog_posts b JOIN users u ON u.id=b.user_id WHERE true"
         ym lim))))
 

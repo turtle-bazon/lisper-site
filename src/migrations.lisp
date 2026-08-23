@@ -227,6 +227,10 @@ CREATE INDEX idx_blog_posts_created ON blog_posts(created_at DESC);
 ALTER TABLE blog_posts ADD COLUMN is_html BOOLEAN NOT NULL DEFAULT FALSE;
 ")
           (:down . "ALTER TABLE blog_posts DROP COLUMN is_html;
+")))
+    (13 . ((:up . "ALTER TABLE blog_posts ADD COLUMN old_author TEXT;
+")
+          (:down . "ALTER TABLE blog_posts DROP COLUMN old_author;
 ")))))
 
 (defun get-available-migrations ()

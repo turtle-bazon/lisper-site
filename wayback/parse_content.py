@@ -77,6 +77,18 @@ def rfc_to_iso(s):
     mo = months.get(mon.lower())
     return f'{y}-{mo:02d}-{int(d):02d} {hh}:{mi}:{ss}' if mo else None
 
+def extract_author(h):
+    """Имя автора из строки 'Автор: <a>Имя</a>' (статьи lisper.ru).
+       Блог/wiki автора в архиве не хранят -> None."""
+    m = re.search(r'Автор:(.*?)(?:Источник:|</td>|</p>|</tr>)', h, re.S)
+    if not m:
+        return None
+    seg = m.group(1)
+    am = re.search(r'<a[^>]*>([^<]+)</a>', seg)
+    name = am.group(1) if am else re.sub(r'<[^>]+>', '', seg)
+    name = clean_title(name)
+    return name or None
+
 def slug_from_url(url):
     path = urlparse(url).path.rstrip('/')
     seg = unquote(path.split('/')[-1])
@@ -142,7 +154,7 @@ def main():
     stats = {'blog': 0, 'article': 0, 'wiki': 0, 'skipped': 0}
     seen_slugs = set()
 
-    def add(url, title, date_iso, body_html):
+    def add(url, title, date_iso, body_html, author=None):
         if not body_html or len(body_html.strip()) < 40:
             stats['skipped'] += 1
             return
@@ -157,7 +169,8 @@ def main():
         posts.append({'url': url, 'slug': slug,
                       'title': title_clean,
                       'date': date_iso,
-                      'body_html': body_html.strip()})
+                      'body_html': body_html.strip(),
+                      'author': author})
 
     # --- блог 2009-2015
     year_dirs = sorted(d for d in os.listdir(SITE)
@@ -195,7 +208,7 @@ def main():
                         r'</div>\\s*</div>(?=\\s)', '', body,
                         count=1, flags=re.S)
                     add(url, clean_title(tm.group(1)) if tm else '',
-                        date_iso, body)
+                        date_iso, body, None)
                     stats['blog'] += 1
                     continue
                 if 'class="post"' not in h:
@@ -207,7 +220,7 @@ def main():
                 dm = re.search(r'<span class="date">([^<]+)</span>', post_div)
                 body = div_inner(post_div, 'content') or ''
                 add(url, clean_title(tm.group(1)) if tm else '',
-                    rfc_to_iso(dm.group(1)) if dm else None, body)
+                    rfc_to_iso(dm.group(1)) if dm else None, body, None)
                 stats['blog'] += 1
 
     # --- статьи (только Lisp-whitelist)
@@ -234,7 +247,8 @@ def main():
             return ts_by_url.get(p)
         ts = _lookup(url)
         date_iso = rfc_to_iso(ts or '') or (cd_ts_iso(ts))
-        add(url, clean_title(hm.group(1)) if hm else base, date_iso, art)
+        add(url, clean_title(hm.group(1)) if hm else base, date_iso, art,
+            extract_author(h))
         stats['article'] += 1
 
     # --- wiki
@@ -256,7 +270,7 @@ def main():
         tm = re.search(r'<title>([^<]*)</title>', h)
         ts = _lookup(url)
         date_iso = rfc_to_iso(ts or '') or (cd_ts_iso(ts))
-        add(url, clean_title(tm.group(1)) if tm else name, date_iso, art)
+        add(url, clean_title(tm.group(1)) if tm else name, date_iso, art, None)
         stats['wiki'] += 1
 
     posts.sort(key=lambda p: (p.get('date') or ''))
