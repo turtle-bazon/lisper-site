@@ -13,6 +13,8 @@
                 #:split-sequence
                 #:flexi-streams
                 #:uiop
+                #:jsown
+                #:clingon
                 #:cl-maxminddb)
   :serial t
   :components ((:module "md"
@@ -43,6 +45,9 @@
                  (:file "pages")
                  (:file "forum-pages")
                  (:file "routes")
+                 (:file "server")
+                 (:file "legacy-import")
+                 (:file "cli")
                  (:file "main")))
                 (:module "jscl-tools"
                  :components ((:file "markdown")))))

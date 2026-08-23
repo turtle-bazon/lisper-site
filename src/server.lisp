@@ -1,0 +1,20 @@
+;;; Запуск веб-сервера. Выделено из main, чтобы CLI (cli.lisp) мог
+;;; использовать start-server без циклических ссылок между файлами.
+
+(in-package :lisper)
+
+(defun start-server ()
+  (read-config)
+  (handler-case (db-connect)
+    (error (e) (format t "~&Warning: DB connect failed: ~A~%" e)))
+  (init-geo (config :geo-db-path))
+  (analytics-run-rollup)
+  (sb-thread:make-thread #'analytics-rollup-loop :name "analytics-rollup")
+  (format t "Starting lisper on ~a:~a~%" (config :address) (config :port))
+  (let ((server (clack:clackup (make-app)
+                                :address (config :address)
+                                :port (config :port)
+                                :server :wookie
+                                :debug t)))
+    (declare (ignore server))
+    (loop (sleep 1))))

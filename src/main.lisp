@@ -1,18 +1,27 @@
 (in-package :lisper)
 
 (defun main (&optional args)
-  (declare (ignore args))
-  (read-config)
-  (handler-case (db-connect)
-    (error (e) (format t "~&Warning: DB connect failed: ~A~%" e)))
-  (init-geo (config :geo-db-path))
-  (analytics-run-rollup)
-  (sb-thread:make-thread #'analytics-rollup-loop :name "analytics-rollup")
-  (format t "Starting lisper on ~a:~a~%" (config :address) (config :port))
-  (let ((server (clack:clackup (make-app)
-                                :address (config :address)
-                                :port (config :port)
-                                :server :wookie
-                                :debug t)))
-    (declare (ignore server))
-    (loop (sleep 1))))
+  ;; buildapp кладёт путь к исполняемому файлу ПЕРВЫМ элементом args;
+  ;; отбрасываем его (эвристика: содержит "/" или называется "lisper").
+  ;; При запуске под sbcl --eval args=nil и просто стартует сервер.
+  (let ((argv (cond
+                ((null args) nil)
+                ((and (first args)
+                      (or (find #\/ (first args) :test #'char=)
+                          (string= (first args) "lisper")))
+                 (rest args))
+                (t args))))
+    (cond
+      ;; без аргументов — как раньше, просто запускаем сервер
+      ((null argv) (start-server))
+      ;; явный `serve`/`server`
+      ((member (first argv) '("serve" "server") :test #'string=)
+       (start-server))
+      ;; `import` без/с неверным подкомандом: clingon:exit в buildapp-образе
+      ;; не отдаёт коды ошибок наружу, поэтому валидируем форму сами
+      ((and (string= (first argv) "import")
+            (not (member (second argv) '("forum" "content") :test #'string=)))
+       (format *error-output* "~&usage: lisper import <forum|content> [--conf FILE] [--json FILE] [--force]~%")
+       (uiop:quit 64))
+      ;; всё остальное — CLI (help, import forum|content, ...)
+      (t (clingon:run (cli/top-level) argv)))))

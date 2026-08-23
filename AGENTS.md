@@ -186,10 +186,32 @@ src/
 # Через sbcl (для разработки):
 sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 
-# Через бинарник:
+# Через бинарник (без аргументов = веб-сервер):
 ./build/lisper
+./build/lisper serve        # то же самое, явно
 ```
 Сервер слушает `0.0.0.0:8080`.
+
+### CLI импорта (clingon, 2026-08-24)
+Скрипты `import-old-forum.lisp`/`import-old-content.lisp` УДАЛЕНЫ — их логика
+перенесена в бинарник (`src/legacy-import.lisp` + `src/cli.lisp`):
+```bash
+./build/lisper import forum   [--conf FILE] [--json FILE] [--force]
+./build/lisper import content [--conf FILE] [--json FILE] [--force]
+```
+- Семантика прежняя: форум без `--force` отказывается работать при непустом
+  topics (повторный запуск ДУБЛИРУЕТ темы!); контент с `--force` удаляет посты
+  oldlisper перед вставкой (чистый реимпорт). Санитайзеры РАЗНЫЕ: форумный
+  превращает div/p в `<br>` (`sanitize-forum-html`), контентный сохраняет
+  структуру (`sanitize-legacy-html`) — не объединять!
+- Коды выхода: guard-отказ=1, неверная форма `import`=64, успех=0.
+- **Уроки clingon+buildapp**: (1) buildapp кладёт путь к бинарю ПЕРВЫМ элементом
+  args у entry-функции — main его отбрасывает; (2) опция default —
+  `:initial-value`, НЕ `:default-value`; флаг — тип `:boolean/true`;
+  (3) `clingon:exit` внутри buildapp-образа не отдаёт ненулевые коды наружу
+  (exit всегда 0) → обработчики сами ловят `error` и зовут `uiop:quit 1`,
+  а форма `import <sub>` валидируется в main до clingon (exit 64);
+  (4) jsown должен быть в asd depends-on (скрипты раньше quickload'или сами).
 
 ## JSCL-интеграция (REPL в браузере)
 - Кнопка "Попробовать CL" в шапке рядом с Telegram
