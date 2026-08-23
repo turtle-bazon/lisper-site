@@ -841,10 +841,17 @@
          (:div :class "blog-date-tree"
           (:h3 (cl-who:str (tr :blog-archive)))
           (:ul
+           (let ((prev-year -1))
            (loop for (y m c) in tree
-                 do (cl-who:str
-                     (blog-date-item-html base-url username y m c
-                                          current-year current-month))))))))))
+                 do (progn
+                      (when (/= y prev-year)
+                        (cl-who:htm
+                         (:li :class "dt-year"
+                              (cl-who:str (write-to-string y))))
+                        (setf prev-year y))
+                                   (cl-who:str
+                       (blog-date-item-html base-url username y m c
+                                            current-year current-month))))))))))))
 
 (defun blog-page-feed (user &optional (start 0) year month)
   (let ((posts (if (and year month)
@@ -999,6 +1006,7 @@
                          (cl-who:str (tr :submit)))))
         (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site"
                          "lisper") " &copy; 2026 | GPL-3.0"))))))))
+
 
 
 

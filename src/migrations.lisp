@@ -221,6 +221,12 @@ CREATE INDEX idx_blog_posts_user ON blog_posts(user_id);
 CREATE INDEX idx_blog_posts_created ON blog_posts(created_at DESC);
 ")
           (:down . "DROP TABLE IF EXISTS blog_posts;
+")))
+    (12 . ((:up . "-- Импортированные статьи/wiki/старые посты блога: хранят готовый HTML
+-- (рендерится как .legacy-html без markdown-парсера).
+ALTER TABLE blog_posts ADD COLUMN is_html BOOLEAN NOT NULL DEFAULT FALSE;
+")
+          (:down . "ALTER TABLE blog_posts DROP COLUMN is_html;
 ")))))
 
 (defun get-available-migrations ()
