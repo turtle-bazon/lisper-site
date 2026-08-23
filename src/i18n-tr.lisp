@@ -179,6 +179,8 @@
     (:blog-filter . "Gösterilen yazılar:")
     (:blog-all-posts . "tümünü göster")
     (:blog-placeholder . "Yazı gövdesi (markdown)…")
+    (:edit . "Düzenle")
+    (:delete . "Sil")
     (:categories-title . "Forum Bölümleri")
     (:cat-add . "Yeni bölüm")
     (:cat-existing . "Mevcut bölümler")

@@ -179,6 +179,8 @@
     (:blog-filter . "Показано пости за")
     (:blog-all-posts . "показати всі")
     (:blog-placeholder . "Текст поста (markdown)…")
+    (:edit . "Редагувати")
+    (:delete . "Видалити")
     (:categories-title . "Розділи форуму")
     (:cat-add . "Новий розділ")
     (:cat-existing . "Існуючі розділи")

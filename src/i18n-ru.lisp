@@ -180,6 +180,8 @@
     (:blog-filter . "Показаны посты за")
     (:blog-all-posts . "показать все")
     (:blog-placeholder . "Текст поста (markdown)…")
+    (:edit . "Редактировать")
+    (:delete . "Удалить")
     (:categories-title . "Разделы форума")
     (:cat-add . "Новый раздел")
     (:cat-existing . "Существующие разделы")

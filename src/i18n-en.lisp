@@ -179,6 +179,8 @@
     (:blog-filter . "Showing posts from")
     (:blog-all-posts . "show all")
     (:blog-placeholder . "Post body (markdown)…")
+    (:edit . "Edit")
+    (:delete . "Delete")
     (:categories-title . "Forum Categories")
     (:cat-add . "New category")
     (:cat-existing . "Existing categories")
