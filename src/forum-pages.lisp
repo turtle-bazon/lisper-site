@@ -885,7 +885,7 @@
                 (:div :class "topic-list"
                  (loop for (title slug created excerpt uname) in posts
                        do (cl-who:str
-                           (blog-render-card title slug created excerpt uname t)))))
+                 (blog-render-card title slug created (blog-card-excerpt excerpt) uname t)))))
                (cl-who:htm
                 (:p :class "empty-state" (cl-who:str (tr :blog-empty)))))
            (when (= (length posts) 20)
@@ -929,8 +929,8 @@
                     (:div :class "topic-list"
                      (loop for (title slug created excerpt y m) in posts
                            do (cl-who:str
-                               (blog-render-card title slug created excerpt
-                                                 username nil)))))
+                                (blog-render-card title slug created (blog-card-excerpt excerpt)
+                                                  username nil)))))
                    (cl-who:htm
                     (:p :class "empty-state" (cl-who:str (tr :blog-empty))))))
               (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site"

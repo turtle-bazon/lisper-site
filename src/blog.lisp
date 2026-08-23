@@ -112,12 +112,29 @@
   "(год месяц кол-во) для дерева дат; опционально одного автора."
   (if username
       (postmodern:query
-       "SELECT EXTRACT(YEAR FROM b.created_at)::int, EXTRACT(MONTH FROM b.created_at)::int, COUNT(*)
-        FROM blog_posts b JOIN users u ON u.id=b.user_id
-        WHERE u.username = $1 GROUP BY 1,2 ORDER BY 1 DESC, 2 DESC" username)
-      (postmodern:query
-       "SELECT EXTRACT(YEAR FROM created_at)::int, EXTRACT(MONTH FROM created_at)::int, COUNT(*)
-        FROM blog_posts GROUP BY 1,2 ORDER BY 1 DESC, 2 DESC")))
+        "SELECT EXTRACT(YEAR FROM b.created_at)::int, EXTRACT(MONTH FROM b.created_at)::int, COUNT(*)
+         FROM blog_posts b JOIN users u ON u.id=b.user_id
+         WHERE u.username = $1 GROUP BY 1,2 ORDER BY 1 DESC, 2 DESC" username)
+       (postmodern:query
+        "SELECT EXTRACT(YEAR FROM created_at)::int, EXTRACT(MONTH FROM created_at)::int, COUNT(*)
+         FROM blog_posts GROUP BY 1,2 ORDER BY 1 DESC, 2 DESC")))
+
+(defun strip-html (s)
+  "Удаляет HTML-теги и сворачивает whitespace — для текстовых тизеров карточек."
+  (when s
+    (let ((t1 (cl-ppcre:regex-replace-all "<[^>]*>" s " ")))
+      (cl-ppcre:regex-replace-all "\\s+" t1 " "))))
+
+(defun blog-card-excerpt (body)
+  "Чистый текстовый тизер карточки: без тегов, ≤280 символов.
+   Лечит баг вложенных <div> (legacy-HTML тела резались посреди тега)."
+  (let* ((raw (if (and body (> (length body) 0))
+                  (subseq body 0 (min (length body) 2000)) ""))
+         (txt (strip-html raw)))
+    (string-trim " "
+                 (if (> (length txt) 280)
+                     (concatenate 'string (subseq txt 0 280) "…")
+                     txt))))
 
 (defun valid-blog-title-p (s)
   (and (stringp s) (<= 3 (length s) 250)))
