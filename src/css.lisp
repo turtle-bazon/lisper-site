@@ -602,6 +602,53 @@
          :border "1px solid #1e1e1e"
          :border-radius "12px")
 
+        (".post-card:hover"
+         :border-color "#2e2e33")
+
+        (".card-title"
+         :margin "0 0 10px")
+
+        (".card-title .topic-link"
+         :display "inline"
+         :color "#a78bfa"
+         :font-size "1.05rem"
+         :font-weight 600)
+
+        (".card-title .topic-link:hover"
+         :color "#c4b5fd")
+
+        (".card-meta"
+         :display "flex"
+         :align-items "center"
+         :flex-wrap "wrap"
+         :gap "8px"
+         :padding-bottom "10px"
+         :margin-bottom "12px"
+         :border-bottom "1px solid #1e1e1e"
+         :font-size "0.85rem")
+
+        (".card-excerpt"
+         :color "#9ca3af"
+         :line-height "1.55"
+         :margin "0")
+
+        (".read-more"
+         :display "inline-block"
+         :margin-top "12px"
+         :padding "5px 14px"
+         :background-color "#18181b"
+         :border "1px solid #26262b"
+         :border-radius "8px"
+         :color "#a78bfa"
+         :font-size "0.85rem"
+         :text-decoration "none"
+         :transition "all 0.2s ease")
+
+        (".read-more:hover"
+         :border-color "#7c3aed"
+         :color "#c4b5fd"
+         :background-color "#1c1526")
+
         (".post-header"
          :display "flex"
          :align-items "center"

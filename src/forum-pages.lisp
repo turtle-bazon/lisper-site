@@ -810,35 +810,83 @@
 
 (defun blog-render-card (title slug created excerpt username show-author
                          &optional is-html old-author)
+  "Карточка ленты — один блок: заголовок, мета-строка, тизер, «Read more»."
   (let ((trunc (blog-card-truncated-p excerpt)))
     (cl-who:with-html-output-to-string (s nil :prologue nil)
-     (cl-who:htm
-      (:div :class "post-card"
-       (:h3 :style "margin:0 0 6px"
-        (:a :class "topic-link" :href (format nil "/blog/~A/~A" username slug)
-            (cl-who:str title)))
-       (:div :class "post-header" :style "margin-bottom:8px"
-        (when show-author
-          (cl-who:htm
-           (:a :class "post-author" :href (format nil "/blog/~A" username)
-               (cl-who:str username))))
-        (:span :class "post-date" (cl-who:str created)))
-        (when old-author
-          (cl-who:htm
-           (:span :class "old-author"
-                  (cl-who:str
-                   (format nil " · ~A" (blog-old-author-text old-author)))))))
-       (if is-html
-           (cl-who:htm
-            (:p :style "color:#9ca3af;margin:0" (cl-who:str (blog-card-excerpt excerpt))))
-           (cl-who:htm
-            (:p :class "post-excerpt md-content" :style "color:#9ca3af;margin:0"
-                (cl-who:str (blog-card-markdown-snippet excerpt)))))
-       (when trunc
-         (cl-who:htm
-          (:a :class "read-more" :href (format nil "/blog/~A/~A" username slug)
-              (cl-who:str (tr :blog-read-more)))))))))
+      (cl-who:htm
 
+        (:div :class "post-card"
+
+          (:h3 :class "card-title"
+            (:a :class "topic-link"
+                :href (format nil "/blog/~A/~A" username slug)
+              (cl-who:str title))
+            )
+          ;; /card-title > h3
+
+          (:div :class "card-meta"
+            (progn
+              (when show-author
+                (cl-who:htm
+                  (:a :class "post-author"
+                      :href (format nil "/blog/~A" username)
+                    (cl-who:str username))
+                  ))
+              ;; /when show-author
+              (cl-who:htm
+                (:span :class "post-date"
+                  (cl-who:str created))
+                )
+              ;; /post-date
+              (when old-author
+                (cl-who:htm
+                  (:span :class "old-author"
+                    (cl-who:str
+                      (format nil " · ~A"
+                              (blog-old-author-text old-author))
+                    ))
+                  )
+                )
+              ;; /when old-author
+              )
+            )
+          ;; /card-meta
+
+          (if is-html
+              (cl-who:htm
+                (:p :class "card-excerpt"
+                  (cl-who:str (blog-card-excerpt excerpt))
+                  )
+                )
+              (cl-who:htm
+                (:p :class "card-excerpt md-content"
+                  (cl-who:str (blog-card-markdown-snippet excerpt))
+                  )
+                )
+            )
+          ;; /if excerpt
+
+          (when trunc
+            (cl-who:htm
+              (:a :class "read-more"
+                  :href (format nil "/blog/~A/~A" username slug)
+                (cl-who:str (tr :blog-read-more))
+              )
+            )
+          )
+          ;; /when trunc
+
+        )
+        ;; /div.post-card
+
+      )
+      ;; /htm
+    )
+    ;; /with-html-output
+  )
+  ;; /let
+)
+;; /defun blog-render-card
 (defun blog-date-item-html (base-url username y m c current-year current-month)
   "Одна строка дерева дат: выбранный месяц — .dt-sel, остальные — ссылки.
    Возвращает готовый <li>…</li>: <a> напрямую в <ul> рендерится inline
@@ -976,7 +1024,7 @@
                  (:a :class "back-link" :href (format nil "/blog/~A" username)
                      (cl-who:str (format nil "← ~A ~A" (tr :blog-of) username)))
                  (:h2 (cl-who:str (getf post :title)))
-                 (:div :class "topic-info"
+                 (:div :class "topic-info card-meta"
                   (:a :class "post-author" :href (format nil "/blog/~A" username)
                       (cl-who:str username))
                   (:span (cl-who:str (format nil " · ~A" (getf post :created-at)))))
