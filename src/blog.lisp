@@ -136,6 +136,12 @@
                      (concatenate 'string (subseq txt 0 280) "…")
                      txt))))
 
+(defun blog-card-truncated-p (body)
+  "Тизер обрезан? (чтобы показывать «Читать далее» только при необходимости)."
+  (let ((raw (if (and body (> (length body) 0))
+                 (subseq body 0 (min (length body) 2000)) "")))
+    (> (length (strip-html raw)) 280)))
+
 (defun valid-blog-title-p (s)
   (and (stringp s) (<= 3 (length s) 250)))
 

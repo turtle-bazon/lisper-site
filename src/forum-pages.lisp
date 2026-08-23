@@ -801,19 +801,25 @@
 ;;; ============================================================
 
 (defun blog-render-card (title slug created excerpt username show-author)
-  (cl-who:with-html-output-to-string (s nil :prologue nil)
-   (cl-who:htm
-   (:div :class "post-card"
-    (:h3 :style "margin:0 0 6px"
-     (:a :class "topic-link" :href (format nil "/blog/~A/~A" username slug)
-         (cl-who:str title)))
-    (:div :class "post-header" :style "margin-bottom:8px"
-     (when show-author
-       (cl-who:htm
-        (:a :class "post-author" :href (format nil "/blog/~A" username)
-            (cl-who:str username))))
-     (:span :class "post-date" (cl-who:str created)))
-    (:p :style "color:#9ca3af;margin:0" (cl-who:str excerpt))))))
+  (let ((ex (blog-card-excerpt excerpt))
+        (trunc (blog-card-truncated-p excerpt)))
+    (cl-who:with-html-output-to-string (s nil :prologue nil)
+     (cl-who:htm
+      (:div :class "post-card"
+       (:h3 :style "margin:0 0 6px"
+        (:a :class "topic-link" :href (format nil "/blog/~A/~A" username slug)
+            (cl-who:str title)))
+       (:div :class "post-header" :style "margin-bottom:8px"
+        (when show-author
+          (cl-who:htm
+           (:a :class "post-author" :href (format nil "/blog/~A" username)
+               (cl-who:str username))))
+        (:span :class "post-date" (cl-who:str created)))
+       (:p :style "color:#9ca3af;margin:0" (cl-who:str ex))
+       (when trunc
+         (cl-who:htm
+          (:a :class "read-more" :href (format nil "/blog/~A/~A" username slug)
+              (cl-who:str (tr :blog-read-more))))))))))
 
 (defun blog-date-item-html (base-url username y m c current-year current-month)
   "Одна строка дерева дат: выбранный месяц — .dt-sel, остальные — ссылки.
@@ -885,7 +891,7 @@
                 (:div :class "topic-list"
                  (loop for (title slug created excerpt uname) in posts
                        do (cl-who:str
-                 (blog-render-card title slug created (blog-card-excerpt excerpt) uname t)))))
+                 (blog-render-card title slug created excerpt uname t)))))
                (cl-who:htm
                 (:p :class "empty-state" (cl-who:str (tr :blog-empty)))))
            (when (= (length posts) 20)
@@ -929,7 +935,7 @@
                     (:div :class "topic-list"
                      (loop for (title slug created excerpt y m) in posts
                            do (cl-who:str
-                                (blog-render-card title slug created (blog-card-excerpt excerpt)
+                                (blog-render-card title slug created excerpt
                                                   username nil)))))
                    (cl-who:htm
                     (:p :class "empty-state" (cl-who:str (tr :blog-empty))))))
