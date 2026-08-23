@@ -831,10 +831,7 @@
       (if sel
           (cl-who:htm
            (:li :class "dt-sel"
-                (cl-who:str (format nil "~d · ~2,'0d (~d)" y m c))
-                " "
-                (:a :class "dt-all" :href base-url
-                    (cl-who:str (tr :blog-all-posts)))))
+                (cl-who:str (format nil "~d · ~2,'0d (~d)" y m c))))
           (cl-who:htm
            (:li
             (:a :href (format nil "~A?year=~d&month=~2,'0d" base-url y m)
