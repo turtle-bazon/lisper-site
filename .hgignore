@@ -2,3 +2,8 @@ syntax: glob
 wayback/download.log
 wayback/download.pid
 wayback/retry.txt
+build/
+lisper.conf
+download.pid
+syntax: regexp
+^wayback/site/
