@@ -15,7 +15,10 @@
                 #:uiop
                 #:cl-maxminddb)
   :serial t
-  :components ((:module "src"
+  :components ((:module "md"
+                :pathname "jscl-tools/"
+                :components ((:file "markdown")))
+               (:module "src"
                 :components
                 ((:file "package")
                  (:file "config")
@@ -30,7 +33,7 @@
                    (:file "jscl-bundles")
                    (:file "migrations")
 (:file "db")
-                   (:file "auth")
+(:file "auth")
                    (:file "antispam")
                    (:file "forum")
                   (:file "blog")
@@ -40,4 +43,6 @@
                  (:file "pages")
                  (:file "forum-pages")
                  (:file "routes")
-                 (:file "main")))))
+                 (:file "main")))
+                (:module "jscl-tools"
+                 :components ((:file "markdown")))))

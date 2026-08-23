@@ -815,8 +815,42 @@
      (:span :class "post-date" (cl-who:str created)))
     (:p :style "color:#9ca3af;margin:0" (cl-who:str excerpt))))))
 
-(defun blog-page-feed (user &optional (start 0))
-  (let ((posts (get-all-blog-posts start 20)))
+(defun blog-date-item-html (base-url username y m c current-year current-month)
+  "Одна строка дерева дат: выбранный месяц — текстом, остальные — ссылками."
+  (cl-who:with-html-output-to-string (s nil :prologue nil)
+    ;; ВНИМАНИЕ: внутри if/progn формы (:tag ...) НЕ обрабатываются
+    ;; cl-who — только строки через cl-who:str / чистый lisp.
+    (let* ((sel (and current-year (= y current-year)
+                     (or (not current-month) (= m current-month)))))
+      (if sel
+          (progn
+            (cl-who:str (format nil "~d · ~2,'0d (~d)" y m c))
+            (cl-who:str
+             (format nil " <a class='dt-all' href='~A'>~A</a>"
+                     base-url (tr :blog-all-posts))))
+          (cl-who:str
+           (format nil "<a href='~A?year=~d&amp;month=~2,'0d'>~d · ~2,'0d (~d)</a>"
+                   base-url y m y m c))))))
+
+(defun blog-render-date-tree (base-url username current-year current-month)
+  "Список «Год: месяц(N)…» со ссылками-фильтрами."
+  (let ((tree (get-blog-date-tree username)))
+    (when tree
+      (cl-who:with-html-output-to-string (s nil :prologue nil)
+        (cl-who:htm
+         (:div :class "blog-date-tree"
+          (:h3 (cl-who:str (tr :blog-archive)))
+          (:ul
+           (loop for (y m c) in tree
+                 do (cl-who:str
+                     (blog-date-item-html base-url username y m c
+                                          current-year current-month))))))))))
+
+(defun blog-page-feed (user &optional (start 0) year month)
+  (let ((posts (if (and year month)
+                   (get-all-blog-posts :offset start :limit 20
+                                       :year year :month month)
+                   (get-all-blog-posts :offset start :limit 20))))
     (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
       (cl-who:htm
        (:html :lang *lang*
@@ -830,6 +864,13 @@
              (cl-who:htm
               (:p (:a :class "try-button" :href "/blog/new"
                       (cl-who:str (tr :blog-new))))))
+           (cl-who:str (blog-render-date-tree "/blog" nil year month))
+           (when (and year month)
+             (cl-who:htm
+              (:p :class "filter-note"
+                  (cl-who:str (format nil "~a ~d.~2,'0d — "
+                                      (tr :blog-filter) year month))
+                  (:a :href "/blog" (cl-who:str (tr :blog-all-posts))))))
            (if posts
                (cl-who:htm
                 (:div :class "topic-list"
@@ -840,13 +881,17 @@
                 (:p :class "empty-state" (cl-who:str (tr :blog-empty)))))
            (when (= (length posts) 20)
              (cl-who:htm
-              (:p (:a :href (format nil "/blog?start=~d" (+ start 20))
-                      (cl-who:str (tr :older-posts)))))))
+              (:p (:a :href (format nil "/blog?start=~d~@[&year=~d&month=~d~]"
+                                    (+ start 20) year month)
+                      (cl-who:str (tr :older-posts))))))))
           (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
-                        " &copy; 2026 | GPL-3.0")))))))))
+                        " &copy; 2026 | GPL-3.0"))))))))
 
-(defun blog-page-user (viewer username &optional (start 0))
-  (let ((posts (get-user-blog-posts username 0 20))
+(defun blog-page-user (viewer username &key (start 0) year month)
+  (let ((posts (if (and year month)
+                   (get-user-blog-posts username :offset start :limit 20
+                                        :year year :month month)
+                   (get-user-blog-posts username :offset start :limit 20)))
         (profile (get-user-by-name username)))
     (if (not profile)
         (forum-page-not-found viewer)
@@ -860,10 +905,20 @@
               (:header (cl-who:str (forum-render-header viewer)))
               (:div :class "section"
                (:h2 (cl-who:str (format nil "~A ~A" (tr :blog-of) username)))
+               (cl-who:str (blog-render-date-tree
+                            (format nil "/blog/~A" username)
+                            username year month))
+               (when (and year month)
+                 (cl-who:htm
+                  (:p :class "filter-note"
+                      (cl-who:str (format nil "~a ~d.~2,'0d — "
+                                          (tr :blog-filter) year month))
+                      (:a :href (format nil "/blog/~A" username)
+                          (cl-who:str (tr :blog-all-posts))))))
                (if posts
                    (cl-who:htm
                     (:div :class "topic-list"
-                     (loop for (title slug created excerpt) in posts
+                     (loop for (title slug created excerpt y m) in posts
                            do (cl-who:str
                                (blog-render-card title slug created excerpt
                                                  username nil)))))
@@ -944,6 +999,19 @@
                          (cl-who:str (tr :submit)))))
         (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site"
                          "lisper") " &copy; 2026 | GPL-3.0"))))))))
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

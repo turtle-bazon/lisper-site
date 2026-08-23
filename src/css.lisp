@@ -802,6 +802,47 @@
          :font-size "0.85rem"
          :margin-right "12px")
 
+        (".blog-date-tree"
+         :background-color "#161b22"
+         :border "1px solid #21262d"
+         :border-radius "8px"
+         :padding "12px 16px"
+         :margin "10px 0 18px")
+
+        (".blog-date-tree h3"
+         :margin "0 0 8px"
+         :font-size "0.95rem"
+         :color "#e6edf3")
+
+        (".blog-date-tree ul"
+         :list-style "none"
+         :padding "0"
+         :margin "0"
+         :display "flex"
+         :flex-wrap "wrap"
+         :gap "6px 16px")
+
+        (".blog-date-tree li a"
+         :color "#58a6ff")
+
+        (".blog-date-tree li.dt-sel span"
+         :color "#22c55e"
+         :font-weight "bold")
+
+        (".dt-all"
+         :color "#6e7681"
+         :font-size "0.85rem"
+         :margin-left "6px")
+
+        (".filter-note"
+         :color "#fbbf24"
+         :font-size "0.9rem")
+
+        (".post-card-body.md-content"
+         :max-height "140px"
+         :overflow "hidden"
+         :color "#9ca3af")
+
         (".legacy-html"
          :line-height "1.5"
          :word-wrap "break-word")

@@ -112,11 +112,12 @@
 
             ;; Блоги
             ((and (string= path "/blog") (eq (env-method env) :GET))
-             (let* ((qs (parse-query-string env))
-                    (start-str (when qs (gethash "start" qs)))
-                    (start (or (ignore-errors (parse-integer start-str)) 0)))
+             (let* ((qs (or (parse-query-string env) (make-hash-table :test #'equal)))
+                    (start (max 0 (or (ignore-errors (parse-integer (gethash "start" qs))) 0)))
+                    (year (ignore-errors (parse-integer (gethash "year" qs))))
+                    (month (ignore-errors (parse-integer (gethash "month" qs)))))
                `(200 (:content-type "text/html; charset=utf-8")
-                     (,(blog-page-feed user (max 0 start))))))
+                     (,(blog-page-feed user start year month)))))
 
             ((and (string= path "/blog/new") (eq (env-method env) :GET))
              (if user
@@ -265,7 +266,37 @@
             ((and (>= (length path) 6)
                   (string= (subseq path 0 6) "/blog/")
                   (eq (env-method env) :GET))
-             (handle-blog-view env user (subseq path 6)))
+             (let* ((rest (subseq path 6))
+                    (parts (remove "" (split-sequence:split-sequence #\/ rest)
+                                   :test #'string=))
+                    (qs (or (parse-query-string env) (make-hash-table :test #'equal)))
+                    (year (ignore-errors (parse-integer (gethash "year" qs))))
+                    (month (ignore-errors (parse-integer (gethash "month" qs)))))
+               (cond
+                 ((= (length parts) 1)
+                  `(200 (:content-type "text/html; charset=utf-8")
+                        (,(blog-page-user user (first parts)
+                                          :year year :month month))))
+                 ((= (length parts) 2)
+                  `(200 (:content-type "text/html; charset=utf-8")
+                        (,(blog-page-post user (first parts) (second parts)))))
+                 ((and (= (length parts) 3)
+                       (string= (third parts) "edit"))
+                  (if user
+                      (let ((post (get-blog-post-by-slug
+                                   (first parts) (second parts))))
+                        (if (and post (= (getf user :id) (getf post :user-id)))
+                            `(200 (:content-type "text/html; charset=utf-8")
+                                  (,(blog-page-form
+                                     user :mode "edit"
+                                     :username (getf post :username)
+                                     :slug (getf post :slug)
+                                     :title (getf post :title)
+                                     :body (getf post :body))))
+                            `(403 (:content-type "text/html; charset=utf-8")
+                              ("<h1>403</h1>"))))
+                      '(302 (:location "/login") (""))))
+                 (t '(404 (:content-type "text/html; charset=utf-8") (""))))))
 
 ;; 404
              (t
@@ -682,6 +713,10 @@
                     ("")))
             '(403 (:content-type "text/html; charset=utf-8")
               ("<h1>403</h1>"))))))
+
+
+
+
 
 
 

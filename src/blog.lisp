@@ -76,38 +76,55 @@
         (list :id id :user-id user-id :title title :slug pslug :body body
               :created-at created :updated-at updated :username uname)))))
 
-(defun get-user-blog-posts (username &optional (offset 0) (limit 20))
-  (postmodern:query
-   "SELECT b.title, b.slug, TO_CHAR(b.created_at,'DD.MM.YYYY HH24:MI'),
-           left(b.body, 400)
-    FROM blog_posts b JOIN users u ON u.id = b.user_id
-    WHERE u.username = $1
-    ORDER BY b.created_at DESC OFFSET $2 LIMIT $3"
-   username offset limit))
+(defun get-user-blog-posts (username &key (offset 0) (limit 20) year month)
+  ;; username приходит из роутов сайта; числа — целые после parse-integer
+  (let ((ym (if (and year month)
+                (format nil " AND EXTRACT(YEAR FROM b.created_at)::int=~d
+                             AND EXTRACT(MONTH FROM b.created_at)::int=~d"
+                        year month)
+                ""))
+        (lim (format nil " ORDER BY b.created_at DESC OFFSET ~d LIMIT ~d"
+                     (max 0 offset) (max 0 limit))))
+    (postmodern:query
+     (concatenate 'string
+       "SELECT b.title, b.slug, TO_CHAR(b.created_at,'DD.MM.YYYY HH24:MI'), left(b.body,2000),
+               EXTRACT(YEAR FROM b.created_at)::int AS y,
+               EXTRACT(MONTH FROM b.created_at)::int AS m
+        FROM blog_posts b JOIN users u ON u.id=b.user_id
+        WHERE u.username = '" username "'" ym lim))))
 
-(defun get-all-blog-posts (&optional (offset 0) (limit 20))
-  (postmodern:query
-   "SELECT b.title, b.slug, TO_CHAR(b.created_at,'DD.MM.YYYY HH24:MI'),
-           left(b.body, 400), u.username
-    FROM blog_posts b JOIN users u ON u.id = b.user_id
-    ORDER BY b.created_at DESC OFFSET $1 LIMIT $2"
-   offset limit))
+(defun get-all-blog-posts (&key (offset 0) (limit 20) year month)
+  (let ((ym (if (and year month)
+                (format nil " AND EXTRACT(YEAR FROM b.created_at)::int=~d
+                             AND EXTRACT(MONTH FROM b.created_at)::int=~d"
+                        year month)
+                ""))
+        (lim (format nil " ORDER BY b.created_at DESC OFFSET ~d LIMIT ~d"
+                     (max 0 offset) (max 0 limit))))
+    (postmodern:query
+     (concatenate 'string
+       "SELECT b.title, b.slug, TO_CHAR(b.created_at,'DD.MM.YYYY HH24:MI'), left(b.body,2000), u.username
+        FROM blog_posts b JOIN users u ON u.id=b.user_id WHERE true"
+       ym lim))))
 
-(defun get-blog-post-owner (post-id)
-  (postmodern:query "SELECT user_id FROM blog_posts WHERE id = $1"
-                    post-id :single))
 
-(defun blog-excerpt (md-text)
-  "Грубый текстовый отрывок markdown-источника для ленты."
-  (let* ((cleaned (cl-ppcre:regex-replace-all
-                   "[#*`>\\[\\]!]" (or md-text "") ""))
-         (spaced (cl-ppcre:regex-replace-all "\\s{2,}" cleaned " ")))
-    (if (> (length spaced) 300)
-        (format nil "~a…" (subseq spaced 0 300))
-        spaced)))
+(defun get-blog-date-tree (&optional username)
+  "(год месяц кол-во) для дерева дат; опционально одного автора."
+  (if username
+      (postmodern:query
+       "SELECT EXTRACT(YEAR FROM b.created_at)::int, EXTRACT(MONTH FROM b.created_at)::int, COUNT(*)
+        FROM blog_posts b JOIN users u ON u.id=b.user_id
+        WHERE u.username = $1 GROUP BY 1,2 ORDER BY 1 DESC, 2 DESC" username)
+      (postmodern:query
+       "SELECT EXTRACT(YEAR FROM created_at)::int, EXTRACT(MONTH FROM created_at)::int, COUNT(*)
+        FROM blog_posts GROUP BY 1,2 ORDER BY 1 DESC, 2 DESC")))
 
 (defun valid-blog-title-p (s)
   (and (stringp s) (<= 3 (length s) 250)))
 
 (defun valid-blog-body-p (s)
   (and (stringp s) (>= (length s) 1) (<= (length s) 100000)))
+
+
+
+
