@@ -32,7 +32,8 @@
   (lambda (env)
     (handler-case
         (let* ((path (getf env :path-info))
-               (*lang* (detect-language env))
+               (*lang* (or (query-lang env)
+                               (detect-language env)))
                (*path* path)
                (user (ignore-errors (current-user env))))
           (add-security-headers
@@ -298,10 +299,20 @@
                       '(302 (:location "/login") (""))))
                  (t '(404 (:content-type "text/html; charset=utf-8") (""))))))
 
-;; 404
-             (t
-              '(404 (:content-type "text/html; charset=utf-8")
-                ("<h1>404</h1>")))))))
+;; SEO: robots/sitemap/rss
+             ((string= path "/robots.txt")
+              `(200 (:content-type "text/plain; charset=utf-8")
+                    (,(robots-txt))))
+             ((string= path "/sitemap.xml")
+              `(200 (:content-type "application/xml; charset=utf-8")
+                    (,(sitemap-xml))))
+             ((string= path "/rss")
+              `(200 (:content-type "application/rss+xml; charset=utf-8")
+                    (,(rss-feed))))
+             ;; legacy lisper.ru URL -> 301 (redirects + /forum/thread/N + /feeds/*)
+             (t (or (seo/maybe-redirect path)
+                    '(404 (:content-type "text/html; charset=utf-8")
+                      ("<h1>404</h1>"))))))))
       (error (err)
         (add-security-headers
          (list 500

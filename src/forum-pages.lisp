@@ -41,13 +41,38 @@
   (let ((body (getf env :parsed-body)))
     (when body (gethash key body))))
 
-(defun forum-render-head (title)
+(defun forum-render-head (title &key description canonical jsonld
+                                       alternates noindex rss)
+  "HEAD страницы.
+   description — текст meta description; canonical — путь (относительный),
+   дополняется site-url; alternates — alist (lang . путь) для hreflang;
+   jsonld — готовая JSON-LD строка; noindex — meta robots; rss — путь RSS."
   (cl-who:with-html-output-to-string (s)
     (:meta :charset "utf-8")
     (:meta :name "viewport" :content "width=device-width, initial-scale=1")
     (:title (cl-who:str title))
+    (when noindex
+      (cl-who:htm (:meta :name "robots" :content "noindex")))
+    (when description
+      (cl-who:htm (:meta :name "description" :content (cl-who:str description))))
+    (when canonical
+      (cl-who:htm (:link :rel "canonical"
+                         :href (format nil "~A~A" (site-url) canonical))))
+    (when alternates
+      (loop for (lang . path) in alternates
+            do (cl-who:htm
+                (:link :rel "alternate" :hreflang lang
+                       :href (format nil "~A~A?lang=~A" (site-url) path lang)))))
+    (when rss
+      (cl-who:htm (:link :rel "alternate" :type "application/rss+xml"
+                         :title "lisper — блог"
+                         :href (format nil "~A~A" (site-url) rss))))
     (:link :rel "icon" :type "image/svg+xml" :href *favicon-data-uri*)
     (:style (cl-who:str (generate-css)))
+    (when jsonld
+      (cl-who:htm
+       (:script :type "application/ld+json"
+                (cl-who:str jsonld))))
     (:script :defer t :src "/i18n.js")
     (:script :defer t :src (jscl-url))
     (:script :defer t :src (jscl-bundle-url "site"))))
@@ -110,7 +135,11 @@
     (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
       (cl-who:htm
        (:html :lang *lang*
-        (:head (cl-who:str (forum-render-head (tr :forum-title))))
+        (:head (cl-who:str (forum-render-head (tr :forum-title)
+                    :description (tr :forum-subtitle)
+                    :canonical "/forum"
+                    :alternates (seo/lang-alternates "/forum")
+                    :rss "/rss")))
         (:body
          (:div :class "container"
           (:header (cl-who:str (forum-render-header user)))
@@ -157,7 +186,10 @@
           (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
             (cl-who:htm
              (:html :lang *lang*
-              (:head (cl-who:str (forum-render-head (format nil "~A — ~A" (getf cat :name) (tr :forum)))))
+              (:head (cl-who:str (forum-render-head
+                              (format nil "~A — ~A" (getf cat :name) (tr :forum))
+                              :description (seo/description (getf cat :description) 200)
+                              :canonical (format nil "/forum/~A" (getf cat :slug)))))
               (:body
                (:div :class "container"
                 (:header (cl-who:str (forum-render-header user)))
@@ -196,7 +228,17 @@
           (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
             (cl-who:htm
              (:html :lang *lang*
-              (:head (cl-who:str (forum-render-head (getf topic :title))))
+              (:head (cl-who:str
+                       (let* ((fp (first posts))
+                              (desc (seo/description
+                                     (or (getf fp :body)
+                                         (getf topic :title))))
+                              (jld (jsonld-topic-posting
+                                    topic fp)))
+                         (forum-render-head (getf topic :title)
+                           :description desc
+                           :canonical (format nil "/topic/~D" (getf topic :id))
+                           :jsonld jld))))
               (:body
                (:div :class "container"
                 (:header (cl-who:str (forum-render-header user)))
@@ -932,7 +974,14 @@
     (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
       (cl-who:htm
        (:html :lang *lang*
-        (:head (cl-who:str (forum-render-head (tr :blog-title))))
+        (:head (cl-who:str
+                 (forum-render-head
+                   (tr :blog-title)
+                   :description (tr :blog-subtitle)
+                   :canonical (format nil "/blog~@[?start=~D~]~@[&year=~D&month=~2,'0d~]"
+                                      (plusp start) start year month)
+                   :alternates (seo/lang-alternates "/blog")
+                   :rss "/rss")))
         (:body
          (:div :class "container"
           (:header (cl-who:str (forum-render-header user)))
@@ -977,8 +1026,13 @@
         (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
           (cl-who:htm
            (:html :lang *lang*
-            (:head (cl-who:str (forum-render-head
-                                (format nil "~A — ~A" (tr :blog-of) username))))
+            (:head (cl-who:str
+                     (forum-render-head
+                       (format nil "~A — ~A" (tr :blog-of) username)
+                       :description (format nil "~A ~A" (tr :blog-of) username)
+                       :canonical (format nil "/blog/~A" username)
+                       :alternates (seo/lang-alternates
+                                     (format nil "/blog/~A" username)))))
             (:body
              (:div :class "container"
               (:header (cl-who:str (forum-render-header viewer)))
@@ -1016,7 +1070,15 @@
           (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
             (cl-who:htm
              (:html :lang *lang*
-              (:head (cl-who:str (forum-render-head (getf post :title))))
+              (:head (cl-who:str
+                       (forum-render-head
+                         (getf post :title)
+                         :description (seo/description
+                                        (getf post :body))
+                         :canonical (format nil "/blog/~A/~A"
+                                            username (getf post :slug))
+                         :jsonld (jsonld-blog-post post username)
+                         :rss "/rss")))
               (:body
                (:div :class "container"
                 (:header (cl-who:str (forum-render-header viewer)))
@@ -1063,7 +1125,8 @@
      (:html :lang *lang*
       (:head (cl-who:str (forum-render-head
                           (if (string= mode "new")
-                              (tr :blog-new) (tr :blog-edit)))))
+                              (tr :blog-new) (tr :blog-edit))
+                          :noindex t)))
       (:body
        (:div :class "container"
         (:header (cl-who:str (forum-render-header user)))

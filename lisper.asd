@@ -40,6 +40,7 @@
                    (:file "forum")
                   (:file "blog")
                   (:file "analytics")
+                 (:file "seo")
                  (:file "css")
                  (:file "js")
                  (:file "pages")

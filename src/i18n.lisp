@@ -143,6 +143,17 @@
     (let ((code (string-downcase (string-trim '(#\Space #\Tab) lang))))
       (when (member code *languages* :test #'string=) code))))
 
+(defun query-lang (env)
+  "Язык из ?lang=... (высший приоритет — для hreflang-альтернатив и
+   ручного переключения без cookie). Валидируется по *languages*."
+  (let ((qs (getf env :query-string)))
+    (when qs
+      (loop for pair in (split-sequence:split-sequence #\& qs)
+            for parts = (cl-ppcre:split "=" pair)
+            when (and (= (length parts) 2)
+                      (string= (first parts) "lang"))
+              return (normalize-lang (second parts))))))
+
 (defun detect-language (env)
   "Язык запроса: cookie → Accept-Language → домен → default."
   (or (normalize-lang (cookie-value env "lang"))

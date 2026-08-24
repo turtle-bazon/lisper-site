@@ -11,3 +11,4 @@
  ;; Секрет HMAC подписей антиспам-токенов форм (регистрация/логин);
  ;; если не задан — используется admin-secret
  :form-secret "change-me-another-random-hex")
+ :site-url "http://lisper.ru"

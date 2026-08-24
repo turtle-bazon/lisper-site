@@ -192,6 +192,19 @@
                         oldlisper-id candidate :single)))
            (unless exists (return candidate))))))
 
+
+(defun seo/register-content-redirects (raw-url slug)
+  "Варианты старого URL поста для 301: как в JSON (двойной percent),
+   одинарный и полностью декодированный."
+  (let ((src (cl-ppcre:register-groups-bind (pp)
+                 ("^[a-z]+://[^/]+(/.*)$" (or raw-url "")) pp)))
+    (when src
+      (let ((new (format nil "/blog/oldlisper/~A" slug)))
+        (seo/insert-redirect src new)
+        (ignore-errors
+          (seo/insert-redirect (url-decode src) new)
+          (seo/insert-redirect (url-decode (url-decode src)) new))))))
+
 (defun import-content-main (conf-path json-path force)
   "Импорт блога/статей/wiki. Возвращает (VALUES ok err).
    FORCE удаляет существующие посты oldlisper перед вставкой."
@@ -228,10 +241,11 @@
                  oldlisper-id title slug body
                  (if (and date (>= (length date) 10)) date "2010-01-01 00:00:00")
                  author)
-                (incf ok))
+                (incf ok)
+                (seo/register-content-redirects (jval p "url" "") slug))
             (error (e)
               (incf err)
-              (format t "~&FAIL ~a: ~a~%" slug e))))))
+              (format t "~&FAIL ~a: ~a~%" slug e)))))
       (db-disconnect)
       (format t "~&ИМПОРТ КОНТЕНТА ЗАВЕРШЁН: ok=~a err=~a~%" ok err)
-      (values ok err)))
+      (values ok err))))

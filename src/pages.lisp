@@ -66,7 +66,17 @@
        (:head
         (:meta :charset "utf-8")
         (:meta :name "viewport" :content "width=device-width, initial-scale=1")
-        (:title "lisper")
+        (:title "lisper — Common Lisp")
+        (:meta :name "description"
+               :content (cl-who:str (tr :hero-subtitle)))
+        (:link :rel "canonical" :href (format nil "~A/" (site-url)))
+        (loop for lang in *languages*
+              do (cl-who:htm
+                  (:link :rel "alternate" :hreflang lang
+                         :href (format nil "~A/?lang=~A" (site-url) lang))))
+        (:link :rel "alternate" :type "application/rss+xml"
+               :title "lisper — блог"
+               :href (format nil "~A/rss" (site-url)))
         (:link :rel "icon" :type "image/svg+xml" :href *favicon-data-uri*)
         (:style (cl-who:str (generate-css))))
       (:body

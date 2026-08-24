@@ -378,6 +378,40 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - **Компонент**: `forum-render-editor` — переиспользуемый для new-topic и reply
 - **Клиентский рендеринг**: `.md-content` класс рендерится site-бандлом (`render-markdown-to`) при загрузке страницы
 
+## SEO (2026-08-24)
+- **Новые роуты**: `/robots.txt` (Disallow admin/auth/jscl-пути + Sitemap), `/sitemap.xml`
+  (статика + все блог-посты + категории + архивные темы; lastmod из TO_CHAR),
+  `/rss` (RSS 2.0, последние 50 постов блога).
+- **301-редиректы старого lisper.ru**: миграция 0014 таблица `redirects(old_path PK,
+  new_path)`. Заполняет `import content` из поля `url` каждого поста — ТРИ варианта
+  ключа: как в wayback JSON (двойной percent `%25D0..`), одинарный `%D0..`,
+  полностью декодированный UTF-8. Lookup в `seo/maybe-redirect`: нормализация
+  (strip хвостового `/` и `.html`, downcase ASCII), три варианта декодирования.
+  Динамические правила БЕЗ таблицы: `/forum/thread/<id>[/pageN]` → `/topic/<id>`,
+  `/feeds/*` → `/rss`. Ключ `:site-url` в конфиге (default http://lisper.ru) — база
+  для canonical/sitemap/OG.
+- **HEAD-билдер**: `forum-render-head` получил keyword-параметры `:description
+  :canonical :jsonld :alternates :noindex :rss` (обратно совместим). Используют:
+  лендинг (desc/canonical/hreflang×4/rss), /forum и /blog (то же + alternates),
+  категория (desc из описания), тема форума (desc=первый пост, canonical,
+  DiscussionForumPosting JSON-LD), блог-лента/юзер (canonical с query),
+  блог-пост (desc, canonical, BlogPosting JSON-LD, rss), форма блога (:noindex t).
+  `?lang=xx` в query перекрывает cookie/Accept-Language (i18n:query-lang) — база
+  для hreflang на индексных страницах (`seo/lang-alternates`). Дефолт языка для
+  lisper.ru уже был ru через *domain-languages*.
+- **Импортер**: `seo/register-content-redirects` вызывается после INSERT каждого
+  поста; `seo/insert-redirect` с ON CONFLICT DO NOTHING. Итог: 171 уникальный
+  old_path → /blog/oldlisper/<slug>.
+- **Уроки (финальные)**: (1) «defun net=0» НЕ гарантирует правильную вложенность —
+  при патчах через sed/python легко закрыть внешний let* раньше времени
+  (ok/err становились свободными переменными → runtime unbound); надёжная
+  диагностика: compile-file отдельно + читать WARNING'и компилятора (undefined
+  variable указывает ТОЧНО на сломанный scope), а не свои счётчики скобок;
+  (2) `(dolist (p posts)` встречается в ОБОИХ импортерах — python-патч по якорю
+  без уникального контекста ломает не тот файл; (3) при отладке readtree через
+  stub-пакеты помнить про одинарное двоеточие (нужны external symbols);
+  (4) buildapp: clingon:exit не пробрасывает коды — см. раздел CLI.
+
 ## Отчёт по безопасности (24.06.2026)
 Полный отчёт в `/tmp/report.txt`. Исправлено:
 1. **Stored XSS через marked.js** → DOMPurify санитизация — **УСТАРЕЛО (2026-08-14)**: markdown рендерит чистый CL-парсер, raw HTML экранируется
