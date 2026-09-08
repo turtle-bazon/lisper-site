@@ -103,7 +103,7 @@
            (:a :class "header-login" :href "/login" (cl-who:str (tr :login)))
            (:a :class "header-register" :href "/register" (cl-who:str (tr :register)))))))))
 
-(defun forum-render-editor (name &optional (placeholder (tr :editor-placeholder)))
+(defun forum-render-editor (name &optional (placeholder (tr :editor-placeholder)) value)
   "Render a rich markdown editor with toolbar and preview."
   (cl-who:with-html-output-to-string (s)
     (:div :class "md-editor"
@@ -125,8 +125,9 @@
       (:button :type "button" :class "md-btn" :data-action "image" :title (tr :md-image) "🖼")
       (:span :class "md-sep")
       (:button :type "button" :class "md-btn md-preview-btn" :data-action "preview" :title (tr :md-preview) "👁"))
-     (:textarea :name name :class "md-textarea" :placeholder placeholder
-                :required "required")
+(:textarea :name name :class "md-textarea" :placeholder placeholder
+                 :required "required"
+                 (cl-who:str (cl-who:escape-string (or value ""))))
      (:div :class "md-preview" :style "display:none"))))
 
 (defun forum-page-index (user)
@@ -1161,7 +1162,8 @@
                 (:div :class "form-group"
                  (:label :for "bbody" (cl-who:str (tr :body-field)))
                  (cl-who:str (forum-render-editor "body"
-                                                  (tr :blog-placeholder))))
+                                                  (tr :blog-placeholder)
+                                                  body)))
                 (:button :class "try-button" :type "submit"
                          (cl-who:str (tr :submit)))))
         (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site"
