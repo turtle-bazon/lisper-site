@@ -83,6 +83,8 @@
 - **`:descendant` не поддерживается** — использовать plain селекторы
 - **Float-литералы** рендерятся с `f0`: `1.6` → `"1.6f0"`. Исправлять через строку `"1.6"`
 - Список правил должен быть `'(...)`, каждый rule — `(selector :prop val ...)`
+- **Raw-строки в `generate-css` (2026-09-08)**: хвостовой `"@media ..."`-блок — обычная CL-строка, в ней `"` (напр. `input[type="text"]`) ЗАКРЫВАЕТ строку раньше времени → читатель разбивает её на `TEXT`/`NUMBER` символы → runtime "The variable TEXT is unbound". Писать `type=\"text\"`. Диагностика: warnings компилятора «undefined variable: LISPER::TEXT / COMMON-LISP:NUMBER» при LOAD css.lisp
+- **Мобильная адаптация (2026-09-08)**: три raw media-блока в конце `generate-css` (`@media (max-width: 768px)` + `(max-width: 480px)`): шапка в 2 ряда (`.header-nav` `order:3; width:100%; justify-content:space-between`), гриды сжимаются (cat-grid 2-col→1-col у 480, impl/games 1-col), `.blog-date-tree` из float-сайдбара в блочный, `.topic-link` перенос мета на свою строку, таблицы `.analytics-table`/`.md-content table` в `display:block; overflow-x:auto`, `.repl-modal`/`.game-modal` полноэкранные на телефоне, инпуты ≥16px (без iOS-zoom), cat-form поля в столбик.
 
 ### Clack + Wookie
 - **`:server :woo`** — это Woo (другой сервер). У нас **`:server :wookie`**

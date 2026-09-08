@@ -1596,12 +1596,67 @@
   h1 { font-size: 1.8rem; }
   h2 { font-size: 1.2rem; }
   .container { padding: 0 15px; }
-  .site-header { padding: 12px 16px; }
-  .header-nav { gap: 16px; }
-  .header-nav a { font-size: 0.85rem; }
-  .header-right { gap: 10px; }
+  main { padding: 24px 0; }
+  .section { margin-bottom: 28px; }
+
+  /* Header: logo + lang/account on the first row, nav on the second full-width row */
+  .site-header { flex-wrap: wrap; padding: 10px 16px; gap: 6px 12px; }
+  .header-left { order: 1; }
+  .header-right { order: 2; margin-left: auto; gap: 8px; }
+  .header-nav {
+    order: 3;
+    width: 100%;
+    justify-content: space-between;
+    gap: 2px;
+    overflow-x: auto;
+  }
+  .header-nav a {
+    font-size: 0.78rem;
+    padding: 10px 6px;
+    white-space: nowrap;
+  }
+  .header-nav .nav-icon { margin-right: 3px; }
+  .header-logo svg { height: 28px; }
+  .header-user, .header-login, .header-register, .header-admin {
+    font-size: 0.8rem;
+    padding: 6px 2px;
+  }
+  .lang-dropdown-btn { padding: 5px 8px; }
+
+  /* Cards & grids */
   .cat-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .cat-card { padding: 12px 14px; font-size: 0.85rem; }
+  .impl-grid { grid-template-columns: 1fr; }
   .games-grid { grid-template-columns: 1fr; }
   .game-body canvas { width: 100%; height: auto; }
+  .game-body { min-height: 300px; }
+  .post-card { padding: 14px 16px; }
+
+  /* Blog date-tree sidebar → full-width block on top */
+  .blog-date-tree { float: none; width: 100%; margin: 0 0 18px; }
+
+  /* Topic rows: meta wraps under the title */
+  .topic-link { flex-wrap: wrap; gap: 4px; }
+  .topic-meta { width: 100%; white-space: normal; }
+
+  /* Wide tables scroll horizontally instead of squishing */
+  .analytics-table { display: block; overflow-x: auto; }
+  .md-content table { display: block; overflow-x: auto; }
+  .analytics-tabs { flex-wrap: wrap; }
+
+  /* Modals fill the screen on phones */
+  .repl-modal { width: 100%; max-width: 100%; height: 88vh; max-height: 88vh; border-radius: 0; }
+  .game-modal { width: 100%; max-width: 100%; height: 100vh; max-height: 100vh; border-radius: 0; }
+
+  /* Bigger touch targets / no iOS zoom-on-focus (inputs must be ≥16px) */
+  .md-btn { padding: 6px 10px; }
+  .form-group input, .form-group select, .md-textarea, .post-textarea { font-size: 16px; }
+  .cat-form input[type=\"text\"], .cat-form input[type=\"number\"] { flex: 1 1 100%; box-sizing: border-box; }
+}
+
+@media (max-width: 480px) {
+  .container { padding: 0 12px; }
+  .cat-grid { grid-template-columns: 1fr; }
+  .site-header { padding: 8px 12px; }
+  .header-right { gap: 6px; }
 }"))
