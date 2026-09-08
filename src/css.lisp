@@ -1284,8 +1284,31 @@
          :margin "0 0 12px 20px"
          :padding 0)
 
+        (".md-content ul"
+         :list-style "none"
+         :padding 0)
+
+        (".md-content ol"
+         :list-style "decimal")
+
         (".md-content li"
          :margin "4px 0")
+
+        (".md-content ul li"
+         :padding-left "20px"
+         :position "relative")
+
+        (".md-content ul li::before"
+         :content "\"•\""
+         :color "#7c3aed"
+         :position "absolute"
+         :left 0)
+
+        (".md-content ol li::before"
+         :content "none")
+
+        (".md-content ol li::marker"
+         :color "#7c3aed")
 
         (".md-content blockquote"
          :border-left "3px solid #7c3aed"
