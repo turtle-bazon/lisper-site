@@ -43,16 +43,30 @@
   (find c +ascii-punct+))
 
 (defun split-lines (text)
-  "Разбить на строки. Нормализуем \r\n → \n, \r → \n (CommonMark)."
-  (let* ((s (substitute #\Newline #\Return text))
-         (out '())
-         (start 0)
-         (len (length s)))
-    (loop for i from 0 below len
-          when (char= (char s i) #\Newline)
-            do (push (subseq s start i) out)
-               (setf start (1+ i)))
-    (push (subseq s start) out)
+  "Разбить на строки. CRLF → один перенос, одиночный CR → перенос
+   (CommonMark). НЕЛЬЗЯ делать (substitute LF CR text): CRLF превратится
+   в двойной перенос (пустая строка между строками), ломая соседство строк
+   (таблицы).
+   ВАЖНО JSCL: продвижение i ТОЛЬКО через (setf i (1+ i)) — шаговый механизм
+   `loop for i from` / `incf` компилится ненадёжно (LF после CR не
+   пропускался; хвост списка портился мусором cons-ов). #\\Return читается
+   как #\\R (код 82) — CR строится через (code-char 13)."
+  (let ((out '())
+        (start 0)
+        (len (length text))
+        (i 0))
+    (loop while (< i len)
+          for c = (char text i)
+          when (or (char= c #\Newline) (char= c (code-char 13)))
+            do (push (subseq text start i) out)
+               (setf start (1+ i))
+               (when (and (char= c (code-char 13))
+                          (< (1+ i) len)
+                          (char= (char text (1+ i)) #\Newline))
+                 (incf start)
+                 (setf i (1+ i)))
+          do (setf i (1+ i)))
+    (push (subseq text start len) out)
     (nreverse out)))
 
 (defparameter *nl* (format nil "~%")
@@ -321,6 +335,115 @@
                   :content (join-lines (nreverse code)))
             i)))
 
+;;; Таблицы (GFM)
+(defun split-table-cells (s)
+  "Разбить строку на ячейки по '|', '\\|' — экранированный пайп.
+   (JSCL: coerce list->string не работает, накапливаем строку напрямую.)"
+  (let ((cells '())
+        (cur "")
+        (n (length s))
+        (i 0))
+    (labels ((flush ()
+               (push cur cells)
+               (setf cur "")))
+      (loop while (< i n)
+            for c = (char s i)
+            do (cond
+                 ((char= c #\|) (flush))
+                 ((char= c #\\)
+                  (when (< (1+ i) n)
+                    (setf cur (concatenate 'string cur (string (char s (1+ i)))))
+                    (incf i)))
+                 (t (setf cur (concatenate 'string cur (string c)))))
+            do (incf i))
+      (flush)
+      (nreverse cells))))
+
+(defun table-row-cells (line)
+  "Ячейки строки таблицы (список отримленных строк) или NIL, если строка
+   не табличная: нужен ведущий '|' или хотя бы один '|' внутри.
+   Быстрая проверка наличия '|' ДО построения ячеек — иначе split-table-cells
+   O(n^2) на каждую строку параграфа (JSCL медленный)."
+  (let* ((s (trim-str line))
+         (n (length s)))
+    (if (find #\| s)
+        (let ((cells (split-table-cells s)))
+          ;; ведущий '|' даёт пустую первую ячейку, замыкающий — пустую последнюю
+          (when (equal (car cells) "")
+            (setf cells (cdr cells)))
+          (let ((rev (reverse cells)))
+            (when (equal (car rev) "")
+              (setf cells (reverse (cdr rev)))))
+          (when (or (char= (char s 0) #\|)
+                    (cdr cells))
+            (loop for c in cells collect (trim-str c))))
+        nil)))
+
+(defun table-delimiter-cell-p (cell)
+  "Delimiter-ячейка: 1+ дефис, опциональные двоеточия по краям (:---, ---:, :--:)."
+  (let* ((s (trim-str cell))
+         (n (length s)))
+    (and (plusp n)
+         (let ((i 0))
+           (when (char= (char s i) #\:) (incf i))
+           (let ((dstart i))
+             (loop while (and (< i n) (char= (char s i) #\-)) do (incf i))
+             (and (> i dstart)
+                  (or (= i n)
+                      (and (= i (1- n)) (char= (char s i) #\:)))))))))
+
+(defun table-delimiter-row-p (cells)
+  (and cells
+       (loop for c in cells always (table-delimiter-cell-p c))))
+
+(defun table-alignment (cell)
+  ":left / :right / :center / NIL по delimiter-ячейке."
+  (let* ((s (trim-str cell))
+         (n (length s)))
+    (cond ((and (plusp n) (char= (char s 0) #\:) (char= (char s (1- n)) #\:))
+           :center)
+          ((and (plusp n) (char= (char s 0) #\:)) :left)
+          ((and (plusp n) (char= (char s (1- n)) #\:)) :right)
+          (t nil))))
+
+(defun parse-table (lines n i)
+  "Таблица GFM: заголовок + delimiter-строка + тело. (values block new-i)."
+  (let ((headers (table-row-cells (nth i lines)))
+        (aligns nil)
+        (rows '())
+        (j i))
+    (incf j)
+    (let ((dc (table-row-cells (nth j lines))))
+      (setf aligns (mapcar #'table-alignment dc))
+      (incf j))
+    (loop while (< j n)
+          for cells = (table-row-cells (nth j lines))
+          while cells
+          do (push cells rows)
+             (incf j))
+    (values (list :type :table
+                  :headers headers
+                  :aligns aligns
+                  :rows (nreverse rows))
+            j)))
+
+(defun table-align-attr (a)
+  (case a
+    (:left " style=\"text-align: left\"")
+    (:center " style=\"text-align: center\"")
+    (:right " style=\"text-align: right\"")
+    (otherwise "")))
+
+(defun line-starts-block-p (line)
+  "Строка начинает новый блочный элемент (а значит НЕ может быть
+   ленивым продолжением параграфа внутри blockquote)."
+  (or (atx-heading line)
+      (thematic-break-p line)
+      (fenced-open line)
+      (list-marker line)
+      (html-block-line-p line)
+      (table-row-cells line)))
+
 (defun parse-blockquote (lines n i refs)
   "Blockquote: собирает строки '> ', рекурсивно парсит. (values block new-i new-refs)."
   (let ((inner '())
@@ -336,7 +459,12 @@
                         (incf i))
                  (if (is-blank-str l)
                      (progn (setf pending-blank t) (incf i))
-                     (if inner
+                     ;; ленивое продолжение — только прямое (без пропущенной
+                     ;; пустой строки) и только если строка не начинает новый
+                     ;; блок; иначе blockquote заканчивается
+                     (if (and inner
+                              (not pending-blank)
+                              (not (line-starts-block-p l)))
                          (progn (push l inner) (incf i))
                          (return)))))
     (multiple-value-bind (children _ _refs2)
@@ -510,6 +638,17 @@
                    ((html-block-line-p content)
                     (multiple-value-bind (block new-i)
                         (parse-html-block lines n i)
+                      (emit block)
+                      (setf i new-i)))
+
+                   ;; ---- table (GFM): только если за заголовком идёт delimiter
+                   ((and (table-row-cells content)
+                         (let ((next (at (1+ i))))
+                           (and next
+                                (let ((dc (table-row-cells next)))
+                                  (and dc (table-delimiter-row-p dc))))))
+                    (multiple-value-bind (block new-i)
+                        (parse-table lines n i)
                       (emit block)
                       (setf i new-i)))
 
@@ -1272,6 +1411,29 @@
                   (parse-emphasis (parse-inline-lex (getf (car blocks) :content))))))
              (t (dolist (c blocks) (w (render-block c))))))
          (w (concatenate 'string "</li>" *nl*)))
+        (:table
+         (w "<table>")
+         (w "<thead><tr>")
+         (loop for h in (getf block :headers)
+               for a in (getf block :aligns)
+               do (w (format nil "<th~A>~A</th>"
+                             (table-align-attr a)
+                             (render-inlines
+                              (parse-emphasis (parse-inline-lex h))))))
+         (w "</tr></thead>")
+         (w "<tbody>")
+         (dolist (r (getf block :rows))
+           (w "<tr>")
+           (loop for i from 0 below (length (getf block :headers))
+                 for cell = (if (< i (length r)) (nth i r) "")
+                 for a = (nth i (getf block :aligns))
+                 do (w (format nil "<td~A>~A</td>"
+                               (table-align-attr a)
+                               (render-inlines
+                                (parse-emphasis (parse-inline-lex cell))))))
+           (w "</tr>"))
+         (w "</tbody></table>")
+         (w *nl*))
         (:code-block
          (w "<pre><code")
          (let ((info (getf block :info)))

@@ -242,7 +242,9 @@ CREATE TABLE IF NOT EXISTS redirects (
 CREATE INDEX IF NOT EXISTS idx_redirects_new ON redirects(new_path);
 ")
           (:down . "DROP TABLE IF EXISTS redirects;
-")))))
+")))
+    (15 . ((:up . "ALTER TABLE blog_posts ADD COLUMN views INTEGER NOT NULL DEFAULT 0;")
+          (:down . "ALTER TABLE blog_posts DROP COLUMN views;")))))
 
 (defun get-available-migrations ()
   "Return sorted list of (version name) from embedded migrations."

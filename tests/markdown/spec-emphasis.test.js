@@ -1,5 +1,5 @@
 global.self = global; global.window = global;
-const jscl = require('/home/turtle/lisper-site/jscl/jscl.js');
+const jscl = require('/home/turtle/scm-controlled/common-lisp/lisper-site/jscl/jscl.js');
 global.jscl = jscl;
 const fs = require('fs');
 new Function(fs.readFileSync(process.env.BUNDLE || '/tmp/md_iter6.js','utf8'))();

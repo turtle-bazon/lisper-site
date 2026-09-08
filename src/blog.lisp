@@ -59,6 +59,10 @@
    "UPDATE blog_posts SET title = $2, body = $3, updated_at = NOW() WHERE id = $1"
    post-id title body))
 
+(defun increment-blog-post-views (post-id)
+  (postmodern:execute
+   "UPDATE blog_posts SET views = views + 1 WHERE id = $1" post-id))
+
 (defun delete-blog-post (post-id)
   (postmodern:execute "DELETE FROM blog_posts WHERE id = $1" post-id))
 
@@ -67,16 +71,17 @@
                      "SELECT b.id, b.user_id, b.title, b.slug, b.body,
                              TO_CHAR(b.created_at,'DD.MM.YYYY HH24:MI'),
                              TO_CHAR(b.updated_at,'DD.MM.YYYY HH24:MI'),
-                             u.username, b.is_html, b.old_author
+                             u.username, b.is_html, b.old_author, b.views
                       FROM blog_posts b JOIN users u ON u.id = b.user_id
                       WHERE u.username = $1 AND b.slug = $2"
                      username slug))))
     (when row
-      (destructuring-bind (id user-id title pslug body created updated uname is-html old-author) row
+      (destructuring-bind (id user-id title pslug body created updated uname is-html old-author views) row
         (list :id id :user-id user-id :title title :slug pslug :body body
               :created-at created :updated-at updated :username uname
               :is-html is-html
-              :old-author (unless (eq old-author :null) old-author))))))
+              :old-author (unless (eq old-author :null) old-author)
+              :views views)))))
 
 (defun get-user-blog-posts (username &key (offset 0) (limit 20) year month)
   ;; username приходит из роутов сайта; числа — целые после parse-integer
@@ -91,7 +96,7 @@
      (concatenate 'string
         "SELECT b.title, b.slug, TO_CHAR(b.created_at,'DD.MM.YYYY HH24:MI'), left(b.body,2000),
                 EXTRACT(YEAR FROM b.created_at)::int AS y,
-                EXTRACT(MONTH FROM b.created_at)::int AS m, b.is_html, b.old_author
+                EXTRACT(MONTH FROM b.created_at)::int AS m, b.is_html, b.old_author, b.views
          FROM blog_posts b JOIN users u ON u.id=b.user_id
          WHERE u.username = '" username "'" ym lim))))
 
@@ -105,7 +110,7 @@
                      (max 0 offset) (max 0 limit))))
     (postmodern:query
      (concatenate 'string
-        "SELECT b.title, b.slug, TO_CHAR(b.created_at,'DD.MM.YYYY HH24:MI'), left(b.body,2000), u.username, b.is_html, b.old_author
+        "SELECT b.title, b.slug, TO_CHAR(b.created_at,'DD.MM.YYYY HH24:MI'), left(b.body,2000), u.username, b.is_html, b.old_author, b.views
          FROM blog_posts b JOIN users u ON u.id=b.user_id WHERE true"
         ym lim))))
 

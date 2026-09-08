@@ -677,6 +677,16 @@
          :color "#555"
          :font-size "0.85rem")
 
+        (".post-views"
+         :color "#555"
+         :font-size "0.85rem"
+         :display "inline-flex"
+         :align-items "center"
+         :gap "4px")
+
+        (".post-views svg"
+         :flex "0 0 auto")
+
         (".post-body"
          :color "#d4d4d4"
          :line-height "1.6"

@@ -5,7 +5,7 @@ const path = require('path');
 const BUNDLE = path.join(__dirname,'..','..','build','jscl-bundles','site.js');
 
 global.self = global; global.window = global;
-const jscl = require('/home/turtle/lisper-site/jscl/jscl.js');
+const jscl = require('/home/turtle/scm-controlled/common-lisp/lisper-site/jscl/jscl.js');
 global.jscl = jscl;
 
 function makeEl(name) {

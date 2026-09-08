@@ -279,8 +279,17 @@
                         (,(blog-page-user user (first parts)
                                           :year year :month month))))
                  ((= (length parts) 2)
-                  `(200 (:content-type "text/html; charset=utf-8")
-                        (,(blog-page-post user (first parts) (second parts)))))
+                  (let ((post (get-blog-post-by-slug
+                               (first parts) (second parts))))
+                    (when (and post
+                               (not (and user
+                                         (= (getf user :id)
+                                            (getf post :user-id))))
+                               (not (bot-user-agent-p
+                                     (request-user-agent env))))
+                      (increment-blog-post-views (getf post :id)))
+                    `(200 (:content-type "text/html; charset=utf-8")
+                          (,(blog-page-post user (first parts) (second parts))))))
                  ((and (= (length parts) 3)
                        (string= (third parts) "edit"))
                   (if user

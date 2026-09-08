@@ -850,7 +850,7 @@
       (tr :old-wiki)
       (format nil "~A: ~A" (tr :old-author) old-author)))
 
-(defun blog-render-card (title slug created excerpt username show-author
+(defun blog-render-card (title slug created excerpt username show-author views
                          &optional is-html old-author)
   "Карточка ленты — один блок: заголовок, мета-строка, тизер, «Read more»."
   (let ((trunc (blog-card-truncated-p excerpt)))
@@ -877,9 +877,17 @@
               ;; /when show-author
               (cl-who:htm
                 (:span :class "post-date"
-                  (cl-who:str created))
+                  (cl-who:str created)
+                  (when (numberp views)
+                    (cl-who:htm
+                      (:span :class "post-views"
+                             :title (tr :views)
+                        (cl-who:str
+                          (format nil " · <svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z'/><circle cx='12' cy='12' r='3'/></svg> ~:D" views))))
+                      )
+                  )
                 )
-              ;; /post-date
+              ;; /post-date (+ post-views)
               (when old-author
                 (cl-who:htm
                   (:span :class "old-author"
@@ -1001,9 +1009,9 @@
            (if posts
                (cl-who:htm
                 (:div :class "topic-list"
-                  (loop for (title slug created excerpt uname is-html old-author) in posts
+                  (loop for (title slug created excerpt uname is-html old-author views) in posts
                         do (cl-who:str
-                  (blog-render-card title slug created excerpt uname t is-html
+                  (blog-render-card title slug created excerpt uname t views is-html
                                     (unless (eq old-author :null) old-author))))))
                (cl-who:htm
                 (:p :class "empty-state" (cl-who:str (tr :blog-empty)))))
@@ -1051,10 +1059,10 @@
                (if posts
                    (cl-who:htm
                     (:div :class "topic-list"
-                      (loop for (title slug created excerpt y m is-html old-author) in posts
+                      (loop for (title slug created excerpt y m is-html old-author views) in posts
                             do (cl-who:str
                                  (blog-render-card title slug created excerpt
-                                                   username nil is-html
+                                                   username nil views is-html
                                                    (unless (eq old-author :null) old-author))))))
                    (cl-who:htm
                     (:p :class "empty-state" (cl-who:str (tr :blog-empty))))))
@@ -1089,7 +1097,14 @@
                  (:div :class "topic-info card-meta"
                   (:a :class "post-author" :href (format nil "/blog/~A" username)
                       (cl-who:str username))
-                  (:span (cl-who:str (format nil " · ~A" (getf post :created-at)))))
+                  (:span
+                    (cl-who:str (format nil " · ~A" (getf post :created-at)))
+                    (when (numberp (getf post :views))
+                      (cl-who:htm
+                       (:span :class "post-views"
+                              :title (tr :views)
+                         (cl-who:str
+                          (format nil " · <svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z'/><circle cx='12' cy='12' r='3'/></svg> ~:D" (getf post :views))))))))
                    (when (getf post :old-author)
                      (cl-who:htm
                       (:span :class "old-author"

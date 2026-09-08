@@ -1,5 +1,5 @@
 global.self = global; global.window = global;
-const jscl = require('/home/turtle/lisper-site/jscl/jscl.js');
+const jscl = require('/home/turtle/scm-controlled/common-lisp/lisper-site/jscl/jscl.js');
 global.jscl = jscl;
 const fs = require('fs');
 new Function(fs.readFileSync(process.env.BUNDLE || '/tmp/md_iter6.js','utf8'))();
@@ -21,9 +21,15 @@ const cases = [
   ['***both***', '<p><em><strong>both</strong></em></p>\n'],
   ['# Title', '<h1>Title</h1>\n'],
   ['> quote', '<blockquote>\n<p>quote</p>\n</blockquote>\n'],
+  ['> quote\nsame paragraph lazily', '<blockquote>\n<p>quote\nsame paragraph lazily</p>\n</blockquote>\n'],
+  ['> quote\n\nnot in quote', '<blockquote>\n<p>quote</p>\n</blockquote>\n<p>not in quote</p>\n'],
   ['- a\n- b', '<ul>\n<li>a</li>\n<li>b</li>\n</ul>\n'],
   ['```\ncode\n```', '<pre><code>code\n</code></pre>\n'],
   ['[link](https://x.com)', '<p><a href="https://x.com">link</a></p>\n'],
+  ['| a | b |\n|-|-|\n|1|2|', '<table><thead><tr><th>a</th><th>b</th></tr></thead><tbody><tr><td>1</td><td>2</td></tr></tbody></table>\n'],
+  ['| a | b |\r\n|-|-|\r\n|1|2|', '<table><thead><tr><th>a</th><th>b</th></tr></thead><tbody><tr><td>1</td><td>2</td></tr></tbody></table>\n'],
+  ['head\n\n| a | b |\n|-|-|\n|1|2|', '<p>head</p>\n<table><thead><tr><th>a</th><th>b</th></tr></thead><tbody><tr><td>1</td><td>2</td></tr></tbody></table>\n'],
+  ['| Time | Agent |\n||-------|--------|\n| 1 | M |', '<p>| Time | Agent |\n||-------|--------|\n| 1 | M |</p>\n'],
 ];
 let pass=0, fail=0;
 for (const [inp, expected] of cases) {
