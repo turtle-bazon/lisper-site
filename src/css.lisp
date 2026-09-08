@@ -40,6 +40,10 @@
          (".header-left"
           :flex "0 0 auto")
 
+         (".header-logo"
+          :display "block"
+          :margin-right "22px")
+
          (".header-logo svg"
           :height "32px"
           :width "auto"
@@ -1595,22 +1599,22 @@
           :width "0%"
           :background "#22c55e")))
     "
-@media (max-width: 768px) {
+@media (max-width: 960px) {
   h1 { font-size: 1.8rem; }
   h2 { font-size: 1.2rem; }
   .container { padding: 0 15px; }
   main { padding: 24px 0; }
   .section { margin-bottom: 28px; }
 
-  /* Header: logo + lang/account + burger on the first row; nav is a collapsible dropdown */
+  /* Header on phones: logo + burger on the first row; collapsible menu = account/lang block first, then nav links */
   .site-header { flex-wrap: wrap; padding: 10px 16px; gap: 6px 12px; }
   .header-left { order: 1; }
-  .header-right { order: 2; margin-left: auto; gap: 8px; }
   .header-burger {
     display: flex;
-    order: 3;
+    order: 2;
     align-items: center;
     justify-content: center;
+    margin-left: auto;
     width: 38px;
     height: 38px;
     padding: 0;
@@ -1622,6 +1626,36 @@
     transition: color 0.15s ease, border-color 0.15s ease;
   }
   .site-header.open .header-burger { color: #7c3aed; border-color: #7c3aed; }
+  .header-right {
+    display: none;
+    order: 3;
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    border-top: 1px solid #1e1e30;
+    margin-top: 6px;
+    padding-top: 6px;
+  }
+  .site-header.open .header-right { display: flex; }
+  .header-right .lang-dropdown { width: 100%; }
+  .header-right .lang-dropdown-btn {
+    width: 100%;
+    justify-content: space-between;
+    padding: 12px 10px;
+    font-size: 0.95rem;
+  }
+  .header-right .header-user, .header-right .header-login,
+  .header-right .header-register, .header-right .header-admin,
+  .header-right .header-logout {
+    display: block;
+    font-size: 0.95rem;
+    padding: 12px 10px;
+    border-radius: 6px;
+  }
+  .header-right .header-user:hover, .header-right .header-login:hover,
+  .header-right .header-register:hover, .header-right .header-admin:hover,
+  .header-right .header-logout:hover { background: rgba(124, 58, 237, 0.12); }
   .header-nav {
     display: none;
     order: 4;
@@ -1635,6 +1669,9 @@
   }
   .site-header.open .header-nav { display: flex; }
   .header-nav a {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
     font-size: 0.95rem;
     padding: 12px 10px;
     border-radius: 6px;
@@ -1642,11 +1679,7 @@
   .header-nav a:hover { background: rgba(124, 58, 237, 0.12); }
   .header-nav .nav-icon { margin-right: 6px; }
   .header-logo svg { height: 28px; }
-  .header-user, .header-login, .header-register, .header-admin {
-    font-size: 0.8rem;
-    padding: 6px 2px;
-  }
-  .lang-dropdown-btn { padding: 5px 8px; }
+  .header-login { margin: 0; }
 
   /* Cards & grids */
   .cat-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
