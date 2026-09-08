@@ -279,10 +279,12 @@
                                                 (:span :class (format nil "role-badge role-~A" role)
                                                         (cl-who:str role))))
                                              (:span :class "post-date" (cl-who:str created-at)))
-                                       (:div :class (if old-author
-                                                        "post-body legacy-html"
-                                                        "post-body md-content")
-                                             (cl-who:str body))
+(:div :class (if old-author
+                                                         "post-body legacy-html"
+                                                         "post-body md-content")
+                                              (if old-author
+                                                  (cl-who:str body)
+                                                  (cl-who:str (cl-who:escape-string body))))
                                        (when (and user (or (user-moderator-p user)
                                                            (= (getf user :id) (getf topic :user-id))))
                                          (cl-who:htm
@@ -911,7 +913,7 @@
                 )
               (cl-who:htm
                 (:p :class "card-excerpt md-content"
-                  (cl-who:str (blog-card-markdown-snippet excerpt))
+                  (cl-who:str (cl-who:escape-string (blog-card-markdown-snippet excerpt)))
                   )
                 )
             )
@@ -1130,7 +1132,9 @@
                   (:div :class (if (getf post :is-html)
                                     "post-body legacy-html"
                                     "post-body md-content")
-                        (cl-who:str (getf post :body))))
+                          (if (getf post :is-html)
+                              (cl-who:str (getf post :body))
+                              (cl-who:str (cl-who:escape-string (getf post :body))))))
                 (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site"
                                  "lisper")
                              " &copy; 2026 | GPL-3.0")))))))))))
