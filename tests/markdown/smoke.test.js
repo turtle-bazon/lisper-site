@@ -29,7 +29,7 @@ const cases = [
   ['| a | b |\n|-|-|\n|1|2|', '<table><thead><tr><th>a</th><th>b</th></tr></thead><tbody><tr><td>1</td><td>2</td></tr></tbody></table>\n'],
   ['| a | b |\r\n|-|-|\r\n|1|2|', '<table><thead><tr><th>a</th><th>b</th></tr></thead><tbody><tr><td>1</td><td>2</td></tr></tbody></table>\n'],
   ['head\n\n| a | b |\n|-|-|\n|1|2|', '<p>head</p>\n<table><thead><tr><th>a</th><th>b</th></tr></thead><tbody><tr><td>1</td><td>2</td></tr></tbody></table>\n'],
-  ['| Time | Agent |\n||-------|--------|\n| 1 | M |', '<p>| Time | Agent |\n||-------|--------|\n| 1 | M |</p>\n'],
+  ['| Time | Agent |\n||-------|--------|\n| 1 | M |', '<table><thead><tr><th>Time</th><th>Agent</th></tr></thead><tbody><tr><td>1</td><td>M</td></tr></tbody></table>\n'],
 ];
 let pass=0, fail=0;
 for (const [inp, expected] of cases) {

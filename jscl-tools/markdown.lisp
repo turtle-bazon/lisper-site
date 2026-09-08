@@ -393,8 +393,15 @@
                       (and (= i (1- n)) (char= (char s i) #\:)))))))))
 
 (defun table-delimiter-row-p (cells)
+  "Delimiter-строка: все НЕПУСТЫЕ ячейки — delimiter-ячейки. Пустые ячейки
+   допустимы: '| Time | Agent | Action |' + '||-------|--------|' (сдвоенный
+   ведущий '|' дает пустую первую ячейку) — таблицей считаем; число значимых
+   delimiter-ячеек может быть МЕНЬШЕ числа колонок (parse-table пэддит)."
   (and cells
-       (loop for c in cells always (table-delimiter-cell-p c))))
+       (loop for c in cells
+             always (let ((cc (trim-str c)))
+                      (or (zerop (length cc))
+                          (table-delimiter-cell-p cc))))))
 
 (defun table-alignment (cell)
   ":left / :right / :center / NIL по delimiter-ячейке."
@@ -407,14 +414,21 @@
           (t nil))))
 
 (defun parse-table (lines n i)
-  "Таблица GFM: заголовок + delimiter-строка + тело. (values block new-i)."
+  "Таблица GFM: заголовок + delimiter-строка + тело. (values block new-i).
+   Пустая/короткая delimiter-строка допустима: недостающие колонки — nil
+   (без выравнивания), строки пэддятся в рендере."
   (let ((headers (table-row-cells (nth i lines)))
         (aligns nil)
         (rows '())
         (j i))
     (incf j)
     (let ((dc (table-row-cells (nth j lines))))
-      (setf aligns (mapcar #'table-alignment dc))
+      (let ((nd (length headers)))
+        (setf aligns
+              (loop for k from 0 below nd
+                    collect (if (< k (length dc))
+                                (table-alignment (nth k dc))
+                                nil))))
       (incf j))
     (loop while (< j n)
           for cells = (table-row-cells (nth j lines))
