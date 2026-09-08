@@ -9,6 +9,7 @@
     (:nav-games . "Игры")
     (:nav-forum . "Форум")
     (:nav-home . "Главная")
+    (:nav-menu . "Меню")
     (:logout . "Выйти")
     (:login . "Войти")
     (:register . "Регистрация")

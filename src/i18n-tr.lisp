@@ -8,6 +8,7 @@
     (:nav-games . "Oyunlar")
     (:nav-forum . "Forum")
     (:nav-home . "Ana Sayfa")
+    (:nav-menu . "Menü")
     (:logout . "Çıkış")
     (:login . "Giriş")
     (:register . "Kayıt Ol")

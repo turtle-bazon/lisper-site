@@ -34,6 +34,9 @@
           :background "rgba(10, 10, 20, 0.8)"
           :backdrop-filter "blur(12px)")
 
+         (".header-burger"
+          :display "none")
+
          (".header-left"
           :flex "0 0 auto")
 
@@ -1599,23 +1602,45 @@
   main { padding: 24px 0; }
   .section { margin-bottom: 28px; }
 
-  /* Header: logo + lang/account on the first row, nav on the second full-width row */
+  /* Header: logo + lang/account + burger on the first row; nav is a collapsible dropdown */
   .site-header { flex-wrap: wrap; padding: 10px 16px; gap: 6px 12px; }
   .header-left { order: 1; }
   .header-right { order: 2; margin-left: auto; gap: 8px; }
-  .header-nav {
+  .header-burger {
+    display: flex;
     order: 3;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    background: transparent;
+    border: 1px solid #33334d;
+    border-radius: 8px;
+    color: #a0a0b8;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+  .site-header.open .header-burger { color: #7c3aed; border-color: #7c3aed; }
+  .header-nav {
+    display: none;
+    order: 4;
     width: 100%;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: stretch;
     gap: 2px;
-    overflow-x: auto;
+    border-top: 1px solid #1e1e30;
+    margin-top: 6px;
+    padding-top: 6px;
   }
+  .site-header.open .header-nav { display: flex; }
   .header-nav a {
-    font-size: 0.78rem;
-    padding: 10px 6px;
-    white-space: nowrap;
+    font-size: 0.95rem;
+    padding: 12px 10px;
+    border-radius: 6px;
   }
-  .header-nav .nav-icon { margin-right: 3px; }
+  .header-nav a:hover { background: rgba(124, 58, 237, 0.12); }
+  .header-nav .nav-icon { margin-right: 6px; }
   .header-logo svg { height: 28px; }
   .header-user, .header-login, .header-register, .header-admin {
     font-size: 0.8rem;

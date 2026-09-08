@@ -101,7 +101,10 @@
            (:a :class "header-logout" :href "/logout" (cl-who:str (tr :logout))))
           (cl-who:htm
            (:a :class "header-login" :href "/login" (cl-who:str (tr :login)))
-           (:a :class "header-register" :href "/register" (cl-who:str (tr :register)))))))))
+           (:a :class "header-register" :href "/register" (cl-who:str (tr :register)))))
+         (:button :class "header-burger" :id "header-burger" :type "button"
+                  :aria-label (tr :nav-menu) :aria-expanded "false"
+                  (cl-who:str "<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><line x1='4' y1='6' x2='20' y2='6'/><line x1='4' y1='12' x2='20' y2='12'/><line x1='4' y1='18' x2='20' y2='18'/></svg>"))))))
 
 (defun forum-render-editor (name &optional (placeholder (tr :editor-placeholder)) value)
   "Render a rich markdown editor with toolbar and preview."

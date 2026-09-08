@@ -429,6 +429,29 @@
               (loop for i from 0 below (qsa-len open)
                     do (remove-class (qsa-item open i) "open"))))))
 
+(defun site-init-burger ()
+  (let ((btn (el-by-id "header-burger"))
+        (headers (qsa ".site-header")))
+    (when btn
+      (listen btn "click"
+              (lambda (e)
+                ((jscl::oget e "stopPropagation"))
+                (let ((h (qsa-item headers 0)))
+                  (when h
+                    (if (has-class-p h "open")
+                        (remove-class h "open")
+                        (add-class h "open"))
+                    (if (has-class-p h "open")
+                        ((jscl::oget btn "setAttribute") #j"aria-expanded" #j"true")
+                        ((jscl::oget btn "setAttribute") #j"aria-expanded" #j"false"))))))))
+  (listen #j:document "click"
+          (lambda (e)
+            (let ((opens (qsa ".site-header.open")))
+              (loop for i from 0 below (qsa-len opens)
+                    do (let ((h (qsa-item opens i)))
+                         (when (not (cl-bool ((jscl::oget h "contains") (jscl::oget e "target"))))
+                           (remove-class h "open"))))))))
+
 (defun site-init-games ()
   (let ((nav (el-by-id "games-nav-btn")))
     (when nav
@@ -469,6 +492,9 @@
          (when (and repl (has-class-p repl "active")) (site-close-repl))
          (when (and games (has-class-p games "active")) (site-game-close))
          (let ((open (qsa ".lang-dropdown.open")))
+           (loop for i from 0 below (qsa-len open)
+                 do (remove-class (qsa-item open i) "open")))
+         (let ((open (qsa ".site-header.open")))
            (loop for i from 0 below (qsa-len open)
                  do (remove-class (qsa-item open i) "open")))))
       ((string= key "Enter")
@@ -647,6 +673,7 @@ window.LISPER_POW_SOLVE = function(salt, difficulty) {
   (site-init-games)
   (site-init-markdown)
   (site-init-lang)
+  (site-init-burger)
   (site-init-pow)
   (listen #j:document "keydown" #'site-handle-keydown))
 

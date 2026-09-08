@@ -8,6 +8,7 @@
     (:nav-games . "Games")
     (:nav-forum . "Forum")
     (:nav-home . "Home")
+    (:nav-menu . "Menu")
     (:logout . "Log out")
     (:login . "Log in")
     (:register . "Sign up")

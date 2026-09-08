@@ -8,6 +8,7 @@
     (:nav-games . "Ігри")
     (:nav-forum . "Форум")
     (:nav-home . "Головна")
+    (:nav-menu . "Меню")
     (:logout . "Вийти")
     (:login . "Увійти")
     (:register . "Реєстрація")

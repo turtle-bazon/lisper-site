@@ -97,7 +97,7 @@
             (:span :class "nav-icon" (cl-who:str "<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719'/></svg>")) (cl-who:str (tr :nav-forum)))
            (:a :href "/blog"
             (:span :class "nav-icon" (cl-who:str "<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 20h9'/><path d='M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z'/></svg>")) (cl-who:str (tr :blog-title))))
-          (:div :class "header-right"
+(:div :class "header-right"
            (cl-who:str (render-lang-switch))
            (if user
                (cl-who:htm
@@ -106,8 +106,11 @@
                 (:a :class "header-logout" :href "/logout" (cl-who:str (tr :logout))))
                (cl-who:htm
                 (:a :class "header-login" :href "/login" (cl-who:str (tr :login)))
-                 (:a :class "header-register" :href "/register" (cl-who:str (tr :register))))))))
-        (:main
+(:a :class "header-register" :href "/register" (cl-who:str (tr :register))))))
+            (:button :class "header-burger" :id "header-burger" :type "button"
+                     :aria-label (tr :nav-menu) :aria-expanded "false"
+                     (cl-who:str "<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><line x1='4' y1='6' x2='20' y2='6'/><line x1='4' y1='12' x2='20' y2='12'/><line x1='4' y1='18' x2='20' y2='18'/></svg>"))))
+          (:main
          (:section :class "section"
           (:h2 (cl-who:str (tr :what)))
           (:p (cl-who:str (tr :what-p1)))
