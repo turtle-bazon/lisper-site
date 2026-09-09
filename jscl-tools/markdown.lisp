@@ -233,6 +233,17 @@
                    (+ j 2)
                    (1+ j))))))))))
 
+(defun link-def-title (tail)
+  "Хвост ссылочного определения \"title\"/'title'/(title) → title (строка)
+   или NIL, если title отсутствует или не оформлен правильно."
+  (when (> (length tail) 1)
+    (let ((cc (char tail 0)))
+      (when (or (char= cc #\") (char= cc #\') (char= cc #\()))
+        (let* ((close-c (if (char= cc #\() #\) cc))
+               (tend (position close-c tail :start 1)))
+          (when (and tend (is-blank-str (subseq tail (1+ tend))))
+            (subseq tail 1 tend))))))
+
 (defun link-ref-def (line)
   "Парсит [label]: url \"title\" → (label url title), иначе NIL."
   (let* ((i (skip-spaces line 0))
@@ -244,24 +255,14 @@
           (let* ((label (trim-str (subseq line (1+ i) close)))
                  (rest (skip-spaces line (+ close 2))))
             (when (and rest (< rest len))
-              (let ((url-end (loop for j from rest below len
-                                   while (not (is-space (char line j)))
-                                   finally (return j))))
-                (let ((url (subseq line rest url-end))
-                      (tail (trim-str (subseq line (min url-end len))))
-                      (title nil))
-                  (when (and (> (length tail) 1)
-                             (let ((cc (char tail 0)))
-                               (or (char= cc #\") (char= cc #\') (char= cc #\()))
-                            (let ((close-c (if (char= (char tail 0) #\() #\) (char tail 0))))
-                              (let ((tend (position close-c tail :start 1)))
-                                (when tend
-                                  (setf title (subseq tail 1 tend))
-                                  (when (is-blank-str (subseq tail (1+ tend)))
-                                    (return-from link-ref-def
-                                      (list (string-downcase label) url title)))))))
-                  (return-from link-ref-def
-                    (list (string-downcase label) url nil))))))))))))
+              (let* ((url-end (loop for j from rest below len
+                                    while (not (is-space (char line j)))
+                                    finally (return j)))
+                     (url (subseq line rest url-end))
+                     (tail (trim-str (subseq line (min url-end len))))
+                     (title (link-def-title tail)))
+                (return-from link-ref-def
+                  (list (string-downcase label) url title))))))))))
 
 (defun html-block-line-p (line)
   "T если строка начинается с HTML-тега/комментария (упрощённый типы 1-6).
@@ -702,10 +703,12 @@
 ;;;   (:code "text") (:link url title child...) (:image url title alt)
 ;;;   (:autolink raw) (:raw-html tag) (:softbreak) (:hardbreak)
 
-(defun parse-inline-lex (text &optional no-links)
+(defun parse-inline-lex (text &optional no-links refs)
   "Разбивает TEXT на лексемы: строки, (:delim char n), (:code s), (:link ...),
    (:image ...), (:autolink s), (:raw-html s), :softbreak, :hardbreak.
-   При NO-LINKS '['/'!'/'(' не трактуются как начало ссылки (для label'ов)."
+   При NO-LINKS '['/'!'/'(' не трактуются как начало ссылки (для label'ов).
+   REFS — hash-table ссылочных определений [key]: url (см. link-ref-def);
+   без него ссылки-ссылки не распознаются (остаются литералом)."
   (let ((tokens '())
         (i 0)
         (len (length text)))
@@ -770,7 +773,7 @@
                       (adv n)))
                    ;; link / image
                    ((and (not no-links) (char= c #\[))
-                    (let ((res (parse-inline-link text i)))
+                    (let ((res (parse-inline-link text i nil refs)))
                       (if res
                           (progn (destructuring-bind (next . node) res
                                    (push node tokens)
@@ -779,7 +782,7 @@
                    ((and (not no-links) (char= c #\!)
                          (< (1+ i) len)
                          (char= (char text (1+ i)) #\[))
-                    (let ((res (parse-inline-link text (1+ i) t)))
+                    (let ((res (parse-inline-link text (1+ i) t refs)))
                       (if res
                           (progn (destructuring-bind (next . node) res
                                    (push node tokens)
@@ -811,12 +814,14 @@
         ""
         t2)))
 
-(defun parse-label-inline (s)
+(defun parse-label-inline (s &optional refs)
   "Inline-разбор label'а ссылки: без вложенных ссылок, с эмфазой."
-  (parse-emphasis (parse-inline-lex s t)))
+  (parse-emphasis (parse-inline-lex s t refs)))
 
-(defun parse-inline-link (text open &optional is-image)
-  "OPEN — позиция '['. Возвращает (cons next-pos node) или NIL."
+(defun parse-inline-link (text open &optional is-image refs)
+  "OPEN — позиция '['. Возвращает (cons next-pos node) или NIL.
+   REFS — таблица ссылочных определений; ссылка-ссылка [label][ref]/[label]
+   распознаётся ТОЛЬКО при наличии определения в REFS (иначе NIL → литерал)."
   (let* ((len (length text))
          (label-end (position #\] text :start (1+ open))))
     (unless label-end (return-from parse-inline-link nil))
@@ -836,14 +841,14 @@
                        (cons (1+ paren)
                              (if is-image
                                  (list :image url title label)
-                                 (cons :link (cons url (cons title (parse-label-inline label))))))))
+                                 (cons :link (cons url (cons title (parse-label-inline label refs))))))))
                    (return-from parse-inline-link
                      (cons (1+ paren)
                            (if is-image
                                (list :image inner-trim "" label)
-                               (cons :link (cons inner-trim (cons "" (parse-label-inline label)))))))))))))
+                               (cons :link (cons inner-trim (cons "" (parse-label-inline label refs))))))))))))
         (t
-         ;; reference link [label][ref] или [label]
+         ;; reference link [label][ref] или [label]: только при определении в REFS
          (let ((ref-len 0)
                (ref nil))
            (when (and (< after len) (char= (char text after) #\[))
@@ -854,12 +859,16 @@
            (let ((key (if (and ref (plusp (length (trim-str ref))))
                           (string-downcase (trim-str ref))
                           (string-downcase label))))
-              (return-from parse-inline-link
-                (cons (+ after (if ref-len (+ ref-len 2) 0))
-                      (if is-image
-                          (list :image (concatenate 'string "#" key) "" label)
-                          (cons :link (cons (concatenate 'string "#" key)
-                                            (cons "" (parse-label-inline label)))))))))))))
+             (let ((value (and refs (gethash key refs))))
+               (if value
+                   (return-from parse-inline-link
+                     (cons (+ after (if ref-len (+ ref-len 2) 0))
+                           (if is-image
+                               (list :image (first value) "" label)
+                               (cons :link (cons (first value)
+                                                 (cons (second value)
+                                                       (parse-label-inline label refs)))))))
+                   (return-from parse-inline-link nil))))))))))
 
 (defun matching-paren (text open)
   (let ((depth 0))
@@ -1392,28 +1401,28 @@
   (apply #'concatenate 'string
          (loop for n in nodes collect (render-inline-node n))))
 
-(defun render-block (block)
+(defun render-block (block &optional refs)
   (let ((out '()))
     (labels ((w (s) (push s out)))
       (case (getf block :type)
         (:paragraph
          (w "<p>")
          (w (render-inlines
-             (parse-emphasis (parse-inline-lex (getf block :content)))))
+             (parse-emphasis (parse-inline-lex (getf block :content) nil refs))))
          (w (concatenate 'string "</p>" *nl*)))
         (:heading
          (let ((lvl (getf block :level)))
            (w (format nil "<h~A>" lvl))
            (w (render-inlines
-               (parse-emphasis (parse-inline-lex (getf block :content)))))
+               (parse-emphasis (parse-inline-lex (getf block :content) nil refs))))
            (w (concatenate 'string (format nil "</h~A>" lvl) *nl*))))
         (:blockquote
          (w (concatenate 'string "<blockquote>" *nl*))
-         (dolist (c (getf block :children)) (w (render-block c)))
+         (dolist (c (getf block :children)) (w (render-block c refs)))
          (w (concatenate 'string "</blockquote>" *nl*)))
         (:list
          (w (concatenate 'string (if (getf block :ordered) "<ol>" "<ul>") *nl*))
-         (dolist (it (getf block :items)) (w (render-block it)))
+         (dolist (it (getf block :items)) (w (render-block it refs)))
          (w (concatenate 'string (if (getf block :ordered) "</ol>" "</ul>") *nl*)))
         (:item
          (w "<li>")
@@ -1422,8 +1431,8 @@
              ((and (= (length blocks) 1)
                    (eq (getf (car blocks) :type) :paragraph))
               (w (render-inlines
-                  (parse-emphasis (parse-inline-lex (getf (car blocks) :content))))))
-             (t (dolist (c blocks) (w (render-block c))))))
+                  (parse-emphasis (parse-inline-lex (getf (car blocks) :content) nil refs)))))
+             (t (dolist (c blocks) (w (render-block c refs))))))
          (w (concatenate 'string "</li>" *nl*)))
         (:table
          (w "<table>")
@@ -1433,7 +1442,7 @@
                do (w (format nil "<th~A>~A</th>"
                              (table-align-attr a)
                              (render-inlines
-                              (parse-emphasis (parse-inline-lex h))))))
+                              (parse-emphasis (parse-inline-lex h nil refs))))))
          (w "</tr></thead>")
          (w "<tbody>")
          (dolist (r (getf block :rows))
@@ -1444,7 +1453,7 @@
                  do (w (format nil "<td~A>~A</td>"
                                (table-align-attr a)
                                (render-inlines
-                                (parse-emphasis (parse-inline-lex cell))))))
+                                (parse-emphasis (parse-inline-lex cell nil refs))))))
            (w "</tr>"))
          (w "</tbody></table>")
          (w *nl*))
@@ -1474,10 +1483,10 @@
     (push (subseq s start) out)
     (nreverse out)))
 
-(defun render-document (blocks)
+(defun render-document (blocks refs)
   (let ((out '()))
     (dolist (b blocks)
-      (push (render-block b) out))
+      (push (render-block b refs) out))
     (apply #'concatenate 'string (nreverse out))))
 
 ;;; ============================================================
@@ -1487,7 +1496,7 @@
 (defun render-to-html (source)
   "Markdown → безопасный HTML."
   (let ((lines (split-lines source)))
-    (multiple-value-bind (blocks _refs)
+    (multiple-value-bind (blocks rest refs)
         (parse-blocks-impl lines 0)
-      (declare (ignore _refs))
-      (render-document blocks))))
+      (declare (ignore rest))
+      (render-document blocks refs))))

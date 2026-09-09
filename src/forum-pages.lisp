@@ -42,11 +42,14 @@
     (when body (gethash key body))))
 
 (defun forum-render-head (title &key description canonical jsonld
-                                       alternates noindex rss)
+                                        alternates noindex rss
+                                        (og-type "website"))
   "HEAD страницы.
    description — текст meta description; canonical — путь (относительный),
    дополняется site-url; alternates — alist (lang . путь) для hreflang;
-   jsonld — готовая JSON-LD строка; noindex — meta robots; rss — путь RSS."
+   jsonld — готовая JSON-LD строка; noindex — meta robots; rss — путь RSS;
+   og-type — Open Graph type (website/article/discussion) — только при
+   наличии description (страницы с превью ошибок типа 403 её не имеют)."
   (cl-who:with-html-output-to-string (s)
     (:meta :charset "utf-8")
     (:meta :name "viewport" :content "width=device-width, initial-scale=1")
@@ -54,7 +57,26 @@
     (when noindex
       (cl-who:htm (:meta :name "robots" :content "noindex")))
     (when description
-      (cl-who:htm (:meta :name "description" :content (cl-who:str description))))
+      (cl-who:htm
+       (:meta :name "description" :content (cl-who:str description))
+       ;; Open Graph + Twitter Card — для превью в Telegram/мессенджерах
+       (:meta :property "og:site_name" :content "lisper")
+       (:meta :property "og:title" :content (cl-who:str title))
+       (:meta :property "og:type" :content (cl-who:str og-type))
+       (:meta :property "og:url"
+              :content (format nil "~A~A"
+                               (site-url)
+                               (or canonical "/")))
+       (:meta :property "og:description"
+              :content (cl-who:str description))
+       (:meta :property "og:image"
+              :content (format nil "~A/logo.svg" (site-url)))
+       (:meta :name "twitter:card" :content "summary")
+       (:meta :name "twitter:title" :content (cl-who:str title))
+       (:meta :name "twitter:description"
+              :content (cl-who:str description))
+       (:meta :name "twitter:image"
+              :content (format nil "~A/logo.svg" (site-url)))))
     (when canonical
       (cl-who:htm (:link :rel "canonical"
                          :href (format nil "~A~A" (site-url) canonical))))
@@ -242,7 +264,8 @@
                          (forum-render-head (getf topic :title)
                            :description desc
                            :canonical (format nil "/topic/~D" (getf topic :id))
-                           :jsonld jld))))
+                           :jsonld jld
+                           :og-type "article"))))
               (:body
                (:div :class "container"
                 (:header (cl-who:str (forum-render-header user)))
@@ -1113,6 +1136,7 @@
                          :canonical (format nil "/blog/~A/~A"
                                             username (getf post :slug))
                          :jsonld (jsonld-blog-post post username)
+                         :og-type "article"
                          :rss "/rss")))
               (:body
                (:div :class "container"

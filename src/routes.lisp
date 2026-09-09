@@ -59,6 +59,11 @@
                       :cache-control "public, max-age=31536000, immutable")
                      (,*jscl-js*)))
 
+             ((string= path "/logo.svg")
+              `(200 (:content-type "image/svg+xml"
+                     :cache-control "public, max-age=31536000, immutable")
+                    (,*logo-svg*)))
+
              ;; Compiled JSCL bundle (versioned URL: /jscl-bundle/<name>?v=<hash>)
              ((and (>= (length path) 13)
                    (string= (subseq path 0 13) "/jscl-bundle/"))
