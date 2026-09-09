@@ -729,9 +729,11 @@
                     (adv 2))
                    ((char= c #\\)
                     (push-text "\\") (adv 1))
-                   ;; blank line
+                   ;; blank line (весь хвост — пробелы: последняя строка абзаца,
+                   ;; обрезанная без \n). ВАЖНО продвигать I — иначе цикл
+                   ;; while (< i len) крутится вечно (tail = пробелы).
                    ((is-blank-str (subseq text i))
-                    nil)
+                    (setf i len))
                    ;; line break
                    ((char= c #\Newline)
                     (push :softbreak tokens)
