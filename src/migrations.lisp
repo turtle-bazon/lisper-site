@@ -244,7 +244,18 @@ CREATE INDEX IF NOT EXISTS idx_redirects_new ON redirects(new_path);
           (:down . "DROP TABLE IF EXISTS redirects;
 ")))
     (15 . ((:up . "ALTER TABLE blog_posts ADD COLUMN views INTEGER NOT NULL DEFAULT 0;")
-          (:down . "ALTER TABLE blog_posts DROP COLUMN views;")))))
+          (:down . "ALTER TABLE blog_posts DROP COLUMN views;")))
+    (16 . ((:up . "-- Analytics: per-domain reporting. host goes into both page_views (raw) and
+-- daily_stats (rollup), so the breakdown survives retention.
+
+ALTER TABLE page_views ADD COLUMN host TEXT;
+ALTER TABLE daily_stats DROP CONSTRAINT daily_stats_pkey;
+ALTER TABLE daily_stats ADD COLUMN host TEXT NOT NULL DEFAULT 'unknown';
+ALTER TABLE daily_stats ADD PRIMARY KEY (date, path, country, device, browser, os, referrer, is_bot, host);")
+          (:down . "ALTER TABLE daily_stats DROP CONSTRAINT daily_stats_pkey;
+ALTER TABLE daily_stats ADD PRIMARY KEY (date, path, country, device, browser, os, referrer, is_bot);
+ALTER TABLE daily_stats DROP COLUMN host;
+ALTER TABLE page_views DROP COLUMN host;")))))
 
 (defun get-available-migrations ()
   "Return sorted list of (version name) from embedded migrations."

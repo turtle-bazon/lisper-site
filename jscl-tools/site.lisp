@@ -674,8 +674,19 @@ window.LISPER_POW_SOLVE = function(salt, difficulty) {
   (site-init-markdown)
   (site-init-lang)
   (site-init-burger)
+  (site-init-host-filter)
   (site-init-pow)
   (listen #j:document "keydown" #'site-handle-keydown))
+
+(defun site-init-host-filter ()
+  (let ((sel (el-by-id "host-filter")))
+    (when sel
+      (listen sel "change"
+              (lambda (e)
+                (declare (ignore e))
+                (let ((form (jscl::oget sel "form")))
+                  (when (not (eq form #j:null))
+                    ((jscl::oget form "submit")))))))))
 
 (defun site-boot ()
   (let ((state (cl-str (jscl::oget #j:document "readyState"))))

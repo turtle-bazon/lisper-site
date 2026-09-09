@@ -206,9 +206,11 @@
             ((and (string= path "/admin/analytics") (eq (env-method env) :GET))
              (if (and user (user-admin-p user))
                  (let ((bot-filter (analytics-parse-tab (getf env :query-string)))
+                       (host-filter (analytics-parse-host (getf env :query-string)))
                        (own-hosts (list (request-header env "host"))))
                    `(200 (:content-type "text/html; charset=utf-8")
-                         (,(forum-page-analytics user bot-filter own-hosts "/admin/analytics"))))
+                         (,(forum-page-analytics user bot-filter own-hosts host-filter
+                                                 "/admin/analytics"))))
                  `(403 (:content-type "text/html; charset=utf-8")
                    (,(format nil "<h1>~A</h1>" (tr :403))))))
 
@@ -258,10 +260,11 @@
                   (config :admin-secret)
                   (string= path (format nil "/analytics/~A" (config :admin-secret))))
              (let ((bot-filter (analytics-parse-tab (getf env :query-string)))
+                   (host-filter (analytics-parse-host (getf env :query-string)))
                    (tab-base (format nil "/analytics/~A" (config :admin-secret)))
                    (own-hosts (list (request-header env "host"))))
                `(200 (:content-type "text/html; charset=utf-8")
-                     (,(forum-page-analytics user bot-filter own-hosts tab-base)))))
+                     (,(forum-page-analytics user bot-filter own-hosts host-filter tab-base)))))
 
             ;; Блоги: /blog/<user>[/<slug>][/edit]
             ((and (>= (length path) 6)

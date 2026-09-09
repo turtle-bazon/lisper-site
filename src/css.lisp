@@ -1120,10 +1120,31 @@
          :color "#888"
          :font-size "0.9rem")
 
+        (".analytics-head"
+         :display "flex"
+         :align-items "center"
+         :justify-content "space-between"
+         :gap "12px"
+         :margin-bottom "16px")
+
+        (".analytics-head .analytics-tabs"
+         :margin-bottom "0")
+
         (".analytics-tabs"
          :display "flex"
          :gap "8px"
          :margin-bottom "16px")
+
+        (".analytics-host-form"
+         :margin-bottom "0")
+
+        (".analytics-host-select"
+         :background "#111"
+         :border "1px solid #2a2a33"
+         :border-radius "6px"
+         :color "#e0e0e0"
+         :padding "6px 10px"
+         :font-size "0.9rem")
 
         (".analytics-tab"
          :display "inline-block"
