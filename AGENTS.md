@@ -382,6 +382,25 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - **Клиентский рендеринг**: `.md-content` класс рендерится site-бандлом (`render-markdown-to`) при загрузке страницы
 
 ## SEO (2026-08-24)
+- **Server-side markdown (2026-09-10)**: markdown (посты блога, карточки /blog,
+  форумные посты) рендерится СЕРВЕРОМ через `markdown:render-to-html` (тот же
+  чистый CL-парсер, что и в клиенте) — краулеры (Instant View, searchers) видят
+  реальный HTML, а не сырой markdown. Три точки в `forum-pages.lisp`:
+  тело поста (напр. блога, `post-body md-content md-rendered`), карточка блога
+  (`card-excerpt md-content md-rendered` — контейнер **`div`**, НЕ `p`: рендер
+  даёт блочные `<h1>/<h2>/<p>`, а блочные внутри `<p>` невалидны — браузер
+  закроет `p` при парсинге и сломает карточку; legacy-тизер `blog-card-excerpt`
+  — голый текст, там `p` ок), тело форумного поста
+  (`post-body md-content md-rendered`). Класс `md-rendered` — маркер для клиента:
+  `render-markdown-to` в site.lisp такие блоки ПРОПУСКАЕТ (`has-class-p`),
+  иначе бы отрендерил дважды. Legacy-посты (`old-author`, `is-html`) — как раньше
+  (`legacy-html` raw HTML, их не трогаем). Проверено: node-тест 2/2
+  (raw `.md-content` рендерится, `md-rendered` нетронут), md-тесты PASS=184,
+  live-проверка /blog и /blog/turtle/test-blog-mark-alice-bob. **Смежный фикс**:
+  `get-blog-post-owner` (blog.lisp) отсутствовал, но вызывался в
+  `handle-blog-delete` (routes.lisp) — удаление своих постов блога всегда падало
+  (латентный баг с rev 66); функция добавлена (`SELECT user_id FROM blog_posts`),
+  STYLE-WARNING «undefined function» ушёл
 - **OG/Twitter картинка (2026-09-10)**: `og:image`/`twitter:image` → `/og-image.png`
   (растр 1200×630, `resources/og-image.png`, генерится `build-resources.lisp` →
   `*og-image-b64*` в resources.lisp; роут `/og-image.png` в routes.lisp декодирует

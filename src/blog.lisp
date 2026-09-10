@@ -66,6 +66,11 @@
 (defun delete-blog-post (post-id)
   (postmodern:execute "DELETE FROM blog_posts WHERE id = $1" post-id))
 
+(defun get-blog-post-owner (post-id)
+  "Владелец поста блога (user_id) — для owner-only гварда /blog/delete."
+  (first (postmodern:query
+          "SELECT user_id FROM blog_posts WHERE id = $1" post-id)))
+
 (defun get-blog-post-by-slug (username slug)
   (let ((row (first (postmodern:query
                      "SELECT b.id, b.user_id, b.title, b.slug, b.body,

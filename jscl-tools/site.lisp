@@ -293,9 +293,13 @@
   html)
 
 (defun render-markdown-to (el)
-  "el.textContent → markdown:render-to-html (подсветка синтаксиса уже встроена)."
-  (let ((html (markdown:render-to-html (get-text el))))
-    (set-html el (sanitize-html html))))
+  "el.textContent → markdown:render-to-html (подсветка синтаксиса уже встроена).
+   Блоки с классом md-rendered сервер уже отрендерил (секвенcer/crawler-mode) — пропускаем."
+  (if (has-class-p el "md-rendered")
+      nil
+      (let ((html (markdown:render-to-html (get-text el))))
+        (set-html el html)
+        html)))
 
 ;;; --- Markdown-редактор ---
 
