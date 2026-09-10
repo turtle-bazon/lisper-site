@@ -253,9 +253,10 @@
 (defun analytics-parse-host (query-string)
   "Parse the dashboard ?host= filter (domain slice). NIL means all domains."
   (let ((h (and query-string
-                (string-downcase (analytics-query-param query-string "host")))))
-    (unless (or (null h) (zerop (length h)) (string= h "all"))
-      h)))
+                (analytics-query-param query-string "host"))))
+    (when (and h (plusp (length h)))
+      (let ((h (string-downcase h)))
+        (unless (string= h "all") h)))))
 
 (defun analytics-strip-port (host)
   (let ((i (position #\: host)))
