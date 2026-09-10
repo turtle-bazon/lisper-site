@@ -71,12 +71,13 @@
 ### CL-WHO
 - `with-html-output-to-string` требует `(htm ...)` для SXML-форм
 - Raw-строки через `(cl-who:str ...)`
+- **НИКОГДА `(cl-who:str X)` в позиции значения атрибута** (`:content`, `:href`): `str` печатает значение в поток (side-effect) И эмитит атрибут → дублирование: `<meta property='og:title'hello content='hello' />`. В атрибутах — только plain строки (CL-WHO сам экранирует). Пойман (2026-09-10) в `forum-render-head` — Telegram не рендерил og-карточку
 - **`:indent t`** добавляет пробелы между sibling-элементами — убрать, если не нужен
 - Блочные элементы (`:h3`, `:p`) внутри `:a` вызывают проблемы в XHTML — переключиться на HTML5 через `:prologue "<!DOCTYPE html>"`
 - SVG лого встроено через raw-строку `(cl-who:str "...")`
 - Favicon — SVG лого через data URI в head
 - Бейдж "Этот сайт написан на Common Lisp" — пункт списка с бейджем "НАШ САЙТ" в секции "Почему Common Lisp"
-- Ресурсы (logo.svg, favicon.svg) хранятся в `resources/`, генерируются в `src/resources.lisp` через `build-resources.lisp`
+- Ресурсы (logo.svg, favicon.svg, og-image.png) хранятся в `resources/`, генерируются в `src/resources.lisp` через `build-resources.lisp`
 
 ### CL-CSS
 - Селекторы — просто строки: `("body" :margin 0 ...)`
@@ -381,6 +382,13 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - **Клиентский рендеринг**: `.md-content` класс рендерится site-бандлом (`render-markdown-to`) при загрузке страницы
 
 ## SEO (2026-08-24)
+- **OG/Twitter картинка (2026-09-10)**: `og:image`/`twitter:image` → `/og-image.png`
+  (растр 1200×630, `resources/og-image.png`, генерится `build-resources.lisp` →
+  `*og-image-b64*` в resources.lisp; роут `/og-image.png` в routes.lisp декодирует
+  cl-base64 → `(vector (unsigned-byte 8))`, `og-image-bytes` — мемо-хелпер, body —
+  октет-вектор: Wookie сам пишет последовательность байт). **Telegram НЕ рендерит
+  SVG в og:image** — показывал бы пустую/отсутствующую карточку. OG-мета строится
+  в `forum-render-head`; значения атрибутов — только plain строки (см. CL-WHO ловушку)
 - **Новые роуты**: `/robots.txt` (Disallow admin/auth/jscl-пути + Sitemap), `/sitemap.xml`
   (статика + все блог-посты + категории + архивные темы; lastmod из TO_CHAR),
   `/rss` (RSS 2.0, последние 50 постов блога).

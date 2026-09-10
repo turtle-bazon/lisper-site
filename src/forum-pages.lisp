@@ -58,25 +58,29 @@
       (cl-who:htm (:meta :name "robots" :content "noindex")))
     (when description
       (cl-who:htm
-       (:meta :name "description" :content (cl-who:str description))
+       ;; ВНИМАНИЕ: в позиции значения атрибута НЕЛЬЗЯ (cl-who:str X) —
+       ;; печатает значение raw ДО атрибута И как value (двойной вывод:
+       ;; <meta property='og:title'VALUE content='VALUE'/>). Только голые
+       ;; строки (CL-WHO сам эскейпит значения атрибутов).
+       (:meta :name "description" :content description)
        ;; Open Graph + Twitter Card — для превью в Telegram/мессенджерах
        (:meta :property "og:site_name" :content "lisper")
-       (:meta :property "og:title" :content (cl-who:str title))
-       (:meta :property "og:type" :content (cl-who:str og-type))
+       (:meta :property "og:title" :content title)
+       (:meta :property "og:type" :content og-type)
        (:meta :property "og:url"
               :content (format nil "~A~A"
                                (site-url)
                                (or canonical "/")))
        (:meta :property "og:description"
-              :content (cl-who:str description))
+              :content description)
        (:meta :property "og:image"
-              :content (format nil "~A/logo.svg" (site-url)))
+              :content (format nil "~A/og-image.png" (site-url)))
        (:meta :name "twitter:card" :content "summary")
-       (:meta :name "twitter:title" :content (cl-who:str title))
+       (:meta :name "twitter:title" :content title)
        (:meta :name "twitter:description"
-              :content (cl-who:str description))
+              :content description)
        (:meta :name "twitter:image"
-              :content (format nil "~A/logo.svg" (site-url)))))
+              :content (format nil "~A/og-image.png" (site-url)))))
     (when canonical
       (cl-who:htm (:link :rel "canonical"
                          :href (format nil "~A~A" (site-url) canonical))))

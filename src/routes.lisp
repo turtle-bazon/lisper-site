@@ -16,6 +16,17 @@
   (destructuring-bind (status headers body) response
     (list status (append headers (security-headers)) body)))
 
+(defvar *og-image-bytes* nil)
+
+(defun og-image-bytes ()
+  "Raster OG/Twitter card image (1200x630 PNG) — декодируется из *og-image-b64*
+   один раз и кешируется. Telegram не рендерит SVG в og:image."
+  (unless *og-image-bytes*
+    (setf *og-image-bytes*
+          (ignore-errors
+           (cl-base64:base64-string-to-usb8-array *og-image-b64*))))
+  *og-image-bytes*)
+
 (defun parse-query-string (env)
   (let ((qs (getf env :query-string)))
     (when qs
@@ -63,6 +74,13 @@
               `(200 (:content-type "image/svg+xml"
                      :cache-control "public, max-age=31536000, immutable")
                     (,*logo-svg*)))
+
+             ;; Raster OG/Twitter card image (Telegram не поддерживает SVG в og:image)
+             ((string= path "/og-image.png")
+              (let ((bytes (og-image-bytes)))
+                `(200 (:content-type "image/png"
+                       :cache-control "public, max-age=31536000, immutable")
+                      (,bytes))))
 
              ;; Compiled JSCL bundle (versioned URL: /jscl-bundle/<name>?v=<hash>)
              ((and (>= (length path) 13)
