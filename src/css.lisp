@@ -694,6 +694,107 @@
         (".post-views svg"
          :flex "0 0 auto")
 
+        ;; Теги блога
+        (".post-tags"
+         :display "flex"
+         :flex-wrap "wrap"
+         :gap "6px"
+         :margin "8px 0 4px")
+
+        (".blog-tag"
+         :display "inline-block"
+         :color "#7c3aed"
+         :background "rgba(124,58,237,0.12)"
+         :border "1px solid rgba(124,58,237,0.35)"
+         :padding "2px 10px"
+         :border-radius "12px"
+         :font-size "0.8rem"
+         :text-decoration "none"
+         :transition "all 0.2s")
+
+        (".blog-tag:hover"
+         :background "rgba(124,58,237,0.25)"
+         :color "#a78bfa")
+
+        (".tag-cloud"
+         :display "flex"
+         :flex-wrap "wrap"
+         :gap "8px")
+
+        (".tag-chip"
+         :display "inline-flex"
+         :align-items "center"
+         :gap "6px"
+         :color "#e2e8f0"
+         :background "#1e1e1e"
+         :border "1px solid #333"
+         :padding "4px 14px"
+         :border-radius "16px"
+         :font-size "0.9rem"
+         :text-decoration "none"
+         :transition "all 0.2s")
+
+        (".tag-chip:hover"
+         :border-color "#7c3aed"
+         :color "#a78bfa")
+
+        (".tag-count"
+         :color "#888"
+         :font-size "0.75rem")
+
+        ;; Поиск
+        (".search-form"
+         :display "flex"
+         :gap "8px"
+         :margin "14px 0 20px")
+
+        (".search-input"
+         :flex "1"
+         :background "#1e1e1e"
+         :border "1px solid #333"
+         :color "#e2e8f0"
+         :padding "10px 14px"
+         :border-radius "6px"
+         :font-size "1rem")
+
+        (".search-input:focus"
+         :outline "none"
+         :border-color "#7c3aed")
+
+        ;; Подписки
+        (".topic-subscribe"
+         :margin "10px 0")
+
+        (".subscribe-btn"
+         :background "rgba(124,58,237,0.15)"
+         :border "1px solid #7c3aed"
+         :color "#a78bfa"
+         :padding "5px 14px"
+         :border-radius "6px"
+         :font-size "0.85rem"
+         :cursor "pointer"
+         :transition "all 0.2s")
+
+        (".subscribe-btn:hover"
+         :background "rgba(124,58,237,0.3)")
+
+        (".subscribe-btn.subscribed"
+         :background "rgba(16,185,129,0.12)"
+         :border-color "#10b981"
+         :color "#34d399")
+
+        (".subscribe-btn.subscribed:hover"
+         :background "rgba(16,185,129,0.25)")
+
+        (".badge-new"
+         :display "inline-block"
+         :background "#ef4444"
+         :color "#fff"
+         :border-radius "10px"
+         :padding "1px 10px"
+         :font-size "0.75rem"
+         :margin-bottom "6px")
+
         (".post-body"
          :color "#d4d4d4"
          :line-height "1.6"

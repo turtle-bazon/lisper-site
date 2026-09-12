@@ -134,6 +134,27 @@
              `(200 (:content-type "text/html; charset=utf-8")
                    (,(forum-page-rules user))))
 
+            ;; Поиск по блогам и форуму
+            ((and (string= path "/search") (eq (env-method env) :GET))
+             (let* ((qs (or (parse-query-string env) (make-hash-table :test #'equal)))
+                    (q (gethash "q" qs)))
+               `(200 (:content-type "text/html; charset=utf-8")
+                     (,(forum-page-search user q)))))
+
+            ;; Теги блогов (облако) + посты по тегу — ДО префиксного /blog/<user>
+            ((and (string= path "/blog/tags") (eq (env-method env) :GET))
+             `(200 (:content-type "text/html; charset=utf-8")
+                   (,(blog-page-tags user))))
+
+            ((and (>= (length path) 10)
+                  (string= (subseq path 0 10) "/blog/tag/")
+                  (eq (env-method env) :GET))
+             (let* ((tag (subseq path 10))
+                    (qs (or (parse-query-string env) (make-hash-table :test #'equal)))
+                    (start (max 0 (or (ignore-errors (parse-integer (gethash "start" qs))) 0))))
+               `(200 (:content-type "text/html; charset=utf-8")
+                     (,(blog-page-tag user tag start)))))
+
             ;; Блоги
             ((and (string= path "/blog") (eq (env-method env) :GET))
              (let* ((qs (or (parse-query-string env) (make-hash-table :test #'equal)))
@@ -191,11 +212,26 @@
                          (parse-integer (subseq path 7))))
                     (qs (parse-query-string env))
                     (throttled (and qs (gethash "throttled" qs))))
+               (when (and id user)
+                 (mark-topic-read id (session-user-id user)))
                (if id
                    `(200 (:content-type "text/html; charset=utf-8")
                          (,(forum-page-topic id user throttled)))
                    '(404 (:content-type "text/html; charset=utf-8")
                      ("<h1>404</h1>")))))
+
+            ;; Подписка на тему: /topic/<id>/subscribe (POST)
+            ((and (>= (length path) 10)
+                  (string= (subseq path (- (length path) 10)) "/subscribe")
+                  (eq (env-method env) :POST))
+             (handle-subscribe env user))
+
+            ;; Мои подписки
+            ((and (string= path "/subscriptions") (eq (env-method env) :GET))
+             (if user
+                 `(200 (:content-type "text/html; charset=utf-8")
+                       (,(forum-page-subscriptions user)))
+                 '(302 (:location "/login") (""))))
 
             ;; New post POST
             ((and (string= path "/new-post") (eq (env-method env) :POST))
@@ -328,7 +364,8 @@
                                      :username (getf post :username)
                                      :slug (getf post :slug)
                                      :title (getf post :title)
-                                     :body (getf post :body))))
+                                     :body (getf post :body)
+                                     :tags (getf post :tags))))
                             `(403 (:content-type "text/html; charset=utf-8")
                               ("<h1>403</h1>"))))
                       '(302 (:location "/login") (""))))
@@ -489,6 +526,24 @@
                    (""))))
           (t
            `(302 (:location "/new-topic") ("")))))))
+
+(defun handle-subscribe (env user)
+  "Подписка/отписка на тему (action в POST body). Редирект обратно на тему."
+  (if (not user)
+      '(302 (:location "/login") (""))
+      (let* ((body (parse-post-body env))
+             (action (gethash "action" body))
+             (path (getf env :path-info))
+             ;; path = /topic/<id>/subscribe → вырезаем id между "/topic/" и "/subscribe"
+             (topic-id (ignore-errors
+                        (parse-integer
+                         (subseq path 7 (- (length path) 10))))))
+        (when (and topic-id action)
+          (if (string= action "subscribe")
+              (subscribe-topic topic-id (session-user-id user))
+              (unsubscribe-topic topic-id (session-user-id user))))
+        `(302 (:location ,(format nil "/topic/~A" (or topic-id 0)))
+              ("")))))
 
 (defun handle-new-post (env user)
   (if (not user)
@@ -690,12 +745,13 @@
        (if user
            (let ((post (get-blog-post-by-slug (first parts) (second parts))))
              (if (and post (= (getf user :id) (getf post :user-id)))
-                 `(200 (:content-type "text/html; charset=utf-8")
-                       (,(blog-page-form user :mode "edit"
-                                         :username (getf post :username)
-                                         :slug (getf post :slug)
-                                         :title (getf post :title)
-                                         :body (getf post :body))))
+`(200 (:content-type "text/html; charset=utf-8")
+                        (,(blog-page-form user :mode "edit"
+                                          :username (getf post :username)
+                                          :slug (getf post :slug)
+                                          :title (getf post :title)
+                                          :body (getf post :body)
+                                          :tags (getf post :tags))))
                  '(403 (:content-type "text/html; charset=utf-8")
                    ("<h1>403</h1>"))))
            '(302 (:location "/login") (""))))
@@ -704,23 +760,24 @@
 
 (defun blog-values-from-body (body)
   (values (string-trim " " (or (gethash "title" body) ""))
-          (or (gethash "body" body) "")))
+          (or (gethash "body" body) "")
+          (or (gethash "tags" body) "")))
 
 (defun handle-blog-create (env user)
   (if (not user)
       '(302 (:location "/login") (""))
-      (multiple-value-bind (title text) (blog-values-from-body (parse-post-body env))
+      (multiple-value-bind (title text tags) (blog-values-from-body (parse-post-body env))
         (cond
           ((not (rate-allowed-p (list :blog (session-user-id user)) 10 3600))
            `(200 (:content-type "text/html; charset=utf-8")
-                 (,(blog-page-form user :mode "new" :title title :body text
+                 (,(blog-page-form user :mode "new" :title title :body text :tags tags
                                    :error (tr :auth-rate-limited)))))
           ((not (and (valid-blog-title-p title) (valid-blog-body-p text)))
            `(200 (:content-type "text/html; charset=utf-8")
-                 (,(blog-page-form user :mode "new" :title title :body text
+                 (,(blog-page-form user :mode "new" :title title :body text :tags tags
                                    :error (tr :cat-invalid)))))
           (t
-           (let ((id (create-blog-post (session-user-id user) title text)))
+           (let ((id (create-blog-post (session-user-id user) title text tags)))
              (let* ((slug-row (postmodern:query
                                "SELECT slug FROM blog_posts WHERE id = $1"
                                id :single)))
@@ -740,7 +797,8 @@
             (progn
               (update-blog-post (getf post :id)
                                 (string-trim " " (or (gethash "title" body) ""))
-                                (or (gethash "body" body) ""))
+                                (or (gethash "body" body) "")
+                                (or (gethash "tags" body) ""))
               `(302 (:location ,(format nil "/blog/~A/~A" username slug))
                     ("")))
             '(403 (:content-type "text/html; charset=utf-8")

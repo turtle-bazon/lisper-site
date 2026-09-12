@@ -255,7 +255,24 @@ ALTER TABLE daily_stats ADD PRIMARY KEY (date, path, country, device, browser, o
           (:down . "ALTER TABLE daily_stats DROP CONSTRAINT daily_stats_pkey;
 ALTER TABLE daily_stats ADD PRIMARY KEY (date, path, country, device, browser, os, referrer, is_bot);
 ALTER TABLE daily_stats DROP COLUMN host;
-ALTER TABLE page_views DROP COLUMN host;")))))
+ALTER TABLE page_views DROP COLUMN host;")))
+    (17 . ((:up . "-- Blog: add tags column (comma-separated lowercase slugs).
+ALTER TABLE blog_posts ADD COLUMN tags TEXT NOT NULL DEFAULT '';
+")
+          (:down . "ALTER TABLE blog_posts DROP COLUMN IF EXISTS tags;
+")))
+    (18 . ((:up . "-- Topic subscriptions: users follow topics, track unread replies.
+CREATE TABLE topic_subscriptions (
+    topic_id  INTEGER NOT NULL REFERENCES topics(id)  ON DELETE CASCADE,
+    user_id   INTEGER NOT NULL REFERENCES users(id)   ON DELETE CASCADE,
+    created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
+    last_read_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (topic_id, user_id)
+);
+CREATE INDEX idx_sub_user ON topic_subscriptions(user_id);
+")
+          (:down . "DROP TABLE IF EXISTS topic_subscriptions;
+")))))
 
 (defun get-available-migrations ()
   "Return sorted list of (version name) from embedded migrations."

@@ -47,17 +47,43 @@
            (unless exists (return candidate))))
     candidate))
 
-(defun create-blog-post (user-id title body)
-  (let ((slug (unique-blog-slug user-id title)))
-    (postmodern:query
-     "INSERT INTO blog_posts (user_id, title, slug, body) VALUES ($1,$2,$3,$4)
-      RETURNING id"
-     user-id title slug body :single)))
+(defun normalize-tags (raw)
+  "Сырой ввод тегов (через запятую/пробел) → уникальный lowercase slug через запятую."
+  (when (and raw (plusp (length (string-trim " " raw))))
+    (let* ((parts (cl-ppcre:split "[,]+" (string-downcase (string-trim " " raw))))
+           (tags (remove-duplicates
+                  (remove-if-not
+                   (lambda (s) (and (>= (length s) 2) (<= (length s) 40)
+                                    (every (lambda (c) (or (alphanumericp c) (char= c #\-)))
+                                           (string-trim " " s))))
+                   (mapcar (lambda (s) (string-trim " " s))
+                           parts))
+                  :test #'string=)))
+      (when tags
+        (format nil "~{~A~^,~}" (sort tags #'string<))))))
 
-(defun update-blog-post (post-id title body)
+(defun render-tags-as-links (tags-string)
+  "Строка тегов → HTML-ссылки."
+  (cl-who:with-html-output-to-string (s)
+    (loop for tag in (split-sequence:split-sequence #\, tags-string)
+          for trimmed = (string-trim " " tag)
+          when (plusp (length trimmed))
+            do (cl-who:htm
+                (:a :class "blog-tag" :href (format nil "/blog/tag/~A" trimmed)
+                    (cl-who:str trimmed))))))
+
+(defun create-blog-post (user-id title body &optional (tags ""))
+  (let ((slug (unique-blog-slug user-id title))
+        (safe-tags (or (normalize-tags tags) "")))
+    (postmodern:query
+     "INSERT INTO blog_posts (user_id, title, slug, body, tags) VALUES ($1,$2,$3,$4,$5)
+      RETURNING id"
+     user-id title slug body safe-tags :single)))
+
+(defun update-blog-post (post-id title body &optional (tags ""))
   (postmodern:execute
-   "UPDATE blog_posts SET title = $2, body = $3, updated_at = NOW() WHERE id = $1"
-   post-id title body))
+   "UPDATE blog_posts SET title = $2, body = $3, tags = $4, updated_at = NOW() WHERE id = $1"
+   post-id title body (or (normalize-tags tags) "")))
 
 (defun increment-blog-post-views (post-id)
   (postmodern:execute
@@ -68,25 +94,26 @@
 
 (defun get-blog-post-owner (post-id)
   "Владелец поста блога (user_id) — для owner-only гварда /blog/delete."
-  (first (postmodern:query
-          "SELECT user_id FROM blog_posts WHERE id = $1" post-id)))
+  (postmodern:query
+   "SELECT user_id FROM blog_posts WHERE id = $1" post-id :single))
 
 (defun get-blog-post-by-slug (username slug)
   (let ((row (first (postmodern:query
                      "SELECT b.id, b.user_id, b.title, b.slug, b.body,
                              TO_CHAR(b.created_at,'DD.MM.YYYY HH24:MI'),
                              TO_CHAR(b.updated_at,'DD.MM.YYYY HH24:MI'),
-                             u.username, b.is_html, b.old_author, b.views
+                             u.username, b.is_html, b.old_author, b.views, b.tags
                       FROM blog_posts b JOIN users u ON u.id = b.user_id
                       WHERE u.username = $1 AND b.slug = $2"
                      username slug))))
     (when row
-      (destructuring-bind (id user-id title pslug body created updated uname is-html old-author views) row
+      (destructuring-bind (id user-id title pslug body created updated uname is-html old-author views tags) row
         (list :id id :user-id user-id :title title :slug pslug :body body
               :created-at created :updated-at updated :username uname
               :is-html is-html
               :old-author (unless (eq old-author :null) old-author)
-              :views views)))))
+              :views views
+              :tags (if (eq tags :null) "" tags))))))
 
 (defun get-user-blog-posts (username &key (offset 0) (limit 20) year month)
   ;; username приходит из роутов сайта; числа — целые после parse-integer
@@ -101,7 +128,7 @@
      (concatenate 'string
         "SELECT b.title, b.slug, TO_CHAR(b.created_at,'DD.MM.YYYY HH24:MI'), left(b.body,2000),
                 EXTRACT(YEAR FROM b.created_at)::int AS y,
-                EXTRACT(MONTH FROM b.created_at)::int AS m, b.is_html, b.old_author, b.views
+                EXTRACT(MONTH FROM b.created_at)::int AS m, b.is_html, b.old_author, b.views, b.tags
          FROM blog_posts b JOIN users u ON u.id=b.user_id
          WHERE u.username = '" username "'" ym lim))))
 
@@ -115,9 +142,56 @@
                      (max 0 offset) (max 0 limit))))
     (postmodern:query
      (concatenate 'string
-        "SELECT b.title, b.slug, TO_CHAR(b.created_at,'DD.MM.YYYY HH24:MI'), left(b.body,2000), u.username, b.is_html, b.old_author, b.views
+        "SELECT b.title, b.slug, TO_CHAR(b.created_at,'DD.MM.YYYY HH24:MI'), left(b.body,2000), u.username, b.is_html, b.old_author, b.views, b.tags
          FROM blog_posts b JOIN users u ON u.id=b.user_id WHERE true"
         ym lim))))
+
+(defun get-all-blog-posts-by-tag (tag &key (offset 0) (limit 20))
+  "Все посты, помеченные тегом (TAG — слаг). Parameterized + точное границевое
+   совпадение по запятой: tags хранятся как 'a,b,c', ищем '%,a,%'."
+  (let ((pat (concatenate 'string "%,"
+                          (string-downcase (string-trim " " tag))
+                          ",%")))
+    (postmodern:query
+     (concatenate 'string
+       "SELECT b.title, b.slug, TO_CHAR(b.created_at,'DD.MM.YYYY HH24:MI'), left(b.body,2000), u.username, b.is_html, b.old_author, b.views, b.tags
+        FROM blog_posts b JOIN users u ON u.id=b.user_id
+        WHERE b.tags != '' AND (',' || b.tags || ',') ILIKE $1
+        ORDER BY b.created_at DESC OFFSET "
+       (format nil "~D LIMIT ~D" (max 0 offset) (max 0 limit)))
+     pat)))
+
+(defun get-blog-tag-cloud (&optional (limit 50))
+  "Список (tag count) по частоте использования, наиболее частые."
+  (let ((rows (postmodern:query
+               (concatenate 'string
+                 "WITH split AS (
+                   SELECT btrim(unnest(string_to_array(tags, ','))) AS tag
+                   FROM blog_posts
+                   WHERE tags != ''
+                 )
+                 SELECT tag, COUNT(*) AS c
+                 FROM split
+                 WHERE tag != ''
+                 GROUP BY tag
+                 ORDER BY c DESC, tag ASC
+                 LIMIT "
+                 (format nil "~D" limit)))))
+    (mapcar (lambda (row) (destructuring-bind (tag c) row (list tag c))) rows)))
+
+(defun search-blog (query &optional (limit 20))
+  "Поиск по блогам: заголовок или текст. Возвращает строки
+   (title slug created excerpt username is-html old-author views tags).
+   like-pattern определён в forum.lisp (общий хелпер)."
+  (postmodern:query
+   (concatenate 'string
+     "SELECT b.title, b.slug, TO_CHAR(b.created_at,'DD.MM.YYYY HH24:MI'), left(b.body,2000), u.username, b.is_html, b.old_author, b.views, b.tags
+        FROM blog_posts b JOIN users u ON u.id=b.user_id
+        WHERE b.title ILIKE $1 ESCAPE '\\' OR b.body ILIKE $1 ESCAPE '\\'
+        ORDER BY b.created_at DESC
+        LIMIT "
+     (format nil "~D" (max 1 limit)))
+   (like-pattern query)))
 
 
 (defun get-blog-date-tree (&optional username)

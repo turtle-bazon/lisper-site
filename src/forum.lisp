@@ -127,6 +127,90 @@
    "SELECT COUNT(*) FROM posts WHERE user_id = $1"
    user-id :single))
 
+;;; ============ Поиск по форуму ============
+
+(defun like-pattern (q)
+  "Превращает пользовательский ввод в безопасный ILIKE-паттерн
+   (экранирует %, _, \\ — иначе они работают как wildcards)."
+  (with-output-to-string (out)
+    (write-char #\% out)
+    (loop for c across q
+          do (case c
+               (#\% (write-string "\\%" out))
+               (#\_ (write-string "\\_" out))
+               (#\\ (write-string "\\\\" out))
+               (t (write-char c out))))
+    (write-char #\% out)))
+
+(defun search-forum-topics (query &optional (limit 20))
+  "Темы форума, где query встречается в заголовке или в теле поста.
+   Возвращает строки (id title category-name category-slug username post-count last-post-at)."
+  (postmodern:query
+   "SELECT t.id, t.title, c.name, c.slug, u.username, t.post_count,
+           TO_CHAR(t.last_post_at, 'DD.MM.YYYY HH24:MI')
+    FROM topics t
+    JOIN categories c ON t.category_id = c.id
+    JOIN users u ON t.user_id = u.id
+    WHERE t.title ILIKE $1 ESCAPE '\\'
+       OR EXISTS (SELECT 1 FROM posts p WHERE p.topic_id = t.id AND p.body ILIKE $1 ESCAPE '\\')
+    ORDER BY t.last_post_at DESC
+    LIMIT $2"
+   (like-pattern query) limit))
+
+;;; ============ Подписки на темы ============
+
+(defun subscribe-topic (topic-id user-id)
+  (postmodern:execute
+   "INSERT INTO topic_subscriptions (topic_id, user_id, last_read_at)
+    VALUES ($1, $2, NOW())
+    ON CONFLICT (topic_id, user_id) DO NOTHING"
+   topic-id user-id))
+
+(defun unsubscribe-topic (topic-id user-id)
+  (postmodern:execute
+   "DELETE FROM topic_subscriptions WHERE topic_id = $1 AND user_id = $2"
+   topic-id user-id))
+
+(defun topic-subscribed-p (topic-id user-id)
+  (postmodern:query
+   "SELECT 1 FROM topic_subscriptions WHERE topic_id = $1 AND user_id = $2"
+   topic-id user-id :single))
+
+(defun mark-topic-read (topic-id user-id)
+  "Подписчик прочитал тему — сбрасываем счётчик новых ответов."
+  (postmodern:execute
+   "UPDATE topic_subscriptions SET last_read_at = NOW()
+    WHERE topic_id = $1 AND user_id = $2"
+   topic-id user-id))
+
+(defun topic-unread-count (topic-id user-id)
+  "Кол-во новых ответов с момента последнего прочтения (0, если не подписан)."
+  (let ((n (postmodern:query
+            "SELECT COUNT(*)
+             FROM posts p
+             JOIN topic_subscriptions s ON s.topic_id = p.topic_id AND s.user_id = $2
+             WHERE p.topic_id = $1 AND p.created_at > s.last_read_at"
+            topic-id user-id :single)))
+    (if (eq n :null) 0 n)))
+
+(defun get-user-subscriptions (user-id)
+  "Подписки пользователя: (topic-id title category-name category-slug
+   username last-post-at unread)."
+  (postmodern:query
+   "SELECT t.id, t.title, c.name, c.slug, u.username,
+           TO_CHAR(t.last_post_at, 'DD.MM.YYYY HH24:MI'),
+           (SELECT COUNT(*)
+              FROM posts p
+              WHERE p.topic_id = t.id
+                AND p.created_at > s.last_read_at)
+    FROM topic_subscriptions s
+    JOIN topics t ON t.id = s.topic_id
+    JOIN categories c ON t.category_id = c.id
+    JOIN users u ON t.user_id = u.id
+    WHERE s.user_id = $1
+    ORDER BY t.last_post_at DESC"
+   user-id))
+
 ;;; Settings functions
 
 (defun get-setting (key)

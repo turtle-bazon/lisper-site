@@ -53,7 +53,7 @@
   (cl-who:with-html-output-to-string (s)
     (:meta :charset "utf-8")
     (:meta :name "viewport" :content "width=device-width, initial-scale=1")
-    (:title (cl-who:str title))
+    (:title (cl-who:str (cl-who:escape-string title)))
     (when noindex
       (cl-who:htm (:meta :name "robots" :content "noindex")))
     (when description
@@ -113,18 +113,21 @@
       (:a :href "/" (:span :class "nav-icon" (cl-who:str "<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8'/><path d='M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/></svg>")) (cl-who:str (tr :nav-home)))
       (:a :href "tg://resolve?domain=commonlisp_ru" (:span :class "nav-icon" (cl-who:str "<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 240 240'><circle cx='120' cy='120' r='120' fill='#229ED9'/><path d='M81.229,128.772l14.237,39.406s1.78,3.687,3.686,3.687,30.255-29.492,30.255-29.492l31.525-60.89L81.737,118.6Z' fill='#c8daea'/><path d='M100.106,138.878l-2.733,29.046s-1.144,8.9,7.754,0,17.415-15.763,17.415-15.763' fill='#a9c6d8'/><path d='M81.486,130.178,52.2,120.636s-3.5-1.42-2.373-4.64c.232-.664.7-1.229,2.1-2.2,6.489-4.523,120.106-45.36,120.106-45.36s3.208-1.081,5.1-.362a2.766,2.766,0,0,1,1.885,2.055,9.357,9.357,0,0,1,.254,2.585c-.009.752-.1,1.449-.169,2.542-.692,11.165-21.4,94.493-21.4,94.493s-1.239,4.876-5.678,5.043A8.13,8.13,0,0,1,146.1,172.5c-8.711-7.493-38.819-27.727-45.472-32.177a1.27,1.27,0,0,1-.546-.9c-.093-.469.417-1.05.417-1.05s52.426-46.6,53.821-51.492c.108-.379-.3-.566-.848-.4-3.482,1.281-63.844,39.4-70.506,43.607A3.21,3.21,0,0,1,81.486,130.178Z' fill='#fff'/></svg>")) (cl-who:str (tr :nav-telegram)))
       (:a :href "/forum" (:span :class "nav-icon" (cl-who:str "<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719'/></svg>")) (cl-who:str (tr :nav-forum)))
-      (:a :href "/blog" (:span :class "nav-icon" (cl-who:str "<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 20h9'/><path d='M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z'/></svg>")) (cl-who:str (tr :blog-title))))
+      (:a :href "/blog" (:span :class "nav-icon" (cl-who:str "<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 20h9'/><path d='M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z'/></svg>")) (cl-who:str (tr :blog-title)))
+      (:a :href "/search" (:span :class "nav-icon" (cl-who:str "<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='8'/><path d='m21 21-4.3-4.3'/></svg>")) (cl-who:str (tr :search-title))))
      (:div :class "header-right"
       (cl-who:str (render-lang-switch))
       (if user
-          (cl-who:htm
-           (when (user-admin-p user)
-             (cl-who:htm
-              (:a :class "header-admin" :href "/admin/users" (cl-who:str (tr :admin)))
-              (:a :class "header-admin" :href "/admin/analytics" (cl-who:str (tr :analytics)))))
-           (:a :class "header-user" :href (format nil "/user/~A" (session-username user))
-               (cl-who:str (session-username user)))
-           (:a :class "header-logout" :href "/logout" (cl-who:str (tr :logout))))
+(cl-who:htm
+            (when (user-admin-p user)
+              (cl-who:htm
+               (:a :class "header-admin" :href "/admin/users" (cl-who:str (tr :admin)))
+               (:a :class "header-admin" :href "/admin/analytics" (cl-who:str (tr :analytics)))))
+            (:a :class "header-user" :href (format nil "/user/~A" (session-username user))
+                (cl-who:str (session-username user)))
+            (:a :class "header-logout" :href "/subscriptions"
+                :title (tr :subscriptions-title) "☆")
+            (:a :class "header-logout" :href "/logout" (cl-who:str (tr :logout))))
           (cl-who:htm
            (:a :class "header-login" :href "/login" (cl-who:str (tr :login)))
            (:a :class "header-register" :href "/register" (cl-who:str (tr :register))))))
@@ -200,7 +203,7 @@
                                       (:div :class "topic-row"
                                             (:a :class "topic-link"
                                                 :href (format nil "/topic/~A" id)
-                                                (:span :class "topic-title" (cl-who:str title))
+                                                (:span :class "topic-title" (cl-who:str (cl-who:escape-string title)))
                                                 (:span :class "topic-meta"
                                                        (cl-who:str
                                                         (tr-format :topic-meta post-count cat-name)))))))))
@@ -241,7 +244,7 @@
                                       (:div :class "topic-row"
                                             (:a :class "topic-link"
                                                 :href (format nil "/topic/~A" id)
-                                                (:span :class "topic-title" (cl-who:str title))
+                                                (:span :class "topic-title" (cl-who:str (cl-who:escape-string title)))
                                                 (:span :class "topic-meta"
                                                        (cl-who:str
                                                         (tr-format :topic-meta-2 post-count username last-post-at)))))))))
@@ -277,13 +280,31 @@
                  (:a :class "back-link"
                      :href (format nil "/forum/~A" (getf topic :category-slug))
                      (cl-who:str (format nil "← ~A" (getf topic :category-name))))
-                 (:h2 (cl-who:str (getf topic :title)))
+                 (:h2 (cl-who:str (cl-who:escape-string (getf topic :title))))
                  (:div :class "topic-info"
                        (:span (cl-who:str (tr :topic-author)))
-                       (:a :class "post-author" :href (format nil "/user/~A" (getf topic :username))
-                           (cl-who:str (getf topic :username)))
-                       (:span (cl-who:str (format nil " · ~A" (getf topic :created-at)))))
-                 (when (and user (user-moderator-p user))
+(:a :class "post-author" :href (format nil "/user/~A" (getf topic :username))
+                            (cl-who:str (cl-who:escape-string (getf topic :username))))
+(:span (cl-who:str (format nil " · ~A" (getf topic :created-at)))))
+                  (when (and user
+                             (not (getf topic :archived)))
+                    (let ((subscribed (topic-subscribed-p (getf topic :id)
+                                                          (session-user-id user))))
+                      (cl-who:htm
+                       (:div :class "topic-subscribe"
+                             (:form :method "POST"
+                                    :action (format nil "/topic/~D/subscribe"
+                                                    (getf topic :id))
+                                    (:input :type "hidden" :name "action"
+                                            :value (if subscribed "unsubscribe" "subscribe"))
+                                    (:button :class (if subscribed
+                                                        "subscribe-btn subscribed"
+                                                        "subscribe-btn")
+                                             :type "submit"
+                                             (cl-who:str (tr (if subscribed
+                                                                 :unsubscribe
+                                                                 :subscribe)))))))))
+                  (when (and user (user-moderator-p user))
                    (cl-who:htm
                     (:div :class "topic-moderation"
                           (:form :method "POST" :action "/delete-topic" :style "display:inline"
@@ -297,12 +318,13 @@
                              do (cl-who:htm
                                  (:div :class "post-card"
                                        (:div :class "post-header"
-                                             (:a :class "post-author" :href (format nil "/user/~A" username)
-                                                 (cl-who:str username))
-                                             (when old-author
-                                               (cl-who:htm
-                                                (:span :class "old-author"
-                                                       (cl-who:str (format nil "· ~A: ~A" (tr :old-author) old-author)))))
+(:a :class "post-author" :href (format nil "/user/~A" username)
+                                                  (cl-who:str (cl-who:escape-string username)))
+(when old-author
+                                                (cl-who:htm
+                                                 (:span :class "old-author"
+                                                        (cl-who:str (format nil "· ~A: ~A" (tr :old-author)
+                                                                              (cl-who:escape-string old-author))))))
                                              (when (or (string= role "admin")
                                                        (string= role "moderator"))
                                                (cl-who:htm
@@ -905,8 +927,8 @@
       (format nil "~A: ~A" (tr :old-author) old-author)))
 
 (defun blog-render-card (title slug created excerpt username show-author views
-                         &optional is-html old-author)
-  "Карточка ленты — один блок: заголовок, мета-строка, тизер, «Read more»."
+                         &optional is-html old-author tags)
+  "Карточка ленты — один блок: заголовок, мета-строка, тизер, теги, «Read more»."
   (let ((trunc (blog-card-truncated-p excerpt)))
     (cl-who:with-html-output-to-string (s nil :prologue nil)
       (cl-who:htm
@@ -916,7 +938,7 @@
           (:h3 :class "card-title"
             (:a :class "topic-link"
                 :href (format nil "/blog/~A/~A" username slug)
-              (cl-who:str title))
+              (cl-who:str (cl-who:escape-string title)))
             )
           ;; /card-title > h3
 
@@ -926,7 +948,7 @@
                 (cl-who:htm
                   (:a :class "post-author"
                       :href (format nil "/blog/~A" username)
-                    (cl-who:str username))
+                    (cl-who:str (cl-who:escape-string username)))
                   ))
               ;; /when show-author
               (cl-who:htm
@@ -947,7 +969,7 @@
                   (:span :class "old-author"
                     (cl-who:str
                       (format nil " · ~A"
-                              (blog-old-author-text old-author))
+                              (cl-who:escape-string (blog-old-author-text old-author)))
                     ))
                   )
                 )
@@ -969,6 +991,10 @@
                 )
             )
           ;; /if excerpt
+
+          (when (and tags (plusp (length tags)))
+            (cl-who:str (render-tags-as-links tags)))
+          ;; /when tags
 
           (when trunc
             (cl-who:htm
@@ -1062,11 +1088,11 @@
                   (:a :href "/blog" (cl-who:str (tr :blog-all-posts))))))
            (if posts
                (cl-who:htm
-                (:div :class "topic-list"
-                  (loop for (title slug created excerpt uname is-html old-author views) in posts
-                        do (cl-who:str
-                  (blog-render-card title slug created excerpt uname t views is-html
-                                    (unless (eq old-author :null) old-author))))))
+(:div :class "topic-list"
+                   (loop for (title slug created excerpt uname is-html old-author views tags) in posts
+                       do (cl-who:str
+                 (blog-render-card title slug created excerpt uname t views is-html
+                                   (unless (eq old-author :null) old-author) tags)))))
                (cl-who:htm
                 (:p :class "empty-state" (cl-who:str (tr :blog-empty)))))
            (when (= (length posts) 20)
@@ -1113,11 +1139,11 @@
                (if posts
                    (cl-who:htm
                     (:div :class "topic-list"
-                      (loop for (title slug created excerpt y m is-html old-author views) in posts
+                      (loop for (title slug created excerpt y m is-html old-author views tags) in posts
                             do (cl-who:str
                                  (blog-render-card title slug created excerpt
                                                    username nil views is-html
-                                                   (unless (eq old-author :null) old-author))))))
+                                                   (unless (eq old-author :null) old-author) tags)))))
                    (cl-who:htm
                     (:p :class "empty-state" (cl-who:str (tr :blog-empty))))))
               (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site"
@@ -1146,12 +1172,13 @@
                (:div :class "container"
                 (:header (cl-who:str (forum-render-header viewer)))
                 (:div :class "section"
-                 (:a :class "back-link" :href (format nil "/blog/~A" username)
-                     (cl-who:str (format nil "← ~A ~A" (tr :blog-of) username)))
-                 (:h2 (cl-who:str (getf post :title)))
+(:a :class "back-link" :href (format nil "/blog/~A" username)
+                      (cl-who:str (format nil "← ~A ~A" (tr :blog-of)
+                                           (cl-who:escape-string username))))
+                 (:h2 (cl-who:str (cl-who:escape-string (getf post :title))))
                  (:div :class "topic-info card-meta"
                   (:a :class "post-author" :href (format nil "/blog/~A" username)
-                      (cl-who:str username))
+                      (cl-who:str (cl-who:escape-string username)))
                   (:span
                     (cl-who:str (format nil " · ~A" (getf post :created-at)))
                     (when (numberp (getf post :views))
@@ -1160,13 +1187,14 @@
                               :title (tr :views)
                          (cl-who:str
                           (format nil " · <svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z'/><circle cx='12' cy='12' r='3'/></svg> ~:D" (getf post :views))))))))
-                   (when (getf post :old-author)
-                     (cl-who:htm
-                      (:span :class "old-author"
-                             (cl-who:str
-                              (format nil " · ~A"
-                                      (blog-old-author-text
-                                       (getf post :old-author)))))))
+(when (getf post :old-author)
+                      (cl-who:htm
+                       (:span :class "old-author"
+                              (cl-who:str
+                               (format nil " · ~A"
+                                       (cl-who:escape-string
+                                        (blog-old-author-text
+                                         (getf post :old-author))))))))
                    (when own
                     (cl-who:htm
                     (:p :style "margin:10px 0"
@@ -1181,17 +1209,21 @@
                                        :value (getf post :id))
                                (:button :class "delete-btn" :type "submit"
                                         (cl-who:str (tr :delete)))))))
-                  (:div :class (if (getf post :is-html)
+(:div :class (if (getf post :is-html)
                                     "post-body legacy-html"
                                     "post-body md-content md-rendered")
-                          (if (getf post :is-html)
-                              (cl-who:str (getf post :body))
-                              (cl-who:str (markdown:render-to-html (getf post :body))))))
-                (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site"
-                                 "lisper")
-                             " &copy; 2026 | GPL-3.0")))))))))))
+                           (if (getf post :is-html)
+                               (cl-who:str (getf post :body))
+                               (cl-who:str (markdown:render-to-html (getf post :body)))))
+                  (when (and (getf post :tags) (not (string= (getf post :tags) "")))
+                    (cl-who:htm
+                     (:div :class "post-tags"
+                           (cl-who:str (render-tags-as-links (getf post :tags)))))))
+                 (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site"
+                                  "lisper")
+                              " &copy; 2026 | GPL-3.0")))))))))))
 
-(defun blog-page-form (user &key mode username slug title body error)
+(defun blog-page-form (user &key mode username slug title body tags error)
   (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
     (cl-who:htm
      (:html :lang *lang*
@@ -1216,6 +1248,10 @@
                  (:input :type "text" :name "title" :id "btitle" :value title
                          :required "required" :maxlength "250"))
                 (:div :class "form-group"
+                 (:label :for "btags" (cl-who:str (tr :blog-tags-field)))
+                 (:input :type "text" :name "tags" :id "btags" :value tags
+                         :placeholder (tr :blog-tags-hint) :maxlength "250"))
+                (:div :class "form-group"
                  (:label :for "bbody" (cl-who:str (tr :body-field)))
                  (cl-who:str (forum-render-editor "body"
                                                   (tr :blog-placeholder)
@@ -1226,7 +1262,195 @@
                          "lisper") " &copy; 2026 | GPL-3.0"))))))))
 
 
+;;; ============ Поиск ============
 
+(defun forum-page-search (user &optional query)
+  "Страница поиска по блогам и форуму."
+  (let* ((clean-q (when (and query (> (length query) 0))
+                    (string-trim " " query)))
+         (blog-results (when clean-q (search-blog clean-q 30)))
+         (forum-results (when clean-q (search-forum-topics clean-q 30))))
+    (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
+      (cl-who:htm
+       (:html :lang *lang*
+        (:head (cl-who:str (forum-render-head (tr :search-title))))
+        (:body
+         (:div :class "container"
+          (:header (cl-who:str (forum-render-header user)))
+          (:div :class "section"
+           (:h2 (cl-who:str (tr :search-title)))
+           (:form :method "GET" :action "/search"
+                  :class "search-form"
+                  (:input :type "text" :name "q" :class "search-input"
+                          :value (cl-who:escape-string (or clean-q ""))
+                          :placeholder (tr :search-placeholder)
+                          :required "required")
+                  (:button :class "try-button" :type "submit"
+                           "OK"))
+           (when clean-q
+             (cl-who:htm
+              (:h3 (cl-who:str (format nil "~A: ~A" (tr :search-results-for) (cl-who:escape-string clean-q))))
+              ;; Блоги
+              (:h4 (cl-who:str (tr :search-blog-section)))
+              (if blog-results
+                  (loop for (title slug created excerpt username is-html old-author views tags)
+                    in blog-results
+                    do (cl-who:htm
+                        (:div :class "post-card"
+                              (:h3 (:a :href (format nil "/blog/~A/~A" username slug)
+                                       (cl-who:str (cl-who:escape-string title))))
+                              (:div :class "topic-info card-meta"
+                                    (:span (cl-who:str (format nil "~A · ~A" (cl-who:escape-string username) (cl-who:escape-string created))))
+                                        (unless (eq old-author :null)
+                                          (cl-who:htm
+                                           (:span :class "old-author"
+                                                  (cl-who:str
+                                                   (format nil " · ~A" (blog-old-author-text old-author))))))
+                                        (when (numberp views)
+                                          (cl-who:htm
+                                           (:span :class "post-views"
+                                                  (cl-who:str
+                                                   (format nil " · 👁 ~:D" views))))))
+                                  (when (and tags (not (string= tags "")))
+                                    (cl-who:htm
+                                     (:div :class "post-tags"
+                                           (cl-who:str (render-tags-as-links tags)))))
+                              (:div :class "card-excerpt"
+                                        (:p (cl-who:str (cl-who:escape-string
+                                                         (if (and (not is-html)
+                                                                  (> (length excerpt) 300))
+                                                             (subseq excerpt 0 300)
+                                                             excerpt)))))))))
+                  (cl-who:htm (:p (cl-who:str (tr :search-no-results)))))
+;; Форум
+               (cl-who:htm (:h4 (cl-who:str (tr :search-forum-section))))
+              (if forum-results
+                  (loop for (tid title cat-name cat-slug username reply-count last-post-at)
+                        in forum-results
+                        do (cl-who:htm
+                            (:div :class "post-card"
+                                  (:h3 (:a :href (format nil "/topic/~A" tid)
+                                            (cl-who:str (cl-who:escape-string title))))
+                                  (:div :class "topic-info card-meta"
+                                        (:span (cl-who:str (format nil "~A · ~A · ~A"
+                                                                   (cl-who:escape-string cat-name)
+                                                                   (cl-who:escape-string username)
+                                                                    (cl-who:escape-string last-post-at)))))))
+                  (cl-who:htm (:p (cl-who:str (tr :search-no-results)))))))))
+(:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site"
+                          "lisper") " &copy; 2026 | GPL-3.0"))))))))
+ 
+ 
+ ;;; ============ Теги блога ============
+
+(defun blog-page-tags (user)
+  "Облако тегов блога."
+  (let ((tags (get-blog-tag-cloud)))
+    (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
+      (cl-who:htm
+       (:html :lang *lang*
+        (:head (cl-who:str (forum-render-head (tr :tags-page-title))))
+        (:body
+         (:div :class "container"
+          (:header (cl-who:str (forum-render-header user)))
+          (:div :class "section"
+           (:h2 (cl-who:str (tr :tags-page-title)))
+           (if tags
+               (cl-who:htm
+                (:div :class "tag-cloud"
+                      (loop for (tag count) in tags
+                            do (cl-who:htm
+                                (:a :class "tag-chip"
+                                    :href (format nil "/blog/tag/~A" tag)
+                                    (:span :class "tag-name" (cl-who:str (cl-who:escape-string tag)))
+                                    (:span :class "tag-count"
+                                           (cl-who:str (format nil "(~D)" count))))))))
+               (cl-who:htm (:p (cl-who:str (tr :tags-empty))))))
+         (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site"
+                          "lisper") " &copy; 2026 | GPL-3.0")))))))))
+
+
+(defun blog-page-tag (user tag &optional (start 0))
+  "Посты с конкретным тегом."
+  (let* ((clean-tag (string-downcase (string-trim " " tag)))
+         (posts (get-all-blog-posts-by-tag clean-tag :offset start :limit 20)))
+    (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
+      (cl-who:htm
+       (:html :lang *lang*
+        (:head (cl-who:str (forum-render-head
+                             (format nil (tr :tag-page-title) clean-tag)
+                             :noindex t)))
+        (:body
+         (:div :class "container"
+          (:header (cl-who:str (forum-render-header user)))
+          (:div :class "section"
+           (:a :class "back-link" :href "/blog/tags"
+               (cl-who:str (tr :back-to-tags)))
+           (:h2 (cl-who:str (format nil (tr :tag-page-title) (cl-who:escape-string clean-tag))))
+           (if posts
+                (loop for (title slug created excerpt username is-html old-author views tags)
+                      in posts
+                      do (cl-who:htm
+                          (:div :class "post-card"
+                                (:h3 (:a :href (format nil "/blog/~A/~A" username slug)
+                                         (cl-who:str (cl-who:escape-string title))))
+                                (:div :class "topic-info card-meta"
+                                      (:span (cl-who:str (format nil "~A · ~A" (cl-who:escape-string username) (cl-who:escape-string created))))
+(unless (eq old-author :null)
+                                        (cl-who:htm
+                                         (:span :class "old-author"
+                                                (cl-who:str
+                                                 (format nil " · ~A" (blog-old-author-text old-author))))))
+                                     (when (numberp views)
+                                       (cl-who:htm
+                                        (:span :class "post-views"
+                                               (cl-who:str
+                                                (format nil " · 👁 ~:D" views))))))
+                                (:div :class "card-excerpt"
+                                      (:p (cl-who:str (cl-who:escape-string
+                                                       (if (and (not is-html)
+                                                              (> (length excerpt) 300))
+                                                         (subseq excerpt 0 300)
+                                                         excerpt))))))))
+                  (cl-who:htm (:p (cl-who:str (tr :blog-empty))))))
+         (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site"
+                          "lisper") " &copy; 2026 | GPL-3.0")))))))))
+
+
+;;; ============ Подписки ============
+
+(defun forum-page-subscriptions (user)
+  "Темы, на которые подписан пользователь."
+  (let ((subs (get-user-subscriptions (session-user-id user))))
+    (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
+      (cl-who:htm
+       (:html :lang *lang*
+        (:head (cl-who:str (forum-render-head (tr :subscriptions-title) :noindex t)))
+        (:body
+         (:div :class "container"
+          (:header (cl-who:str (forum-render-header user)))
+          (:div :class "section"
+           (:h2 (cl-who:str (tr :subscriptions-title)))
+           (if subs
+               (loop for (tid title cat-name cat-slug username last-post-at unread)
+                     in subs
+                     do (cl-who:htm
+                         (:div :class "post-card"
+                               (when (and (numberp unread) (> unread 0))
+                                 (cl-who:htm
+                                  (:span :class "badge-new"
+                                         (cl-who:str
+                                          (format nil (tr :new-replies) unread)))))
+                                (:h3 (:a :href (format nil "/topic/~A" tid)
+                                         (cl-who:str (cl-who:escape-string title))))
+                                (:div :class "topic-info card-meta"
+                                      (:span (cl-who:str (format nil "~A · ~A · ~A"
+                                                                (cl-who:escape-string cat-name)
+                                                                (cl-who:escape-string username)
+                                                                (cl-who:escape-string last-post-at))))))))
+                (cl-who:htm (:p (cl-who:str (tr :subscriptions-empty))))))
+         (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site"
+                          "lisper") " &copy; 2026 | GPL-3.0")))))))))
 
 
 
