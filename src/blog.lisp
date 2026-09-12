@@ -161,23 +161,30 @@
        (format nil "~D LIMIT ~D" (max 0 offset) (max 0 limit)))
      pat)))
 
-(defun get-blog-tag-cloud (&optional (limit 50))
-  "Список (tag count) по частоте использования, наиболее частые."
-  (let ((rows (postmodern:query
-               (concatenate 'string
-                 "WITH split AS (
-                   SELECT btrim(unnest(string_to_array(tags, ','))) AS tag
-                   FROM blog_posts
-                   WHERE tags != ''
-                 )
-                 SELECT tag, COUNT(*) AS c
-                 FROM split
-                 WHERE tag != ''
-                 GROUP BY tag
-                 ORDER BY c DESC, tag ASC
-                 LIMIT "
-                 (format nil "~D" limit)))))
-    (mapcar (lambda (row) (destructuring-bind (tag c) row (list tag c))) rows)))
+(defun get-blog-tag-cloud (&optional (limit 50) username)
+  "Список (tag count) по частоте использования, наиболее частые.
+   Опционально ограничить одним автором (username)."
+  (let ((sql (concatenate 'string
+             "WITH split AS (
+               SELECT btrim(unnest(string_to_array("
+             (if username "b.tags" "tags") ", ','))) AS tag
+               FROM blog_posts"
+             (if username " b JOIN users u ON u.id=b.user_id" "")
+             "  WHERE "
+             (if username "b.tags != '' AND u.username = $1" "tags != ''")
+             "
+             )
+             SELECT tag, COUNT(*) AS c
+             FROM split
+             WHERE tag != ''
+             GROUP BY tag
+             ORDER BY c DESC, tag ASC
+             LIMIT "
+             (format nil "~D" limit))))
+    (let ((rows (if username
+                    (postmodern:query sql username)
+                    (postmodern:query sql))))
+      (mapcar (lambda (row) (destructuring-bind (tag c) row (list tag c))) rows))))
 
 (defun search-blog (query &optional (limit 20))
   "Поиск по блогам: заголовок или текст. Возвращает строки

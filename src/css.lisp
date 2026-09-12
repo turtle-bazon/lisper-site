@@ -1010,6 +1010,17 @@
          :color "#22c55e"
          :font-weight "bold")
 
+        (".blog-tag-cloud"
+         :margin-top "14px"
+         :padding-top "12px"
+         :border-top "1px solid #21262d")
+
+        (".blog-tag-cloud .tag-cloud"
+         :gap "6px")
+
+        (".blog-tag-cloud .blog-tag"
+         :line-height "1.2")
+
         (".dt-all"
          :color "#6e7681"
          :font-size "0.85rem"

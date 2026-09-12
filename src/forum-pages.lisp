@@ -993,7 +993,9 @@
           ;; /if excerpt
 
           (when (and tags (plusp (length tags)))
-            (cl-who:str (render-tags-as-links tags)))
+            (cl-who:htm
+              (:div :class "post-tags"
+                (cl-who:str (render-tags-as-links tags)))))
           ;; /when tags
 
           (when trunc
@@ -1033,26 +1035,52 @@
             (:a :href (format nil "~A?year=~d&month=~2,'0d" base-url y m)
                 (cl-who:str (format nil "~d · ~2,'0d (~d)" y m c)))))))))
 
+(defun blog-render-tag-cloud (username &optional (limit 30))
+  "Облако тегов сайдбара блога: размер шрифта пропорционален частоте (count)."
+  (let* ((tags (get-blog-tag-cloud limit username))
+         (max-count (reduce #'max tags :key #'second :initial-value 1)))
+    (when tags
+      (cl-who:with-html-output-to-string (s nil :prologue nil)
+        (cl-who:htm
+         (:div :class "blog-tag-cloud"
+          (:h3 (cl-who:str (tr :blog-tags)))
+          (:div :class "tag-cloud"
+                (loop for (tag count) in tags
+                      do (let* ((ratio (if (= max-count 1) 0.5
+                                           (/ count max-count)))
+                                (size (+ 0.75 (* 0.65 ratio))))
+                           (cl-who:htm
+                            (:a :class "blog-tag"
+                                :style (format nil "font-size: ~,2frem" size)
+                                :title (format nil "~D" count)
+                                :href (format nil "/blog/tag/~A" tag)
+                                (cl-who:str (cl-who:escape-string tag)))))))))))))
+
 (defun blog-render-date-tree (base-url username current-year current-month)
-  "Список «Год: месяц(N)…» со ссылками-фильтрами."
-  (let ((tree (get-blog-date-tree username)))
-    (when tree
+  "Сайдбар блога: дерево дат «Год: месяц(N)…» + облако тегов под ним."
+  (let ((tree (get-blog-date-tree username))
+        (tag-html (blog-render-tag-cloud username)))
+    (when (or tree tag-html)
       (cl-who:with-html-output-to-string (s nil :prologue nil)
         (cl-who:htm
          (:div :class "blog-date-tree"
-          (:h3 (cl-who:str (tr :blog-archive)))
-          (:ul
-           (let ((prev-year -1))
-           (loop for (y m c) in tree
-                 do (progn
-                      (when (/= y prev-year)
-                        (cl-who:htm
-                         (:li :class "dt-year"
-                              (cl-who:str (write-to-string y))))
-                        (setf prev-year y))
-                                   (cl-who:str
-                       (blog-date-item-html base-url username y m c
-                                            current-year current-month))))))))))))
+          (when tree
+            (cl-who:htm
+             (:h3 (cl-who:str (tr :blog-archive)))
+             (:ul
+              (let ((prev-year -1))
+                (loop for (y m c) in tree
+                      do (progn
+                           (when (/= y prev-year)
+                             (cl-who:htm
+                              (:li :class "dt-year"
+                                   (cl-who:str (write-to-string y))))
+                             (setf prev-year y))
+                           (cl-who:str
+                            (blog-date-item-html base-url username y m c
+                                                 current-year current-month))))))))
+          (when tag-html
+            (cl-who:htm (cl-who:str tag-html)))))))))
 
 (defun blog-page-feed (user &optional (start 0) year month)
   (let ((posts (if (and year month)
