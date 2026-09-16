@@ -58,6 +58,7 @@
 - `:geo-db-path` — путь к `GeoLite2-Country.mmdb` (MaxMind DB); если нет/не найден — гео отключено, не фатально
 - `:admin-secret` — секрет скрытого URL аналитики: `/analytics/<secret>` отдаёт дашборд без логина; неверный секрет → 404, `/admin/*` по-прежнему только по admin-сессии
 - `:form-secret` — секрет HMAC антиспам-токенов форм (регистрация/логин); если не задан — fallback на `:admin-secret`
+- `:game-token` — токен bearer-авторизации API `/regexp-game` (`Authorization: Bearer <token>`); если не задан — fallback на встроенный дефолт `*regexp-game-token*`
 
 ## Тонкости и баги
 
@@ -422,7 +423,10 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
   (strip хвостового `/` и `.html`, downcase ASCII), три варианта декодирования.
   Динамические правила БЕЗ таблицы: `/forum/thread/<id>[/pageN]` → `/topic/<id>`,
   `/feeds/*` → `/rss`. Ключ `:site-url` в конфиге (default http://lisper.ru) — база
-  для canonical/sitemap/OG.
+  для canonical/sitemap/OG. **Fix (2026-09-16)**: раньше `:site-url` стоял ВНЕ plist
+  в `lisper.conf`/`.template` (после закрывающей `)`) — `read-config` читает ОДНУ форму
+  `(read s)`, поэтому `:site-url` молча игнорировался и site-url всегда был дефолтом.
+  Вместе с `:game-token` перенесён внутрь plist.
 - **HEAD-билдер**: `forum-render-head` получил keyword-параметры `:description
   :canonical :jsonld :alternates :noindex :rss` (обратно совместим). Используют:
   лендинг (desc/canonical/hreflang×4/rss), /forum и /blog (то же + alternates),
@@ -545,7 +549,7 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 
 ## Regexp-game (API) (2026-09-16)
 - **Endpoint** `POST /regexp-game` в `src/regexp-game.lisp` (подключён в `lisper.asd` ДО routes), роут в `make-app` (routes.lisp) — перед SEO-блоком. Тело запроса — **raw text** регулярка (UTF-8, `read-raw-body-text`, БЕЗ form-декодирования). Ответ — JSON: `{"right": N, "wrong": M, "solved": bool}`: `right` = сколько right-сэмплов регулярка матчит ЦЕЛИКОМ, `wrong` = сколько wrong-сэмплов матчит, `solved` = `(right == len(right-samples)) AND (wrong == 0)`. Ошибки: 401 `{"error":"unauthorized"}` (нет/неверный токен), 400 `{"error":"invalid regexp"}` (невалидная регулярка — логируется `format t`), 400 `{"error":"empty regexp"}` (пустое тело)
-- **Авторизация**: заголовок `Authorization: Bearer <token>`. Токен **захардкожен** в `*regexp-game-token*` (по просьбе пользователя; конфигурацию в него добавлять не нужно). Парсинг: `Bearer-token` → cl-ppcre `scan-to-strings "(?i)^Bearer\\s+(.+)$"`, register-группа достаётся через `(aref reg 0)` — **cl-ppcre `scan-to-strings` возвращает register-group'ы как ВЕКТОР строк, не строку**; `(when reg (aref reg 0))`. **`[[:space:]]` в cl-ppcre не работает** (в `scan-to-strings` даёт NIL) — использовать `\s+` (POSIX-классы в capture-группах ненадёжны)
+- **Авторизация**: заголовок `Authorization: Bearer <token>`. Токен берётся из конфига **`:game-token`** (`regexp-game-token` → `(config :game-token)`), fallback — встроенный дефолт `*regexp-game-token*`. Парсинг: `Bearer-token` → cl-ppcre `scan-to-strings "(?i)^Bearer\\s+(.+)$"`, register-группа достаётся через `(aref reg 0)` — **cl-ppcre `scan-to-strings` возвращает register-group'ы как ВЕКТОР строк, не строку**; `(when reg (aref reg 0))`. **`[[:space:]]` в cl-ppcre не работает** (в `scan-to-strings` даёт NIL) — использовать `\s+` (POSIX-классы в capture-группах ненадёжны)
 - **Full-match семантика**: `regexp-full-match-p` оборачивает регулярку в `\A(?:~A)\Z` и проверяет `scan` покрыл всю строку (start=0, end=len). `cl-ppcre:scan` сам по себе матчит ПОДСТРОКУ (и пустые матчи на 0-позиции!) — без якоря `a|ab` vs `ab` и `a*` vs `ba` дают ложные срабатывания
 - **Сэмплы (реальные, 2026-09-16)**: `*regexp-game-right-samples*` — числа с разрядами: `"0"`, `"5"`, `"50"`, `"500"`, `"5 000"`, `"500 000"`, `"99 000 000"` и их comma-варианты (разделитель однородный — ИЛИ пробел, ИЛИ запятая), `*regexp-game-wrong-samples*` — `"01"`, `"1000000"` (без разделителей), `"1,00,000"` (группа 2 цифры), `"500, 000"` (смешанные разделители), `"5 0000"`/`"5 0"` (кривая группировка), `"5.0"`/`"50.000"` (точка). **Решение**: `^(0|[1-9]\\d{0,2}(?:([ ,])\\d{3}(?:\\2\\d{3})*)?)$` — `[1-9]` без ведущего нуля, группы РОВНО по 3 цифры, backreference `\\2` требует ОДИН разделитель на всё число (смешанный `,"  "` → wrong). Отдельные числа 1–3 цифры (`5`,`50`,`500`) — без группы. Проверено 15/15 right и 0/12 wrong
 - **JSON собирается строкой** через `format` (`~:[false~;true~]` для bool): **`jsown:to-json` УПАЛ с SEGFAULT (Memory fault) в этой сборке SBCL** (jsown есть в deps, но в рантайме используется только `parse`/`val` в legacy-import) — для простых ответов ручной `format` надёжнее

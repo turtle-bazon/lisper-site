@@ -11,6 +11,11 @@
 (defparameter *regexp-game-token*
   "regexp-game-test-token-01")
 
+(defun regexp-game-token ()
+  "Токен bearer-авторизации: из конфига :game-token, иначе дефолт."
+  (or (config :game-token)
+      *regexp-game-token*))
+
 ;;; Реальные сэмплы пользователя (2026-09-16).
 ;;; right = строки, которые ПРАВИЛЬНАЯ регулярка должна принимать целиком.
 ;;; wrong = строки, которые правильная регулярка должна отклонять целиком.
@@ -65,8 +70,9 @@
         (when reg (aref reg 0))))))
 
 (defun regexp-game-authorized-p (env)
-  (and *regexp-game-token*
-       (string= (bearer-token env) *regexp-game-token*)))
+  (let ((token (regexp-game-token)))
+    (and token
+         (string= (bearer-token env) token))))
 
 (defun regexp-full-match-p (regexp sample)
   "T если regexp матчит ВСЮ строку sample (а не только подстроку)."
