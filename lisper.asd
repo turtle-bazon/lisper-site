@@ -45,6 +45,7 @@
                  (:file "js")
                  (:file "pages")
                  (:file "forum-pages")
+                 (:file "regexp-game")
                  (:file "routes")
                  (:file "server")
                  (:file "legacy-import")

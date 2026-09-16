@@ -157,6 +157,7 @@ src/
   css.lisp          — CL-CSS + raw media query
   js.lisp           — серверные хелперы URL/кэша (jscl-url, jscl-bundle-url)
   pages.lisp        — CL-WHO HTML (cat-card генерация)
+  regexp-game.lisp  — API /regexp-game (проверка регулярки игроком vs сэмплы)
   routes.lisp       — роутинг через path-info
   main.lisp         — entry point
 ```
@@ -541,6 +542,13 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - **Postmodern превращает Lisp NIL в SQL-строку "false"** (и `search`-позиции вроде 0 — в SQL false): для nullable TEXT-колонок передавать `:null` (функция `sql-null-if-nil`), булевы детекторы (`bot-user-agent-p`) должны возвращать строго T/NIL, иначе `googlebot` на позиции 3 упадёт в boolean-колонку
 - **Postmodern возвращает SQL NULL в результатах как символ `:NULL`** — он truthy! `(or x "")` его НЕ отсекает (`(or :NULL "")` → `:NULL`), а `length`/`string-trim` на нём падают ("The value :NULL is not of type SEQUENCE"). Дашборд аналитики ловил это в "Последние визиты" (`(analytics-truncate (or referrer ""))`). **Фикс**: `COALESCE(referrer, '')` прямо в SQL (`analytics-recent`), а не в Lisp
 - **Скрытый URL аналитики** (`/analytics/<secret>`): рендерит тот же `forum-page-analytics` с `user=nil` (header рендерится анонимным — ок). Добавлен 2026-08-11 (когда вход/регистрация были отключены; с 2026-08-21 авторизация снова работает, но URL оставлен как запасной вход)
+
+## Regexp-game (API) (2026-09-16)
+- **Endpoint** `POST /regexp-game` в `src/regexp-game.lisp` (подключён в `lisper.asd` ДО routes), роут в `make-app` (routes.lisp) — перед SEO-блоком. Тело запроса — **raw text** регулярка (UTF-8, `read-raw-body-text`, БЕЗ form-декодирования). Ответ — JSON: `{"right": N, "wrong": M, "solved": bool}`: `right` = сколько right-сэмплов регулярка матчит ЦЕЛИКОМ, `wrong` = сколько wrong-сэмплов матчит, `solved` = `(right == len(right-samples)) AND (wrong == 0)`. Ошибки: 401 `{"error":"unauthorized"}` (нет/неверный токен), 400 `{"error":"invalid regexp"}` (невалидная регулярка — логируется `format t`), 400 `{"error":"empty regexp"}` (пустое тело)
+- **Авторизация**: заголовок `Authorization: Bearer <token>`. Токен **захардкожен** в `*regexp-game-token*` (по просьбе пользователя; конфигурацию в него добавлять не нужно). Парсинг: `Bearer-token` → cl-ppcre `scan-to-strings "(?i)^Bearer\\s+(.+)$"`, register-группа достаётся через `(aref reg 0)` — **cl-ppcre `scan-to-strings` возвращает register-group'ы как ВЕКТОР строк, не строку**; `(when reg (aref reg 0))`. **`[[:space:]]` в cl-ppcre не работает** (в `scan-to-strings` даёт NIL) — использовать `\s+` (POSIX-классы в capture-группах ненадёжны)
+- **Full-match семантика**: `regexp-full-match-p` оборачивает регулярку в `\A(?:~A)\Z` и проверяет `scan` покрыл всю строку (start=0, end=len). `cl-ppcre:scan` сам по себе матчит ПОДСТРОКУ (и пустые матчи на 0-позиции!) — без якоря `a|ab` vs `ab` и `a*` vs `ba` дают ложные срабатывания
+- **Сэмплы для тестов (временные)**: `*regexp-game-right-samples*` = `("a" "b" "ab" "baa" "baba")`, `*regexp-game-wrong-samples*` = `("c" "x" "" "ab " "abc")`. **Заменить на реальные, когда пользователь их даст.** Эталон для right: `^[ab]+$` → `{"right":5,"wrong":0,"solved":true}`; `.*` → `(5 5 false)`; `^c$` → `(0 1 false)`
+- **JSON собирается строкой** через `format` (`~:[false~;true~]` для bool): **`jsown:to-json` УПАЛ с SEGFAULT (Memory fault) в этой сборке SBCL** (jsown есть в deps, но в рантайме используется только `parse`/`val` в legacy-import) — для простых ответов ручной `format` надёжнее
 
 ## Markdown-парсер на чистом CL (JSCL) (2026-08-14)
 - **Fix (2026-09-09) — бесконечный цикл в `parse-inline-lex` на тексте, заканчивающемся пробелами без \n** (100% CPU клиента на `/blog/turtle`): cond-ветка «blank line» `((is-blank-str (subseq text i)) nil)` НЕ продвигала счётчик `i` — последняя строка абзаца с хвостовыми пробелами (напр. усечённый серверный эксерпт `..asked them ` или тривиальная `"a "`) оставляла `i` стоящим на пробеле, и `loop while (< i len)` крутился вечно. Фикс: `(setf i len)`. Минимальный репро: `markdown:render-to-html "a "`. Диагностика: node-харнесс с `render-to-html` на реальных эксерптах страницы + биссекция префиксов; найден биссекцией между len 100 и 102.

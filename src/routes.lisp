@@ -371,7 +371,12 @@
                       '(302 (:location "/login") (""))))
                  (t '(404 (:content-type "text/html; charset=utf-8") (""))))))
 
-;; SEO: robots/sitemap/rss
+;; Regexp game (API). POST raw body = регулярка.
+             ((and (string= path "/regexp-game")
+                   (eq (env-method env) :POST))
+              (handle-regexp-game env))
+
+             ;; SEO: robots/sitemap/rss
              ((string= path "/robots.txt")
               `(200 (:content-type "text/plain; charset=utf-8")
                     (,(robots-txt))))
