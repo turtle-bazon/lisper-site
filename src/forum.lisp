@@ -9,6 +9,13 @@
       (destructuring-bind (id name slug-desc desc) row
         (list :id id :name name :slug slug-desc :description desc)))))
 
+(defun sql-null->nil (v)
+  "Postmodern отдаёт SQL NULL как символ :NULL, а он TRUTHY — любой
+   (when col ...) на NULL-колонке срабатывает, а escape/string-функции
+   падают с \"The value :NULL is not of type SEQUENCE\". Здесь любой
+   признак SQL-NULL приводится к CL NIL."
+  (unless (eq v :null) v))
+
 (defun get-topics (category-id &optional (offset 0) (limit 20))
   (postmodern:query
    "SELECT t.id, t.title, TO_CHAR(t.created_at, 'DD.MM.YYYY HH24:MI'), TO_CHAR(t.last_post_at, 'DD.MM.YYYY HH24:MI'), t.post_count,
@@ -47,17 +54,24 @@
         (list :id id :category-id cat-id :user-id user-id :title title
               :created-at created-at :post-count post-count
               :category-name cat-name :category-slug cat-slug
-              :username username :archived archived :old-author old-author)))))
+              :username username
+              :archived (sql-null->nil archived)
+              :old-author (sql-null->nil old-author))))))
 
 (defun get-posts (topic-id &optional (offset 0) (limit 50))
-  (postmodern:query
-   "SELECT p.id, p.body, TO_CHAR(p.created_at, 'DD.MM.YYYY HH24:MI'), u.username, u.role, p.old_author
-    FROM posts p
-    JOIN users u ON p.user_id = u.id
-    WHERE p.topic_id = $1
-    ORDER BY p.created_at ASC
-    LIMIT $2 OFFSET $3"
-   topic-id limit offset))
+  ;; строки, а не plist: (id body created-at username role old-author)
+  (mapcar (lambda (row)
+            (let ((r (copy-list row)))
+              (setf (nth 5 r) (sql-null->nil (nth 5 r)))
+              r))
+          (postmodern:query
+           "SELECT p.id, p.body, TO_CHAR(p.created_at, 'DD.MM.YYYY HH24:MI'), u.username, u.role, p.old_author
+     FROM posts p
+     JOIN users u ON p.user_id = u.id
+     WHERE p.topic_id = $1
+     ORDER BY p.created_at ASC
+     LIMIT $2 OFFSET $3"
+           topic-id limit offset)))
 
 (defun create-topic (category-id user-id title body)
   (postmodern:execute

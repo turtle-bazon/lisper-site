@@ -205,13 +205,15 @@ Sitemap: ~A/sitemap.xml
         collect (cons lang base-path)))
 
 (defun jsonld-topic-posting (topic first-post)
-  "DiscussionForumPosting для архивной темы форума.
-   TOPIC — plist из get-topic, FIRST-POST — первый plist из get-posts."
-  (let* ((title (json-escape (getf topic :title)))
-         (url (format nil "~A/topic/~D" (site-url) (getf topic :id)))
-         (iso (dmy-to-iso (getf first-post :created-at)))
-         (author (json-escape (or (getf first-post :old-author)
-                                  (getf first-post :username)
-                                  "oldlisper"))))
-    (format nil "{\"@context\":\"https://schema.org\",\"@type\":\"DiscussionForumPosting\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"~A\"},\"headline\":\"~A\"~@[,\"datePublished\":\"~A\"~],\"author\":{\"@type\":\"Person\",\"name\":\"~A\"}}"
-            url title iso author)))
+  "DiscussionForumPosting для темы форума.
+   TOPIC — plist из get-topic, FIRST-POST — СТРОКА из get-posts
+   (id body created-at username role old-author), не plist!"
+  (when topic
+    (let* ((title (json-escape (getf topic :title)))
+           (url (format nil "~A/topic/~D" (site-url) (getf topic :id)))
+           (iso (dmy-to-iso (third first-post)))
+           (author (json-escape (or (sql-null->nil (sixth first-post))
+                                    (fourth first-post)
+                                    "oldlisper"))))
+      (format nil "{\"@context\":\"https://schema.org\",\"@type\":\"DiscussionForumPosting\",\"mainEntityOfPage\":{\"@type\":\"WebPage\",\"@id\":\"~A\"},\"headline\":\"~A\"~@[,\"datePublished\":\"~A\"~],\"author\":{\"@type\":\"Person\",\"name\":\"~A\"}}"
+              url title iso author))))

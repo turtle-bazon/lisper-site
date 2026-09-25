@@ -261,13 +261,14 @@
           (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
             (cl-who:htm
              (:html :lang *lang*
-              (:head (cl-who:str
-                       (let* ((fp (first posts))
-                              (desc (seo/description
-                                     (or (getf fp :body)
-                                         (getf topic :title))))
-                              (jld (jsonld-topic-posting
-                                    topic fp)))
+               (:head (cl-who:str
+                        (let* ((fp (first posts))
+                               ;; get-posts отдаёт строки: (id body created-at ...)
+                               (desc (seo/description
+                                      (or (second fp)
+                                          (getf topic :title))))
+                               (jld (jsonld-topic-posting
+                                     topic fp)))
                          (forum-render-head (getf topic :title)
                            :description desc
                            :canonical (format nil "/topic/~D" (getf topic :id))

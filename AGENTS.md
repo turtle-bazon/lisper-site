@@ -439,6 +439,28 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
 - **Импортер**: `seo/register-content-redirects` вызывается после INSERT каждого
   поста; `seo/insert-redirect` с ON CONFLICT DO NOTHING. Итог: 171 уникальный
   old_path → /blog/oldlisper/<slug>.
+- **BUG (2026-09-25) — 500 на КАЖДОЙ теме форума: "The value :NULL is not of type
+  SEQUENCE"**. `get-posts` (forum.lisp) отдаёт СПИСКИ-строки, а `posts.old_author`
+  для НЕ-импортированных постов = SQL NULL → postmodern отдаёт символ `:NULL`,
+  который **TRUTHY**. В `forum-page-topic` `(when old-author ...)` срабатывал,
+  `(cl-who:escape-string :NULL)` падал. Побочно: тема рендерилась как
+  `legacy-html` (без markdown) вместо `md-content md-rendered`. Фикс: хелпер
+  `sql-null->nil` (forum.lisp, рядом с `get-topics`) — приводит `:NULL`→NIL;
+  применяется в `get-topic` (`:archived`, `:old-author`) и в `get-posts`
+  (`(setf (nth 5 r) (sql-null->nil (nth 5 r)))` на копии строки). Урок: любую
+  nullable-колонку из постмодерна нормализовать В СЛОЕ ДАННЫХ, а не в каждом
+  рендере (иначе каждая новая страница с такой колонкой — новый 500).
+  `get-blog-post-by-slug` (blog.lisp:114) нормализовал с самого начала,
+  списочные выборки блога — guards `(unless (eq old-author :null) ...)` в
+  forum-pages.lisp:1123/1174/1332/1427.
+- **BUG (2026-09-25, тихий) — `getf` на строке из `get-posts`**: `get-posts`
+  возвращает СПИСОК, а `getf` ждёт plist → `(getf fp :body)` = NIL. Из-за этого
+  `seo/description` для темы брала заголовок вместо текста первого поста, а
+  `jsonld-topic-posting` (seo.lisp) писала `author: "oldlisper"` и НЕ писала
+  `datePublished` для всех тем. Фикс: позиционный доступ (`second`/`third`/
+  `fourth`/`sixth`) + `(when topic ...)` в `jsonld-topic-posting`. Проверено на
+  живой странице: `datePublished":"2026-06-23T23:45:00"`, author — реальный
+  (`turtle` / `archimag` для импортированных).
 - **Уроки (финальные)**: (1) «defun net=0» НЕ гарантирует правильную вложенность —
   при патчах через sed/python легко закрыть внешний let* раньше времени
   (ok/err становились свободными переменными → runtime unbound); надёжная
