@@ -5,7 +5,8 @@
 # all embedded into it at build time (src/resources.lisp, src/jscl-bundles.lisp),
 # so nothing but the executable needs to be copied. No libpq either — the
 # cl-postgres fork talks the wire protocol over sb-bsd-sockets in pure CL.
-FROM turtlebazon/bazon-lisp-prod
+# Pinned to the same 2.6.9 base as stage 1 (see Container.stage1).
+FROM docker.io/turtlebazon/bazon-lisp-prod:2.6.9
 
 WORKDIR /app
 

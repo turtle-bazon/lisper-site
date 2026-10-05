@@ -7,7 +7,12 @@
 # node the build "succeeds" with an empty table (REQUIRE_NODE=1 turns that into
 # a hard error), so nodejs is installed here. It never reaches the runtime
 # image — only the extracted binary is copied into stage 2.
-FROM turtlebazon/bazon-lisp-dev
+#
+# Base image is pinned (bazon-lisp-dev:2.6.9 == SBCL 2.6.9) instead of
+# :latest, so a rebuild months from now uses the same compiler. Fully qualified
+# with docker.io on purpose: short-name resolution is not configured here, and
+# an unqualified FROM only works when the image already happens to be local.
+FROM docker.io/turtlebazon/bazon-lisp-dev:2.6.9
 
 ARG BUILD_SUFFIX=
 

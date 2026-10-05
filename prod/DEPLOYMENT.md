@@ -38,16 +38,34 @@ installed *inside* the builder image (see §3).
 
 ### On the build machine
 - **podman** (rootless is fine — the stage-1 `apt-get` runs in the user namespace)
-- Network access to `turtlebazon/bazon-lisp-dev` (builder) and
-  `turtlebazon/bazon-lisp-prod` (runtime), plus Debian repos for `nodejs`
+- Network access to `docker.io/turtlebazon/bazon-lisp-dev:2.6.9` (builder),
+  `docker.io/turtlebazon/bazon-lisp-prod:2.6.9` (runtime) and Debian repos for
+  `nodejs`
 - No SBCL, no quicklisp, no node — the container has all of it
 
 ### Containerfiles
-- `Container.stage1` — from `turtlebazon/bazon-lisp-dev`, installs `nodejs`,
-  copies the Lisp sources, runs `make container-build` with
+- `Container.stage1` — from `docker.io/turtlebazon/bazon-lisp-dev:2.6.9`,
+  installs `nodejs`, copies the Lisp sources, runs `make container-build` with
   `REQUIRE_NODE=1 BUILD_SUFFIX=-stage1`.
-- `Container.stage2` — from `turtlebazon/bazon-lisp-prod`, copies
-  `build/lisper-stage1` to `/app/lisper`, exposes 8080.
+- `Container.stage2` — from `docker.io/turtlebazon/bazon-lisp-prod:2.6.9`,
+  copies `build/lisper-stage1` to `/app/lisper`, exposes 8080.
+
+### Base images are pinned, not `:latest`
+Both stages pin the base image to the **`2.6.9`** tag (SBCL 2.6.9), so a rebuild
+months from now uses the same compiler as the tested build. To move to a newer
+toolchain: build the base images in `bazon-lisp/bazon-lisp-docker/` with
+`SBCL_VERSION`, publish them, then bump both `FROM` lines.
+
+Two gotchas when doing that:
+- That repo's Dockerfiles default to `ARG SBCL_VERSION=2.6.6`, and its
+  `build`/`publish` scripts tag whatever they just built — so `./build 2.6.9`
+  **without** `--build-arg SBCL_VERSION=2.6.9` silently publishes a 2.6.6 image
+  under the `2.6.9` tag. Verify what you got:
+  `podman run --rm docker.io/turtlebazon/bazon-lisp-dev:2.6.9 sbcl --version`.
+- Short image names don't resolve on this host (`no unqualified-search
+  registries`), so the `FROM` lines are fully qualified with `docker.io`. An
+  unqualified `FROM turtlebazon/...` only works when that image already happens
+  to be in local storage, which makes builds fail on a clean machine.
 
 ### Why node is needed at build time
 `build-resources.lisp` compiles `jscl-tools/*.lisp` and `jscl-games/*.lisp` into
