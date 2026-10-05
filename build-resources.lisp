@@ -182,6 +182,14 @@
 ;;; через node (jscl/jscl-node.js) и эмбеддинг в jscl-bundles.lisp
 ;;; ============================================================
 
+(defun require-node-p ()
+  "T when REQUIRE_NODE is set in the environment. Used by the container build
+   (prod/Container.stage1): there a missing node must be fatal, otherwise the
+   image ships with an empty *jscl-bundles* table and the REPL, the games and
+   the markdown renderer silently 404 in the browser."
+  (let ((v (uiop:getenv "REQUIRE_NODE")))
+    (and v (plusp (length v)) (not (string= v "0")))))
+
 (defun node-available-p ()
   "T when the node binary is runnable (build step uses it to compile bundles)."
   (handler-case
@@ -245,6 +253,9 @@
     (ensure-directories-exist (merge-pathnames #P"build/" base))
     (let ((bundles '())
           (node-ok nil))
+      ;; Container build: node-less would silently ship an empty bundle table.
+      (when (and (require-node-p) (not (node-available-p)))
+        (error "REQUIRE_NODE=1 but 'node' cannot be run. The image would have no JS bundles (REPL/games/markdown broken). Install nodejs in the builder image."))
       (when (node-available-p)
         (setf node-ok t)
         (with-open-file (stream script-path :direction :output :if-exists :supersede)
@@ -314,7 +325,11 @@
         (format stream "  \"Возвращает JS-бандл по имени.\"~%")
         (format stream "  (cdr (assoc name *jscl-bundles* :test #'string=)))~%"))
       (format t "Generated ~a (~a bundles, node=~a)~%" output (length bundles)
-              (if node-ok "yes" "NO")))))
+              (if node-ok "yes" "NO"))
+      ;; 6 bundles: repl, lisp-invaders, lambda-runner, paren-matcher,
+      ;; s-dungeon, site. Anything less in a container build = broken site.
+      (when (and (require-node-p) (< (length bundles) 6))
+        (error "REQUIRE_NODE=1 but only ~a of 6 JS bundles were produced." (length bundles))))))
 
 (build-resources)
 (build-game-sources)

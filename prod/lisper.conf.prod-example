@@ -1,0 +1,48 @@
+;;; lisper — production configuration example for quadlet deployment
+;;;
+;;; Copy to the server as  ~/etc/lisper.conf  and edit:
+;;;   scp prod/lisper.conf.prod-example lisper@SERVER:~/etc/lisper.conf
+;;;
+;;; The quadlet unit mounts this file read-only at /etc/lisper.conf.
+;;; db-host MUST be "postgres" (the quadlet NetworkAlias) — not 127.0.0.1.
+;;;
+;;; NOTE: every "changeme" below is a placeholder. Replace before deploying:
+;;; the admin secret is the password-less dashboard URL (/analytics/<secret>),
+;;; and the form secret signs the registration/login anti-spam tokens — if it
+;;; is missing or guessable, registration forms can be replayed.
+;;;
+;;; IMPORTANT: this file is ONE s-expression read with (read s) — all keys must
+;;; stay INSIDE the parentheses. A key placed after the closing paren is
+;;; silently ignored (that bug cost us a wrong :site-url once, see AGENTS.md).
+
+(:address "0.0.0.0"
+ :port 8080
+ :log-level :info
+
+ ;; --- PostgreSQL (quadlet service "postgres" on the lisper network) ---
+ :db-host "postgres"
+ :db-port 5432
+ :db-name "lisper"
+ :db-user "lisper"
+ :db-password "lisper"
+
+ ;; --- Geo analytics ---
+ ;; Optional: MaxMind GeoLite2-Country.mmdb under the read-only ~/data mount.
+ ;; If missing or unreadable, geo is simply disabled (not fatal).
+ :geo-db-path "/data/maxmind/GeoLite2-Country.mmdb"
+
+ ;; --- SEO / absolute URLs ---
+ ;; Canonical, hreflang alternates, sitemap.xml, rss and OpenGraph URLs.
+ :site-url "https://lisper.ru"
+
+ ;; --- Secrets ---
+ ;; :admin-secret  — the secret part of the hidden analytics dashboard URL
+ ;;                   (/analytics/<secret>, no login required). A wrong
+ ;;                   secret yields 404; /admin/* still needs an admin session.
+ ;; :form-secret   — HMAC key for registration/login form anti-spam tokens.
+ ;;                   Falls back to :admin-secret when absent.
+ ;; :game-token    — bearer token for the POST /regexp-game API.
+ ;;                   Falls back to the built-in default when absent.
+ :admin-secret "changeme-admin-secret-random-hex"
+ :form-secret "changeme-form-secret-random-hex"
+ :game-token "changeme-game-token-random-hex")

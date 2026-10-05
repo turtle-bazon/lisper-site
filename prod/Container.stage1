@@ -1,0 +1,31 @@
+# =============================================================================
+# Stage 1 — build the CL binary inside turtlebazon/bazon-lisp-dev
+# =============================================================================
+# Unlike link-short, lisper NEEDS node at build time: build-resources.lisp
+# compiles jscl-tools/*.lisp and jscl-games/*.lisp into JS bundles with the
+# vendored jscl/jscl-node.js and embeds them in src/jscl-bundles.lisp. Without
+# node the build "succeeds" with an empty table (REQUIRE_NODE=1 turns that into
+# a hard error), so nodejs is installed here. It never reaches the runtime
+# image — only the extracted binary is copied into stage 2.
+FROM turtlebazon/bazon-lisp-dev
+
+ARG BUILD_SUFFIX=
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app-build
+
+COPY lisper.asd build.lisp build-resources.lisp Makefile ./
+COPY src/ ./src/
+COPY migrations/ ./migrations/
+COPY resources/ ./resources/
+COPY jscl/ ./jscl/
+COPY jscl-tools/ ./jscl-tools/
+COPY jscl-games/ ./jscl-games/
+
+# container-build = clean + prepare + embed-resources (sbcl, needs node above)
+# + build.lisp. No pkill (nothing of ours runs in the builder) and no host
+# processes. Output: build/lisper$BUILD_SUFFIX.
+RUN REQUIRE_NODE=1 BUILD_SUFFIX=$BUILD_SUFFIX make container-build

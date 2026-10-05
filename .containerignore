@@ -1,0 +1,24 @@
+# Build context for Container.stage1 — everything the image does NOT need.
+# Keep in sync with .hgignore, but note the difference: .hgignore hides VCS
+# metadata and the dev conf, .containerignore also keeps the build context
+# small (wayback/site/ is ~1400 mirrored HTML pages).
+
+.hg/
+.hgignore
+build/
+# ...but the extracted stage1 binary IS the input of Container.stage2.
+!build/lisper
+!build/lisper-stage1
+data/
+static/
+education/
+issues/
+tests/
+wayback/
+lisper.conf
+download.pid
+*.fasl
+*.lx64fsl
+*.dx64fsl
+*~
+\#*\#

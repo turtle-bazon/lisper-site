@@ -1,0 +1,34 @@
+#!/bin/bash
+set -euo pipefail
+
+# Compile the CL binary inside the bazon-lisp-dev container, extract it to
+# build/lisper-stage1. Uses cached layers if source files haven't changed.
+#
+# Unlike link-short there is no npm step here: lisper's only build-time
+# non-SBCL tool (node, for the JSCL bundles) is installed inside the builder
+# image, so `prod/build` needs nothing but podman on the host.
+
+PROD_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_DIR="$(dirname "$PROD_DIR")"
+IMAGE_NAME="lisper-builder"
+
+echo "Building binary in container..."
+podman build -f $PROD_DIR/Container.stage1 --build-arg BUILD_SUFFIX=-stage1 -t $IMAGE_NAME:latest $PROJECT_DIR
+
+# A stale/interrupted build layer can leave the image without the binary
+# (buildah reuses the cached RUN layer). Fail here with a clear message and
+# rebuild with --no-cache instead of letting `podman cp` fail confusingly.
+if ! podman run --rm $IMAGE_NAME:latest sh -c 'test -x /app-build/build/lisper-stage1'; then
+  echo "Stage1 binary missing from image (stale cache), rebuilding with --no-cache..."
+  podman build --no-cache -f $PROD_DIR/Container.stage1 --build-arg BUILD_SUFFIX=-stage1 -t $IMAGE_NAME:latest $PROJECT_DIR
+fi
+
+# Extract binary from builder image
+mkdir -p $PROJECT_DIR/build
+rm -f $PROJECT_DIR/build/lisper-stage1
+CONTAINER_ID=$(podman create $IMAGE_NAME:latest)
+podman cp $CONTAINER_ID:/app-build/build/lisper-stage1 $PROJECT_DIR/build/lisper-stage1
+podman rm $CONTAINER_ID
+touch $PROJECT_DIR/build/lisper-stage1
+
+echo "Binary extracted: build/lisper-stage1"

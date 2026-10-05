@@ -1,0 +1,23 @@
+[Container]
+Image=docker.io/library/postgres:18-alpine
+# Debian-style superuser, host auth via scram (password actually enforced).
+Environment=POSTGRES_USER=postgres
+Environment=POSTGRES_PASSWORD=changeme-postgres-superuser-password
+Environment=POSTGRES_DB=postgres
+Environment=POSTGRES_HOST_AUTH_METHOD=scram-sha-256
+# Pre-creates the lisper role + DB (see postgres-init/). The app applies its
+# own migrations from the embedded src/migrations.lisp on first connect.
+Volume=./postgres-init:/docker-entrypoint-initdb.d:ro
+Volume=/home/lisper/data/postgresql:/var/lib/postgresql
+Network=lisper.network
+NetworkAlias=postgres
+HealthCmd=pg_isready -U postgres -d postgres -h 127.0.0.1
+HealthInterval=10s
+HealthTimeout=5s
+HealthRetries=5
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

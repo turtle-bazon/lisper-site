@@ -1,0 +1,18 @@
+# =============================================================================
+# Stage 2 — runtime image, requires pre-built binary at build/lisper-stage1
+# =============================================================================
+# The binary is self-contained: HTML/CSS/JS/JSCL bundles/favicon/OG image are
+# all embedded into it at build time (src/resources.lisp, src/jscl-bundles.lisp),
+# so nothing but the executable needs to be copied. No libpq either — the
+# cl-postgres fork talks the wire protocol over sb-bsd-sockets in pure CL.
+FROM turtlebazon/bazon-lisp-prod
+
+WORKDIR /app
+
+COPY build/lisper-stage1 ./lisper
+
+EXPOSE 8080
+
+# No args = start the web server (lisper:main). Config is read from
+# /etc/lisper.conf (mounted by quadlet) — see prod/lisper.conf.prod-example.
+CMD ["/app/lisper"]

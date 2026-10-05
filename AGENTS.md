@@ -112,6 +112,25 @@
 - **Остановка дев-сервера**: `make dev-stop`
 - **Важно**: не запускать sbcl вручную — только через make. Прямые вызовы sbcl только для отладки проблем с make
 - **Важно**: не запускать/останавливать сервер вручную — `pkill`, `rm -rf build`, `mkdir -p build` только если есть проблемы с make
+- **`container-build`** (для prod-сборки): `clean + prepare + embed-resources + build.lisp`, БЕЗ `dev-stop` (в контейнере нечего pkill'ить). Артефакт — `build/lisper$(BUILD_SUFFIX)`
+- **`BUILD_SUFFIX`** (env, читается в `build.lisp` через `uiop:getenv`): суффикс имени бинарника. Stage1 в контейнере собирает `lisper-stage1`, чтобы не затирать хостовый `build/lisper`
+- **`REQUIRE_NODE=1`** (env, читается в `build-resources.lisp` → `require-node-p`): делает отсутствие node фатальной ошибкой. Нужна только контейнерной сборке: без node `src/jscl-bundles.lisp` генерируется ПУСТЫМ, и в образе молча ломаются REPL, игры и markdown-рендер (`/jscl-bundle/site` → 404). Проверяется не только наличие node, но и что собрано ≥6 бандлов (repl, 4 игры, site)
+- **`.containerignore`**: контекст сборки для Container.stage1/2. Исключает `.hg/`, `build/`, `wayback/`, `tests/`, `education/`, `data/`, `static/`, `lisper.conf`. **НО** с исключениями `!build/lisper` и `!build/lisper-stage1` — без них stage2 не найдёт бинарник (`no items matching glob ... (1 filtered out using .containerignore)`). Без `.containerignore` в контекст уедут все 1430 файлов `wayback/site/`
+- **`.hgignore`**: паттерн `build/` (glob, без ведущего слэша) матчит ЛЮБОЙ каталог `build` на любой глубине → молча игнорировал `prod/build` (скрипт деплоя), и hg отказывался его трекать. По той же причине `/build/` НЕ работает как «якорь» (hg не поддерживает ведущий слэш в glob) — правильное решение `syntax: regexp` + `^build/`. Проверять новые файлы: `hg status | grep '^?'` должен быть пустым
+
+### Прод-деплой: podman quadlet (2026-10-05)
+По образцу `../link-short/prod/` — та же двухстадийная схема, тот же `bazon-lisp-dev`/`bazon-lisp-prod`. Полная инструкция: **`prod/DEPLOYMENT.md`**.
+- **`prod/`**: `Container.stage1` (сборка бинарника), `Container.stage2` (runtime-образ), `stage1-build`/`stage2-build`/`build`/`clean` (скрипты), `quadlet/` (юниты), `lisper.conf.prod-example`, `proxy/{nginx,apache}.conf`, `DEPLOYMENT.md`
+- **Образы**: `lisper:latest` (213MB, runtime) и `lisper-builder:latest` (759MB), тарболл `build/lisper.tar`. Хостом нужен ТОЛЬКО podman — sbcl/node/quicklisp живут в образе
+- **Отличие от link-short**: lisper нужен **node на этапе сборки** (JSCL-бандлы компилируются `jscl/jscl-node.js`), поэтому stage1 ставит `nodejs` через apt. В рантайм node не попадает — копируется только бинарник
+- **Рантайму не нужен libpq**: в этой сборке `cl-postgres` — форк с чистой реализацией протокола поверх `sb-bsd-sockets` (в `cl-postgres.asd` `:sbcl (:require :sb-bsd-sockets)`, ни CFFI, ни `libpq.so`). Проверено: в `bazon-lisp-prod` нет ни libpq, ни psql, а lisper работает
+- **Всё статическое встроено в бинарник**: HTML/CSS/JS, JSCL-рантайм (`resources/jscl.js`), favicon, OG-картинка, бандлы (`src/resources.lisp`, `src/jscl-bundles.lisp`). Stage2 копирует ТОЛЬКО `build/lisper-stage1`
+- **Приложение ничего не пишет на диск** (нет `write-file`/`open-for-write` в `src/`) → `~/data` монтируется только ради GeoLite2 mmdb, `:ro`
+- **Юниты**: `lisper.network` (имя сети `lisper`), `postgres.container` (PostgreSQL 18-alpine, системный юзер `postgres` + scram, `NetworkAlias=postgres`, данные в `~/data/postgresql`), `lisper.container` (`PublishPort=8080:8080`, `/etc/lisper.conf` ro, `/data` ro, health `bash -c '</dev/tcp/localhost/8080'`, `After=`/`Wants=` в секции `[Unit]` — в `[Service]` они молча теряются). QuestDB, в отличие от link-short, не нужен
+- **PGDATA у PG18** = `/var/lib/postgresql/18/docker`, поэтому монтируется родитель `/var/lib/postgresql` (не сломается при смене версии PG)
+- **Схему создаёт приложение**: 18 миграций встроены в бинарник и применяются на каждом старте. `postgres-init/001-create-lisper.sql` только заводит роль `lisper` и БД `lisper`
+- **Внутри контейнера `:db-host` = `"postgres"`** (NetworkAlias резолвится через aardvark-dns), не `127.0.0.1`; имя quadlet-контейнера получает префикс `systemd-` (`podman exec -it systemd-postgres ...`)
+- **Аналитика зависит от заголовков прокси**: без `X-Real-IP`/`X-Forwarded-For` все посетители попадают в один IP-бакет «unknown» (см. «Аналитика — подводные камни»)
 
 ### Безопасность
 - **XSS через marked.js**: `marked.parse()` без санитизации → добавлен DOMPurify (`DOMPurify.sanitize()`) — **УСТАРЕЛО (2026-08-14)**: marked.js/DOMPurify удалены, markdown рендерит чистый CL-парсер `markdown:render-to-html` (raw HTML экранируется на этапе парсинга)
@@ -161,6 +180,13 @@ src/
   regexp-game.lisp  — API /regexp-game (проверка регулярки игроком vs сэмплы)
   routes.lisp       — роутинг через path-info
   main.lisp         — entry point
+prod/                — прод-деплой podman quadlet (см. «Прод-деплой» и prod/DEPLOYMENT.md)
+  Container.stage1  — сборщик: bazon-lisp-dev + nodejs → build/lisper-stage1
+  Container.stage2  — runtime: bazon-lisp-prod + бинарник, EXPOSE 8080
+  quadlet/          — lisper.network, postgres.container, lisper.container, postgres-init/
+  build stage1-build stage2-build clean — скрипты сборки/экспорта образа
+  lisper.conf.prod-example, proxy/, DEPLOYMENT.md
+.containerignore      — контекст сборки (исключениями отдаёт build/lisper-stage1 в stage2)
 ```
 
 ## Секции на главной

@@ -1,0 +1,18 @@
+#!/bin/bash
+set -euo pipefail
+
+# Build the runtime image from the pre-built binary.
+# Requires build/lisper-stage1 (run stage1-build first).
+
+PROD_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_DIR="$(dirname "$PROD_DIR")"
+IMAGE_NAME="lisper"
+
+if [ ! -f $PROJECT_DIR/build/lisper-stage1 ]; then
+  echo "Error: build/lisper-stage1 not found. Run stage1-build first."
+  exit 1
+fi
+
+echo "Building runtime image..."
+podman build -f $PROD_DIR/Container.stage2 -t $IMAGE_NAME:latest $PROJECT_DIR
+echo "Image built: $IMAGE_NAME:latest"

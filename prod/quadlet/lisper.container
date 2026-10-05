@@ -1,0 +1,22 @@
+[Container]
+Image=localhost/lisper:latest
+# Runtime config (DB host must be "postgres", not 127.0.0.1, inside the net).
+Volume=/home/lisper/etc/lisper.conf:/etc/lisper.conf:ro
+# GeoLite2 mmdb only — the app writes nothing to disk, so read-only is enough.
+Volume=/home/lisper/data:/data:ro
+Network=lisper.network
+PublishPort=8080:8080
+HealthCmd=bash -c '</dev/tcp/localhost/8080' || exit 1
+HealthInterval=30s
+HealthTimeout=5s
+HealthRetries=3
+
+[Unit]
+After=postgres.service lisper-network.service
+Wants=postgres.service lisper-network.service
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

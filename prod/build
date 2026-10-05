@@ -1,0 +1,34 @@
+#!/bin/bash
+set -euo pipefail
+
+# Full production build: runtime image + tarball export.
+# For incremental rebuilds (only runtime changed), use stage2-build instead.
+
+PROD_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_DIR="$(dirname "$PROD_DIR")"
+IMAGE_NAME="lisper"
+TARBALL="$PROJECT_DIR/build/lisper.tar"
+
+mkdir -p $PROJECT_DIR/build
+rm -f $TARBALL
+
+# Build binary in container (stage 1 cached if source unchanged)
+$PROD_DIR/stage1-build
+
+# Build runtime image
+$PROD_DIR/stage2-build
+
+# Export as tarball
+echo "Exporting image..."
+podman save $IMAGE_NAME:latest -o $TARBALL
+
+echo "Build complete: $TARBALL"
+echo ""
+echo "To deploy on server:"
+echo "  1. scp build/lisper.tar lisper@server:~/"
+echo "  2. scp -r prod/quadlet/ lisper@server:~/.config/containers/systemd/"
+echo "  3. On server: mkdir -p ~/etc ~/data/{postgresql,maxmind}"
+echo "  4. On server: cp lisper.conf.prod-example ~/etc/lisper.conf  (edit db-host=postgres)"
+echo "  5. On server: podman load -i ~/lisper.tar"
+echo "  6. On server: systemctl --user daemon-reload"
+echo "  7. On server: systemctl --user start lisper-network postgres lisper"

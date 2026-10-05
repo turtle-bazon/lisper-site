@@ -1,0 +1,19 @@
+#!/bin/bash
+set -euo pipefail
+
+# Remove old lisper and lisper-builder images (keep latest only).
+
+echo "Removing dangling images..."
+podman image prune -f 2>/dev/null || true
+
+# Remove untagged lisper images (keep only latest)
+for id in $(podman images lisper lisper-builder --no-trunc -q 2>/dev/null | sort -u); do
+  tags=$(podman image inspect $id --format '{{range .RepoTags}}{{.}} {{end}}' 2>/dev/null | xargs)
+  if [ -z "$tags" ]; then
+    echo "Removing untagged $id"
+    podman rmi -f $id 2>/dev/null || true
+  fi
+done
+
+echo "Done."
+podman images | grep lisper
