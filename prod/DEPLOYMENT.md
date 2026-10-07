@@ -142,6 +142,32 @@ The file is **one s-expression read with `(read s)`**: all keys must stay inside
 the parentheses. Anything after the closing paren is silently ignored (that bug
 once left `:site-url` at its default — see AGENTS.md).
 
+### Two domains: lisper.ru and lisper.nl
+
+The same app serves both domains. Absolute URLs (canonical, `hreflang`,
+`og:url`, RSS, `sitemap.xml`, JSON-LD, `Location` of the 301s) are built from the
+**request** host, not from a fixed one, so each domain emits self-referencing
+tags and ranks on its own:
+
+```lisp
+:site-url   "https://lisper.ru"                              ; fallback only
+:site-hosts ("lisper.ru" "lisper.nl")                        ; whitelist
+```
+
+- The host is taken from `X-Forwarded-Host` (first hop) or `Host`; the scheme
+  from `X-Forwarded-Proto`, so the proxy **must** forward that header
+  (`proxy/nginx.conf` and `proxy/apache.conf` do) or canonicals will say `http`
+  on an https site.
+- A host outside `:site-hosts` falls back to `:site-url` — this is the guard
+  that stops a crawler with a bogus `Host` from poisoning canonical/`og:url`.
+- Adding a domain means editing **two** places: `:site-hosts` in `lisper.conf`
+  and `server_name` in `prod/proxy/nginx.conf` (`ServerName`/`ServerAlias` in
+  the Apache config).
+- `sitemap.xml` and the `Sitemap:` line in `robots.txt` are also per-host, so
+  **submit both** `https://lisper.ru/sitemap.xml` and
+  `https://lisper.nl/sitemap.xml` in Search Console. Without `:site-hosts`
+  configured, everything falls back to `:site-url` (single-domain behaviour).
+
 ### Secrets (all in `lisper.conf`, never in the image)
 - `:admin-secret` — the secret in the hidden dashboard URL `/analytics/<secret>`
   (no login). Wrong secret → 404; `/admin/*` still requires an admin session.

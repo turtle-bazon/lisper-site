@@ -14,5 +14,11 @@
  ;; Токен API /regexp-game (Authorization: Bearer <token>);
  ;; если не задан — используется встроенный дефолт
  :game-token "change-me-game-token"
- ;; Канонический URL сайта (для canonical/sitemap/OG/RSS)
- :site-url "http://lisper.ru")
+  ;; Канонический URL сайта (для canonical/sitemap/OG/RSS).
+  ;; Используется как fallback, когда Host запроса не в списке :site-hosts.
+  :site-url "http://lisper.ru"
+  ;; Домены, для которых абсолютные URL (canonical/hreflang/og:url/RSS/
+  ;; sitemap) строятся от ТЕКУЩЕГО запроса, а не от :site-url. Host вне
+  ;; этого списка игнорируется — иначе краулер с чужим Host подмешал бы свой
+  ;; домен в canonical. Не задано = режим одного домена (только :site-url).
+  :site-hosts ("lisper.ru" "lisper.nl"))

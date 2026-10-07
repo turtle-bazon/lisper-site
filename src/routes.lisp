@@ -42,11 +42,12 @@
 (defun make-app ()
   (lambda (env)
     (handler-case
-        (let* ((path (getf env :path-info))
-               (*lang* (or (query-lang env)
-                               (detect-language env)))
-               (*path* path)
-               (user (ignore-errors (current-user env))))
+    (let* ((path (getf env :path-info))
+           (*lang* (or (query-lang env)
+                           (detect-language env)))
+           (*path* path)
+           (*site-url* (request-site-url env))
+           (user (ignore-errors (current-user env))))
           (add-security-headers
            (maybe-track-analytics
             env

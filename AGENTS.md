@@ -488,6 +488,7 @@ sbcl --eval '(asdf:load-system :lisper)' --eval '(lisper:main)' --quit
   `fourth`/`sixth`) + `(when topic ...)` в `jsonld-topic-posting`. Проверено на
   живой странице: `datePublished":"2026-06-23T23:45:00"`, author — реальный
   (`turtle` / `archimag` для импортированных).
+- **Абсолютные URL — от домена ЗАПРОСА (2026-10-07)**: у сайта два домена (lisper.ru и lisper.nl), и canonical/hreflang/og:url/RSS/sitemap/JSON-LD/Location-301 строятся от того хоста, по которому пришёл запрос. `src/seo.lisp`: `(site-url)` = `*site-url*` (bind в `make-app` рядом с `*lang*`/`*path*`) иначе `configured-site-url` (`:site-url`). Хост берётся из `X-Forwarded-Host` (первый хоп) иначе `Host`, схема — из `X-Forwarded-Proto` (первый хоп, список `a, b` режется) иначе схема из `:site-url`. **Белый список обязателен**: `strip-host-port` (режет `:8081`, understands `[::1]`) + `allowed-site-hosts` из конфига `:site-hosts`; Host вне списка → fallback на `:site-url`, поэтому краулер/сканер с чужим Host не подмешает свой домен в canonical. Нет `:site-hosts` → режим одного домена (только хост из `:site-url`) — обратная совместимость. Из-за этого `sitemap.xml` и `Sitemap:` в robots.txt тоже становятся self-referencing на каждом домене: **оба сабмитить в Search Console**
 - **Уроки (финальные)**: (1) «defun net=0» НЕ гарантирует правильную вложенность —
   при патчах через sed/python легко закрыть внешний let* раньше времени
   (ok/err становились свободными переменными → runtime unbound); надёжная

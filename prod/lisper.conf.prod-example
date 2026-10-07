@@ -32,8 +32,14 @@
  :geo-db-path "/data/maxmind/GeoLite2-Country.mmdb"
 
  ;; --- SEO / absolute URLs ---
- ;; Canonical, hreflang alternates, sitemap.xml, rss and OpenGraph URLs.
+ ;; :site-url is the FALLBACK origin (a request whose Host is not in
+ ;; :site-hosts, plus hostless output). For a recognised Host, absolute URLs
+ ;; (canonical, hreflang, og:url, RSS, sitemap.xml) are built from that Host +
+ ;; X-Forwarded-Proto, so lisper.ru and lisper.nl each emit self-referencing
+ ;; tags. List every domain you serve — anything missing silently falls back
+ ;; to :site-url. Keep this list in sync with server_name in prod/proxy/*.conf.
  :site-url "https://lisper.ru"
+ :site-hosts ("lisper.ru" "lisper.nl")
 
  ;; --- Secrets ---
  ;; :admin-secret  — the secret part of the hidden analytics dashboard URL

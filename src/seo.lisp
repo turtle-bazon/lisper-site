@@ -1,14 +1,80 @@
 ;;; SEO-инфраструктура: robots.txt, sitemap.xml, RSS, 301-редиректы
 ;;; со старых URL lisper.ru, JSON-LD.
 ;;;
-;;; Канонический адрес сайта — конфиг :site-url (по умолчанию
-;;; http://lisper.ru); все абсолютные ссылки строятся от него.
+;;; Абсолютные URL (canonical, hreflang, og:url, RSS, sitemap, JSON-LD,
+;;; Location у 301) строятся от ДОМЕНА ТЕКУЩЕГО ЗАПРОСА, если он есть в
+;;; белом списке :site-hosts, иначе от конфига :site-url. Так lisper.ru и
+;;; lisper.nl каждая отдаёт self-referencing canonical/og:url, а неизвестный
+;;; Host (краулер, прокси, сканер) не может подмешать свой домен.
 
 (in-package :lisper)
 
-(defun site-url ()
-  "Базовый URL сайта без завершающего слэша."
+(defun configured-site-url ()
+  "URL сайта из конфига :site-url без завершающего слэша. Fallback и
+   единственный источник для вывода без запроса (CLI)."
   (string-right-trim "/" (or (config :site-url) "http://lisper.ru")))
+
+(defparameter *site-url* nil
+  "Домен текущего запроса (bind в make-app). NIL — вне запроса.")
+
+(defun site-url ()
+  "Домен текущего запроса или конфиг :site-url."
+  (or *site-url* (configured-site-url)))
+
+;;; --- домен из заголовков запроса ----------------------------------------
+
+(defun strip-host-port (host)
+  "Хост без порта: \"lisper.nl:8081\" → \"lisper.nl\", \"[::1]:8080\" → \"::1\".
+   Возвращает строку в нижнем регистре с обрезанными пробелами."
+  (when host
+    (let* ((h (string-trim '(#\Space #\Tab) (string-downcase host)))
+           (h (if (and (plusp (length h)) (char= (char h 0) #\[))
+                  (let ((close (position #\] h)))
+                    (if close (subseq h 1 close) h))
+                  h)))
+      (let ((colon (position #\: h)))
+        (if (and colon (> colon 0)) (subseq h 0 colon) h)))))
+
+(defun first-forwarded-value (v)
+  "Первый хоп списка \"a, b, c\" (X-Forwarded-Proto / -Host)."
+  (when v
+    (let* ((s (string-trim '(#\Space #\Tab) v))
+           (comma (position #\, s)))
+      (string-trim '(#\Space #\Tab) (if comma (subseq s 0 comma) s)))))
+
+(defun allowed-site-hosts ()
+  "Белый список доменов из конфига :site-hosts. NIL → только домен из
+   :site-url (режим одного домена, поведение до 2026-10-05)."
+  (let ((hosts (config :site-hosts)))
+    (if hosts
+        (remove-duplicates
+         (remove nil (mapcar #'strip-host-port hosts))
+         :test #'string=)
+        (list (strip-host-port (configured-site-url))))))
+
+(defun url-scheme (url)
+  "Схема из URL или NIL."
+  (when (and url (plusp (min (length url) 8)))
+    (when (string= (subseq url 0 8) "https://") "https")))
+
+(defun request-scheme (env fallback-scheme)
+  "Схема текущего запроса: X-Forwarded-Proto (её задаёт терминирующий TLS
+   прокси), иначе схема из конфига."
+  (let ((xfp (first-forwarded-value (i18n-header env "x-forwarded-proto"))))
+    (cond ((and xfp (plusp (length xfp))) (string-downcase xfp))
+          (t (or fallback-scheme "http")))))
+
+(defun request-site-url (env)
+  "Домен текущего запроса как origin (без слэша) для абсолютных URL.
+   Берётся X-Forwarded-Host (первый хоп), иначе Host; домен берётся ТОЛЬКО
+   если он в :site-hosts — иначе возвращается configured-site-url."
+  (let* ((cfg (configured-site-url))
+         (raw (or (first-forwarded-value (i18n-header env "x-forwarded-host"))
+                  (i18n-header env "host")))
+         (host (strip-host-port raw)))
+    (if (and host (member host (allowed-site-hosts) :test #'string=))
+        (format nil "~A://~A" (request-scheme env (url-scheme cfg)) host)
+        cfg)))
 
 ;;; --- нормализация путей для редиректов ---------------------------------
 
