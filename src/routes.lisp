@@ -203,9 +203,19 @@
                     (tid (cl-ppcre:register-groups-bind (id)
                             ("^(\\d+)" rest)
                           (parse-integer id))))
-               `(301 (:location ,(format nil "/topic/~D" (or tid 0))
-                       :content-type "text/plain; charset=utf-8")
-                      (""))))
+               ;; Без цифр после префикса это не legacy-тред: /topic/0 —
+               ;; фиктивная страница, которая ещё и отдаёт 200 (soft-404).
+               ;; Отдаём честный 404, остальное ловит catch-all раздела.
+               ;; ВНИМАНИЕ: у if обязателен else — `(if tid X)` без него
+               ;; закрывает if, и следующая форма становится ОТДЕЛЬНЫМ
+               ;; statement, значение которого выигрывает у let* (тут был
+               ;; баг «редирект всегда 404»).
+               (if tid
+                   `(301 (:location ,(format nil "/topic/~D" tid)
+                           :content-type "text/plain; charset=utf-8")
+                          (""))
+                   `(404 (:content-type "text/html; charset=utf-8")
+                          (,(forum-page-not-found user))))))
 
             ;; Category page
             ((and (>= (length path) 7)
