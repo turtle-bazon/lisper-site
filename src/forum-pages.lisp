@@ -56,43 +56,48 @@
     (:title (cl-who:str (cl-who:escape-string title)))
     (when noindex
       (cl-who:htm (:meta :name "robots" :content "noindex")))
-    (when description
-      (cl-who:htm
-       ;; ВНИМАНИЕ: в позиции значения атрибута НЕЛЬЗЯ (cl-who:str X) —
-       ;; печатает значение raw ДО атрибута И как value (двойной вывод:
-       ;; <meta property='og:title'VALUE content='VALUE'/>). Только голые
-       ;; строки (CL-WHO сам эскейпит значения атрибутов).
-       (:meta :name "description" :content description)
-       ;; Open Graph + Twitter Card — для превью в Telegram/мессенджерах
-       (:meta :property "og:site_name" :content "lisper")
-       (:meta :property "og:title" :content title)
-       (:meta :property "og:type" :content og-type)
-       (:meta :property "og:url"
-              :content (format nil "~A~A"
-                               (site-url)
-                               (or canonical "/")))
-       (:meta :property "og:description"
-              :content description)
-       (:meta :property "og:image"
-              :content (format nil "~A/og-image.png" (site-url)))
-       (:meta :name "twitter:card" :content "summary")
-       (:meta :name "twitter:title" :content title)
-       (:meta :name "twitter:description"
-              :content description)
-       (:meta :name "twitter:image"
-              :content (format nil "~A/og-image.png" (site-url)))))
-    (when canonical
-      (cl-who:htm (:link :rel "canonical"
-                         :href (format nil "~A~A" (site-url) canonical))))
-    (when alternates
-      (loop for (lang . path) in alternates
-            do (cl-who:htm
-                (:link :rel "alternate" :hreflang lang
-                       :href (format nil "~A~A?lang=~A" (site-url) path lang)))))
-    (when rss
-      (cl-who:htm (:link :rel "alternate" :type "application/rss+xml"
-                         :title "lisper — блог"
-                         :href (format nil "~A~A" (site-url) rss))))
+    (let ((canon (seo/canonical-path (or canonical "/"))))
+      (when description
+       (cl-who:htm
+        ;; ВНИМАНИЕ: в позиции значения атрибута НЕЛЬЗЯ (cl-who:str X) —
+        ;; печатает значение raw ДО атрибута И как value (двойной вывод:
+        ;; <meta property='og:title'VALUE content='VALUE'/>). Только голые
+        ;; строки (CL-WHO сам эскейпит значения атрибутов).
+        (:meta :name "description" :content description)
+        ;; Open Graph + Twitter Card — для превью в Telegram/мессенджерах
+        (:meta :property "og:site_name" :content "lisper")
+        (:meta :property "og:title" :content title)
+        (:meta :property "og:type" :content og-type)
+        (:meta :property "og:url"
+               :content (format nil "~A~A" (site-url) canon))
+        (:meta :property "og:description"
+               :content description)
+        (:meta :property "og:image"
+               :content (format nil "~A/og-image.png" (site-url)))
+        (:meta :name "twitter:card" :content "summary")
+        (:meta :name "twitter:title" :content title)
+        (:meta :name "twitter:description"
+               :content description)
+        (:meta :name "twitter:image"
+               :content (format nil "~A/og-image.png" (site-url)))))
+     (when canonical
+       (cl-who:htm (:link :rel "canonical"
+                          :href (format nil "~A~A" (site-url) canon))))
+     (when alternates
+       (loop for (lang . path) in alternates
+             do (cl-who:htm
+                 (:link :rel "alternate" :hreflang lang
+                        :href (format nil "~A~A?lang=~A" (site-url) path lang))))
+       ;; x-default — на каком языке отдавать, когда язык посетителя не
+       ;; совпал ни с одной альтернативой. Без него hreflang-кластер
+       ;; неполон, и поисковик может не показать ни одной языковой версии.
+       (cl-who:htm
+        (:link :rel "alternate" :hreflang "x-default"
+               :href (format nil "~A~A" (site-url) canonical))))
+(when rss
+       (cl-who:htm (:link :rel "alternate" :type "application/rss+xml"
+                          :title "lisper — блог"
+                          :href (format nil "~A~A" (site-url) rss)))))
     (:link :rel "icon" :type "image/svg+xml" :href *favicon-data-uri*)
     (:style (cl-who:str (generate-css)))
     (when jsonld
@@ -1083,6 +1088,26 @@
           (when tag-html
             (cl-who:htm (cl-who:str tag-html)))))))))
 
+(defun blog-list-query (start year month)
+  "Query-строка для списка постов блога: NIL без фильтров, иначе
+   ?year=&month= (+ ?start= при пагинации). Учитывает, что 0 — TRUE в CL,
+   поэтому проверяем plusp явно.
+   Баг (2026-10-07): было
+   \"/blog~@[?start=~D~]~@[&year=~D&month=~2,'0d~]\" — условие ~@[, которым
+   был year=0 (не NIL!), оказывалось истинным, печатался блок без '?' и
+   со сдвинутыми аргументами: canonical был /blog&year=0&month=NIL."
+  (let* ((has-year (and (integerp year) (plusp year)))
+         (has-month (and (integerp month) (plusp month)))
+         (has-start (and (integerp start) (plusp start)))
+         (date (cond ((and has-year has-month) (format nil "year=~D&month=~2,'0d" year month))
+                     (has-year (format nil "year=~D" year))
+                     (has-month (format nil "month=~2,'0d" month))
+                     (t nil))))
+    (cond ((and date has-start) (format nil "?start=~D&~A" start date))
+          (date (format nil "?~A" date))
+          (has-start (format nil "?start=~D" start))
+          (t nil))))
+
 (defun blog-page-feed (user &optional (start 0) year month)
   (let ((posts (if (and year month)
                    (get-all-blog-posts :offset start :limit 20
@@ -1095,8 +1120,8 @@
                  (forum-render-head
                    (tr :blog-title)
                    :description (tr :blog-subtitle)
-                   :canonical (format nil "/blog~@[?start=~D~]~@[&year=~D&month=~2,'0d~]"
-                                      (plusp start) start year month)
+                   :canonical (concatenate 'string "/blog"
+                                       (blog-list-query start year month))
                    :alternates (seo/lang-alternates "/blog")
                    :rss "/rss")))
         (:body
@@ -1125,9 +1150,9 @@
                (cl-who:htm
                 (:p :class "empty-state" (cl-who:str (tr :blog-empty)))))
            (when (= (length posts) 20)
-             (cl-who:htm
-              (:p (:a :href (format nil "/blog?start=~d~@[&year=~d&month=~d~]"
-                                    (+ start 20) year month)
+(cl-who:htm
+               (:p (:a :href (concatenate 'string "/blog"
+                                          (blog-list-query (+ start 20) year month))
                       (cl-who:str (tr :older-posts))))))))
           (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
                         " &copy; 2026 | GPL-3.0"))))))))

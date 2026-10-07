@@ -270,6 +270,22 @@ Sitemap: ~A/sitemap.xml
   (loop for lang in *languages*
         collect (cons lang base-path)))
 
+(defparameter *query-lang* nil
+  "Язык, явно заданный в ?lang= текущего запроса (bind в make-app).
+   Отличается от *lang*: тот учитывает cookie/Accept-Language/домен.")
+
+(defun seo/canonical-path (path)
+  "Путь с ?lang= текущего запроса. Без этого каждый языковой вариант
+   (?lang=ru/en/tr/uk) отдаёт canonical на БАЗОВЫЙ URL — Google схлопывает
+   все четыре в одну страницу и выкидывает hreflang. С собственным canonical
+   варианты индексируются раздельно."
+  (let ((lang *query-lang*))
+    (if lang
+        (if (position #\? path)
+            (format nil "~A&lang=~A" path lang)
+            (format nil "~A?lang=~A" path lang))
+        path)))
+
 (defun jsonld-topic-posting (topic first-post)
   "DiscussionForumPosting для темы форума.
    TOPIC — plist из get-topic, FIRST-POST — СТРОКА из get-posts

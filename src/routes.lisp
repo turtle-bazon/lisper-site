@@ -3,6 +3,12 @@
 (defun env-method (env)
   (getf env :request-method))
 
+(defun get-or-head-p (env)
+  "GET или HEAD. Мониторы и краулеры часто проверяют страницу HEAD-запросом;
+   при :GET-фильтре в роутере такой запрос уходил в 404 (GET /forum = 200,
+   HEAD /forum = 404) — сайт выглядел сломанным."
+  (member (env-method env) '(:get :head) :test #'eq))
+
 (defun security-headers ()
   "Return security headers as a plist."
   (list :x-content-type-options "nosniff"
@@ -45,6 +51,7 @@
     (let* ((path (getf env :path-info))
            (*lang* (or (query-lang env)
                            (detect-language env)))
+           (*query-lang* (query-lang env))
            (*path* path)
            (*site-url* (request-site-url env))
            (user (ignore-errors (current-user env))))
@@ -119,37 +126,37 @@
 
 
              ;; Auth routes
-            ((and (string= path "/login") (eq (env-method env) :GET))
+            ((and (string= path "/login") (get-or-head-p env))
              `(200 (:content-type "text/html; charset=utf-8")
                    (,(forum-page-login user nil))))
             ((and (string= path "/login") (eq (env-method env) :POST))
              (handle-login env))
-             ((and (string= path "/register") (eq (env-method env) :GET))
+             ((and (string= path "/register") (get-or-head-p env))
               `(200 (:content-type "text/html; charset=utf-8")
                     (,(forum-page-register user nil (registration-closed-p)))))
              ((and (string= path "/register") (eq (env-method env) :POST))
               (handle-register env))
-            ((and (string= path "/logout") (eq (env-method env) :GET))
+            ((and (string= path "/logout") (get-or-head-p env))
              (handle-logout env))
-            ((and (string= path "/rules") (eq (env-method env) :GET))
+            ((and (string= path "/rules") (get-or-head-p env))
              `(200 (:content-type "text/html; charset=utf-8")
                    (,(forum-page-rules user))))
 
             ;; Поиск по блогам и форуму
-            ((and (string= path "/search") (eq (env-method env) :GET))
+            ((and (string= path "/search") (get-or-head-p env))
              (let* ((qs (or (parse-query-string env) (make-hash-table :test #'equal)))
                     (q (gethash "q" qs)))
                `(200 (:content-type "text/html; charset=utf-8")
                      (,(forum-page-search user q)))))
 
             ;; Теги блогов (облако) + посты по тегу — ДО префиксного /blog/<user>
-            ((and (string= path "/blog/tags") (eq (env-method env) :GET))
+            ((and (string= path "/blog/tags") (get-or-head-p env))
              `(200 (:content-type "text/html; charset=utf-8")
                    (,(blog-page-tags user))))
 
             ((and (>= (length path) 10)
                   (string= (subseq path 0 10) "/blog/tag/")
-                  (eq (env-method env) :GET))
+                  (get-or-head-p env))
              (let* ((tag (subseq path 10))
                     (qs (or (parse-query-string env) (make-hash-table :test #'equal)))
                     (start (max 0 (or (ignore-errors (parse-integer (gethash "start" qs))) 0))))
@@ -157,7 +164,7 @@
                      (,(blog-page-tag user tag start)))))
 
             ;; Блоги
-            ((and (string= path "/blog") (eq (env-method env) :GET))
+            ((and (string= path "/blog") (get-or-head-p env))
              (let* ((qs (or (parse-query-string env) (make-hash-table :test #'equal)))
                     (start (max 0 (or (ignore-errors (parse-integer (gethash "start" qs))) 0)))
                     (year (ignore-errors (parse-integer (gethash "year" qs))))
@@ -165,7 +172,7 @@
                `(200 (:content-type "text/html; charset=utf-8")
                      (,(blog-page-feed user start year month)))))
 
-            ((and (string= path "/blog/new") (eq (env-method env) :GET))
+            ((and (string= path "/blog/new") (get-or-head-p env))
              (if user
                  `(200 (:content-type "text/html; charset=utf-8")
                        (,(blog-page-form user :mode "new")))
@@ -181,20 +188,20 @@
              (handle-blog-delete env user))
 
             ;; Forum routes
-            ((and (string= path "/forum") (eq (env-method env) :GET))
+            ((and (string= path "/forum") (get-or-head-p env))
              `(200 (:content-type "text/html; charset=utf-8")
                    (,(forum-page-index user))))
 
             ;; Category page
             ((and (>= (length path) 7)
                   (string= (subseq path 0 7) "/forum/")
-                  (eq (env-method env) :GET))
+                  (get-or-head-p env))
              (let ((slug (subseq path 7)))
                `(200 (:content-type "text/html; charset=utf-8")
                      (,(forum-page-category slug user)))))
 
             ;; New topic GET
-            ((and (string= path "/new-topic") (eq (env-method env) :GET))
+            ((and (string= path "/new-topic") (get-or-head-p env))
              (let* ((qs (parse-query-string env))
                     (cat (when qs (gethash "category" qs)))
                     (throttled (and qs (gethash "throttled" qs))))
@@ -208,18 +215,20 @@
             ;; Topic page
             ((and (>= (length path) 7)
                   (string= (subseq path 0 7) "/topic/")
-                  (eq (env-method env) :GET))
+                  (get-or-head-p env))
              (let* ((id (ignore-errors
                          (parse-integer (subseq path 7))))
                     (qs (parse-query-string env))
                     (throttled (and qs (gethash "throttled" qs))))
                (when (and id user)
                  (mark-topic-read id (session-user-id user)))
-               (if id
-                   `(200 (:content-type "text/html; charset=utf-8")
-                         (,(forum-page-topic id user throttled)))
-                   '(404 (:content-type "text/html; charset=utf-8")
-                     ("<h1>404</h1>")))))
+               ;; Отсутствующая тема = настоящий 404, а не 200 со страницей
+               ;; «не найдено»: иначе Google считает это soft-404.
+(if (and id (get-topic id))
+                    `(200 (:content-type "text/html; charset=utf-8")
+                          (,(forum-page-topic id user throttled)))
+                    `(404 (:content-type "text/html; charset=utf-8")
+                          (,(forum-page-not-found user))))))
 
             ;; Подписка на тему: /topic/<id>/subscribe (POST)
             ((and (>= (length path) 10)
@@ -228,7 +237,7 @@
              (handle-subscribe env user))
 
             ;; Мои подписки
-            ((and (string= path "/subscriptions") (eq (env-method env) :GET))
+            ((and (string= path "/subscriptions") (get-or-head-p env))
              (if user
                  `(200 (:content-type "text/html; charset=utf-8")
                        (,(forum-page-subscriptions user)))
@@ -249,13 +258,18 @@
             ;; User profile
             ((and (>= (length path) 6)
                   (string= (subseq path 0 6) "/user/")
-                  (eq (env-method env) :GET))
+                  (get-or-head-p env))
              (let ((name (subseq path 6)))
-               `(200 (:content-type "text/html; charset=utf-8")
-                     (,(forum-page-user name user)))))
+               ;; Несуществующий пользователь = 404, а не 200 со страницей
+               ;; «не найдено» (soft-404 для Google).
+               (if (get-user-by-name name)
+                   `(200 (:content-type "text/html; charset=utf-8")
+                         (,(forum-page-user name user)))
+                   `(404 (:content-type "text/html; charset=utf-8")
+                         (,(forum-page-not-found user))))))
 
             ;; Admin: user list
-            ((and (string= path "/admin/users") (eq (env-method env) :GET))
+            ((and (string= path "/admin/users") (get-or-head-p env))
              (if (and user (user-admin-p user))
                  `(200 (:content-type "text/html; charset=utf-8")
                         (,(forum-page-admin-users user)))
@@ -263,7 +277,7 @@
                     (,(format nil "<h1>~A</h1>" (tr :403))))))
 
 ;; Admin: analytics dashboard
-            ((and (string= path "/admin/analytics") (eq (env-method env) :GET))
+            ((and (string= path "/admin/analytics") (get-or-head-p env))
              (if (and user (user-admin-p user))
                  (let ((bot-filter (analytics-parse-tab (getf env :query-string)))
                        (host-filter (analytics-parse-host (getf env :query-string)))
@@ -295,7 +309,7 @@
              (handle-toggle-registration env user))
 
             ;; Admin: категории форума
-            ((and (string= path "/admin/categories") (eq (env-method env) :GET))
+            ((and (string= path "/admin/categories") (get-or-head-p env))
              (if (and user (user-admin-p user))
                  `(200 (:content-type "text/html; charset=utf-8")
                        (,(forum-page-admin-categories
@@ -316,7 +330,7 @@
             ;; Hidden analytics URL (no login): /analytics/<admin-secret>
             ;; Для владельца, если сессия недоступна; /admin/* по-прежнему
             ;; только по admin-сессии.
-            ((and (eq (env-method env) :GET)
+            ((and (get-or-head-p env)
                   (config :admin-secret)
                   (string= path (format nil "/analytics/~A" (config :admin-secret))))
              (let ((bot-filter (analytics-parse-tab (getf env :query-string)))
@@ -329,7 +343,7 @@
             ;; Блоги: /blog/<user>[/<slug>][/edit]
             ((and (>= (length path) 6)
                   (string= (subseq path 0 6) "/blog/")
-                  (eq (env-method env) :GET))
+                  (get-or-head-p env))
              (let* ((rest (subseq path 6))
                     (parts (remove "" (split-sequence:split-sequence #\/ rest)
                                    :test #'string=))
@@ -338,9 +352,14 @@
                     (month (ignore-errors (parse-integer (gethash "month" qs)))))
                (cond
                  ((= (length parts) 1)
-                  `(200 (:content-type "text/html; charset=utf-8")
-                        (,(blog-page-user user (first parts)
-                                          :year year :month month))))
+                  ;; Несуществующий автор = 404, а не 200 со страницей
+                  ;; «не найдено» (soft-404 для Google).
+                  (if (get-user-by-name (first parts))
+                      `(200 (:content-type "text/html; charset=utf-8")
+                            (,(blog-page-user user (first parts)
+                                              :year year :month month)))
+                      `(404 (:content-type "text/html; charset=utf-8")
+                            (,(forum-page-not-found user)))))
                  ((= (length parts) 2)
                   (let ((post (get-blog-post-by-slug
                                (first parts) (second parts))))
@@ -736,14 +755,18 @@
 
 (defun handle-blog-view (env user rest)
   "rest = всё после /blog/: <user> | <user>/<slug> | <user>/<slug>/edit"
-  (declare (ignore env))
   (let* ((parts (remove "" (split-sequence:split-sequence #\/ rest)
                         :test #'string=))
          (n (length parts)))
     (cond
       ((= n 1)
-       `(200 (:content-type "text/html; charset=utf-8")
-             (,(blog-page-user user (first parts)))))
+       ;; Несуществующий автор = 404, а не 200 со страницей «не найдено»
+       ;; (soft-404 для Google), как и с отсутствующей темой.
+       (if (get-user-by-name (first parts))
+           `(200 (:content-type "text/html; charset=utf-8")
+                 (,(blog-page-user user (first parts))))
+           `(404 (:content-type "text/html; charset=utf-8")
+                 (,(forum-page-not-found user)))))
       ((= n 2)
        `(200 (:content-type "text/html; charset=utf-8")
              (,(blog-page-post user (first parts) (second parts)))))
