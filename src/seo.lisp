@@ -120,17 +120,11 @@
                  (when new (return-from redirect-for-path new)))))))
 
 (defun seo/maybe-redirect (path)
-  "Ответ 301 для legacy-URL или NIL. Динамические правила:
-     /forum/thread/<id>[/pageN] -> /topic/<id>
-     /feeds/*                   -> /rss"
-  (let* ((tid (cl-ppcre:register-groups-bind (id)
-                  ("^/forum/thread/(\\d+)" path)
-                (parse-integer id))))
-    (cond
-      (tid
-       `(301 (:location ,(format nil "/topic/~D" tid)
-               :content-type "text/plain; charset=utf-8")
-              ("")))
+  "Ответ 301 для legacy-URL из таблицы redirects или NIL.
+   Динамическое правило /forum/thread/<id>[/pageN] -> /topic/<id> НЕ здесь:
+   его перехватывал бы catch-all /forum/<slug>, поэтому он вынесен отдельной
+   веткой в make-app (routes.lisp). Здесь остаётся /feeds/* -> /rss."
+  (cond
       ((cl-ppcre:scan "^/feeds/" path)
        `(301 (:location ,(format nil "~A/rss" (site-url))
                :content-type "text/plain; charset=utf-8")
@@ -145,7 +139,7 @@
                ;; страховка от кривых данных в таблице
                `(301 (:location ,(format nil "~A~A" (site-url) new)
                        :content-type "text/plain; charset=utf-8")
-                      ("")))))))))
+                      (""))))))))
 
 ;;; --- robots.txt ---------------------------------------------------------
 

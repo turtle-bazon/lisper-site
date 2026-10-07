@@ -192,13 +192,33 @@
              `(200 (:content-type "text/html; charset=utf-8")
                    (,(forum-page-index user))))
 
+            ;; Legacy thread URL /forum/thread/<id>[/pageN] — 301 на /topic/<id>.
+            ;; Именно ЗДЕСЬ, а не в запасной ветке seo/maybe-redirect: ниже есть
+            ;; catch-all /forum/<slug>, который иначе перехватывает эти пути и
+            ;; отдаёт 200 со страницей категории вместо редиректа.
+            ((and (>= (length path) 14)
+                  (string= (subseq path 0 14) "/forum/thread/")
+                  (get-or-head-p env))
+             (let* ((rest (subseq path 14))
+                    (tid (cl-ppcre:register-groups-bind (id)
+                            ("^(\\d+)" rest)
+                          (parse-integer id))))
+               `(301 (:location ,(format nil "/topic/~D" (or tid 0))
+                       :content-type "text/plain; charset=utf-8")
+                      (""))))
+
             ;; Category page
             ((and (>= (length path) 7)
                   (string= (subseq path 0 7) "/forum/")
                   (get-or-head-p env))
              (let ((slug (subseq path 7)))
-               `(200 (:content-type "text/html; charset=utf-8")
-                     (,(forum-page-category slug user)))))
+               ;; Несуществующий раздел = 404, а не 200 со страницей
+               ;; «не найдено» (soft-404).
+               (if (get-category-by-slug slug)
+                   `(200 (:content-type "text/html; charset=utf-8")
+                         (,(forum-page-category slug user)))
+                   `(404 (:content-type "text/html; charset=utf-8")
+                         (,(forum-page-not-found user))))))
 
             ;; New topic GET
             ((and (string= path "/new-topic") (get-or-head-p env))
