@@ -130,20 +130,26 @@
          (".lang-dropdown.open .lang-dropdown-menu"
           :display "block")
 
-         (".lang-dropdown-menu a"
+         (".lang-dropdown-menu button"
           :display "block"
+          :width "100%"
           :padding "6px 10px"
           :color "#999"
-          :text-decoration "none"
+          :background "none"
+          :border "none"
+          :font-family "inherit"
           :font-size "0.82rem"
+          :text-align "left"
+          :text-decoration "none"
+          :cursor "pointer"
           :border-radius "6px"
           :transition "color 0.15s, background 0.15s")
 
-         (".lang-dropdown-menu a:hover"
+         (".lang-dropdown-menu button:hover"
           :color "#e0e0e0"
           :background "rgba(255, 255, 255, 0.05)")
 
-         (".lang-dropdown-menu a.active"
+         (".lang-dropdown-menu button.active"
           :color "#a855f7"
           :font-weight 600
           :background "rgba(168, 85, 247, 0.1)")

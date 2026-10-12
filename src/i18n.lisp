@@ -218,15 +218,46 @@
 ;;; /set-lang: выбор языка + cookie
 ;;; ------------------------------------------------------------
 
+(defun local-path-p (u)
+  "T если u — относительный путь нашего сайта: начинается с /, но не с //
+   (protocol-relative) и не с /\\ (браузеры нормализуют /\\ в //)."
+  (and (plusp (length u))
+       (char= (char u 0) #\/)
+       (or (= (length u) 1)
+           (not (member (char u 1) (list #\/ (code-char 92)))))))
+
+(defun safe-next-path (url)
+  "Параметр next приходит от клиента — принимаем ТОЛЬКО относительный путь.
+   Абсолютный URL здесь недопустим: /set-lang?lang=ru&next=https://evil.example
+   иначе станет open redirect."
+  (when (and url (stringp url))
+    (let ((u (string-trim '(#\Space #\Tab #\Newline #\Return) url)))
+      (when (local-path-p u) u))))
+
+(defun referer-local-path (referer)
+  "Referer приходит полным URL (http://lisper.ru/blog?x=1) — режем до пути.
+   Нужно, чтобы /set-lang без next= возвращал пользователя на ту же страницу."
+  (when (and referer (stringp referer))
+    (let* ((u (string-trim '(#\Space #\Tab #\Newline #\Return) referer))
+           (sep (and (plusp (length u)) (search "://" u))))
+      (cond ((local-path-p u) u)
+            ((and sep (plusp sep)
+                  (member (string-downcase (subseq u 0 sep))
+                          '("http" "https") :test #'string=))
+             (let* ((after (subseq u (+ sep 3)))
+                    (slash (position #\/ after)))
+               (when slash (subseq after slash))))
+            (t nil)))))
+
 (defun handle-set-lang (env)
   "Ставит cookie lang и редиректит обратно (next или Referer или '/')."
   (let* ((qs (parse-query-string env))
          (lang (when qs (gethash "lang" qs)))
          (next (when qs (gethash "next" qs))))
     (if (and lang (member lang *languages* :test #'string-equal))
-        (let ((back (cond ((and next (plusp (length next))) next)
-                          ((i18n-header env "referer") (i18n-header env "referer"))
-                          (t "/"))))
+        (let ((back (or (safe-next-path next)
+                        (referer-local-path (i18n-header env "referer"))
+                        "/")))
           `(302 (:set-cookie ,(format nil "lang=~A; Path=/; Max-Age=31536000"
                                       (normalize-lang lang))
                              :location ,back)
@@ -240,7 +271,14 @@
 (defun render-lang-switch ()
   "Выпадающий переключатель языка → /set-lang?lang=..&next=*path*.
    Текущий язык — заголовок кнопки, в меню подсвечен (клиентский JS в site.lisp
-   открывает/закрывает меню по клику)."
+   открывает/закрывает меню по клику).
+
+   Пункты меню — <button data-url=...>, а НЕ <a href=...>: меню и так
+   недоступно без JS (.lang-dropdown-menu{display:none}, открывает только
+   .open из site-init-lang), но каждый href Google видел на КАЖДОЙ странице
+   сайта и краулил — в GSC это ~700 страниц × 4 языка = тысячи URL
+   «Заблокировано robots.txt» (/set-lang запрещён в robots.txt).
+   Теперь URL лежит в data-url, куда его читает site-init-lang."
   (cl-who:with-html-output-to-string (s)
     (:div :class "lang-dropdown"
       (:button :class "lang-dropdown-btn" :type "button"
@@ -252,8 +290,9 @@
         (loop for lang in (sort (copy-list *languages*) #'string-lessp
                                 :key (lambda (l) (or (language-label l) (string-upcase l))))
               do (cl-who:htm
-                  (:a :class (when (string= lang *lang*) "active")
-                      :href (format nil "/set-lang?lang=~A&next=~A"
-                                    lang (url-encode *path*))
+                  (:button :type "button"
+                      :class (when (string= lang *lang*) "active")
+                      :data-url (format nil "/set-lang?lang=~A&next=~A"
+                                        lang (url-encode *path*))
                       :title (or (language-label lang) (string-upcase lang))
                       (cl-who:str (or (language-label lang) (string-upcase lang))))))))))

@@ -15,6 +15,7 @@
     (:admin . "Yönetici")
     (:analytics . "Analitik")
 
+    (:hero-subtitle . "Common Lisp hakkında, Common Lisp ile yazılmış bir site: tarayıcınızda gerçek bir REPL, Lisp ile yazılmış oyunlar, forum ve blog, makale ve viki arşivi.")
     (:what . "Common Lisp nedir")
     (:what-p1 . "Dinamik tiplendirme, makrolar ve ANSI standardına sahip güçlü bir Common Lisp lehçesi. 1984'ten beri var ve hâlâ aktif olarak geliştiriliyor.")
     (:what-p2 . "Karmaşık sistemler, yapay zekâ, sembolik hesaplama ve deneyler için vazgeçilmezdir.")

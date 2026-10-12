@@ -411,21 +411,39 @@
                          ((jscl::oget e "stopPropagation"))
                          (site-close-repl)))))))
 
+(defun lang-option-setup (opt)
+  "Клик по пункту языка = переход на его data-url.
+   Пункты — <button data-url>, а не <a href>: href сделал бы их краулируемыми,
+   и Google видел бы /set-lang?lang=..&next=<каждая страница> на каждой
+   странице сайта (см. render-lang-switch в i18n.lisp)."
+  (listen opt "click"
+          (lambda (e)
+            (declare (ignore e))
+            (let ((url (cl-str ((jscl::oget opt "getAttribute") #j"data-url"))))
+              (setf (jscl::oget (jscl::oget #j:document "location") "href")
+                    (js-str url))))))
+
+(defun lang-dropdown-setup (dd)
+  "Обработчики одного .lang-dropdown: открытие/закрытие меню + пункты языка."
+  (let ((btn ((jscl::oget dd "querySelector") #j".lang-dropdown-btn")))
+    (when (not (eq btn #j:null))
+      (listen btn "click"
+              (lambda (e)
+                ((jscl::oget e "stopPropagation"))
+                (if (has-class-p dd "open")
+                    (remove-class dd "open")
+                    (add-class dd "open"))
+                (if (has-class-p dd "open")
+                    ((jscl::oget btn "setAttribute") #j"aria-expanded" #j"true")
+                    ((jscl::oget btn "setAttribute") #j"aria-expanded" #j"false"))))))
+  (let ((opts ((jscl::oget dd "querySelectorAll") #j".lang-dropdown-menu button")))
+    (loop for j from 0 below (jscl::oget opts "length")
+          do (lang-option-setup (jscl::oget opts j)))))
+
 (defun site-init-lang ()
   (let ((dropdowns (qsa ".lang-dropdown")))
     (loop for i from 0 below (qsa-len dropdowns)
-          do (let ((dd (qsa-item dropdowns i)))
-               (let ((btn ((jscl::oget dd "querySelector") #j".lang-dropdown-btn")))
-                 (when (not (eq btn #j:null))
-                   (listen btn "click"
-                           (lambda (e)
-                             ((jscl::oget e "stopPropagation"))
-                             (if (has-class-p dd "open")
-                                 (remove-class dd "open")
-                                 (add-class dd "open"))
-                             (if (has-class-p dd "open")
-                                 ((jscl::oget btn "setAttribute") #j"aria-expanded" #j"true")
-                                 ((jscl::oget btn "setAttribute") #j"aria-expanded" #j"false")))))))))
+          do (lang-dropdown-setup (qsa-item dropdowns i))))
   (listen #j:document "click"
           (lambda (e)
             (declare (ignore e))

@@ -68,7 +68,7 @@
         (:meta :name "viewport" :content "width=device-width, initial-scale=1")
         (:title "lisper — Common Lisp")
         (:meta :name "description"
-               :content (cl-who:str (tr :hero-subtitle)))
+               :content (tr :hero-subtitle))
         (:link :rel "canonical" :href (format nil "~A/" (site-url)))
         (loop for lang in *languages*
               do (cl-who:htm

@@ -393,15 +393,22 @@
                  ((= (length parts) 2)
                   (let ((post (get-blog-post-by-slug
                                (first parts) (second parts))))
-                    (when (and post
-                               (not (and user
-                                         (= (getf user :id)
-                                            (getf post :user-id))))
-                               (not (bot-user-agent-p
-                                     (request-user-agent env))))
-                      (increment-blog-post-views (getf post :id)))
-                    `(200 (:content-type "text/html; charset=utf-8")
-                          (,(blog-page-post user (first parts) (second parts))))))
+                    ;; Несуществующий пост = 404, а не 200 со страницей
+                    ;; «не найдено»: без этой проверки Google краулит
+                    ;; бесконечное пространство /blog/<user>/<anything>.
+                    ;; Зеркалит ветку /blog/<user> выше.
+                    (if post
+                        (progn
+                          (when (and (not (and user
+                                                (= (getf user :id)
+                                                   (getf post :user-id))))
+                                     (not (bot-user-agent-p
+                                           (request-user-agent env))))
+                            (increment-blog-post-views (getf post :id)))
+                          `(200 (:content-type "text/html; charset=utf-8")
+                                (,(blog-page-post user (first parts) (second parts)))))
+                        `(404 (:content-type "text/html; charset=utf-8")
+                              (,(forum-page-not-found user))))))
                  ((and (= (length parts) 3)
                        (string= (third parts) "edit"))
                   (if user

@@ -15,6 +15,7 @@
     (:admin . "Admin")
     (:analytics . "Analytics")
 
+    (:hero-subtitle . "A site about Common Lisp written in Common Lisp: a real REPL in your browser, games written in Lisp, a forum and a blog, an archive of articles and a wiki.")
     (:what . "What is Common Lisp")
     (:what-p1 . "A powerful Common Lisp dialect with dynamic typing, macros and an ANSI standard. Around since 1984 and still actively developed.")
     (:what-p2 . "Indispensable for complex systems, AI, symbolic computing and experiments.")
