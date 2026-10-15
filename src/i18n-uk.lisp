@@ -183,6 +183,8 @@
     (:blog-of . "Блог")
     (:blog-empty . "Постів поки немає.")
     (:older-posts . "Попередні пости →")
+    (:newer-topics . "← Новіші теми")
+    (:older-topics . "Старіші теми →")
     (:blog-archive . "Архів за місяцями")
     (:blog-filter . "Показано пости за")
      (:blog-all-posts . "показати всі")

@@ -183,6 +183,8 @@
     (:blog-of . "Blogu")
     (:blog-empty . "Henüz yazı yok.")
     (:older-posts . "Daha eski yazılar →")
+    (:newer-topics . "← Yeni konular")
+    (:older-topics . "Daha eski konular →")
     (:blog-archive . "Aylara göre arşiv")
     (:blog-filter . "Gösterilen yazılar:")
      (:blog-all-posts . "tümünü göster")

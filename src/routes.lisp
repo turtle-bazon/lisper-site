@@ -45,6 +45,17 @@
               do (setf (gethash key result) val))
         result))))
 
+(defun query-offset (qs key)
+  "Значение ?start= как неотрицательное смещение, ограниченное сверху.
+   parse-integer на строке из 21+ цифры даёт bignum, а PostgreSQL OFFSET/LIMIT
+   принимает только integer — без ограничения /blog?start=999… падал в 500
+   (ошибка приходит из SQL, handler-case её не ловит). Мусор в параметре
+   (abc, пусто, 20.5, отрицательное) даёт 0 — первая страница."
+  (let ((v (ignore-errors (parse-integer (gethash key qs)))))
+    (if (and (integerp v) (plusp v))
+        (min v 100000)
+        0)))
+
 (defun make-app ()
   (lambda (env)
     (handler-case
@@ -159,14 +170,14 @@
                   (get-or-head-p env))
              (let* ((tag (subseq path 10))
                     (qs (or (parse-query-string env) (make-hash-table :test #'equal)))
-                    (start (max 0 (or (ignore-errors (parse-integer (gethash "start" qs))) 0))))
+                    (start (query-offset qs "start")))
                `(200 (:content-type "text/html; charset=utf-8")
                      (,(blog-page-tag user tag start)))))
 
             ;; Блоги
             ((and (string= path "/blog") (get-or-head-p env))
              (let* ((qs (or (parse-query-string env) (make-hash-table :test #'equal)))
-                    (start (max 0 (or (ignore-errors (parse-integer (gethash "start" qs))) 0)))
+                    (start (query-offset qs "start"))
                     (year (ignore-errors (parse-integer (gethash "year" qs))))
                     (month (ignore-errors (parse-integer (gethash "month" qs)))))
                `(200 (:content-type "text/html; charset=utf-8")
@@ -221,12 +232,18 @@
             ((and (>= (length path) 7)
                   (string= (subseq path 0 7) "/forum/")
                   (get-or-head-p env))
-             (let ((slug (subseq path 7)))
+             (let* ((slug (subseq path 7))
+                    (qs (or (parse-query-string env) (make-hash-table :test #'equal)))
+                    ;; ?start= — пагинация списка тем раздела. Раньше не
+                    ;; читалась вовсе: страница показывала первые 20 тем при
+                    ;; любом start, из-за чего 187 архивных тем оставались
+                    ;; недостижимыми по ссылкам.
+                    (start (query-offset qs "start")))
                ;; Несуществующий раздел = 404, а не 200 со страницей
                ;; «не найдено» (soft-404).
                (if (get-category-by-slug slug)
                    `(200 (:content-type "text/html; charset=utf-8")
-                         (,(forum-page-category slug user)))
+                         (,(forum-page-category slug user start)))
                    `(404 (:content-type "text/html; charset=utf-8")
                          (,(forum-page-not-found user))))))
 

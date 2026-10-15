@@ -184,6 +184,8 @@
     (:blog-of . "Блог")
     (:blog-empty . "Постов пока нет.")
     (:older-posts . "Предыдущие посты →")
+    (:newer-topics . "← Новые темы")
+    (:older-topics . "Более старые темы →")
     (:blog-archive . "Архив по месяцам")
     (:blog-filter . "Показаны посты за")
      (:blog-all-posts . "показать все")

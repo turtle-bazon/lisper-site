@@ -183,6 +183,8 @@
     (:blog-of . "Blog of")
     (:blog-empty . "No posts yet.")
     (:older-posts . "Older posts →")
+    (:newer-topics . "← Newer topics")
+    (:older-topics . "Older topics →")
     (:blog-archive . "Archive by month")
     (:blog-filter . "Showing posts from")
      (:blog-all-posts . "show all")

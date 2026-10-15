@@ -217,17 +217,33 @@
            (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
                         " &copy; 2026 | GPL-3.0")))))))))
 
-(defun forum-page-category (category user)
+(defun category-page-query (start)
+  "Query-строка канонического URL страницы раздела: пустая на первой странице,
+   иначе ?start=N. Пагинация обязана быть в canonical, иначе Google схлопывает
+   все страницы раздела в /forum/<slug> и краулит только первые 20 тем.
+   Возвращаем строку, а не NIL: склеиваем через format с ~A, а ~A от NIL
+   напечатал бы \"NIL\" прямо в URL."
+  (if (and (integerp start) (plusp start))
+      (format nil "?start=~D" start)
+      ""))
+
+(defun category-url (slug start)
+  "Полный путь страницы раздела с учётом пагинации."
+  (format nil "/forum/~A~A" slug (category-page-query start)))
+
+(defun forum-page-category (category user &optional (start 0))
   (let ((cat (get-category-by-slug category)))
     (if cat
-        (let ((topics (get-topics (getf cat :id))))
+        (let* ((id (getf cat :id))
+               (topics (get-topics id start 20))
+               (total (category-topic-count id)))
           (cl-who:with-html-output-to-string (s nil :prologue "<!DOCTYPE html>")
             (cl-who:htm
              (:html :lang *lang*
               (:head (cl-who:str (forum-render-head
                               (format nil "~A — ~A" (getf cat :name) (tr :forum))
                               :description (seo/description (getf cat :description) 200)
-                              :canonical (format nil "/forum/~A" (getf cat :slug)))))
+                              :canonical (concatenate 'string (category-url (getf cat :slug) start)))))
               (:body
                (:div :class "container"
                 (:header (cl-who:str (forum-render-header user)))
@@ -243,18 +259,37 @@
                  (if topics
                      (cl-who:htm
                       (:div :class "topic-list"
-                            (loop for (id title created-at last-post-at post-count username)
-                                  in topics
-                                  do (cl-who:htm
-                                      (:div :class "topic-row"
-                                            (:a :class "topic-link"
-                                                :href (format nil "/topic/~A" id)
-                                                (:span :class "topic-title" (cl-who:str (cl-who:escape-string title)))
-                                                (:span :class "topic-meta"
-                                                       (cl-who:str
-                                                        (tr-format :topic-meta-2 post-count username last-post-at)))))))))
+                       (loop for (tp-id title created-at last-post-at post-count username)
+                             in topics
+                             do (cl-who:htm
+                                 (:div :class "topic-row"
+                                  (:a :class "topic-link"
+                                      :href (format nil "/topic/~A" tp-id)
+                                      (:span :class "topic-title" (cl-who:str (cl-who:escape-string title)))
+                                      (:span :class "topic-meta"
+                                             (cl-who:str
+                                              (tr-format :topic-meta-2 post-count username last-post-at)))))))))
                      (cl-who:htm
-                      (:p :class "empty-state" (cl-who:str (tr :empty-category)))))))
+                      (:p :class "empty-state" (cl-who:str (tr :empty-category)))))
+                 ;; Пагинация. Раньше её не было вообще: get-topics звали без
+                 ;; offset, ?start= игнорировался, и 187 из 275 архивных тем были
+                 ;; в sitemap без единой входящей ссылки (в GSC — «Обнаружено,
+                 ;; но не индексируется»).
+                 (:div :class "pagination"
+                   (when (plusp start)
+                     (cl-who:htm
+                      (:a :class "page-link page-prev"
+                          :href (category-url (getf cat :slug) (max 0 (- start 20)))
+                          (cl-who:str (tr :newer-topics)))))
+                   (:span :class "page-info"
+                          (cl-who:str (format nil "~D / ~D"
+                                              (if (zerop start) 1 (1+ (floor start 20)))
+                                              (max 1 (ceiling total 20)))))
+                   (when (and topics (< (+ start 20) total))
+                     (cl-who:htm
+                      (:a :class "page-link page-next"
+                          :href (category-url (getf cat :slug) (+ start 20))
+                          (cl-who:str (tr :older-topics))))))))
                (:footer (:p (:a :href "https://github.com/turtle-bazon/lisper-site" "lisper")
                              " &copy; 2026 | GPL-3.0")))))))
         (forum-page-not-found user))))

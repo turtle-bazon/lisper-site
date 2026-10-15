@@ -154,6 +154,30 @@
           :font-weight 600
           :background "rgba(168, 85, 247, 0.1)")
 
+         ;; Пагинация списка тем в разделе форума (/forum/<slug>?start=N)
+         (".pagination"
+          :display "flex"
+          :align-items "center"
+          :justify-content "space-between"
+          :gap "12px"
+          :margin-top "28px"
+          :padding-top "18px"
+          :border-top "1px solid #2a2a33")
+
+         (".page-link"
+          :color "#a855f7"
+          :text-decoration "none"
+          :font-size "0.9rem"
+          :transition "color 0.2s")
+
+         (".page-link:hover"
+          :color "#c084fc")
+
+         (".page-info"
+          :color "#666"
+          :font-size "0.85rem"
+          :white-space "nowrap")
+
          (".header-login, .header-register"
           :color "#999"
           :text-decoration "none"
