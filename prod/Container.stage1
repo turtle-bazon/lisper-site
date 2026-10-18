@@ -20,6 +20,22 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     nodejs \
     && rm -rf /var/lib/apt/lists/*
 
+# The image bakes in a quicklisp snapshot (ARG QUICKLISP_DIST), so its dists
+# are frozen at image-build time while the dist we publish to keeps moving —
+# cl-schema-20261016 postdates this image's bazon-public 202624090652, and
+# build.lisp only does ql:quickload, which never refreshes a dist. Without
+# this the build dies with `System "cl-schema" not found`.
+#
+# ALL dists, not just bazon-public: the same staleness can hit any dependency.
+# :prompt nil is required — update-all-dists' PROMPT defaults to T and would
+# block the build waiting on stdin. (It is ql:update-all-dists; there is no
+# ql-dist:update-all-dists.)
+#
+# Deliberately placed BEFORE the COPYs: source edits then reuse this cached
+# layer, so dists only refresh when the base image or this file changes.
+RUN sbcl --non-interactive \
+    --eval '(ql:update-all-dists :prompt nil)'
+
 WORKDIR /app-build
 
 COPY lisper.asd build.lisp build-resources.lisp Makefile ./
