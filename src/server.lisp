@@ -11,10 +11,16 @@
   (analytics-run-rollup)
   (sb-thread:make-thread #'analytics-rollup-loop :name "analytics-rollup")
   (format t "Starting lisper on ~a:~a~%" (config :address) (config :port))
+  ;; :debug t заставляет Wookie вызывать отладчик SBCL В КОНТЕКСТЕ ЗАПРОСА при
+  ;; непойманной ошибке — запрос не завершается никогда, соединение висит, и
+  ;; Cloudflare отдаёт 522 (origin connection timed out). В проде это ловилось
+  ;; как ~5% неудачных запросов при быстром темпе. Поэтому флаг читается из
+  ;; конфига и по умолчанию nil; :debug t — только для локальной отладки.
+  (format t "lisper debug mode: ~a~%" (if (config :debug nil) "ON (errors will hang requests)" "off"))
   (let ((server (clack:clackup (make-app)
                                 :address (config :address)
                                 :port (config :port)
                                 :server :wookie
-                                :debug t)))
+                                :debug (config :debug nil))))
     (declare (ignore server))
     (loop (sleep 1))))

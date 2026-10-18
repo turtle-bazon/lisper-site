@@ -12,7 +12,10 @@
     :db-user "lisper"
     :db-password "lisper"
     :geo-db-path nil
-    :admin-secret nil))
+    :admin-secret nil
+    ;; :debug t = отладчик SBCL в контексте запроса: непойманная ошибка ВЕШАЕТ
+    ;; запрос (Cloudflare отдаёт 522). В проде всегда nil, см. server.lisp.
+    :debug nil))
 
 (defun config-file-paths ()
   (list (probe-file "lisper.conf")

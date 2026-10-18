@@ -19,6 +19,13 @@
  :port 8080
  :log-level :info
 
+ ;; --- Debug mode ---
+ ;; MUST stay nil in production. :debug t makes Wookie invoke the SBCL debugger
+ ;; IN THE CONTEXT OF THE REQUEST: an uncaught error then hangs that request
+ ;; forever and Cloudflare answers 522 (origin connection timed out). Measured
+ ;; ~5% failed requests under a fast request pace with :debug t hardcoded.
+ :debug nil
+
  ;; --- PostgreSQL (quadlet service "postgres" on the lisper network) ---
  :db-host "postgres"
  :db-port 5432
