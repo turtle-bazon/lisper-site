@@ -4,7 +4,14 @@
 (in-package :lisper)
 
 (defun start-server ()
-  (read-config)
+  ;; Невалидный конфиг = фатально. read-config уже напечатал перечень
+  ;; проблем (config-report-errors), здесь — НЕ пускать в дебаггер SBCL:
+  ;; он печатает backtrace и выходит с кодом 0, а quadlet/systemd по коду 0
+  ;; решили бы, что сервер «поработал и завершился», и не рестартанули.
+  (handler-case (read-config)
+    (error (e)
+      (format t "~&~A~%" e)
+      (uiop:quit 1)))
   (handler-case (db-connect)
     (error (e) (format t "~&Warning: DB connect failed: ~A~%" e)))
   (init-geo (config :geo-db-path))
