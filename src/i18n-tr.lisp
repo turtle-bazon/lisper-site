@@ -191,7 +191,7 @@
      (:blog-read-more . "Devamını oku")
     (:blog-placeholder . "Yazı gövdesi (markdown)…")
     (:blog-tags-field . "Etiketler (virgülle ayrılmış)")
-    (:blog-tags-hint . "lisp, clisp, macro, tutorial")
+    (:blog-tags-hint . "lisp, common lisp, macro, tutorial")
     (:blog-tags . "Etiketler")
     (:tags-page-title . "Tüm etiketler")
     (:tag-page-title . "~A etiketiyle gönderiler")

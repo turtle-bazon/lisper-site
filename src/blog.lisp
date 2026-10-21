@@ -48,15 +48,22 @@
     candidate))
 
 (defun normalize-tags (raw)
-  "Сырой ввод тегов (через запятую/пробел) → уникальный lowercase slug через запятую."
+  "Сырой ввод тегов (список через запятую) → уникальные lowercase-теги через запятую.
+   Пробелы ДОПУСТИМЫ внутри тега (\"lisp, common lisp\" → \"lisp\" и \"common lisp\"),
+   но не в начале/конце; множественные пробелы схлопываются. Длина 2–40,
+   символы: буквы/цифры (Unicode) / '-' / пробел. Хранение — через запятую БЕЗ
+   пробелов после неё (get-all-blog-posts-by-tag всё равно читает и \"a, b\")."
   (when (and raw (plusp (length (string-trim " " raw))))
     (let* ((parts (cl-ppcre:split "[,]+" (string-downcase (string-trim " " raw))))
            (tags (remove-duplicates
                   (remove-if-not
                    (lambda (s) (and (>= (length s) 2) (<= (length s) 40)
-                                    (every (lambda (c) (or (alphanumericp c) (char= c #\-)))
-                                           (string-trim " " s))))
-                   (mapcar (lambda (s) (string-trim " " s))
+                                    (every (lambda (c) (or (alphanumericp c)
+                                                           (char= c #\-)
+                                                           (char= c #\Space)))
+                                           s)))
+                   (mapcar (lambda (s)
+                             (string-trim " " (cl-ppcre:regex-replace-all " +" s " ")))
                            parts))
                   :test #'string=)))
       (when tags
@@ -69,8 +76,10 @@
           for trimmed = (string-trim " " tag)
           when (plusp (length trimmed))
             do (cl-who:htm
-                (:a :class "blog-tag" :href (format nil "/blog/tag/~A" trimmed)
-                    (cl-who:str trimmed))))))
+                (:a :class "blog-tag"
+                    :href (cl-who:escape-string
+                           (format nil "/blog/tag/~A" (url-encode trimmed)))
+                    (cl-who:str (cl-who:escape-string trimmed)))))))
 
 (defun create-blog-post (user-id title body &optional (tags ""))
   (let ((slug (unique-blog-slug user-id title))
@@ -147,19 +156,20 @@
         ym lim))))
 
 (defun get-all-blog-posts-by-tag (tag &key (offset 0) (limit 20))
-  "Все посты, помеченные тегом (TAG — слаг). Parameterized + точное границевое
-   совпадение по запятой: tags хранятся как 'a,b,c', ищем '%,a,%'."
-  (let ((pat (concatenate 'string "%,"
-                          (string-downcase (string-trim " " tag))
-                          ",%")))
+  "Все посты с тегом TAG. Теги хранятся как 'a,b,c' (без пробелов после запятой),
+   но чтение терпимо и к 'a, b': сравнение через unnest + btrim + lower —
+   без wildcards ILIKE (тег с %/_ не даст ложных совпадений)."
+  (let ((clean (string-downcase (string-trim " " tag))))
     (postmodern:query
      (concatenate 'string
        "SELECT b.title, b.slug, TO_CHAR(b.created_at,'DD.MM.YYYY HH24:MI'), left(b.body,2000), u.username, b.is_html, b.old_author, b.views, b.tags
         FROM blog_posts b JOIN users u ON u.id=b.user_id
-        WHERE b.tags != '' AND (',' || b.tags || ',') ILIKE $1
+        WHERE b.tags != '' AND EXISTS (
+          SELECT 1 FROM unnest(string_to_array(b.tags, ',')) AS t
+          WHERE lower(btrim(t)) = $1)
         ORDER BY b.created_at DESC OFFSET "
        (format nil "~D LIMIT ~D" (max 0 offset) (max 0 limit)))
-     pat)))
+     clean)))
 
 (defun get-blog-tag-cloud (&optional (limit 50) username)
   "Список (tag count) по частоте использования, наиболее частые.

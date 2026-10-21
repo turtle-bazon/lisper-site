@@ -191,7 +191,7 @@
      (:blog-read-more . "Read more")
     (:blog-placeholder . "Post body (markdown)…")
     (:blog-tags-field . "Tags (comma-separated)")
-    (:blog-tags-hint . "lisp, clisp, macro, tutorial")
+    (:blog-tags-hint . "lisp, common lisp, macro, tutorial")
     (:blog-tags . "Tags")
     (:tags-page-title . "All tags")
     (:tag-page-title . "Posts tagged: ~A")

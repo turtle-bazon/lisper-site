@@ -192,7 +192,7 @@
      (:blog-read-more . "Читать далее")
     (:blog-placeholder . "Текст поста (markdown)…")
     (:blog-tags-field . "Теги (через запятую)")
-    (:blog-tags-hint . "lisp, clisp, macro, tutorial")
+    (:blog-tags-hint . "lisp, common lisp, macro, tutorial")
     (:blog-tags . "Теги")
     (:tags-page-title . "Все теги")
     (:tag-page-title . "Посты по тегу: ~A")

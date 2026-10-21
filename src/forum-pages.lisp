@@ -1094,7 +1094,7 @@
                             (:a :class "blog-tag"
                                 :style (format nil "font-size: ~,2frem" size)
                                 :title (format nil "~D" count)
-                                :href (format nil "/blog/tag/~A" tag)
+                                :href (format nil "/blog/tag/~A" (url-encode tag))
                                 (cl-who:str (cl-who:escape-string tag)))))))))))))
 
 (defun blog-render-date-tree (base-url username current-year current-month)
@@ -1450,7 +1450,7 @@
                       (loop for (tag count) in tags
                             do (cl-who:htm
                                 (:a :class "tag-chip"
-                                    :href (format nil "/blog/tag/~A" tag)
+                                    :href (format nil "/blog/tag/~A" (url-encode tag))
                                     (:span :class "tag-name" (cl-who:str (cl-who:escape-string tag)))
                                     (:span :class "tag-count"
                                            (cl-who:str (format nil "(~D)" count))))))))
