@@ -1264,7 +1264,7 @@
 (:a :class "back-link" :href (format nil "/blog/~A" username)
                       (cl-who:str (format nil "← ~A ~A" (tr :blog-of)
                                            (cl-who:escape-string username))))
-                 (:h2 (cl-who:str (cl-who:escape-string (getf post :title))))
+                 (:h1 (cl-who:str (cl-who:escape-string (getf post :title))))
                  (:div :class "topic-info card-meta"
                   (:a :class "post-author" :href (format nil "/blog/~A" username)
                       (cl-who:str (cl-who:escape-string username)))
