@@ -16,9 +16,6 @@
                 #:jsown
                 #:clingon
                 #:cl-maxminddb
-                ;; Declarative config validation (read-config). Not in
-                ;; quicklisp: must be present in the bazon-lisp-dev image's
-                ;; dists or in quicklisp:*local-project-directories*.
                 #:cl-schema)
   :serial t
   :components ((:module "md"
