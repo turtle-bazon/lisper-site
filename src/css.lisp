@@ -1432,26 +1432,48 @@
          :line-height "1.6")
 
         ;; Markdown rendered content
+        ;; .post-body даёт white-space:pre-wrap (эпоха сырых постов), но в
+        ;; ОТРИСОВАННОМ HTML между блоками стоят переводы строк рендера
+        ;; ("<li>a</li>\n<li>b</li>") — pre-wrap превращает их в сохранённые
+        ;; переносы = фантомная строка (~line-height) межу КАЖДЫМИ элементами.
+        ;; Это и был баг «большие отступы в списках и от заголовков».
+        (".md-content"
+         :white-space "normal")
+
         (".md-content p"
          :margin "0 0 12px")
 
         (".md-content h1"
          :font-size "1.5rem"
-         :margin "20px 0 10px"
+         :margin "16px 0 8px"
          :color "#e0e0e0")
 
         (".md-content h2"
          :font-size "1.3rem"
-         :margin "18px 0 8px"
+         :margin "14px 0 6px"
          :color "#e0e0e0")
 
         (".md-content h3"
          :font-size "1.1rem"
-         :margin "16px 0 6px"
+         :margin "12px 0 4px"
+         :color "#e0e0e0")
+
+        ;; h4–h6 парсер тоже умеет (<h~A>), но ниже h3 они не стилизовались
+        ;; и браузерные дефолты давали 1.33em (~21px) сверху.
+        (".md-content h4"
+         :font-size "1rem"
+         :font-weight 600
+         :margin "12px 0 4px"
+         :color "#e0e0e0")
+
+        (".md-content h5, .md-content h6"
+         :font-size "0.9rem"
+         :font-weight 600
+         :margin "10px 0 4px"
          :color "#e0e0e0")
 
         (".md-content ul, .md-content ol"
-         :margin "0 0 12px 20px"
+         :margin "0 0 8px 20px"
          :padding 0)
 
         (".md-content ul"
@@ -1462,7 +1484,7 @@
          :list-style "decimal")
 
         (".md-content li"
-         :margin "4px 0")
+         :margin "2px 0")
 
         (".md-content ul li"
          :padding-left "20px"
