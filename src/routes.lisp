@@ -58,6 +58,7 @@
 
 (defun make-app ()
   (lambda (env)
+    (db-ensure-connected)
     (handler-case
     (let* ((path (getf env :path-info))
            (*lang* (or (query-lang env)

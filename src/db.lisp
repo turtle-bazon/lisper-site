@@ -33,6 +33,41 @@
   (handler-case (postmodern:disconnect-toplevel)
     (error (e) (format t "~&db-disconnect: ~A~%" e))))
 
+(defun db-reconnect ()
+  "Re-establish the PostgreSQL connection without re-running migrations.
+   Used when the previous connection was lost (server restart, idle timeout,
+   network blip). Returns *db-available*."
+  (handler-case
+      (progn
+        (ignore-errors (postmodern:disconnect-toplevel))
+        (when *db-spec*
+          (apply #'postmodern:connect-toplevel *db-spec*)
+          (setf *db-available* t)
+          (format t "~&DB reconnected.~%")))
+    (error (e)
+      (setf *db-available* nil)
+      (format t "~&DB reconnect failed: ~A~%" e)))
+  *db-available*)
+
+(defun db-ensure-connected ()
+  "Make sure the DB connection is alive; reconnect if it dropped.
+   Called at the start of each request so a lost connection self-heals
+   instead of surfacing as \"Connection to database server lost\" 500s.
+   Returns *db-available*."
+  (unless *db-spec*
+    (return-from db-ensure-connected nil))
+  (when (not *db-available*)
+    (handler-case (db-connect)
+      (error (e) (format t "~&DB connect failed: ~A~%" e)))
+    (return-from db-ensure-connected *db-available*))
+  (handler-case
+      (progn
+        (postmodern:query "SELECT 1")
+        t)
+    (error (e)
+      (format t "~&DB connection lost: ~A~%" e)
+      (db-reconnect))))
+
 (defun get-applied-migrations ()
   "Return sorted list of applied migration version numbers."
   (sort (mapcar #'first
